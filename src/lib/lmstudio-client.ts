@@ -1,53 +1,97 @@
-import { LMStudioClient } from '@lmstudio/sdk';
-
-// LM Studio client singleton
-let client: LMStudioClient | null = null;
-
-export const getLMStudioClient = (): LMStudioClient => {
-  if (!client) {
-    client = new LMStudioClient();
-  }
-  return client;
-};
+// No longer using the SDK as the API for multimodal chat is clearer with a direct fetch
+// import { LMStudioClient } from '@lmstudio/sdk';
 
 export const analyzeImage = async (
   imageBase64: string,
-  prompt: string
+  userPrompt: string,
 ): Promise<{ success: boolean; description?: string; error?: string }> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000); // 2-minute timeout
+
   try {
-    const client = getLMStudioClient();
-    
-    // Get the model (google/gemma-3-12b as specified in requirements)
-    const model = await client.llm.model("google/gemma-3-12b");
-    
-    // Create the full prompt with image
-    const fullPrompt = `${prompt}\n\nImage: [${imageBase64}]`;
-    
-    // Get response from the model
-    const result = await model.respond(fullPrompt);
-    
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'google/gemma-3-12b', // The model to use for the completion
+        messages: [
+          {
+            role: 'system',
+            content: `You are a highly skilled visual analyst AI. Given the image input, describe it in clear, detailed UK English. Focus on the following:
+- Objects or people present
+- Physical setting or location
+- Actions or events taking place
+- Style, mood, or any distinctive features
+Avoid assumptions. Only describe what is visibly present. Keep your description concise but comprehensive.`,
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: userPrompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/jpeg;base64,${imageBase64}`,
+                },
+              },
+            ],
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+      }),
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('LM Studio API response error:', response.status, errorBody);
+      return {
+        success: false,
+        error: `Failed to get a response from the model. Status: ${response.status}. ${errorBody}`,
+      };
+    }
+
+    const result = await response.json();
+    const description = result.choices[0]?.message?.content;
+
+    if (!description) {
+      return {
+        success: false,
+        error: 'The model did not return a description.',
+      };
+    }
+
     return {
       success: true,
-      description: result.content
+      description,
     };
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error('LM Studio analysis error:', error);
+
+    let errorMessage = 'An unknown error occurred.';
+    let isAbortError = false;
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      isAbortError = error.name === 'AbortError';
+    }
+
+    if (errorMessage.includes('fetch failed') || isAbortError) {
+      return {
+        success: false,
+        error:
+          'Could not connect to LM Studio. Please ensure the server is running and accessible at http://127.0.0.1:1234.',
+      };
+    }
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: errorMessage,
     };
-  }
-};
-
-// Utility function to check if LM Studio is available
-export const checkLMStudioConnection = async (): Promise<boolean> => {
-  try {
-    const client = getLMStudioClient();
-    // Try to get model info to test connection
-    await client.llm.model("google/gemma-3-12b");
-    return true;
-  } catch (error) {
-    console.error('LM Studio connection failed:', error);
-    return false;
   }
 }; 

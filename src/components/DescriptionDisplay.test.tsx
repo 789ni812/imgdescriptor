@@ -4,9 +4,21 @@ import { DescriptionDisplay } from './DescriptionDisplay';
 import { DescriptionDisplayProps } from '@/lib/types';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 
-// Mock the LoadingSpinner to simplify testing
+// Mock child components to isolate the DescriptionDisplay component
 jest.mock('./ui/LoadingSpinner', () => ({
+  __esModule: true,
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
+}));
+
+jest.mock('./ui/ErrorMessage', () => ({
+  __esModule: true,
+  ErrorMessage: ({ message }: { message: string }) => <div data-testid="error-message">{message}</div>,
+}));
+
+// Mock react-markdown
+jest.mock('react-markdown', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="markdown-display">{children}</div>,
 }));
 
 const renderComponent = (props: Partial<DescriptionDisplayProps> = {}) => {
@@ -21,21 +33,23 @@ const renderComponent = (props: Partial<DescriptionDisplayProps> = {}) => {
 describe('DescriptionDisplay', () => {
   it('should render a placeholder when no data is provided', () => {
     renderComponent();
-    expect(screen.getByText(/your image description will appear here.../i)).toBeInTheDocument();
+    expect(screen.getByText(/your image analysis will appear here/i)).toBeInTheDocument();
   });
 
   it('should render the description when provided', () => {
-    const testDescription = 'This is a detailed description of the uploaded image.';
+    const testDescription = 'This is a **detailed** description.';
     renderComponent({ description: testDescription });
-    expect(screen.getByText(testDescription)).toBeInTheDocument();
+    const markdownDisplay = screen.getByTestId('markdown-display');
+    expect(markdownDisplay).toBeInTheDocument();
+    expect(markdownDisplay).toHaveTextContent(testDescription);
   });
 
   it('should render an error message when an error is provided', () => {
     const testError = 'Failed to analyze image.';
     renderComponent({ error: testError });
-    expect(screen.getByText(testError)).toBeInTheDocument();
-    // Check for a specific error style/role if applicable
-    expect(screen.getByText(testError)).toHaveClass('text-red-500');
+    const errorMessage = screen.getByTestId('error-message');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(testError);
   });
 
   it('should display the loading spinner when isLoading is true', () => {
@@ -50,8 +64,8 @@ describe('DescriptionDisplay', () => {
       error: 'An error',
     });
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-    expect(screen.queryByText(/A description/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/An error/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('markdown-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('error-message')).not.toBeInTheDocument();
   });
 
   it('should prioritize error state over description', () => {
@@ -60,7 +74,7 @@ describe('DescriptionDisplay', () => {
       description: 'A description',
       error: 'An error',
     });
-    expect(screen.getByText(/An error/i)).toBeInTheDocument();
-    expect(screen.queryByText(/A description/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId('error-message')).toBeInTheDocument();
+    expect(screen.queryByTestId('markdown-display')).not.toBeInTheDocument();
   });
 }); 
