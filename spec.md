@@ -119,7 +119,7 @@ A Next.js application that allows users to upload images and get AI-generated de
 
 ### Phase 2: Core Components - 🟡 **In Progress**
 1.  ✅ Implement image upload functionality
-2.  ⚪ Create image preview component
+2.  ✅ Create image preview component
 3.  ⚪ Build description display component
 
 ### Phase 3: LM Studio Integration - ⚪ **Not Started**
