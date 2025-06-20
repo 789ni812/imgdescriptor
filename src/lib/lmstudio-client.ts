@@ -1,12 +1,9 @@
-// No longer using the SDK as the API for multimodal chat is clearer with a direct fetch
-// import { LMStudioClient } from '@lmstudio/sdk';
-
 export const analyzeImage = async (
   imageBase64: string,
   userPrompt: string,
 ): Promise<{ success: boolean; description?: string; error?: string }> => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120000); // 2-minute timeout
+  const timeoutId = setTimeout(() => controller.abort(), 300000); // 5-minute timeout
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -76,7 +73,7 @@ Avoid assumptions. Only describe what is visibly present. Keep your description 
 
     let errorMessage = 'An unknown error occurred.';
     let isAbortError = false;
-    
+
     if (error instanceof Error) {
       errorMessage = error.message;
       isAbortError = error.name === 'AbortError';
@@ -86,7 +83,7 @@ Avoid assumptions. Only describe what is visibly present. Keep your description 
       return {
         success: false,
         error:
-          'Could not connect to LM Studio. Please ensure the server is running and accessible at http://127.0.0.1:1234.',
+          'Could not connect to LM Studio. Please ensure the server is running, the correct model is loaded, and it is not being unloaded due to system memory pressure.',
       };
     }
     return {

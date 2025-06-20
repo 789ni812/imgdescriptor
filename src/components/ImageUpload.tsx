@@ -3,7 +3,6 @@ import type { ImageUploadProps } from '@/lib/types';
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   onImageSelect,
-  onError,
   acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
   maxSize = 10 * 1024 * 1024, // 10 MB
 }) => {
@@ -13,11 +12,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     if (files && files.length > 0) {
       const file = files[0];
       if (file.size > maxSize) {
-        onError?.(`File is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`);
+        console.error(`File is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`);
         return;
       }
       if (!acceptedFormats.includes(file.type)) {
-        onError?.(`Invalid file type. Accepted formats: ${acceptedFormats.join(', ')}`);
+        console.error(`Invalid file type. Accepted formats: ${acceptedFormats.join(', ')}`);
         return;
       }
       onImageSelect(file);
@@ -67,7 +66,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         name="image-upload"
         type="file"
         className="sr-only"
-        onChange={(e) => handleFileChange(e.target.files)}
+        onChange={(e) => {
+          handleFileChange(e.target.files);
+          // Reset the input value to allow selecting the same file again
+          e.target.value = '';
+        }}
         accept={acceptedFormats.join(',')}
       />
     </label>

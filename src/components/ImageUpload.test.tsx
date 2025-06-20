@@ -39,6 +39,47 @@ describe('ImageUpload', () => {
     expect(mockOnImageSelect).toHaveBeenCalledWith(file);
   });
 
+  it('should not call onImageSelect if the file is too large', () => {
+    // Mock console.error to prevent logging during this test
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const maxSize = 1024; // 1KB for testing
+    renderComponent({ maxSize });
+
+    const inputElement = screen.getByLabelText(/upload an image/i).querySelector('input[type="file"]');
+    expect(inputElement).not.toBeNull();
+
+    // Create a file larger than the max size
+    const largeFile = new File(['a'.repeat(2048)], 'large.png', { type: 'image/png' });
+
+    fireEvent.change(inputElement!, {
+      target: { files: [largeFile] },
+    });
+
+    expect(mockOnImageSelect).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('File is too large'));
+
+    // Clean up the spy
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should not call onImageSelect for an invalid file type', () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    renderComponent();
+    const inputElement = screen.getByLabelText(/upload an image/i).querySelector('input[type="file"]');
+    expect(inputElement).not.toBeNull();
+
+    const invalidFile = new File(['dummy content'], 'test.txt', { type: 'text/plain' });
+
+    fireEvent.change(inputElement!, {
+      target: { files: [invalidFile] },
+    });
+
+    expect(mockOnImageSelect).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid file type'));
+    consoleErrorSpy.mockRestore();
+  });
+
   it('should display a drag and drop message', () => {
     renderComponent();
     expect(screen.getByText(/drag & drop your image here, or click to select/i)).toBeInTheDocument();

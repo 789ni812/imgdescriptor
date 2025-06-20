@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
@@ -17,7 +17,22 @@ export default function Home() {
   // State for any errors
   const [error, setError] = useState<string | null>(null);
 
+  // Effect to clean up the object URL
+  useEffect(() => {
+    // This function will be called when the component unmounts or when previewUrl changes
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleImageSelect = (file: File) => {
+    // If there's an existing preview URL, revoke it before creating a new one
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
     setSelectedFile(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);

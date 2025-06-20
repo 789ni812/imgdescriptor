@@ -21,9 +21,8 @@ export interface ButtonProps {
 
 export interface ImageUploadProps {
   onImageSelect: (file: File) => void;
-  onError?: (error: string) => void;
   acceptedFormats?: string[];
-  maxSize?: number; // in bytes
+  maxSize?: number;
 }
 
 export interface ImagePreviewProps {
