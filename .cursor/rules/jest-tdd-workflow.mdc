@@ -1,0 +1,80 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Enforce Test-Driven Development (TDD) using Jest."
+globs: ["**/*.test.ts", "**/*.spec.ts", "jest.config.ts", "package.json"]
+alwaysApply: true
+---
+# Jest TDD Workflow
+
+Strictly adhere to Test-Driven Development (TDD) principles when implementing features or fixing bugs.
+
+**Environment Setup (Windows + Git Bash):**
+
+- **Use Git Bash:** Always use Git Bash terminal, not PowerShell or CMD for npm commands.
+- **Project Directory:** Ensure you're in the correct project directory (where package.json is) before running tests.
+- **Dependencies:** Install all required testing libraries:
+  ```bash
+  npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @types/jest
+  ```
+- **Jest Config:** Use `jest.config.js` (not .ts) for maximum compatibility:
+  ```js
+  const nextJest = require('next/jest.js');
+  const createJestConfig = nextJest({ dir: './' });
+  const config = {
+    coverageProvider: 'v8',
+    testEnvironment: 'jsdom',
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+    moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
+  };
+  module.exports = createJestConfig(config);
+  ```
+- **npm Scripts:** Use `npx --no jest` in package.json to force local resolution:
+  ```json
+  "test": "npx --no jest",
+  "test:watch": "npx --no jest --watch"
+  ```
+
+**Process:**
+
+1.  **Write a Failing Test:**
+    * Before writing any production code, first write a **minimal** test case that describes the desired behavior.
+    * This test **must fail** when run against the current codebase (because the feature doesn't exist yet).
+    * Focus on the *behavior* of the code, not its internal implementation details.
+    * Place tests alongside components: `ComponentName.test.tsx`.
+2.  **Run Tests (Verify Failure):**
+    * Execute `npm test -- path/to/test/file.test.tsx` to confirm the new test fails.
+    * If it passes, the test is not correct or not truly testing the new functionality.
+3.  **Write Minimal Code to Pass the Test:**
+    * Write *only* the necessary production code to make the *current failing test pass*.
+    * Avoid implementing future features or over-engineering at this stage.
+4.  **Run Tests (Verify Pass):**
+    * Execute `npm test -- path/to/test/file.test.tsx` to confirm all tests (including the new one) now pass.
+5.  **Refactor:**
+    * Once the tests pass, refactor the code to improve its design, readability, and maintainability. Ensure tests continue to pass after refactoring.
+    * The AI *must* re-run tests after any refactoring.
+6.  **Repeat:**
+    * For the next piece of functionality or edge case, go back to step 1.
+
+**Test File Conventions:**
+
+-   Use `.test.ts` or `.spec.ts` suffix for test files.
+-   Place test files alongside their components: `ComponentName.test.tsx`.
+-   Organize tests logically, mirroring the project structure.
+
+**Troubleshooting Common Issues:**
+
+- **Module not found errors:** Ensure all dependencies are installed and you're in the correct directory.
+- **PowerShell execution policy errors:** Always use Git Bash for npm commands.
+- **Jest not found:** Use `npx --no jest` in package.json scripts.
+- **Environment errors:** If issues persist, run:
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm cache clean --force
+  npm install
+  ```
+
+**Important:** The AI *must* run tests using the appropriate `npm test -- file.test.tsx` commands in the terminal after making code changes. If tests fail, the AI *must* identify the issue, propose a fix, apply it, and re-run tests until they pass before considering the task complete. Provide clear log outputs if tests fail.

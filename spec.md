@@ -133,11 +133,28 @@ A Next.js application that allows users to upload images and get AI-generated de
 3.  ✅ Test with various image types
 4.  ✅ Responsive design testing
 
-### Phase 5: Enhanced Description Display - ⚪ **Not Started**
-1.  ⚪ **Parse and Structure Description**: Instead of a single text block, parse the description string based on the `**Category:**` markers.
-2.  ⚪ **Implement Markdown Rendering**: Use a library like `react-markdown` to render the parsed sections, turning `**...**` into bold text.
-3.  ⚪ **Refine Component Layout**: Display the categories and their corresponding text in a clean, readable, structured format (e.g., labeled sections or cards).
-4.  ⚪ **Add "Copy to Clipboard" Feature**: Implement a button to allow the user to copy the raw description text.
+### Phase 5: Enhanced Description Display - ✅ **Complete**
+1.  ✅ **Parse and Structure Description**: Instead of a single text block, parse the description string based on the `**Category:**` markers.
+2.  ✅ **Implement Markdown Rendering**: Use a library like `react-markdown` to render the parsed sections, turning `**...**` into bold text.
+3.  ✅ **Refine Component Layout**: Display the categories and their corresponding text in a clean, readable, structured format (e.g., labeled sections or cards).
+4.  ✅ **Add "Copy to Clipboard" Feature**: Implement a button to allow the user to copy the raw description text.
+
+### Phase 6: AI Story Generation - ⚪ **Not Started**
+1.  **Backend Story Generation:**
+    *   ⚪ Create a new API route at `/api/generate-story`.
+    *   ⚪ This route will accept an `{ description: string }` payload.
+    *   ⚪ It will call the second LM Studio model with a specific story-generation prompt.
+2.  **Frontend UI Components:**
+    *   ⚪ Create a new `StoryDisplay.tsx` component to show the generated story, including its own distinct loading and error states.
+    *   ⚪ Create a "Generate Story" button component that is only visible after a description is successfully loaded.
+    *   ⚪ Write Jest tests for the new components following our TDD workflow.
+3.  **Frontend Integration:**
+    *   ⚪ Add new state variables in `page.tsx` for the story content, loading status, and any potential errors (`story`, `isStoryLoading`, `storyError`).
+    *   ⚪ Update `page.tsx` to call the `/api/generate-story` endpoint when the new button is clicked.
+    *   ⚪ Modify the page layout to display the `StoryDisplay` component on the right-hand side, below the image description.
+4.  **Final Testing:**
+    *   ⚪ Perform end-to-end testing of the full image-to-description-to-story workflow.
+    *   ⚪ Commit the completed feature to GitHub.
 
 ## Dependencies
 ```json

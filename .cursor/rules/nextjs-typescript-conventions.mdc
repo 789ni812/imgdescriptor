@@ -1,0 +1,58 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Guidelines for Next.js and TypeScript development."
+globs: ["**/*.ts", "**/*.tsx", "next.config.js", "package.json"]
+alwaysApply: true
+---
+# Next.js and TypeScript Conventions
+
+As an expert Next.js and TypeScript developer, adhere to the following:
+
+**Environment Setup (Windows + Git Bash):**
+- **Terminal:** Always use Git Bash for npm commands, never PowerShell or CMD.
+- **Project Structure:** Use `src/` directory structure for better organization.
+- **Dependencies:** Install all required testing libraries for Jest integration.
+
+**Next.js Best Practices:**
+- Prefer App Router over Pages Router for new features unless explicitly instructed otherwise.
+- Use `getServerSideProps`, `getStaticProps`, or `getStaticPaths` judiciously for data fetching based on requirements.
+- Optimize images using `next/image`.
+- Use `next/link` for client-side navigation.
+- Organize components into logical directories (e.g., `components`, `pages`, `lib`, `hooks`).
+- Use API Routes (`/pages/api` or `app/api`) for backend functionalities.
+
+**TypeScript Strictness:**
+- Always use strict TypeScript types. Avoid `any` unless absolutely necessary and documented.
+- Define interfaces or types for all complex data structures (props, state, API responses).
+- Ensure proper typing for all function arguments and return values.
+
+**Component Design:**
+- Prefer functional components with React Hooks.
+- Keep components small, focused, and reusable.
+- Use clear and descriptive naming conventions (PascalCase for components, camelCase for variables/functions).
+- Place test files alongside components: `ComponentName.test.tsx`.
+
+**Styling:**
+- If styling is implemented, follow the chosen framework (e.g., Tailwind CSS conventions).
+- Install Tailwind CSS separately if needed:
+  ```bash
+  npm install -D tailwindcss postcss autoprefixer
+  npx tailwindcss init -p
+  ```
+
+**Testing Integration:**
+- Use Jest with Testing Library for component testing.
+- Configure Jest with `jest.config.js` (not .ts) for Windows compatibility.
+- Use `npx --no jest` in package.json scripts to force local resolution.
+- Run tests with: `npm test -- path/to/test/file.test.tsx`
+
+**File Organization:**
+- Use `src/` directory structure
+- Place components in `src/components/`
+- Place utilities in `src/lib/`
+- Place API routes in `src/app/api/`
+- Place test files alongside their components

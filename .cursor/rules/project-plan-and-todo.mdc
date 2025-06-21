@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Rule for creating and managing project plans and todo lists."
+alwaysApply: true
+---
+# Project Planning and Todo List Management
+
+For any new feature or significant task, generate a detailed step-by-step project plan and a corresponding todo list.
+
+**Project Plan Requirements:**
+
+-   **Phased Approach:** Break down the project into logical phases (e.g., Setup, Core Feature, Refinements).
+-   **Step-by-Step Breakdown:** Each phase should have a clear, sequential list of steps.
+-   **Dependencies:** Identify any dependencies between steps or external requirements (e.g., "LM Studio running").
+-   **Expected Outcomes:** Define what should be achieved at the end of each step.
+
+**Todo List Requirements:**
+
+-   **Granular Tasks:** Convert the project plan steps into actionable, small todo list items.
+-   **Prioritization:** Assign a logical order to the todo items.
+-   **TDD Integration:** For each coding-related todo item, explicitly state that the first sub-step is to "Write a failing Jest test for this functionality."
+-   **Completion Check:** Mark items as complete only after the associated tests pass and code is reviewed.
+
+**Workflow for Todo Items:**
+
+1.  **Select Todo Item:** Pick the next item from the todo list.
+2.  **Write Test:** (If applicable) Write a failing Jest test (or tests) that defines the desired outcome of this todo item.
+3.  **Run Test:** Execute the test and confirm it fails.
+4.  **Implement Code:** Write the minimal TypeScript/Next.js code to make the test(s) pass.
+5.  **Run Test:** Execute tests again and confirm they pass.
+6.  **Refactor:** Refactor the code as needed, ensuring tests still pass.
+7.  **Update Plan & Commit:**
+    *   Update the project plan (`spec.md` or equivalent) to mark the todo item as complete.
+    *   Commit the completed work to Git with a clear, conventional commit message (e.g., `feat(components): implement ImageUpload component`).
+8.  **Mark Complete & Move to Next:** Mark the item as fully complete and proceed to the next todo item.
+
+
+**Important:** Always refer to and update the project plan and todo list as progress is made. If a step cannot be completed, clearly state the reason and propose an alternative.

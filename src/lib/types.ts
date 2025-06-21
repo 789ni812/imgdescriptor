@@ -33,8 +33,15 @@ export interface ImagePreviewProps {
 
 export interface DescriptionDisplayProps {
   description: string | null;
-  isLoading?: boolean;
-  error?: string | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Props for the StoryDisplay component
+export interface StoryDisplayProps {
+  story: string | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
 // File Upload Types
@@ -50,4 +57,16 @@ export interface AppError {
   message: string;
   type: 'network' | 'model' | 'file' | 'general';
   details?: string;
-} 
+}
+
+export type AnalysisResult = {
+  success: boolean;
+  description?: string;
+  error?: string;
+};
+
+export type StoryResult = {
+  success: boolean;
+  story?: string;
+  error?: string;
+}; 

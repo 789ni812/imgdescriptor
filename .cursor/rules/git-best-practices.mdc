@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Guidelines for Git commit messages and branching."
+globs: [".git/**/*"]
+alwaysApply: true
+---
+# Git Best Practices
+
+When interacting with Git, follow these guidelines:
+
+- **Commit Messages:**
+    - Write clear, concise, and descriptive commit messages.
+    - Use a conventional commit style (e.g., `feat: add new user authentication`, `fix: resolve login bug`, `docs: update README`).
+    - The subject line should be 50 characters or less, followed by an optional blank line and a more detailed body.
+- **Branching Strategy:**
+    - Work on feature branches for new functionalities (`feature/your-feature-name`).
+    - Use `bugfix/your-bug-name` for bug fixes.
+    - Rebase frequently to keep branches up-to-date with `main` or `develop`.
+
+    - Ensure all changes are committed before starting a new task or switching branches.

@@ -1,0 +1,73 @@
+---
+
+description:
+globs:
+alwaysApply: false
+---
+# Windows Environment Setup (Next.js + Jest)
+
+When working in a Windows environment with Next.js and Jest, follow these specific guidelines to avoid common setup issues.
+
+**Terminal Usage:**
+- **Always use Git Bash:** Never use PowerShell or CMD for npm commands due to execution policy restrictions.
+- **Check current directory:** Always verify you're in the correct project directory before running commands.
+- **Use consistent terminal:** Stick to one terminal type throughout the project.
+
+**Next.js Project Setup:**
+- Create projects with TypeScript and src directory:
+  ```bash
+  npx create-next-app@latest . --typescript --eslint --src-dir --app --no-tailwind --import-alias "@/*"
+  ```
+- Install Tailwind CSS separately if needed:
+  ```bash
+  npm install -D tailwindcss postcss autoprefixer
+  npx tailwindcss init -p
+  ```
+
+**Jest Configuration:**
+- Use `jest.config.js` (JavaScript) instead of `jest.config.ts` for maximum compatibility.
+- Avoid the `ts-jest` preset; Next.js handles TypeScript natively.
+- Required dependencies:
+  ```bash
+  npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @types/jest
+  ```
+
+**Package.json Scripts:**
+- Use `npx --no jest` to force local package resolution:
+  ```json
+  "test": "npx --no jest",
+  "test:watch": "npx --no jest --watch"
+  ```
+- This prevents npx from downloading temporary packages from the internet.
+
+**Common Issues and Solutions:**
+- **PowerShell execution policy:** Always use Git Bash instead.
+- **Module not found:** Ensure all dependencies are installed and you're in the correct directory.
+- **Jest not found:** Use `npx --no jest` in package.json scripts.
+- **Environment errors:** Clean reinstall if issues persist:
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm cache clean --force
+  npm install
+  ```
+
+**Testing Commands:**
+- Run specific test files:
+  ```bash
+  npm test -- src/components/ui/Button.test.tsx
+  ```
+- Run all tests:
+  ```bash
+  npm test
+  ```
+- Watch mode:
+  ```bash
+  npm run test:watch
+  ```
+
+**File Structure:**
+- Place test files alongside components: `ComponentName.test.tsx`
+- Use `src/` directory structure for better organization
+- Keep Jest setup file as `jest.setup.ts`
+
+**Important:** Always verify the environment is working before starting development. Run a simple test to confirm Jest is properly configured.

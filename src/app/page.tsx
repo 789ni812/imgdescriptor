@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
+import { StoryDisplay } from '@/components/StoryDisplay';
+import { Button } from '@/components/ui/Button';
 
 export default function Home() {
   // State for the selected image file
@@ -16,6 +18,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // State for any errors
   const [error, setError] = useState<string | null>(null);
+
+  // New state for the story generation
+  const [story, setStory] = useState<string | null>(null);
+  const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
+  const [storyError, setStoryError] = useState<string | null>(null);
 
   // Effect to clean up the object URL
   useEffect(() => {
@@ -37,10 +44,13 @@ export default function Home() {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
 
-    // Reset states for a new analysis
+    // Reset all states for a new analysis
     setDescription(null);
     setError(null);
-    setIsLoading(true); // Set loading true immediately to show spinner in DescriptionDisplay
+    setIsLoading(true);
+    setStory(null);
+    setStoryError(null);
+    setIsStoryLoading(false);
 
     // Convert file to base64
     const reader = new FileReader();
@@ -81,6 +91,40 @@ export default function Home() {
     };
   };
 
+  const handleGenerateStory = async () => {
+    if (!description) {
+      setStoryError('Cannot generate a story without a description.');
+      return;
+    }
+
+    setIsStoryLoading(true);
+    setStory(null);
+    setStoryError(null);
+
+    try {
+      const response = await fetch('/api/generate-story', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setStory(data.story);
+      } else {
+        setStoryError(data.error || 'An unknown error occurred while generating the story.');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setStoryError(`An unexpected error occurred: ${errorMessage}`);
+    } finally {
+      setIsStoryLoading(false);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-12 bg-gray-900 text-white">
       <div className="w-full max-w-6xl z-10">
@@ -101,6 +145,14 @@ export default function Home() {
           {/* Right Column: Description Display */}
           <div className="p-6 bg-gray-800 rounded-lg shadow-lg min-h-[300px]">
             <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
+            {description && !isLoading && !error && (
+              <div className="mt-4 text-center">
+                <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
+                  {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
+                </Button>
+              </div>
+            )}
+            <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
           </div>
         </div>
       </div>

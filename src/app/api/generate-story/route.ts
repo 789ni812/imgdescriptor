@@ -1,34 +1,37 @@
 import { NextResponse } from 'next/server';
-import { analyzeImage } from '@/lib/lmstudio-client';
-import type { AnalyzeImageRequest } from '@/lib/types';
+import { generateStory } from '@/lib/lmstudio-client';
+
+interface GenerateStoryRequest {
+  description: string;
+}
 
 export async function POST(request: Request) {
   try {
-    const { image, prompt } = (await request.json()) as AnalyzeImageRequest;
+    const { description } = (await request.json()) as GenerateStoryRequest;
 
-    if (!image || !prompt) {
+    if (!description) {
       return NextResponse.json(
-        { success: false, error: 'Image data and prompt are required.' },
+        { success: false, error: 'Description is required.' },
         { status: 400 }
       );
     }
     
-    const analysisResult = await analyzeImage(image, prompt);
+    const storyResult = await generateStory(description);
 
-    if (!analysisResult.success) {
+    if (!storyResult.success) {
       return NextResponse.json(
-        { success: false, error: analysisResult.error },
+        { success: false, error: storyResult.error },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      description: analysisResult.description,
+      story: storyResult.story,
     });
 
   } catch (error) {
-    console.error('API /analyze-image Error:', error);
+    console.error('API /generate-story Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return NextResponse.json(
       { success: false, error: `Server error: ${errorMessage}` },
