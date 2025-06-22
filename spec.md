@@ -256,5 +256,26 @@ The goal of this phase is to transform the functional application into a visuall
 
 - [ ] **Task 8.4: Implement a Two-Column Layout:**
   - [ ] Write tests in `page.test.tsx` to verify a two-column grid layout (`grid`, `grid-cols-2`, `gap-8`).
-  - [ ] Test that input components (`ImageUpload`, `ImagePreview`) are in the first column and output components (`DescriptionDisplay`, `StoryDisplay`) are in the second.
-  - [ ] Refactor `page.tsx` to implement this grid structure. 
+  - [x] Test that input components (`ImageUpload`, `ImagePreview`) are in the first column and output components (`DescriptionDisplay`, `StoryDisplay`) are in the second.
+  - [x] Refactor `page.tsx` to implement this grid structure.
+
+### **Phase 9: Iconography & Action Elements Refinement**
+
+The goal of this phase is to improve usability and visual clarity by making icons and buttons more intuitive and appropriately styled.
+
+- [ ] **Task 9.1: Refine and Control Icon Visibility**
+  - [ ] Write a test in `page.test.tsx` to assert that on initial load, only the `ImageUpload` component is visible.
+  - [ ] Refactor `page.tsx` to conditionally render `ImagePreview`, `DescriptionDisplay`, and `StoryDisplay` only after an image is selected.
+  - [x] Write a test in `page.test.tsx` to assert that on initial load, only the `ImageUpload` component is visible.
+  - [x] Refactor `page.tsx` to conditionally render `ImagePreview`, `DescriptionDisplay`, and `StoryDisplay` only after an image is selected.
+  - [ ] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to check for smaller, more conventional icons.
+  - [ ] Replace placeholder SVG icons with smaller, more appropriate icons from a library or custom SVGs.
+
+- [ ] **Task 9.2: Redesign Buttons for Clarity and Emphasis**
+  - [ ] Write tests in `Button.test.tsx` to check for new base styles (background, padding, hover/focus states).
+  - [ ] Refactor the base `Button.tsx` component to implement these styles.
+  - [ ] Write a test in `page.test.tsx` to verify the "Generate a Story" button has primary action styles.
+  - [ ] Write a test in `ImagePreview.test.tsx` to verify the "Remove Image" button has secondary/destructive action styles.
+  - [ ] Implement these specific button styles.
+  - [ ] Write tests to ensure appropriate spacing around all buttons.
+  - [ ] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing. 

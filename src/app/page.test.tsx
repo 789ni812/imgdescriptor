@@ -56,15 +56,12 @@ describe('Home Page', () => {
     expect(mainGrid).toHaveClass('grid', 'md:grid-cols-2', 'gap-8');
   });
 
-  it('should place input components in the first column and output components in the second', () => {
+  it('should only show the upload component on initial render', () => {
     render(<Home />);
-    
-    const inputColumn = screen.getByTestId('input-column');
-    expect(inputColumn.querySelector('[data-testid="image-upload"]')).toBeInTheDocument();
-    expect(inputColumn.querySelector('[data-testid="image-preview"]')).toBeInTheDocument();
-
-    const outputColumn = screen.getByTestId('output-column');
-    expect(outputColumn.querySelector('[data-testid="description-display"]')).toBeInTheDocument();
+    expect(screen.getByTestId('image-upload')).toBeInTheDocument();
+    expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('description-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('story-display')).not.toBeInTheDocument();
   });
 
   // --- Core Functional Test ---

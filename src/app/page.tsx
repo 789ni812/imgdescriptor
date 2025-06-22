@@ -135,36 +135,40 @@ export default function Home() {
           {/* Left Column: Inputs */}
           <div className="space-y-8" data-testid="input-column">
             <ImageUpload onImageSelect={handleImageSelect} />
-            <ImagePreview 
-              imageUrl={previewUrl} 
-              isLoading={isLoading} 
-              onRemove={() => {
-                setPreviewUrl(null);
-                setSelectedFile(null);
-                setDescription(null);
-                setError(null);
-                setStory(null);
-                setStoryError(null);
-              }}
-            />
+            {previewUrl && (
+              <ImagePreview 
+                imageUrl={previewUrl} 
+                isLoading={isLoading} 
+                onRemove={() => {
+                  setPreviewUrl(null);
+                  setSelectedFile(null);
+                  setDescription(null);
+                  setError(null);
+                  setStory(null);
+                  setStoryError(null);
+                }}
+              />
+            )}
           </div>
 
           {/* Right Column: Outputs */}
-          <div className="space-y-8" data-testid="output-column">
-            <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
-            
-            {description && !isLoading && !error && (
-              <div className="text-center">
-                <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
-                  {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
-                </Button>
-              </div>
-            )}
+          {(previewUrl || description || error || story || storyError) && (
+            <div className="space-y-8" data-testid="output-column">
+              <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
+              
+              {description && !isLoading && !error && (
+                <div className="text-center">
+                  <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
+                    {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
+                  </Button>
+                </div>
+              )}
 
-            { (isStoryLoading || story || storyError) && (
-              <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
-            )}
-          </div>
+              { (isStoryLoading || story || storyError) && (
+                <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </main>
