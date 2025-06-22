@@ -65,6 +65,12 @@ describe('ImagePreview Component - Enhanced UI', () => {
     expect(screen.getByText(/upload an image to see preview/i)).toBeInTheDocument();
   });
 
+  it('should have destructive styles for the remove button', () => {
+    renderComponent({ imageUrl: 'http://localhost/test.png' });
+    const removeButton = screen.getByRole('button', { name: /remove image/i });
+    expect(removeButton).toHaveClass('bg-red-600', 'hover:bg-red-700');
+  });
+
   // --- Existing Functionality Tests ---
 
   it('renders the placeholder when no image is provided', () => {

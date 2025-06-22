@@ -2,6 +2,7 @@ import React from 'react';
 import type { ImagePreviewProps } from '@/lib/types';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 import { ErrorMessage } from './ui/ErrorMessage';
+import { Button } from './ui/Button';
 
 const PlaceholderIcon = () => (
   <svg
@@ -66,14 +67,14 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
             className="max-w-full max-h-full object-contain rounded-lg"
           />
           {onRemove && (
-            <button
-              type="button"
-              className="btn-secondary absolute top-2 right-2 px-3 py-1 text-xs rounded shadow"
+            <Button
+              variant="destructive"
+              className="absolute top-2 right-2"
               onClick={onRemove}
               aria-label="Remove Image"
             >
               Remove Image
-            </button>
+            </Button>
           )}
         </div>
       );

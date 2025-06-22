@@ -269,11 +269,11 @@ The goal of this phase is to improve usability and visual clarity by making icon
   - [x] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to check for smaller, more conventional icons.
   - [x] Replace placeholder SVG icons with smaller, more appropriate icons from a library or custom SVGs.
 
-- [ ] **Task 9.2: Redesign Buttons for Clarity and Emphasis**
-  - [ ] Write tests in `Button.test.tsx` to check for new base styles (background, padding, hover/focus states).
-  - [ ] Refactor the base `Button.tsx` component to implement these styles.
-  - [ ] Write a test in `page.test.tsx` to verify the "Generate a Story" button has primary action styles.
-  - [ ] Write a test in `ImagePreview.test.tsx` to verify the "Remove Image" button has secondary/destructive action styles.
-  - [ ] Implement these specific button styles.
-  - [ ] Write tests to ensure appropriate spacing around all buttons.
-  - [ ] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing. 
+- [x] **Task 9.2: Redesign Buttons for Clarity and Emphasis**
+  - [x] Write tests in `Button.test.tsx` to check for new base styles (background, padding, hover/focus states).
+  - [x] Refactor the base `Button.tsx` component to implement these styles.
+  - [x] Write a test in `page.test.tsx` to verify the "Generate a Story" button has primary action styles.
+  - [x] Write a test in `ImagePreview.test.tsx` to verify the "Remove Image" button has secondary/destructive action styles.
+  - [x] Implement these specific button styles.
+  - [x] Write tests to ensure appropriate spacing around all buttons.
+  - [x] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing. 
