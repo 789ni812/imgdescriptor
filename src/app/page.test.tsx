@@ -50,6 +50,23 @@ describe('Home Page', () => {
     expect(mainContainer).toHaveClass('max-w-7xl', 'mx-auto', 'p-4', 'sm:p-6', 'lg:p-8', 'space-y-8');
   });
 
+  it('should implement a two-column grid layout on medium screens', () => {
+    render(<Home />);
+    const mainGrid = screen.getByTestId('main-content-container').querySelector('div');
+    expect(mainGrid).toHaveClass('grid', 'md:grid-cols-2', 'gap-8');
+  });
+
+  it('should place input components in the first column and output components in the second', () => {
+    render(<Home />);
+    
+    const inputColumn = screen.getByTestId('input-column');
+    expect(inputColumn.querySelector('[data-testid="image-upload"]')).toBeInTheDocument();
+    expect(inputColumn.querySelector('[data-testid="image-preview"]')).toBeInTheDocument();
+
+    const outputColumn = screen.getByTestId('output-column');
+    expect(outputColumn.querySelector('[data-testid="description-display"]')).toBeInTheDocument();
+  });
+
   // --- Core Functional Test ---
   it('should handle image upload, show preview, and display description', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({

@@ -132,8 +132,8 @@ export default function Home() {
         className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Left Column: Image Upload and Preview */}
-          <div className="space-y-6">
+          {/* Left Column: Inputs */}
+          <div className="space-y-8" data-testid="input-column">
             <ImageUpload onImageSelect={handleImageSelect} />
             <ImagePreview 
               imageUrl={previewUrl} 
@@ -149,8 +149,8 @@ export default function Home() {
             />
           </div>
 
-          {/* Right Column: Description Display and Story */}
-          <div className="space-y-6">
+          {/* Right Column: Outputs */}
+          <div className="space-y-8" data-testid="output-column">
             <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
             
             {description && !isLoading && !error && (
