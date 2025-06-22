@@ -38,8 +38,8 @@ The goal of this phase is to improve usability and visual clarity by making icon
   - **TDD:** Wrote a failing test to assert the upload icon has `w-12` and `h-12` classes. Updated the component to pass the test.
   - **Commit:** `feat(icons): reduce icon size to w-12 h-12`.
 
-- **Task 9.4: Correctly Scale Upload Icon Size and Stroke** - *Current Task*
-  - **TDD:** Write failing tests to:
+- **Task 9.4: Correctly Scale Upload Icon Size and Stroke** - *Complete*
+  - **TDD:** Wrote failing tests to:
     1.  Add custom CSS to `globals.css` for controlling heroicon `stroke-width`.
     2.  Update `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` is larger (e.g., `w-16 h-16`) and has a custom stroke-width class (e.g., `heroicon-stroke-1`).
   - **Run Test:** Confirm failure.
@@ -48,6 +48,13 @@ The goal of this phase is to improve usability and visual clarity by making icon
     2.  Update the `className` on the icon in `ImageUpload.tsx` to apply the new size and stroke classes.
   - **Run Test:** Confirm pass.
   - **Commit:** `feat(icons): increase upload icon size and apply custom stroke width`.
+
+- **Task 9.5: Reduce Upload Icon Size to `w-14 h-14`**
+  - **TDD:** Write a failing test in `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` has `w-14` and `h-14` classes.
+  - **Run Test:** Confirm failure.
+  - **Code:** Update the class names in `ImageUpload.tsx`.
+  - **Run Test:** Confirm pass.
+  - **Commit:** `feat(icons): reduce upload icon size to w-14`.
 
 ### Phase 10: Final Polish & Readme
 The goal of this phase is to finalize the application and prepare the final readme file.

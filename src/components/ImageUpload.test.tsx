@@ -27,7 +27,7 @@ describe('ImageUpload Component', () => {
     const { container } = renderComponent();
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon).toHaveClass('w-16', 'h-16', 'text-gray-400', 'heroicon-stroke-1');
+    expect(icon).toHaveClass('w-14', 'h-14', 'text-gray-400', 'heroicon-stroke-1');
   });
 
   it('should display instructional text for the user', () => {
