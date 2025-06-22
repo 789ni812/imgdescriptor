@@ -5,10 +5,13 @@ export function useImageAnalysis() {
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const analyzeImage = (file: File) => {
+  const analyzeImage = (file: File, prompt?: string) => {
     setIsDescriptionLoading(true);
     setError(null);
     setDescription(null);
+
+    const defaultPrompt = 'Describe this image in detail.';
+    const finalPrompt = prompt || defaultPrompt;
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -21,7 +24,7 @@ export function useImageAnalysis() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             image: base64Image,
-            prompt: 'Describe this image in detail.',
+            prompt: finalPrompt,
           }),
         });
 
