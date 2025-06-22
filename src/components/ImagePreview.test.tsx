@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ImagePreview } from './ImagePreview';
-import { Card, CardContent } from './ui/card';
 
 // Mock the Card components to check for their presence
 jest.mock('./ui/card', () => ({
