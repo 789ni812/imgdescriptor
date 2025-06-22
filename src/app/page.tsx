@@ -64,7 +64,6 @@ export default function Home() {
         data-testid="main-content-container"
         className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
       >
-        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
           <div className="space-y-8" data-testid="input-column">
             {imageUrl ? (
               <DevDebugWrapper key="image-preview" filename="ImagePreview.tsx">
@@ -78,7 +77,7 @@ export default function Home() {
           </div>
           <div className="space-y-8" data-testid="output-column">
             {isDescriptionLoading && (
-              <div className="flex justify-center items-center h-full min-h-[80px]">
+              <div className="flex justify-center items-center">
                 <LoadingSpinner />
               </div>
             )}
@@ -88,7 +87,7 @@ export default function Home() {
               </DevDebugWrapper>
             )}
             {description && !isDescriptionLoading && !descriptionError && (
-              <div className="text-center">
+              <div className="m-12 p-12">
                 <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
                   {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
                 </Button>
@@ -101,7 +100,6 @@ export default function Home() {
             )}
           </div>
         </div>
-      </div>
     </main>
   );
 }
