@@ -110,6 +110,7 @@ describe('/api/generate-story', () => {
   });
 
   it('should handle JSON parsing errors', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const request = new Request('http://localhost:3000/api/generate-story', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -122,9 +123,11 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(500);
     expect(data.success).toBe(false);
     expect(data.error).toContain('Server error:');
+    consoleSpy.mockRestore();
   });
 
   it('should handle unexpected errors', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockGenerateStory.mockRejectedValue(new Error('Unexpected error'));
 
     const request = new Request('http://localhost:3000/api/generate-story', {
@@ -139,9 +142,11 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(500);
     expect(data.success).toBe(false);
     expect(data.error).toBe('Server error: Unexpected error');
+    consoleSpy.mockRestore();
   });
 
   it('should handle non-Error exceptions', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockGenerateStory.mockRejectedValue('String error');
 
     const request = new Request('http://localhost:3000/api/generate-story', {
@@ -156,6 +161,7 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(500);
     expect(data.success).toBe(false);
     expect(data.error).toBe('Server error: An unknown error occurred.');
+    consoleSpy.mockRestore();
   });
 
   it('should handle long descriptions', async () => {
