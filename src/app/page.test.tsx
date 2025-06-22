@@ -70,7 +70,7 @@ describe('Home Page', () => {
   it('should implement a two-column grid layout on medium screens', () => {
     render(<Home />);
     const mainGrid = screen.getByTestId('main-content-container').querySelector('div');
-    expect(mainGrid).toHaveClass('grid', 'md:grid-cols-2', 'gap-8');
+    expect(mainGrid).toHaveClass('grid', 'md:grid-cols-[auto_1fr]', 'gap-8');
   });
 
   it('renders only the ImageUpload component on initial load', () => {
