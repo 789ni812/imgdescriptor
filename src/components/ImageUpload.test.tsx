@@ -23,10 +23,11 @@ describe('ImageUpload Component', () => {
     expect(screen.getByTestId('image-upload')).toBeInTheDocument();
   });
 
-  it('should display an upload icon', () => {
+  it('should display an upload icon with correct styling', () => {
     const { container } = renderComponent();
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
+    expect(icon).toHaveClass('w-16', 'h-16', 'text-gray-400', 'heroicon-stroke-1');
   });
 
   it('should display instructional text for the user', () => {
@@ -75,12 +76,5 @@ describe('ImageUpload Component', () => {
     });
 
     expect(mockOnImageSelect).not.toHaveBeenCalled();
-  });
-
-  it('renders the correct icon with specific styling', () => {
-    const { container } = render(<ImageUpload onImageSelect={() => {}} />);
-    const icon = container.querySelector('svg');
-    expect(icon).toBeInTheDocument();
-    expect(icon).toHaveClass('w-12', 'h-12', 'text-gray-400');
   });
 }); 

@@ -1,283 +1,57 @@
 # Project Specification: Image Analysis with LM Studio
 
-## Current Status: Complete ✅
-- **Phase 1: Setup & Basic Structure** - ✅ **Complete**
-- **Phase 2: Core Components** - ✅ **Complete**
-- **Phase 3: LM Studio Integration** - ✅ **Complete**
-- **Phase 4: Polish & Testing** - ✅ **Complete**
-- **Phase 5: Enhanced Description Display** - ✅ **Complete**
-- **Phase 6: AI Story Generation** - ✅ **Complete**
-- **Phase 7: UI/UX Overhaul** - ⚪ Not Started
+## Current Status: In Progress 🚧
+- **Phase 1-8:** Complete
+- **Phase 9: Iconography & Action Elements Refinement:** In Progress
+- **Phase 10: Final Polish & Readme:** Not Started
 
 ---
 
 ## Project Overview
-A Next.js application that allows users to upload images and get AI-generated descriptions using the LM Studio SDK with the `google/gemma-3-12b` model, plus AI-generated stories based on those descriptions.
-
-## Technical Stack
-- **Framework**: Next.js 14 with TypeScript
-- **AI Integration**: LM Studio SDK for TypeScript
-- **Model**: `google/gemma-3-12b`
-- **Styling**: Tailwind CSS for modern minimal design
-- **Image Handling**: Client-side upload with preview
-- **Backend**: Next.js API routes
-
-## Core Features
-
-### 1. Image Upload Interface
-- **Drag & Drop Zone**: Visual drop area with dashed border
-- **File Picker Button**: Traditional file selection
-- **Supported Formats**: JPG, PNG, WebP
-- **File Size Limit**: 10MB (configurable)
-- **Preview**: Show uploaded image immediately
-
-### 2. Image Analysis
-- **Model**: `google/gemma-3-12b` (fixed)
-- **Prompt**: Your existing image description prompt
-- **Processing**: Show loading state during analysis
-- **Error Handling**: Display user-friendly error messages
-
-### 3. Layout & Design
-- **Modern Minimal**: Clean, uncluttered interface
-- **Two-Column Layout**: 
-  - Left: Upload area and image preview
-  - Right: Generated description
-- **Responsive**: Mobile-friendly design
-- **Loading States**: Skeleton loaders and spinners
-
-## File Structure
-```
-/app
-  /api
-    /analyze-image/route.ts          # API endpoint for image analysis
-  /components
-    /ui
-      Button.tsx                     # Reusable button component
-      LoadingSpinner.tsx             # Loading indicator
-      ErrorMessage.tsx               # Error display component
-    ImageUpload.tsx                  # Main upload component
-    ImagePreview.tsx                 # Image display component
-    DescriptionDisplay.tsx           # Description output component
-  /lib
-    lmstudio-client.ts              # LM Studio client configuration
-    types.ts                        # TypeScript type definitions
-  /styles
-    globals.css                     # Global styles
-  layout.tsx                        # Root layout
-  page.tsx                          # Main page component
-```
-
-## API Design
-
-### POST /api/analyze-image
-**Request:**
-```typescript
-{
-  image: File (base64 encoded),
-  prompt: string (your existing prompt)
-}
-```
-
-**Response:**
-```typescript
-{
-  success: boolean,
-  description?: string,
-  error?: string
-}
-```
-
-## Component Specifications
-
-### ImageUpload Component
-- Drag & drop functionality
-- File validation
-- Preview generation
-- Upload button
-- Error handling for invalid files
-
-### ImagePreview Component
-- Display uploaded image
-- Responsive sizing
-- Loading state while processing
-
-### DescriptionDisplay Component
-- Show generated description
-- Loading state during analysis
-- Error message display
-- Copy-to-clipboard functionality
-
-## Error Handling
-- **Network Errors**: "Unable to connect to LM Studio"
-- **Model Errors**: "Model not available or loaded"
-- **File Errors**: "Invalid file format or size"
-- **General Errors**: "Something went wrong. Please try again."
+A Next.js application that allows users to upload images and get AI-generated descriptions and stories using the LM Studio SDK. The project follows a strict Test-Driven Development (TDD) workflow.
 
 ## Development Phases
 
-### Phase 1: Setup & Basic Structure - ✅ **Complete**
-1.  ✅ Create Next.js project with TypeScript
-2.  ✅ Install dependencies (LM Studio SDK, Tailwind CSS)
-3.  ✅ Set up basic layout and routing
-4.  ✅ Configure and verify Jest TDD environment
-5.  ✅ Push initial setup to GitHub
+### Phase 1-6: Initial Setup & Core AI Features - ✅ **Complete**
+These phases covered the initial project setup, component creation, LM Studio integration for both image description and story generation, and the initial test environment configuration.
 
-### Phase 2: Core Components - ✅ **Complete**
-1.  ✅ Implement image upload functionality
-2.  ✅ Create image preview component
-3.  ✅ Build description display component
+### Phase 7: UI/UX Overhaul - ✅ **Complete**
+This phase transformed the application from a functional prototype into a polished tool with a consistent design language.
+- **Tasks Completed:** Defined color palette and typography, created Header/Footer, overhauled core components (`ImageUpload`, `ImagePreview`, `DescriptionDisplay`, `StoryDisplay`) with modern card-based styling and improved functionality using `react-dropzone`.
 
-### Phase 3: LM Studio Integration - ✅ **Complete**
-1.  ✅ Set up LM Studio client
-2.  ✅ Implement API route for image analysis
-3.  ✅ Connect frontend to backend
+### Phase 8: Advanced UI Polish & Layout Refinement - ✅ **Complete**
+This phase focused on refining the overall structure and visual appeal of the application.
+- **Tasks Completed:** Implemented a global centered content container, redesigned the Header and Footer with proper styling, enhanced text readability on display cards, and implemented a responsive two-column grid layout.
 
-### Phase 4: Polish & Testing - ✅ **Complete**
-1.  ✅ Add error handling
-2.  ✅ Implement loading states
-3.  ✅ Test with various image types
-4.  ✅ Responsive design testing
-
-### Phase 5: Enhanced Description Display - ✅ **Complete**
-1.  ✅ **Parse and Structure Description**: Instead of a single text block, parse the description string based on the `**Category:**` markers.
-2.  ✅ **Implement Markdown Rendering**: Use a library like `react-markdown` to render the parsed sections, turning `**...**` into bold text.
-3.  ✅ **Refine Component Layout**: Display the categories and their corresponding text in a clean, readable, structured format (e.g., labeled sections or cards).
-4.  ✅ **Add "Copy to Clipboard" Feature**: Implement a button to allow the user to copy the raw description text.
-
-### Phase 6: AI Story Generation - ✅ **Complete**
-1.  **Backend Story Generation:**
-    *   ✅ Create a new API route at `/api/generate-story`.
-    *   ✅ This route will accept an `{ description: string }` payload.
-    *   ✅ It will call the second LM Studio model with a specific story-generation prompt.
-2.  **Frontend UI Components:**
-    *   ✅ Create a new `StoryDisplay.tsx` component to show the generated story, including its own distinct loading and error states.
-    *   ✅ Create a "Generate Story" button component that is only visible after a description is successfully loaded.
-    *   ✅ Write Jest tests for the new components following our TDD workflow.
-3.  **Frontend Integration:**
-    *   ✅ Add new state variables in `page.tsx` for the story content, loading status, and any potential errors (`story`, `isStoryLoading`, `storyError`).
-    *   ✅ Update `page.tsx` to call the `/api/generate-story` endpoint when the new button is clicked.
-    *   ✅ Modify the page layout to display the `StoryDisplay` component on the right-hand side, below the image description.
-4.  **Final Testing:**
-    *   ✅ Perform end-to-end testing of the full image-to-description-to-story workflow.
-    *   ✅ Commit the completed feature to GitHub.
-
-### Phase 7: UI/UX Overhaul - ⚪ Not Started
-
-#### Vision
-Transform the application from a functional prototype into a polished, professional, and intuitive tool. The design should be clean, modern, and engaging, making the powerful AI capabilities feel accessible and delightful. Focus on clarity, visual hierarchy, and providing clear user feedback at every step.
-
-#### Plan & Tasks
-
-**Part 1: Foundational Styling & Layout**
-- [x] Define a professional color palette and modern typography (e.g., Inter from Google Fonts)
-- [x] Integrate the new font and color palette into Tailwind config and global styles
-- [x] Create a consistent App Shell with Header and Footer components
-- [x] Refine the main layout using card components for clear separation
-
-**Part 2: Redesigning the Core User Journey**
-- [x] **Task 7.3: Overhaul `ImageUpload` Component:**
-  - [x] Rewrite test `ImageUpload.test.tsx` for a custom dropzone UI.
-  - [x] Implement a custom dropzone with an icon and styled button using `react-dropzone`.
-  - [x] Ensure all file handling logic (validation, selection) still passes.
-- [x] **Task 7.4: Refine `ImagePreview` Component:**
-  - [x] Redesign the component to have a cleaner, more modern look.
-  - [x] Add a "Remove Image" button.
-- [x] **Task 7.5: Refine `DescriptionDisplay` and `StoryDisplay` Components:**
-  - [x] Style these components to look like distinct "cards".
-  - [x] Improve loading and error state visuals.
-
-**Part 3: Mobile Responsiveness & Polish**
-- [ ] Make the layout fully responsive, stacking columns on mobile
-- [ ] Adjust padding, font sizes, and spacing for mobile screens
-- [ ] Ensure all interactive elements have clear hover, focus, and disabled states
-
-#### Best Practices
-- Use Tailwind CSS for all styling and responsive design
-- Keep components small, focused, and reusable
-- Use semantic HTML and accessible ARIA attributes where appropriate
-- Write minimal, clean code for each task, avoiding over-engineering
-- Use TDD: Write a failing Jest test for each new UI feature or state before implementation
-- Refactor after tests pass, ensuring code remains simple and maintainable
-
-## Dependencies
-```json
-{
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "@lmstudio/sdk": "^1.0.0",
-    "tailwindcss": "^3.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "typescript": "^5.0.0",
-    "autoprefixer": "^10.0.0",
-    "postcss": "^8.0.0",
-    "jest": "...",
-    "@testing-library/react": "...",
-    "@testing-library/jest-dom": "...",
-    "jest-environment-jsdom": "..."
-  }
-}
-```
-
-## Prerequisites
-- Node.js installed
-- LM Studio running with `google/gemma-3-12b` model loaded
-- Git Bash terminal (as per your preference)
-
-## Requirements Clarified
-1. **Image Upload**: Drag & drop + file picker button
-2. **LM Studio Model**: `google/gemma-3-12b` (fixed)
-3. **Prompt**: User's existing image description prompt
-4. **Design**: Modern minimal, image left, description right
-5. **Error Handling**: Basic error messages displayed on screen
-6. **Additional Features**: None at this stage 
-
-### **Phase 8: Advanced UI Polish & Layout Refinement**
-
-The goal of this phase is to transform the functional application into a visually appealing and professional-looking tool.
-
-- [x] **Task 8.1: Implement a Global Layout Structure:**
-  - [x] Write a test in `page.test.tsx` to verify the main content area has a `max-w-7xl` and `mx-auto` class.
-  - [x] Write a test to ensure a consistent `gap-8` between main sections.
-  - [x] Refactor `page.tsx` to use a main container `<div>` with these properties.
-
-- [ ] **Task 8.2: Redesign Header and Footer:**
-  - [x] Write tests in `Header.test.tsx` and `Footer.test.tsx` to check for background color, padding, and border styles.
-  - [x] Implement the styling changes in the `Header` and `Footer` components.
-
-- [x] **Task 8.3: Enhance Readability on Display Cards:**
-  - [x] Write a test in `DescriptionDisplay.test.tsx` and `StoryDisplay.test.tsx` to assert that text color is dark (e.g., `text-gray-800`).
-  - [x] Refactor the components to remove `prose-invert` and use default `prose` styling for light backgrounds.
-
-- [ ] **Task 8.4: Implement a Two-Column Layout:**
-  - [ ] Write tests in `page.test.tsx` to verify a two-column grid layout (`grid`, `grid-cols-2`, `gap-8`).
-  - [x] Test that input components (`ImageUpload`, `ImagePreview`) are in the first column and output components (`DescriptionDisplay`, `StoryDisplay`) are in the second.
-  - [x] Refactor `page.tsx` to implement this grid structure.
-
-### **Phase 9: Iconography & Action Elements Refinement**
-
+### Phase 9: Iconography & Action Elements Refinement - 🚧 **In Progress**
 The goal of this phase is to improve usability and visual clarity by making icons and buttons more intuitive and appropriately styled.
 
-- [x] **Task 9.1: Refine and Control Icon Visibility**
-  - [x] Write a test in `page.test.tsx` to assert that on initial load, only the `ImageUpload` component is visible.
-  - [x] Refactor `page.tsx` to conditionally render `ImagePreview`, `DescriptionDisplay`, and `StoryDisplay` only after an image is selected.
-  - [x] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to check for smaller, more conventional icons.
-  - [x] Replace placeholder SVG icons with smaller, more appropriate icons from a library or custom SVGs.
+- **Task 9.1: Refine and Control Icon Visibility & Style** - *Complete*
+  - **Action:** Replaced placeholder SVGs with smaller, more conventional icons from `heroicons`. Conditionally rendered `ImagePreview` and `DescriptionDisplay` to clean up the initial view.
+  - **Commit:** `feat(icons): replace placeholder with heroicons and control visibility`.
 
-- [x] **Task 9.2: Redesign Buttons for Clarity and Emphasis**
-  - [x] Write tests in `Button.test.tsx` to check for new base styles (background, padding, hover/focus states).
-  - [x] Refactor the base `Button.tsx` component to implement these styles.
-  - [x] Write a test in `page.test.tsx` to verify the "Generate a Story" button has primary action styles.
-  - [x] Write a test in `ImagePreview.test.tsx` to verify the "Remove Image" button has secondary/destructive action styles.
-  - [x] Implement these specific button styles.
-  - [x] Write tests to ensure appropriate spacing around all buttons.
-  - [x] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing.
+- **Task 9.2: Redesign Buttons for Clarity and Emphasis** - *Complete*
+  - **Action:** Refactored the `Button` component to be variant-based (`primary`, `destructive`). Applied the `destructive` variant to the "Remove Image" button for better UX.
+  - **Commit:** `feat(ui): implement variant-based buttons`.
 
-- [x] **Task 9.3: Reduce Icon Sizes**
-  - [x] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to expect a smaller size (e.g., `w-12 h-12`).
-  - [x] Refactor the components to apply the smaller size classes. 
+- **Task 9.3: Reduce Icon Size Further (`w-12 h-12`)** - *Complete*
+  - **TDD:** Wrote a failing test to assert the upload icon has `w-12` and `h-12` classes. Updated the component to pass the test.
+  - **Commit:** `feat(icons): reduce icon size to w-12 h-12`.
+
+- **Task 9.4: Correctly Scale Upload Icon Size and Stroke** - *Current Task*
+  - **TDD:** Write failing tests to:
+    1.  Add custom CSS to `globals.css` for controlling heroicon `stroke-width`.
+    2.  Update `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` is larger (e.g., `w-16 h-16`) and has a custom stroke-width class (e.g., `heroicon-stroke-1`).
+  - **Run Test:** Confirm failure.
+  - **Code:**
+    1.  Add `heroicon-stroke-*` classes to `src/app/globals.css`.
+    2.  Update the `className` on the icon in `ImageUpload.tsx` to apply the new size and stroke classes.
+  - **Run Test:** Confirm pass.
+  - **Commit:** `feat(icons): increase upload icon size and apply custom stroke width`.
+
+### Phase 10: Final Polish & Readme
+The goal of this phase is to finalize the application and prepare the final readme file.
+
+- **Task 10.1: Finalize Readme File**
+  - **Action:** Write a comprehensive readme file for the project. Ensure all sections are complete and accurate. Review and edit the file for clarity and completeness.
+  - **Commit:** `docs: finalize project readme`. 

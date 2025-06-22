@@ -47,3 +47,16 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Custom Heroicon stroke-width utilities */
+.heroicon-stroke-1 > * {
+  stroke-width: 1;
+}
+
+.heroicon-stroke-1-5 > * {
+  stroke-width: 1.5;
+}
+
+.heroicon-stroke-2 > * {
+  stroke-width: 2;
+}
