@@ -1,8 +1,8 @@
+"use client";
 import React from 'react';
-import type { ImagePreviewProps } from '@/lib/types';
-import { LoadingSpinner } from './ui/LoadingSpinner';
-import { ErrorMessage } from './ui/ErrorMessage';
 import { Button } from './ui/Button';
+import type { ImagePreviewProps } from '@/lib/types';
+import { ErrorMessage } from './ui/ErrorMessage';
 
 const PlaceholderIcon = () => (
   <svg

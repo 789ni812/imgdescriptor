@@ -9,10 +9,8 @@ import { Button } from '@/components/ui/Button';
 import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
 
 export default function Home() {
-  // State for the selected image file
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   // State for the image preview URL
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   // State for the AI-generated description
   const [description, setDescription] = useState<string | null>(null);
   // State for loading indicators
@@ -27,23 +25,22 @@ export default function Home() {
 
   // Effect to clean up the object URL
   useEffect(() => {
-    // This function will be called when the component unmounts or when previewUrl changes
+    // This function will be called when the component unmounts or when imageUrl changes
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [previewUrl]);
+  }, [imageUrl]);
 
   const handleImageSelect = (file: File) => {
-    // If there's an existing preview URL, revoke it before creating a new one
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    // If there's an existing image URL, revoke it before creating a new one
+    if (imageUrl) {
+      URL.revokeObjectURL(imageUrl);
     }
 
-    setSelectedFile(file);
     const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    setImageUrl(url);
 
     // Reset all states for a new analysis
     setDescription(null);
@@ -128,6 +125,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-white">
+
+<div className="bg-white border border-gray-200 p-2">Hi ya</div>
+
+
       <div 
         data-testid="main-content-container"
         className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
@@ -135,18 +136,17 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column: Inputs */}
           <div className="space-y-8" data-testid="input-column">
-            {!previewUrl ? (
+            {!imageUrl ? (
               <DevDebugWrapper filename="ImageUpload.tsx">
                 <ImageUpload onImageSelect={handleImageSelect} />
               </DevDebugWrapper>
             ) : (
               <DevDebugWrapper filename="ImagePreview.tsx">
                 <ImagePreview
-                  imageUrl={previewUrl}
+                  imageUrl={imageUrl}
                   isLoading={isLoading}
                   onRemove={() => {
-                    setPreviewUrl(null);
-                    setSelectedFile(null);
+                    setImageUrl(null);
                     setDescription(null);
                     setError(null);
                     setStory(null);
@@ -159,7 +159,7 @@ export default function Home() {
           </div>
 
           {/* Right Column: Outputs */}
-          {(previewUrl || description || error || story || storyError) && (
+          {(imageUrl || description || error || story || storyError) && (
             <div className="space-y-8" data-testid="output-column">
               <DevDebugWrapper filename="DescriptionDisplay.tsx">
                 <DescriptionDisplay description={description} isLoading={isLoading} error={error} />

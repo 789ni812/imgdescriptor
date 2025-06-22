@@ -1,8 +1,12 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import type { DescriptionDisplayProps } from '@/lib/types';
-import { LoadingSpinner } from './ui/LoadingSpinner';
-import { ErrorMessage } from './ui/ErrorMessage';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+
+interface DescriptionDisplayProps {
+  description: string | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
 export function DescriptionDisplay({
   description,
@@ -12,7 +16,7 @@ export function DescriptionDisplay({
   return (
     <div
       data-testid="card-container"
-      className="bg-white shadow-lg rounded-xl w-full h-full min-h-[180px] flex items-center justify-center p-6"
+      className="bg-white shadow-lg rounded-xl w-full h-full min-h-[80px] flex items-center justify-center p-6"
     >
       {isLoading ? (
         <div className="text-center">

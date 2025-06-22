@@ -3,8 +3,8 @@
  */
 // Polyfill TextEncoder/TextDecoder for undici and web APIs
 import { TextEncoder, TextDecoder } from 'util';
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
+global.TextEncoder = TextEncoder as typeof global.TextEncoder;
+global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
 import { POST } from './route';
 import { generateStory } from '@/lib/lmstudio-client';

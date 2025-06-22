@@ -30,8 +30,9 @@ const mockFileReaderInstance = {
   onload: jest.fn(),
   result: 'data:image/png;base64,test-base64-string',
 };
+
 const mockFileReader = jest.fn(() => mockFileReaderInstance);
-global.FileReader = mockFileReader as any;
+global.FileReader = mockFileReader as jest.Mock as any;
 
 jest.mock('@/lib/lmstudio-client');
 

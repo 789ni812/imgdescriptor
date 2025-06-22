@@ -9,6 +9,13 @@ jest.mock('next/link', () => {
   };
 });
 
+// Mock the next/image component
+jest.mock('next/image', () => {
+  const MockImage = ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />;
+  MockImage.displayName = 'MockImage';
+  return MockImage;
+});
+
 describe('Header Component', () => {
   it('renders the title correctly with a link to the homepage', () => {
     render(<Header />);

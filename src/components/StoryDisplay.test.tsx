@@ -2,19 +2,12 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { StoryDisplay } from './StoryDisplay';
 import { StoryDisplayProps } from '@/lib/types';
-import { LoadingSpinner } from './ui/LoadingSpinner';
 
-// Mock the LoadingSpinner to simplify testing
-jest.mock('./ui/LoadingSpinner', () => ({
-  LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
-}));
-
-// Mock react-markdown
+// Mock the react-markdown component
 jest.mock('react-markdown', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <div data-testid="markdown-display">{children}</div>,
 }));
-
 
 type RenderProps = Partial<StoryDisplayProps>;
 
@@ -41,8 +34,13 @@ describe('StoryDisplay', () => {
 
   it('should display a loading spinner when isLoading is true', () => {
     renderComponent({ isLoading: true });
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-spinner-svg')).toBeInTheDocument();
     expect(screen.getByText('Generating story...')).toBeInTheDocument();
+  });
+
+  it('should not display a loading spinner when not loading', () => {
+    renderComponent({ isLoading: false });
+    expect(screen.queryByTestId('loading-spinner-svg')).not.toBeInTheDocument();
   });
 
   it('should display an error message when an error is provided', () => {

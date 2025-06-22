@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { DescriptionDisplay } from './DescriptionDisplay';
 import { DescriptionDisplayProps } from '@/lib/types';
-import { LoadingSpinner } from './ui/LoadingSpinner';
 
 // Mock the LoadingSpinner to simplify testing
 jest.mock('./ui/LoadingSpinner', () => ({

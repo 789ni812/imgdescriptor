@@ -11,7 +11,8 @@ export const DevDebugWrapper: React.FC<DevDebugWrapperProps> = ({ children, file
   }
 
   return (
-    <div className="relative border border-gray-200 p-2">
+    <div className="relative bg-white border border-gray-200 p-2">
+      <div className="text-gray-500 text-xs mb-2 text-center">DevDebugWrapper</div>
       {children}
       <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-500">
         {filename}
