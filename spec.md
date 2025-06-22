@@ -175,9 +175,16 @@ Transform the application from a functional prototype into a polished, professio
 - [x] Refine the main layout using card components for clear separation
 
 **Part 2: Redesigning the Core User Journey**
-- [ ] Overhaul the ImageUpload component with a custom dropzone, icon, and styled button
-- [ ] Implement skeleton loaders for description and story loading states
-- [ ] Add instant feedback for actions (e.g., "Copied!" on clipboard copy)
+- [x] **Task 7.3: Overhaul `ImageUpload` Component:**
+  - [x] Rewrite test `ImageUpload.test.tsx` for a custom dropzone UI.
+  - [x] Implement a custom dropzone with an icon and styled button using `react-dropzone`.
+  - [x] Ensure all file handling logic (validation, selection) still passes.
+- [ ] **Task 7.4: Refine `ImagePreview` Component:**
+  - [ ] Redesign the component to have a cleaner, more modern look.
+  - [ ] Add a "Remove Image" button.
+- [ ] **Task 7.5: Refine `DescriptionDisplay` and `StoryDisplay` Components:**
+  - [ ] Style these components to look like distinct "cards".
+  - [ ] Improve loading and error state visuals.
 
 **Part 3: Mobile Responsiveness & Polish**
 - [ ] Make the layout fully responsive, stacking columns on mobile
