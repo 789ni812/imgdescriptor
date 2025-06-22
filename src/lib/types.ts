@@ -31,6 +31,7 @@ export interface ImagePreviewProps {
   alt?: string;
   onRemove?: () => void;
   error?: string | null;
+  generationTime?: number | null;
 }
 
 export interface DescriptionDisplayProps {

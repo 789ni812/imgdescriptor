@@ -3,3 +3,29 @@ description:
 globs:
 alwaysApply: false
 ---
+# Component Debug Display
+
+To aid in development and debugging, a special wrapper component, `DevDebugWrapper`, is available to display a component's filename directly in the browser.
+
+## Usage
+
+Wrap any component in `page.tsx` (or other page files) with the `DevDebugWrapper` and provide its filename as a prop.
+
+### Example:
+
+```tsx
+import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
+import { MyComponent } from '@/components/MyComponent';
+
+// In your page component's render method:
+<DevDebugWrapper filename="MyComponent.tsx">
+  <MyComponent />
+</DevDebugWrapper>
+```
+
+## Behavior
+
+-   **Development Mode:** In the `development` environment, the wrapper will render a light gray border around the component and display the filename centered below it.
+-   **Production Mode:** In the `production` environment, the wrapper renders nothing but its children (`<>...</>`), adding no overhead to the final build.
+
+This convention should be used for all primary sub-components within a page to make it easier to identify which part of the UI corresponds to which file in the codebase.

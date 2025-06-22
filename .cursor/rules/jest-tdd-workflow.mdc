@@ -56,7 +56,14 @@ Strictly adhere to Test-Driven Development (TDD) principles when implementing fe
 5.  **Refactor:**
     * Once the tests pass, refactor the code to improve its design, readability, and maintainability. Ensure tests continue to pass after refactoring.
     * The AI *must* re-run tests after any refactoring.
-6.  **Repeat:**
+6.  **Full Regression Test:**
+    *   After the specific feature's tests are passing, run the entire test suite (`npm test`).
+    *   Ensure that no existing functionality has been broken by the new changes.
+7.  **Document and Commit:**
+    *   **Update Spec:** After tests pass, update the `spec.md` or relevant project plan to mark the task as complete.
+    *   **Stage Changes:** Automatically stage all changes using `git add .`.
+    *   **Commit Changes:** Commit the work with a clear, conventional commit message (e.g., `feat(ui): implement Header component`).
+8.  **Repeat:**
     * For the next piece of functionality or edge case, go back to step 1.
 
 **Test File Conventions:**

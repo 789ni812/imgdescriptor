@@ -9,8 +9,9 @@ const createJestConfig = nextJest({
 const config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
-  // Add the new polyfills file before the existing setup
-  setupFilesAfterEnv: ['<rootDir>/jest.polyfills.js', '<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // Add more setup options before each test is run
+  // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
