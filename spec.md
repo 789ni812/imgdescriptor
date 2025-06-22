@@ -182,9 +182,9 @@ Transform the application from a functional prototype into a polished, professio
 - [x] **Task 7.4: Refine `ImagePreview` Component:**
   - [x] Redesign the component to have a cleaner, more modern look.
   - [x] Add a "Remove Image" button.
-- [ ] **Task 7.5: Refine `DescriptionDisplay` and `StoryDisplay` Components:**
-  - [ ] Style these components to look like distinct "cards".
-  - [ ] Improve loading and error state visuals.
+- [x] **Task 7.5: Refine `DescriptionDisplay` and `StoryDisplay` Components:**
+  - [x] Style these components to look like distinct "cards".
+  - [x] Improve loading and error state visuals.
 
 **Part 3: Mobile Responsiveness & Polish**
 - [ ] Make the layout fully responsive, stacking columns on mobile

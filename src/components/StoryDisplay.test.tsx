@@ -21,7 +21,10 @@ jest.mock('react-markdown', () => ({
 describe('StoryDisplay', () => {
   it('should render nothing when no props are provided', () => {
     const { container } = render(<StoryDisplay story={null} isLoading={false} error={null} />);
-    expect(container.firstChild).toBeNull();
+    const card = container.querySelector('[data-testid="card-container"]');
+    expect(card).toBeInTheDocument();
+    expect(card).toHaveClass('bg-white', 'shadow-lg', 'rounded-xl');
+    expect(card).toBeEmptyDOMElement();
   });
 
   it('should render the story using markdown when provided', () => {
@@ -53,5 +56,29 @@ describe('StoryDisplay', () => {
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
     expect(screen.queryByTestId('markdown-story')).not.toBeInTheDocument();
     expect(screen.queryByTestId('error-message')).not.toBeInTheDocument();
+  });
+
+  // --- New Card UI Tests ---
+  it('should render inside a card-style container', () => {
+    render(<StoryDisplay story={null} isLoading={false} error={null} />);
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    expect(card).toHaveClass('bg-white', 'shadow-lg', 'rounded-xl');
+  });
+
+  it('should center the loading spinner in the card', () => {
+    render(<StoryDisplay story={null} isLoading={true} error={null} />);
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    const spinner = screen.getByTestId('loading-spinner');
+    expect(spinner.parentElement).toBe(card);
+  });
+
+  it('should center the error message in the card', () => {
+    render(<StoryDisplay story={null} isLoading={false} error={'Error!'} />);
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    const error = screen.getByTestId('error-message');
+    expect(error.parentElement).toBe(card);
   });
 }); 

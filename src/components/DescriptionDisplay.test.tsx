@@ -77,4 +77,28 @@ describe('DescriptionDisplay', () => {
     expect(screen.getByTestId('error-message')).toBeInTheDocument();
     expect(screen.queryByTestId('markdown-display')).not.toBeInTheDocument();
   });
+
+  // --- New Card UI Tests ---
+  it('should render inside a card-style container', () => {
+    renderComponent();
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    expect(card).toHaveClass('bg-white', 'shadow-lg', 'rounded-xl');
+  });
+
+  it('should center the loading spinner in the card', () => {
+    renderComponent({ isLoading: true });
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    const spinner = screen.getByTestId('loading-spinner');
+    expect(spinner.parentElement).toBe(card);
+  });
+
+  it('should center the error message in the card', () => {
+    renderComponent({ error: 'Error!' });
+    const card = screen.getByTestId('card-container');
+    expect(card).toBeInTheDocument();
+    const error = screen.getByTestId('error-message');
+    expect(error.parentElement).toBe(card);
+  });
 }); 
