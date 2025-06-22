@@ -1,5 +1,11 @@
 import React from 'react';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 interface DescriptionDisplayProps {
   description: string | null;
@@ -11,17 +17,21 @@ export function DescriptionDisplay({
   error,
 }: DescriptionDisplayProps) {
   return (
-    <div
-      data-testid="card-container"
-      className="bg-white shadow-lg rounded-xl w-full h-full min-h-[80px] flex items-center justify-center p-6"
-    >
-      {error ? (
-        <ErrorMessage message={error} />
-      ) : (
-        <p className="text-gray-800 text-lg leading-relaxed">
-          {description || 'Description will appear here...'}
-        </p>
-      )}
-    </div>
+    <Card className="w-full h-full min-h-[80px]">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">
+          Image Description
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error ? (
+          <ErrorMessage message={error} />
+        ) : (
+          <p className="text-gray-800 leading-relaxed">
+            {description || 'Description will appear here...'}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 } 

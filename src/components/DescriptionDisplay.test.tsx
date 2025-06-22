@@ -3,6 +3,20 @@ import { render, screen } from '@testing-library/react';
 import { DescriptionDisplay } from './DescriptionDisplay';
 import { DescriptionDisplayProps } from '@/lib/types';
 
+// Mock the shadcn/ui Card components
+jest.mock('./ui/card', () => ({
+  Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
+  CardContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-content">{children}</div>
+  ),
+  CardHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-header">{children}</div>
+  ),
+  CardTitle: ({ children }: { children: React.ReactNode }) => (
+    <h3 data-testid="card-title">{children}</h3>
+  ),
+}));
+
 // Mock the LoadingSpinner to simplify testing
 jest.mock('./ui/LoadingSpinner', () => ({
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
@@ -21,6 +35,14 @@ describe('DescriptionDisplay', () => {
     const testDescription = 'This is a test description.';
     renderComponent({ description: testDescription });
     expect(screen.getByText(testDescription)).toBeInTheDocument();
+  });
+
+  it('should render the description inside a Card component', () => {
+    const testDescription = 'A descriptive text.';
+    renderComponent({ description: testDescription });
+    const cardContent = screen.getByTestId('card-content');
+    expect(cardContent).toBeInTheDocument();
+    expect(cardContent).toHaveTextContent(testDescription);
   });
 
   it('should display an error message when an error is provided', () => {
