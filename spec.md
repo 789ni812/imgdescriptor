@@ -90,4 +90,46 @@ The goal of this phase is to improve the development workflow by providing more 
     - Upon image selection in `ImageUpload`, immediately hide the upload component and show the `ImagePreview` component with the selected image's preview URL.
     - **TDD:** Write a Jest test to verify that a loading spinner is displayed in the right column while the image description is being fetched.
     - While the `analyze-image` API call is in progress, display a `LoadingSpinner` component in the right-hand column where the `DescriptionDisplay` will appear.
-    - Once the description is fetched, replace the loading spinner with the `DescriptionDisplay` component. 
+    - Once the description is fetched, replace the loading spinner with the `DescriptionDisplay` component.
+
+---
+
+## Phase 12: Code Refactoring & Optimization
+
+**Objective:** Improve code quality, maintainability, and adherence to best practices by refactoring the main page component and abstracting business logic.
+
+### Step 1: Refactor State Management with `useReducer`
+- **Goal:** Simplify state management in `page.tsx` by replacing multiple `useState` hooks with a single `useReducer`.
+- **Tasks:**
+  - **TDD:** The existing tests for the `Home` page already cover the state transitions. We will use these tests to ensure the refactoring does not break any functionality.
+  - Create a `reducer` function that handles all state transitions (e.g., `START_ANALYSIS`, `ANALYZE_SUCCESS`, `ANALYZE_ERROR`, `GENERATE_STORY_START`, `GENERATE_STORY_SUCCESS`, `RESET`).
+  - Define a clear `initialState` object.
+  - Replace all `useState` calls in `page.tsx` with a single `useReducer` call.
+  - Update the event handler functions (`handleImageSelect`, `handleGenerateStory`, `onRemove`) to dispatch actions instead of calling multiple `setState` functions.
+- **Commit:** `refactor(state): migrate home page from useState to useReducer`
+
+### Step 2: Abstract Logic into Custom Hooks
+- **Goal:** Decouple business logic from the UI by creating custom hooks for API interactions.
+- **Tasks:**
+  - **TDD:** Create new test files for the custom hooks.
+  - **`useImageAnalysis` Hook:**
+    - Create a `useImageAnalysis.ts` hook.
+    - This hook will manage the `isDescriptionLoading` and `error` states.
+    - It will expose a function, `analyzeImage`, that takes the image file and returns the description or an error.
+    - Move the `fetch('/api/analyze-image')` logic from `page.tsx` into this hook.
+  - **`useStoryGeneration` Hook:**
+    - Create a `useStoryGeneration.ts` hook.
+    - This hook will manage the `isStoryLoading` and `storyError` states.
+    - It will expose a function, `generateStory`, that takes the description and returns a story or an error.
+    - Move the `fetch('/api/generate-story')` logic from `page.tsx` into this hook.
+  - **Integrate Hooks:** Update `page.tsx` to use these new hooks, simplifying the component's event handlers significantly.
+- **Commit:** `refactor(hooks): abstract api logic into custom hooks`
+
+### Step 3: Simplify Component and Props
+- **Goal:** Clean up the `page.tsx` component and its props after the refactoring.
+- **Tasks:**
+  - Create a single `handleReset` function that dispatches the `RESET` action.
+  - Pass the `handleReset` function to the `onRemove` prop of the `ImagePreview` component, removing the large inline function.
+  - Review all components and remove any props that are no longer needed after the refactoring.
+  - Ensure all components follow the Single Responsibility Principle as closely as possible.
+- **Commit:** `refactor(ui): simplify home page component and props` 

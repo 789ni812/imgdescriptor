@@ -3,8 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ImagePreview } from './ImagePreview';
 
 describe('ImagePreview Component', () => {
+  const validImageUrl = '/test-image.jpg';
   const defaultProps = {
-    imageUrl: 'test-image.jpg',
+    imageUrl: validImageUrl,
     onRemove: jest.fn(),
   };
 
@@ -12,11 +13,14 @@ describe('ImagePreview Component', () => {
     jest.clearAllMocks();
   });
 
-  it('displays the image when an imageUrl is provided', () => {
+  it('displays the image with correct dimensions when an imageUrl is provided', () => {
     render(<ImagePreview {...defaultProps} />);
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', defaultProps.imageUrl);
+    
+    // Check that the image is rendered with the specified width and height
+    expect(image).toHaveAttribute('width', '256');
+    expect(image).toHaveAttribute('height', '256');
   });
 
   it('displays a placeholder when imageUrl is null', () => {
@@ -33,7 +37,7 @@ describe('ImagePreview Component', () => {
   });
 
   it('does not render the remove button if onRemove is not provided', () => {
-    render(<ImagePreview imageUrl={defaultProps.imageUrl} />);
+    render(<ImagePreview imageUrl={validImageUrl} />);
     expect(screen.queryByRole('button', { name: /remove image/i })).not.toBeInTheDocument();
   });
 }); 

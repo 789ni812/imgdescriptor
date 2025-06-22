@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useReducer, useEffect } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
@@ -8,25 +8,32 @@ import { StoryDisplay } from '@/components/StoryDisplay';
 import { Button } from '@/components/ui/Button';
 import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useImageAnalysis } from '@/hooks/useImageAnalysis';
+import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 
 export default function Home() {
-  // State for the image preview URL
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  // State for the AI-generated description
-  const [description, setDescription] = useState<string | null>(null);
-  // State for loading indicators
-  const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
-  // State for any errors
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    description, 
+    isDescriptionLoading, 
+    error: descriptionError, 
+    analyzeImage 
+  } = useImageAnalysis();
+  
+  const { 
+    story, 
+    isStoryLoading, 
+    storyError, 
+    generateStory 
+  } = useStoryGeneration();
 
-  // New state for the story generation
-  const [story, setStory] = useState<string | null>(null);
-  const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
-  const [storyError, setStoryError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
+    if (newUrl === null && _ !== null) {
+      URL.revokeObjectURL(_);
+    }
+    return newUrl;
+  }, null);
 
-  // Effect to clean up the object URL
   useEffect(() => {
-    // This function will be called when the component unmounts or when imageUrl changes
     return () => {
       if (imageUrl) {
         URL.revokeObjectURL(imageUrl);
@@ -35,93 +42,20 @@ export default function Home() {
   }, [imageUrl]);
 
   const handleImageSelect = (file: File) => {
-    // If there's an existing image URL, revoke it before creating a new one
-    if (imageUrl) {
-      URL.revokeObjectURL(imageUrl);
-    }
-
     const url = URL.createObjectURL(file);
     setImageUrl(url);
-
-    // Reset all states for a new analysis
-    setDescription(null);
-    setError(null);
-    setIsDescriptionLoading(true);
-    setStory(null);
-    setStoryError(null);
-    setIsStoryLoading(false);
-
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = async () => {
-      try {
-        const base64Image = (reader.result as string).split(',')[1];
-        const response = await fetch('/api/analyze-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            image: base64Image,
-            prompt: 'Describe this image in detail.',
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          setDescription(data.description);
-        } else {
-          setError(data.error || 'An unknown error occurred.');
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-        setError(`An unexpected error occurred: ${errorMessage}`);
-      } finally {
-        setIsDescriptionLoading(false);
-      }
-    };
-
-    reader.onerror = () => {
-      setError('Failed to read the image file.');
-      setIsDescriptionLoading(false);
-    };
+    analyzeImage(file);
   };
 
-  const handleGenerateStory = async () => {
-    if (!description) {
-      setStoryError('Cannot generate a story without a description.');
-      return;
+  const handleGenerateStory = () => {
+    if (description) {
+      generateStory(description);
     }
+  };
 
-    setIsStoryLoading(true);
-    setStory(null);
-    setStoryError(null);
-
-    try {
-      const response = await fetch('/api/generate-story', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ description }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setStory(data.story);
-      } else {
-        setStoryError(data.error || 'An unknown error occurred while generating the story.');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      setStoryError(`An unexpected error occurred: ${errorMessage}`);
-    } finally {
-      setIsStoryLoading(false);
-    }
+  const handleReset = () => {
+    setImageUrl(null);
+    // Future: The hooks could also expose reset functions
   };
 
   return (
@@ -131,20 +65,10 @@ export default function Home() {
         className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Left Column: Inputs */}
           <div className="space-y-8" data-testid="input-column">
             {imageUrl ? (
               <DevDebugWrapper key="image-preview" filename="ImagePreview.tsx">
-                <ImagePreview
-                  imageUrl={imageUrl}
-                  onRemove={() => {
-                    setImageUrl(null);
-                    setDescription(null);
-                    setError(null);
-                    setStory(null);
-                    setStoryError(null);
-                  }}
-                />
+                <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
               </DevDebugWrapper>
             ) : (
               <DevDebugWrapper key="image-upload" filename="ImageUpload.tsx">
@@ -152,29 +76,24 @@ export default function Home() {
               </DevDebugWrapper>
             )}
           </div>
-
-          {/* Right Column: Outputs */}
           <div className="space-y-8" data-testid="output-column">
             {isDescriptionLoading && (
               <div className="flex justify-center items-center h-full min-h-[80px]">
                 <LoadingSpinner />
               </div>
             )}
-            
-            {!isDescriptionLoading && (description || error) && (
+            {!isDescriptionLoading && (description || descriptionError) && (
               <DevDebugWrapper filename="DescriptionDisplay.tsx">
-                <DescriptionDisplay description={description} error={error} />
+                <DescriptionDisplay description={description} error={descriptionError} />
               </DevDebugWrapper>
             )}
-
-            {description && !isDescriptionLoading && !error && (
+            {description && !isDescriptionLoading && !descriptionError && (
               <div className="text-center">
                 <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
                   {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
                 </Button>
               </div>
             )}
-
             {(isStoryLoading || story || storyError) && (
               <DevDebugWrapper filename="StoryDisplay.tsx">
                 <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
