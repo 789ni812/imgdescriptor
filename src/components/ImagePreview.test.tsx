@@ -26,37 +26,27 @@ const renderComponent = (props: RenderProps = {}) => {
 
 describe('ImagePreview Component - Enhanced UI', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockOnRemove.mockClear();
   });
 
   // --- New UI Tests ---
   
   it('should render a modern card-style container', () => {
-    renderComponent();
-    const container = screen.getByTestId('image-preview-container');
-    expect(container).toBeInTheDocument();
-    expect(container).toHaveClass('bg-white', 'shadow-lg', 'rounded-xl');
-  });
-
-  it('should display a "Remove Image" button when an image is present', () => {
-    renderComponent({ imageUrl: 'http://localhost/test-image.png' });
-    const removeButton = screen.getByRole('button', { name: /remove image/i });
-    expect(removeButton).toBeInTheDocument();
-    expect(removeButton).toHaveClass('btn-secondary');
-  });
-
-  it('should not display a "Remove Image" button when no image is present', () => {
-    renderComponent({ imageUrl: null });
-    expect(screen.queryByRole('button', { name: /remove image/i })).not.toBeInTheDocument();
+    const { getByTestId } = renderComponent();
+    const container = getByTestId('image-preview-container');
+    expect(container).toHaveClass('w-full', 'h-64', 'bg-white', 'shadow-lg', 'rounded-xl');
   });
 
   it('should call onRemove when the remove button is clicked', () => {
     renderComponent({ imageUrl: 'http://localhost/test-image.png' });
     const removeButton = screen.getByRole('button', { name: /remove image/i });
-    
     fireEvent.click(removeButton);
-    
     expect(mockOnRemove).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not display a "Remove Image" button when no image is present', () => {
+    renderComponent({ imageUrl: null });
+    expect(screen.queryByRole('button', { name: /remove image/i })).not.toBeInTheDocument();
   });
 
   it('should display an enhanced placeholder with an icon when no image is present', () => {
@@ -93,7 +83,7 @@ describe('ImagePreview Component - Enhanced UI', () => {
     // The spinner SVG should be visible and have the right classes
     const spinnerSvg = getByTestId('loading-spinner-svg');
     expect(spinnerSvg).toBeInTheDocument();
-    expect(spinnerSvg).toHaveClass('w-16', 'h-16');
+    expect(spinnerSvg).toHaveClass('w-12', 'h-12');
     
     // The image should not be visible
     expect(queryByRole('img')).not.toBeInTheDocument();

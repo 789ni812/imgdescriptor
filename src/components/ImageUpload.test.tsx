@@ -81,6 +81,6 @@ describe('ImageUpload Component', () => {
     const { container } = render(<ImageUpload onImageSelect={() => {}} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon).toHaveClass('w-16', 'h-16', 'text-gray-400');
+    expect(icon).toHaveClass('w-12', 'h-12', 'text-gray-400');
   });
 }); 

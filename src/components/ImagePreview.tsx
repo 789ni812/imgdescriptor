@@ -31,7 +31,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
     if (isLoading) {
       return (
         <svg
-          className="animate-spin text-white w-16 h-16 text-gray-400"
+          className="animate-spin text-white w-12 h-12 text-gray-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

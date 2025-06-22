@@ -276,4 +276,8 @@ The goal of this phase is to improve usability and visual clarity by making icon
   - [x] Write a test in `ImagePreview.test.tsx` to verify the "Remove Image" button has secondary/destructive action styles.
   - [x] Implement these specific button styles.
   - [x] Write tests to ensure appropriate spacing around all buttons.
-  - [x] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing. 
+  - [x] Adjust the layout in `page.tsx` and `ImagePreview.tsx` to add spacing.
+
+- [x] **Task 9.3: Reduce Icon Sizes**
+  - [x] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to expect a smaller size (e.g., `w-12 h-12`).
+  - [x] Refactor the components to apply the smaller size classes. 
