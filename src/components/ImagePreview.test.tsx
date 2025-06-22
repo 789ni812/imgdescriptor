@@ -11,12 +11,15 @@ jest.mock('./ui/LoadingSpinner', () => ({
 
 const mockOnRemove = jest.fn();
 
-const renderComponent = (props: Partial<ImagePreviewProps> = {}) => {
+type RenderProps = Partial<ImagePreviewProps>;
+
+const renderComponent = (props: RenderProps = {}) => {
   const defaultProps: ImagePreviewProps = {
     imageUrl: null,
     isLoading: false,
     alt: 'Image preview',
     onRemove: mockOnRemove,
+    error: null,
   };
   return render(<ImagePreview {...defaultProps} {...props} />);
 };
@@ -64,12 +67,12 @@ describe('ImagePreview Component - Enhanced UI', () => {
 
   // --- Existing Functionality Tests ---
 
-  it('should render a placeholder when imageUrl is null', () => {
+  it('renders the placeholder when no image is provided', () => {
     renderComponent({ imageUrl: null });
     expect(screen.getByText(/upload an image to see preview/i)).toBeInTheDocument();
   });
 
-  it('should render an image when imageUrl is provided', () => {
+  it('displays the image when an imageUrl is provided', () => {
     const testImageUrl = 'http://localhost/test-image.png';
     renderComponent({ imageUrl: testImageUrl });
 
@@ -78,14 +81,25 @@ describe('ImagePreview Component - Enhanced UI', () => {
     expect(imgElement).toHaveAttribute('src', testImageUrl);
   });
 
-  it('should display the loading spinner when isLoading is true', () => {
-    renderComponent({ isLoading: true, imageUrl: null });
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  it('should display a loading spinner when isLoading is true', () => {
+    const { getByTestId, queryByRole } = renderComponent({ isLoading: true });
+    
+    // The spinner SVG should be visible and have the right classes
+    const spinnerSvg = getByTestId('loading-spinner-svg');
+    expect(spinnerSvg).toBeInTheDocument();
+    expect(spinnerSvg).toHaveClass('w-16', 'h-16');
+    
+    // The image should not be visible
+    expect(queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('should not display the image or placeholder when loading', () => {
-    renderComponent({ isLoading: true, imageUrl: 'http://localhost/test-image.png' });
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.queryByText(/upload an image to see preview/i)).not.toBeInTheDocument();
+  it('displays an error message when an error is provided', () => {
+    const { getByText } = renderComponent({ error: 'Test error' });
+    expect(getByText('Test error')).toBeInTheDocument();
+  });
+
+  it('does not display the remove button when no image is loaded', () => {
+    renderComponent({ imageUrl: null });
+    expect(screen.queryByRole('button', { name: /remove image/i })).not.toBeInTheDocument();
   });
 }); 

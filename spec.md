@@ -263,13 +263,11 @@ The goal of this phase is to transform the functional application into a visuall
 
 The goal of this phase is to improve usability and visual clarity by making icons and buttons more intuitive and appropriately styled.
 
-- [ ] **Task 9.1: Refine and Control Icon Visibility**
-  - [ ] Write a test in `page.test.tsx` to assert that on initial load, only the `ImageUpload` component is visible.
-  - [ ] Refactor `page.tsx` to conditionally render `ImagePreview`, `DescriptionDisplay`, and `StoryDisplay` only after an image is selected.
+- [x] **Task 9.1: Refine and Control Icon Visibility**
   - [x] Write a test in `page.test.tsx` to assert that on initial load, only the `ImageUpload` component is visible.
   - [x] Refactor `page.tsx` to conditionally render `ImagePreview`, `DescriptionDisplay`, and `StoryDisplay` only after an image is selected.
-  - [ ] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to check for smaller, more conventional icons.
-  - [ ] Replace placeholder SVG icons with smaller, more appropriate icons from a library or custom SVGs.
+  - [x] Write tests in `ImageUpload.test.tsx` and `ImagePreview.test.tsx` to check for smaller, more conventional icons.
+  - [x] Replace placeholder SVG icons with smaller, more appropriate icons from a library or custom SVGs.
 
 - [ ] **Task 9.2: Redesign Buttons for Clarity and Emphasis**
   - [ ] Write tests in `Button.test.tsx` to check for new base styles (background, padding, hover/focus states).
