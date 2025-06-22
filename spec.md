@@ -208,4 +208,102 @@ The goal of this phase is to improve the development workflow by providing more 
 - **Action:**
   1. Find the HSL values for a suitable blue color from the Tailwind CSS palette (e.g., `blue-500`).
   2. Update the `--primary` and `--primary-foreground` CSS variables in `src/app/globals.css` with the new blue theme values.
-- **Commit:** `style(theme): change primary color to blue` 
+- **Commit:** `style(theme): change primary color to blue`
+
+---
+
+## Phase 15: Custom Prompt Input
+
+**Objective:** Allow users to input custom prompts for image descriptions, making the analysis more flexible and user-controlled.
+
+### Step 1: Create Custom Prompt Input Component
+- **Goal:** Build a new component that allows users to input custom prompts for image analysis.
+- **TDD:**
+  1. Create `src/components/CustomPromptInput.test.tsx` with tests for:
+     - Rendering a text input field with a label
+     - Displaying a default placeholder text
+     - Handling user input changes
+     - Validating that the component calls an `onPromptChange` callback
+  2. Run the test to confirm it fails.
+  3. Create `src/components/CustomPromptInput.tsx` with a textarea input and proper state management.
+  4. Run the test to confirm it passes.
+- **Commit:** `feat(components): add CustomPromptInput component`
+
+### Step 2: Integrate Custom Prompt into Image Upload Flow
+- **Goal:** Modify the image upload process to include the custom prompt input.
+- **TDD:**
+  1. Update `src/components/ImageUpload.test.tsx` to test that the component renders the `CustomPromptInput` and passes the prompt value to the parent.
+  2. Refactor `src/components/ImageUpload.tsx` to include the custom prompt input and pass the prompt value to the `onImageSelect` callback.
+  3. Run the test to verify the integration works correctly.
+- **Commit:** `feat(upload): integrate custom prompt input into image upload flow`
+
+### Step 3: Update Image Analysis Hook
+- **Goal:** Modify the `useImageAnalysis` hook to accept and use custom prompts.
+- **TDD:**
+  1. Update `src/hooks/useImageAnalysis.test.ts` to test that the `analyzeImage` function accepts a custom prompt parameter.
+  2. Modify `src/hooks/useImageAnalysis.ts` to accept a `prompt` parameter in the `analyzeImage` function.
+  3. Update the API call to use the custom prompt instead of the hardcoded one.
+  4. Run the test to confirm the hook works with custom prompts.
+- **Commit:** `feat(hooks): update useImageAnalysis to accept custom prompts`
+
+### Step 4: Update Main Page Component
+- **Goal:** Connect the custom prompt input to the image analysis workflow in the main page.
+- **TDD:**
+  1. Update `src/app/page.test.tsx` to test that the page handles custom prompt input and passes it to the image analysis.
+  2. Modify `src/app/page.tsx` to manage custom prompt state and pass it through the component chain.
+  3. Update the `handleImageSelect` function to include the custom prompt.
+  4. Run the test to verify the complete workflow functions correctly.
+- **Commit:** `feat(page): integrate custom prompt into main page workflow`
+
+### Step 5: Add Prompt Persistence
+- **Goal:** Save the user's custom prompt in localStorage so it persists between sessions.
+- **TDD:**
+  1. Create `src/hooks/useLocalStorage.test.ts` to test localStorage functionality.
+  2. Create `src/hooks/useLocalStorage.ts` hook for managing localStorage state.
+  3. Update `CustomPromptInput` to use the localStorage hook for prompt persistence.
+  4. Run tests to confirm prompt persistence works correctly.
+- **Commit:** `feat(storage): add localStorage persistence for custom prompts`
+
+### Step 6: Add Prompt Templates
+- **Goal:** Provide users with predefined prompt templates they can select from.
+- **TDD:**
+  1. Update `src/components/CustomPromptInput.test.tsx` to test template selection functionality.
+  2. Add a dropdown or button group to `CustomPromptInput.tsx` with common prompt templates.
+  3. Test that selecting a template updates the prompt input field.
+  4. Run tests to verify template functionality works correctly.
+- **Commit:** `feat(ui): add prompt templates for common use cases`
+
+### Step 7: Update API Route
+- **Goal:** Ensure the API route properly handles custom prompts.
+- **TDD:**
+  1. Update `src/app/api/analyze-image/route.test.ts` to test that the API accepts and uses custom prompts.
+  2. Modify `src/app/api/analyze-image/route.ts` to use the custom prompt from the request body.
+  3. Run tests to confirm the API works with custom prompts.
+- **Commit:** `feat(api): update analyze-image route to use custom prompts`
+
+### Step 8: Add Prompt Validation
+- **Goal:** Add validation to ensure prompts are not empty and have reasonable length limits.
+- **TDD:**
+  1. Update `src/components/CustomPromptInput.test.tsx` to test validation scenarios.
+  2. Add validation logic to `CustomPromptInput.tsx` for minimum/maximum prompt length.
+  3. Show validation messages to users when prompts are invalid.
+  4. Run tests to confirm validation works correctly.
+- **Commit:** `feat(validation): add prompt validation and error handling`
+
+### Step 9: Update UI/UX for Prompt Input
+- **Goal:** Improve the visual design and user experience of the prompt input.
+- **TDD:**
+  1. Update component tests to verify proper styling and layout.
+  2. Style the `CustomPromptInput` component with proper spacing, labels, and visual feedback.
+  3. Ensure the component integrates well with the existing design system.
+  4. Run tests to confirm the UI improvements work correctly.
+- **Commit:** `style(ui): enhance custom prompt input design and UX`
+
+### Step 10: Add Prompt History
+- **Goal:** Allow users to view and reuse previously used prompts.
+- **TDD:**
+  1. Create `src/hooks/usePromptHistory.test.ts` to test prompt history functionality.
+  2. Create `src/hooks/usePromptHistory.ts` hook for managing prompt history.
+  3. Add a history dropdown to `CustomPromptInput.tsx` showing recent prompts.
+  4. Run tests to confirm prompt history works correctly.
+- **Commit:** `feat(history): add prompt history functionality` 
