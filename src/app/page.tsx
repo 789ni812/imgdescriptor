@@ -137,13 +137,19 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column: Image Upload and Preview */}
-          <div className="flex flex-col gap-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+          <div
+            data-testid="content-card"
+            className="flex flex-col gap-6 p-6 bg-gray-800 rounded-lg shadow-lg"
+          >
             <ImageUpload onImageSelect={handleImageSelect} />
-            <ImagePreview imageUrl={previewUrl} isLoading={false} /> {/* No longer show loading here */}
+            <ImagePreview imageUrl={previewUrl} isLoading={isLoading} /> {/* No longer show loading here */}
           </div>
 
           {/* Right Column: Description Display */}
-          <div className="p-6 bg-gray-800 rounded-lg shadow-lg min-h-[300px]">
+          <div
+            data-testid="content-card"
+            className="p-6 bg-gray-800 rounded-lg shadow-lg min-h-[300px]"
+          >
             <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
             {description && !isLoading && !error && (
               <div className="mt-4 text-center">

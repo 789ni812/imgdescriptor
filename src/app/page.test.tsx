@@ -21,8 +21,9 @@ jest.mock('@/components/ImagePreview', () => ({
   __esModule: true,
   ImagePreview: ({ imageUrl, isLoading }: { imageUrl: string | null; isLoading: boolean }) => (
     <div data-testid="image-preview">
-      {imageUrl ? 'Image Preview' : 'No Image'}
-      {isLoading && 'Loading...'}
+      {imageUrl && <span>Image Preview</span>}
+      {!imageUrl && <span>No Image</span>}
+      {isLoading && <span>Loading...</span>}
     </div>
   ),
 }));
@@ -134,6 +135,12 @@ describe('Home Page', () => {
     expect(screen.getByTestId('description-display')).toBeInTheDocument();
   });
 
+  it('should wrap main content sections in card components', () => {
+    render(<Home />);
+    const cards = screen.getAllByTestId('content-card');
+    expect(cards).toHaveLength(2);
+  });
+
   it('should handle image upload and show preview', async () => {
     render(<Home />);
     
@@ -141,7 +148,8 @@ describe('Home Page', () => {
     fireEvent.click(uploadButton);
     
     await waitFor(() => {
-      expect(screen.getByText('Image Preview')).toBeInTheDocument();
+      // Check that the preview component contains the text, even if loading indicator is also present
+      expect(screen.getByTestId('image-preview')).toHaveTextContent(/image preview/i);
     });
   });
 

@@ -172,7 +172,7 @@ Transform the application from a functional prototype into a polished, professio
 - [x] Define a professional color palette and modern typography (e.g., Inter from Google Fonts)
 - [x] Integrate the new font and color palette into Tailwind config and global styles
 - [x] Create a consistent App Shell with Header and Footer components
-- [ ] Refine the main layout using card components for clear separation
+- [x] Refine the main layout using card components for clear separation
 
 **Part 2: Redesigning the Core User Journey**
 - [ ] Overhaul the ImageUpload component with a custom dropzone, icon, and styled button
