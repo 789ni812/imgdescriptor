@@ -1,7 +1,7 @@
 # Project Specification: Image Analysis with LM Studio
 
 ## Current Status: In Progress 🚧
-- **Phase 1-8:** Complete
+- **Phases 1-8:** Complete
 - **Phase 9: Iconography & Action Elements Refinement:** In Progress
 - **Phase 10: Final Polish & Readme:** Not Started
 
@@ -12,8 +12,50 @@ A Next.js application that allows users to upload images and get AI-generated de
 
 ## Development Phases
 
-### Phase 1-6: Initial Setup & Core AI Features - ✅ **Complete**
-These phases covered the initial project setup, component creation, LM Studio integration for both image description and story generation, and the initial test environment configuration.
+### Phase 1: Setup & Basic Structure - ✅ **Complete**
+1.  Create Next.js project with TypeScript
+2.  Install dependencies (LM Studio SDK, Tailwind CSS)
+3.  Set up basic layout and routing
+4.  Configure and verify Jest TDD environment
+5.  Push initial setup to GitHub
+
+### Phase 2: Core Components - ✅ **Complete**
+1.  Implement image upload functionality
+2.  Create image preview component
+3.  Build description display component
+
+### Phase 3: LM Studio Integration - ✅ **Complete**
+1.  Set up LM Studio client
+2.  Implement API route for image analysis
+3.  Connect frontend to backend
+
+### Phase 4: Polish & Testing - ✅ **Complete**
+1.  Add error handling
+2.  Implement loading states
+3.  Test with various image types
+4.  Responsive design testing
+
+### Phase 5: Enhanced Description Display - ✅ **Complete**
+1.  **Parse and Structure Description**: Instead of a single text block, parse the description string based on the `**Category:**` markers.
+2.  **Implement Markdown Rendering**: Use a library like `react-markdown` to render the parsed sections, turning `**...**` into bold text.
+3.  **Refine Component Layout**: Display the categories and their corresponding text in a clean, readable, structured format (e.g., labeled sections or cards).
+4.  **Add "Copy to Clipboard" Feature**: Implement a button to allow the user to copy the raw description text.
+
+### Phase 6: AI Story Generation - ✅ **Complete**
+1.  **Backend Story Generation:**
+    *   Create a new API route at `/api/generate-story`.
+    *   This route will accept an `{ description: string }` payload.
+    *   It will call the second LM Studio model with a specific story-generation prompt.
+2.  **Frontend UI Components:**
+    *   Create a new `StoryDisplay.tsx` component to show the generated story.
+    *   Create a "Generate Story" button component.
+    *   Write Jest tests for the new components.
+3.  **Frontend Integration:**
+    *   Add state variables in `page.tsx` for the story.
+    *   Call the `/api/generate-story` endpoint.
+    *   Display the `StoryDisplay` component.
+4.  **Final Testing:**
+    *   Perform end-to-end testing of the workflow.
 
 ### Phase 7: UI/UX Overhaul - ✅ **Complete**
 This phase transformed the application from a functional prototype into a polished tool with a consistent design language.
@@ -39,27 +81,17 @@ The goal of this phase is to improve usability and visual clarity by making icon
   - **Commit:** `feat(icons): reduce icon size to w-12 h-12`.
 
 - **Task 9.4: Correctly Scale Upload Icon Size and Stroke** - *Complete*
-  - **TDD:** Wrote failing tests to:
-    1.  Add custom CSS to `globals.css` for controlling heroicon `stroke-width`.
-    2.  Update `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` is larger (e.g., `w-16 h-16`) and has a custom stroke-width class (e.g., `heroicon-stroke-1`).
-  - **Run Test:** Confirm failure.
-  - **Code:**
-    1.  Add `heroicon-stroke-*` classes to `src/app/globals.css`.
-    2.  Update the `className` on the icon in `ImageUpload.tsx` to apply the new size and stroke classes.
-  - **Run Test:** Confirm pass.
+  - **TDD:** Added custom CSS for `stroke-width`, updated `ImageUpload.test.tsx` to assert larger size (`w-16 h-16`) and custom stroke class. Updated component to pass.
   - **Commit:** `feat(icons): increase upload icon size and apply custom stroke width`.
 
 - **Task 9.5: Reduce Upload Icon Size to `w-14 h-14`** - *Complete*
-  - **TDD:** Write a failing test in `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` has `w-14` and `h-14` classes.
-  - **Run Test:** Confirm failure.
-  - **Code:** Update the class names in `ImageUpload.tsx`.
-  - **Run Test:** Confirm pass.
+  - **TDD:** Wrote a failing test to assert the `ArrowUpOnSquareIcon` has `w-14` and `h-14` classes. Updated the component to pass.
   - **Commit:** `feat(icons): reduce upload icon size to w-14`.
 
-- **Task 9.6: Debug Icon Size and Verify Tailwind**
-  - **TDD (Header):** Write a failing test in `Header.test.tsx` to assert the title has a `text-blue-400` class. Update the component to pass.
+- **Task 9.6: Debug Icon Size and Verify Tailwind** - *Complete*
+  - **TDD (Header):** Write a failing test in `Header.test.tsx` to assert the title has a `text-blue-400` class. Updated the component to pass.
   - **TDD (Icon):** Write a failing test in `ImageUpload.test.tsx` to assert the icon is wrapped in a `div` with inline styles `width: 50px` and `height: 50px`.
-  - **Code:** Add the wrapper `div` in `ImageUpload.tsx` to pass the test.
+  - **Code:** Added the wrapper `div` in `ImageUpload.tsx` to pass the test.
   - **Commit:** `fix(ui): wrap upload icon and verify tailwind`.
 
 ### Phase 10: Final Polish & Readme
