@@ -7,6 +7,7 @@ import { DescriptionDisplay } from '@/components/DescriptionDisplay';
 import { StoryDisplay } from '@/components/StoryDisplay';
 import { Button } from '@/components/ui/Button';
 import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function Home() {
   // State for the image preview URL
@@ -14,7 +15,7 @@ export default function Home() {
   // State for the AI-generated description
   const [description, setDescription] = useState<string | null>(null);
   // State for loading indicators
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   // State for any errors
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +46,7 @@ export default function Home() {
     // Reset all states for a new analysis
     setDescription(null);
     setError(null);
-    setIsLoading(true);
+    setIsDescriptionLoading(true);
     setStory(null);
     setStoryError(null);
     setIsStoryLoading(false);
@@ -79,13 +80,13 @@ export default function Home() {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
         setError(`An unexpected error occurred: ${errorMessage}`);
       } finally {
-        setIsLoading(false);
+        setIsDescriptionLoading(false);
       }
     };
 
     reader.onerror = () => {
       setError('Failed to read the image file.');
-      setIsLoading(false);
+      setIsDescriptionLoading(false);
     };
   };
 
@@ -125,26 +126,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-white">
-
-<div className="bg-white border border-gray-200 p-2">Hi ya</div>
-
-
       <div 
         data-testid="main-content-container"
-        className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
+        className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column: Inputs */}
           <div className="space-y-8" data-testid="input-column">
-            {!imageUrl ? (
-              <DevDebugWrapper filename="ImageUpload.tsx">
-                <ImageUpload onImageSelect={handleImageSelect} />
-              </DevDebugWrapper>
-            ) : (
-              <DevDebugWrapper filename="ImagePreview.tsx">
+            {imageUrl ? (
+              <DevDebugWrapper key="image-preview" filename="ImagePreview.tsx">
                 <ImagePreview
                   imageUrl={imageUrl}
-                  isLoading={isLoading}
                   onRemove={() => {
                     setImageUrl(null);
                     setDescription(null);
@@ -152,34 +144,43 @@ export default function Home() {
                     setStory(null);
                     setStoryError(null);
                   }}
-                  error={error}
                 />
+              </DevDebugWrapper>
+            ) : (
+              <DevDebugWrapper key="image-upload" filename="ImageUpload.tsx">
+                <ImageUpload onImageSelect={handleImageSelect} />
               </DevDebugWrapper>
             )}
           </div>
 
           {/* Right Column: Outputs */}
-          {(imageUrl || description || error || story || storyError) && (
-            <div className="space-y-8" data-testid="output-column">
+          <div className="space-y-8" data-testid="output-column">
+            {isDescriptionLoading && (
+              <div className="flex justify-center items-center h-full min-h-[80px]">
+                <LoadingSpinner />
+              </div>
+            )}
+            
+            {!isDescriptionLoading && (description || error) && (
               <DevDebugWrapper filename="DescriptionDisplay.tsx">
-                <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
+                <DescriptionDisplay description={description} error={error} />
               </DevDebugWrapper>
+            )}
 
-              {description && !isLoading && !error && (
-                <div className="text-center">
-                  <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
-                    {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
-                  </Button>
-                </div>
-              )}
+            {description && !isDescriptionLoading && !error && (
+              <div className="text-center">
+                <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
+                  {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
+                </Button>
+              </div>
+            )}
 
-              {(isStoryLoading || story || storyError) && (
-                <DevDebugWrapper filename="StoryDisplay.tsx">
-                  <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
-                </DevDebugWrapper>
-              )}
-            </div>
-          )}
+            {(isStoryLoading || story || storyError) && (
+              <DevDebugWrapper filename="StoryDisplay.tsx">
+                <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+              </DevDebugWrapper>
+            )}
+          </div>
         </div>
       </div>
     </main>

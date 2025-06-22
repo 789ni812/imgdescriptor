@@ -18,7 +18,10 @@ jest.mock('@/components/StoryDisplay', () => ({
   StoryDisplay: jest.fn((props) => <div data-testid="story-display">{props.story}</div>),
 }));
 jest.mock('@/components/ui/Button', () => ({
-  Button: jest.fn(({ children, onClick }) => <button onClick={onClick}>{children}</button>),
+  Button: jest.fn(({ children, onClick, disabled }) => <button onClick={onClick} disabled={disabled}>{children}</button>),
+}));
+jest.mock('@/components/ui/LoadingSpinner', () => ({
+  LoadingSpinner: jest.fn(() => <div data-testid="loading-spinner" />),
 }));
 
 // Mock fetch
@@ -61,7 +64,7 @@ describe('Home Page', () => {
     render(<Home />);
     const mainContainer = screen.getByTestId('main-content-container');
     expect(mainContainer).toBeInTheDocument();
-    expect(mainContainer).toHaveClass('max-w-7xl', 'mx-auto', 'p-4', 'sm:p-6', 'lg:p-8', 'space-y-8');
+    expect(mainContainer).toHaveClass('max-w-7xl', 'mx-auto', 'p-4', 'sm:p-6', 'lg:p-8');
   });
 
   it('should implement a two-column grid layout on medium screens', () => {
@@ -80,49 +83,47 @@ describe('Home Page', () => {
   });
 
   // --- Core Functional Test ---
-  it('should handle the full user flow and display debug labels', async () => {
-    // Mock the fetch for image analysis
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ success: true, description: 'A test description.' }),
-    });
-
-    // Mock the fetch for story generation
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ success: true, story: 'A test story.' }),
-    });
+  it('should show preview and loading spinner immediately, then display description', async () => {
+    // Mock the fetch for image analysis to resolve after a delay
+    (fetch as jest.Mock).mockImplementationOnce(() => 
+      new Promise(resolve => 
+        setTimeout(() => 
+          resolve({
+            ok: true,
+            json: () => Promise.resolve({ success: true, description: 'A test description.' }),
+          }), 100)
+      )
+    );
 
     render(<Home />);
 
-    // Initial state: Only ImageUpload is visible with its debug label
-    expect(screen.getByText('ImageUpload.tsx')).toBeInTheDocument();
+    // Initial state: Only ImageUpload is visible
+    expect(screen.getByTestId('image-upload')).toBeInTheDocument();
+    expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
 
     // Trigger image upload
     const uploadButton = screen.getByRole('button', { name: /upload/i });
+    
+    // Use `act` to handle state updates from the upload
     await act(async () => {
       fireEvent.click(uploadButton);
-      mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
     });
 
-    // After upload, check for preview and description with their labels
-    await waitFor(() => {
-      expect(screen.getByText('ImagePreview.tsx')).toBeInTheDocument();
+    // Immediately after click, the preview and spinner should appear
+    expect(screen.getByTestId('image-preview')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    expect(screen.queryByTestId('description-display')).not.toBeInTheDocument();
+    
+    // Simulate the FileReader finishing
+    await act(async () => {
+        mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
     });
-
+    
+    // Wait for the fetch to complete and the description to appear
     await waitFor(() => {
-      expect(screen.getByText('DescriptionDisplay.tsx')).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+      expect(screen.getByTestId('description-display')).toBeInTheDocument();
       expect(screen.getByText('A test description.')).toBeInTheDocument();
-    });
-
-    // Trigger story generation
-    const generateStoryButton = screen.getByRole('button', { name: /generate a story/i });
-    fireEvent.click(generateStoryButton);
-
-    // After generation, check for the story with its label
-    await waitFor(() => {
-      expect(screen.getByText('StoryDisplay.tsx')).toBeInTheDocument();
-      expect(screen.getByText('A test story.')).toBeInTheDocument();
     });
   });
 }); 

@@ -27,16 +27,13 @@ export interface ImageUploadProps {
 
 export interface ImagePreviewProps {
   imageUrl: string | null;
-  isLoading?: boolean;
   alt?: string;
   onRemove?: () => void;
-  error?: string | null;
   generationTime?: number | null;
 }
 
 export interface DescriptionDisplayProps {
   description: string | null;
-  isLoading: boolean;
   error: string | null;
 }
 

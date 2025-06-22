@@ -59,4 +59,35 @@ The goal of this phase is to improve the development workflow by providing more 
   1. In `page.tsx`, record the start time when the "Generate Story" button is clicked.
   2. Record the end time when the story is received and calculate the duration.
   3. Render the duration in the `StoryDisplay` component.
-- **Commit:** `feat(dev): add timer for story generation` 
+- **Commit:** `feat(dev): add timer for story generation`
+
+---
+
+## Phase 11: UI/UX Refinements
+
+**Objective:** Enhance the user interface and experience by improving layout, spacing, and feedback during asynchronous operations.
+
+### Step 1: Implement Two-Column Layout
+- **Goal:** Position the image preview and the description/story side-by-side.
+- **Tasks:**
+    - Create a main grid container that splits the content area into two columns on medium to large screens.
+    - The left column will contain the `ImageUpload` or `ImagePreview` component.
+    - The right column will contain the `DescriptionDisplay` and `StoryDisplay` components.
+    - On smaller screens, the layout should revert to a single column.
+
+### Step 2: Add Margins and Padding
+- **Goal:** Improve visual clarity and separation between components.
+- **Tasks:**
+    - Add `space-y-8` (or similar) to the parent containers of the columns to create vertical spacing.
+    - Add a `gap-8` (or similar) to the grid container to create horizontal spacing between the two columns.
+    - Ensure consistent padding within the main content area.
+
+### Step 3: Enhance Image Upload and Loading UX
+- **Goal:** Provide immediate feedback to the user after an image is selected and while waiting for the AI.
+- **Tasks:**
+    - **TDD:** Write a Jest test to verify that the `ImagePreview` component is rendered immediately after an image is selected.
+    - Modify the `Home` page component (`page.tsx`).
+    - Upon image selection in `ImageUpload`, immediately hide the upload component and show the `ImagePreview` component with the selected image's preview URL.
+    - **TDD:** Write a Jest test to verify that a loading spinner is displayed in the right column while the image description is being fetched.
+    - While the `analyze-image` API call is in progress, display a `LoadingSpinner` component in the right-hand column where the `DescriptionDisplay` will appear.
+    - Once the description is fetched, replace the loading spinner with the `DescriptionDisplay` component. 
