@@ -179,9 +179,9 @@ Transform the application from a functional prototype into a polished, professio
   - [x] Rewrite test `ImageUpload.test.tsx` for a custom dropzone UI.
   - [x] Implement a custom dropzone with an icon and styled button using `react-dropzone`.
   - [x] Ensure all file handling logic (validation, selection) still passes.
-- [ ] **Task 7.4: Refine `ImagePreview` Component:**
-  - [ ] Redesign the component to have a cleaner, more modern look.
-  - [ ] Add a "Remove Image" button.
+- [x] **Task 7.4: Refine `ImagePreview` Component:**
+  - [x] Redesign the component to have a cleaner, more modern look.
+  - [x] Add a "Remove Image" button.
 - [ ] **Task 7.5: Refine `DescriptionDisplay` and `StoryDisplay` Components:**
   - [ ] Style these components to look like distinct "cards".
   - [ ] Improve loading and error state visuals.

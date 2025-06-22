@@ -29,6 +29,7 @@ export interface ImagePreviewProps {
   imageUrl: string | null;
   isLoading?: boolean;
   alt?: string;
+  onRemove?: () => void;
 }
 
 export interface DescriptionDisplayProps {
