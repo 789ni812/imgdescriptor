@@ -3,6 +3,20 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ImageUpload } from './ImageUpload';
 import { ImageUploadProps } from '@/lib/types';
 
+// Mock the CustomPromptInput component
+jest.mock('./CustomPromptInput', () => ({
+  CustomPromptInput: ({ onPromptChange, value }: { onPromptChange: (prompt: string) => void; value?: string }) => (
+    <div data-testid="custom-prompt-input">
+      <textarea
+        data-testid="prompt-textarea"
+        value={value || ''}
+        onChange={(e) => onPromptChange(e.target.value)}
+        placeholder="Custom prompt input"
+      />
+    </div>
+  ),
+}));
+
 const mockOnImageSelect = jest.fn();
 
 const renderComponent = (props: Partial<ImageUploadProps> = {}) => {
@@ -48,6 +62,56 @@ describe('ImageUpload Component', () => {
     expect(inputElement).toBeInTheDocument();
   });
 
+  it('should render the CustomPromptInput component', () => {
+    renderComponent();
+    expect(screen.getByTestId('custom-prompt-input')).toBeInTheDocument();
+  });
+
+  it('should call onImageSelect with file and prompt when both are provided', async () => {
+    const mockOnImageSelectWithPrompt = jest.fn();
+    renderComponent({ onImageSelect: mockOnImageSelectWithPrompt });
+    
+    const dropzone = screen.getByTestId('image-upload');
+    const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
+
+    // First, set a custom prompt
+    const promptTextarea = screen.getByTestId('prompt-textarea');
+    fireEvent.change(promptTextarea, { target: { value: 'Analyze the colors and composition' } });
+
+    // Then drop a file
+    await act(async () => {
+      fireEvent.drop(dropzone, {
+        dataTransfer: {
+          files: [file],
+          items: [{ kind: 'file', type: file.type, getAsFile: () => file }],
+          types: ['Files'],
+        },
+      });
+    });
+
+    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Analyze the colors and composition');
+  });
+
+  it('should call onImageSelect with file and default prompt when no custom prompt is set', async () => {
+    const mockOnImageSelectWithPrompt = jest.fn();
+    renderComponent({ onImageSelect: mockOnImageSelectWithPrompt });
+    
+    const dropzone = screen.getByTestId('image-upload');
+    const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
+
+    await act(async () => {
+      fireEvent.drop(dropzone, {
+        dataTransfer: {
+          files: [file],
+          items: [{ kind: 'file', type: file.type, getAsFile: () => file }],
+          types: ['Files'],
+        },
+      });
+    });
+
+    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Describe this image in detail.');
+  });
+
   it('should call onImageSelect with the file when a user selects an image via drop', async () => {
     renderComponent();
     const dropzone = screen.getByTestId('image-upload');
@@ -63,7 +127,7 @@ describe('ImageUpload Component', () => {
       });
     });
 
-    expect(mockOnImageSelect).toHaveBeenCalledWith(file);
+    expect(mockOnImageSelect).toHaveBeenCalledWith(file, 'Describe this image in detail.');
   });
 
   it('should not call onImageSelect for an invalid file type', async () => {
