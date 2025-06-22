@@ -16,4 +16,20 @@ describe('Footer Component', () => {
     expect(linkElement).toBeInTheDocument();
     expect(linkElement).toHaveAttribute('href', 'https://github.com/789ni812/imgdescriptor');
   });
+
+  it('should have proper styling for a site footer', () => {
+    render(<Footer />);
+    const footerElement = screen.getByTestId('footer');
+    
+    // Check for container and layout classes
+    expect(footerElement).toHaveClass('w-full', 'bg-gray-800', 'shadow-md-top');
+
+    // Check for inner container with padding
+    const innerContainer = footerElement.querySelector('div');
+    expect(innerContainer).toHaveClass('max-w-7xl', 'mx-auto', 'px-4', 'sm:px-6', 'lg:px-8');
+
+    // Check for flex layout to align items
+    const flexContainer = innerContainer?.querySelector('div');
+    expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-between', 'h-16');
+  });
 }); 
