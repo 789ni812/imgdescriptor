@@ -6,6 +6,7 @@ import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
 import { StoryDisplay } from '@/components/StoryDisplay';
 import { Button } from '@/components/ui/Button';
+import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
 
 export default function Home() {
   // State for the selected image file
@@ -134,28 +135,36 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column: Inputs */}
           <div className="space-y-8" data-testid="input-column">
-            <ImageUpload onImageSelect={handleImageSelect} />
-            {previewUrl && (
-              <ImagePreview 
-                imageUrl={previewUrl} 
-                isLoading={isLoading} 
-                onRemove={() => {
-                  setPreviewUrl(null);
-                  setSelectedFile(null);
-                  setDescription(null);
-                  setError(null);
-                  setStory(null);
-                  setStoryError(null);
-                }}
-              />
+            {!previewUrl ? (
+              <DevDebugWrapper filename="ImageUpload.tsx">
+                <ImageUpload onImageSelect={handleImageSelect} />
+              </DevDebugWrapper>
+            ) : (
+              <DevDebugWrapper filename="ImagePreview.tsx">
+                <ImagePreview
+                  imageUrl={previewUrl}
+                  isLoading={isLoading}
+                  onRemove={() => {
+                    setPreviewUrl(null);
+                    setSelectedFile(null);
+                    setDescription(null);
+                    setError(null);
+                    setStory(null);
+                    setStoryError(null);
+                  }}
+                  error={error}
+                />
+              </DevDebugWrapper>
             )}
           </div>
 
           {/* Right Column: Outputs */}
           {(previewUrl || description || error || story || storyError) && (
             <div className="space-y-8" data-testid="output-column">
-              <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
-              
+              <DevDebugWrapper filename="DescriptionDisplay.tsx">
+                <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
+              </DevDebugWrapper>
+
               {description && !isLoading && !error && (
                 <div className="text-center">
                   <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
@@ -164,8 +173,10 @@ export default function Home() {
                 </div>
               )}
 
-              { (isStoryLoading || story || storyError) && (
-                <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+              {(isStoryLoading || story || storyError) && (
+                <DevDebugWrapper filename="StoryDisplay.tsx">
+                  <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+                </DevDebugWrapper>
               )}
             </div>
           )}

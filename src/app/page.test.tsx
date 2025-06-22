@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import Home from './page';
 
 // Simplified mocks for child components
@@ -33,13 +33,26 @@ const mockFileReaderInstance = {
 const mockFileReader = jest.fn(() => mockFileReaderInstance);
 global.FileReader = mockFileReader as any;
 
+jest.mock('@/lib/lmstudio-client');
+
 describe('Home Page', () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
+    jest.resetModules();
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'development',
+    };
     (fetch as jest.Mock).mockClear();
     mockFileReader.mockClear();
     (mockFileReaderInstance.readAsDataURL as jest.Mock).mockClear();
     global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/test-guid');
     global.URL.revokeObjectURL = jest.fn();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   // --- Layout Tests ---
@@ -56,34 +69,59 @@ describe('Home Page', () => {
     expect(mainGrid).toHaveClass('grid', 'md:grid-cols-2', 'gap-8');
   });
 
-  it('should only show the upload component on initial render', () => {
+  it('renders only the ImageUpload component on initial load', () => {
     render(<Home />);
     expect(screen.getByTestId('image-upload')).toBeInTheDocument();
+    expect(screen.getByText('ImageUpload.tsx')).toBeInTheDocument();
     expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
     expect(screen.queryByTestId('description-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('story-display')).not.toBeInTheDocument();
   });
 
   // --- Core Functional Test ---
-  it('should handle image upload, show preview, and display description', async () => {
+  it('should handle the full user flow and display debug labels', async () => {
+    // Mock the fetch for image analysis
     (fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ success: true, description: 'A test description' }),
+      ok: true,
+      json: () => Promise.resolve({ success: true, description: 'A test description.' }),
     });
-    
+
+    // Mock the fetch for story generation
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ success: true, story: 'A test story.' }),
+    });
+
     render(<Home />);
-    
+
+    // Initial state: Only ImageUpload is visible with its debug label
+    expect(screen.getByText('ImageUpload.tsx')).toBeInTheDocument();
+
+    // Trigger image upload
     const uploadButton = screen.getByRole('button', { name: /upload/i });
-    
     await act(async () => {
       fireEvent.click(uploadButton);
       mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
     });
-    
-    // Check that a preview image is rendered
-    expect(await screen.findByRole('img')).toBeInTheDocument();
-    
-    // Check that the description is displayed
-    expect(screen.getByTestId('description-display')).toHaveTextContent('A test description');
+
+    // After upload, check for preview and description with their labels
+    await waitFor(() => {
+      expect(screen.getByText('ImagePreview.tsx')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('DescriptionDisplay.tsx')).toBeInTheDocument();
+      expect(screen.getByText('A test description.')).toBeInTheDocument();
+    });
+
+    // Trigger story generation
+    const generateStoryButton = screen.getByRole('button', { name: /generate a story/i });
+    fireEvent.click(generateStoryButton);
+
+    // After generation, check for the story with its label
+    await waitFor(() => {
+      expect(screen.getByText('StoryDisplay.tsx')).toBeInTheDocument();
+      expect(screen.getByText('A test story.')).toBeInTheDocument();
+    });
   });
 }); 
