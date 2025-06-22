@@ -250,9 +250,9 @@ The goal of this phase is to transform the functional application into a visuall
   - [x] Write tests in `Header.test.tsx` and `Footer.test.tsx` to check for background color, padding, and border styles.
   - [x] Implement the styling changes in the `Header` and `Footer` components.
 
-- [ ] **Task 8.3: Enhance Readability on Display Cards:**
-  - [x] Write tests in `DescriptionDisplay.test.tsx` and `StoryDisplay.test.tsx` to assert that text color is dark (e.g., `text-gray-800`).
-  - [ ] Refactor the components to remove `prose-invert` and use default `prose` styling for light backgrounds.
+- [x] **Task 8.3: Enhance Readability on Display Cards:**
+  - [x] Write a test in `DescriptionDisplay.test.tsx` and `StoryDisplay.test.tsx` to assert that text color is dark (e.g., `text-gray-800`).
+  - [x] Refactor the components to remove `prose-invert` and use default `prose` styling for light backgrounds.
 
 - [ ] **Task 8.4: Implement a Two-Column Layout:**
   - [ ] Write tests in `page.test.tsx` to verify a two-column grid layout (`grid`, `grid-cols-2`, `gap-8`).

@@ -81,4 +81,11 @@ describe('StoryDisplay', () => {
     const error = screen.getByTestId('error-message');
     expect(error.parentElement).toBe(card);
   });
+
+  it('should not have inverted text colors on a light background', () => {
+    render(<StoryDisplay story="Test" isLoading={false} error={null} />);
+    const container = screen.getByTestId('card-container');
+    const proseElement = container.querySelector('.prose');
+    expect(proseElement).not.toHaveClass('prose-invert');
+  });
 }); 

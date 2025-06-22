@@ -101,4 +101,11 @@ describe('DescriptionDisplay', () => {
     const error = screen.getByTestId('error-message');
     expect(error.parentElement).toBe(card);
   });
+
+  it('should not have inverted text colors on a light background', () => {
+    renderComponent({ description: 'Test' });
+    const container = screen.getByTestId('card-container');
+    const proseElement = container.querySelector('.prose');
+    expect(proseElement).not.toHaveClass('prose-invert');
+  });
 }); 

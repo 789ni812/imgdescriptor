@@ -19,7 +19,7 @@ export const DescriptionDisplay: React.FC<DescriptionDisplayProps> = ({
       ) : error ? (
         <ErrorMessage message={error} />
       ) : description ? (
-        <div className="prose prose-invert max-w-none w-full">
+        <div className="prose max-w-none w-full">
           <ReactMarkdown>{description}</ReactMarkdown>
         </div>
       ) : (

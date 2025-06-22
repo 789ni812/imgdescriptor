@@ -16,7 +16,7 @@ export const StoryDisplay: React.FC<StoryDisplayProps> = ({ story, isLoading, er
       ) : error ? (
         <ErrorMessage message={error} />
       ) : story ? (
-        <div className="prose prose-invert max-w-none w-full">
+        <div className="prose max-w-none w-full">
           <ReactMarkdown>{story}</ReactMarkdown>
         </div>
       ) : null}
