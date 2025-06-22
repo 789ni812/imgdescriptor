@@ -132,4 +132,40 @@ The goal of this phase is to improve the development workflow by providing more 
   - Pass the `handleReset` function to the `onRemove` prop of the `ImagePreview` component, removing the large inline function.
   - Review all components and remove any props that are no longer needed after the refactoring.
   - Ensure all components follow the Single Responsibility Principle as closely as possible.
-- **Commit:** `refactor(ui): simplify home page component and props` 
+- **Commit:** `refactor(ui): simplify home page component and props`
+
+---
+
+## Phase 13: UI Polish with shadcn/ui
+
+**Objective:** Modernize the application's look and feel by integrating the `shadcn/ui` component library and replacing existing custom components.
+
+### Step 1: Initialize shadcn/ui
+- **Goal:** Set up the project with the `shadcn/ui` framework using the user's preferences.
+- **Action:** Run `npx shadcn-ui@latest init` with the following configuration:
+  - **Base Color:** `Gray`
+  - **Primary Color:** `Amber`
+  - **CSS Variables:** `Yes`
+  - **`tailwind.config.ts` path:** `tailwind.config.ts`
+  - **`globals.css` path:** `src/app/globals.css`
+  - **Components Alias:** `@/components`
+  - **Utils Alias:** `@/lib/utils`
+- **Commit:** `feat(ui): initialize shadcn/ui`
+
+### Step 2: Replace Button Component
+- **Goal:** Replace the custom `Button` component with the more versatile `shadcn/ui` `Button`.
+- **TDD:**
+  1. Add the `shadcn/ui` button component by running `npx shadcn-ui@latest add button`. This will overwrite the existing `Button.tsx`.
+  2. The existing tests in `page.test.tsx` and `ImagePreview.test.tsx` that interact with buttons (e.g., "Generate Story", "Remove Image") will serve as our verification. They should continue to pass as they find elements by role and name.
+  3. Run the full test suite to confirm no regressions.
+  4. Delete the now-redundant `src/components/ui/Button.test.tsx` file.
+- **Commit:** `feat(ui): replace custom button with shadcn Button`
+
+### Step 3: Replace Preview Container with Card Component
+- **Goal:** Replace the custom-styled container for the image preview with the `shadcn/ui` `Card` component for a more structured and theme-consistent look.
+- **TDD:**
+  1. Add the `Card` component via the CLI: `npx shadcn-ui@latest add card`.
+  2. Update `ImagePreview.test.tsx` to assert that the main container has the appropriate `div` structure and classes for a `Card` component, as the semantic role may not be present.
+  3. Refactor `ImagePreview.tsx` to use `<Card>`, `<CardContent>`, and other `Card` sub-components to wrap the image or placeholder.
+  4. Run the `ImagePreview` test to ensure it passes with the new structure.
+- **Commit:** `feat(ui): replace image preview container with shadcn Card` 

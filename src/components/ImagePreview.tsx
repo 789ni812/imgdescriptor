@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Button } from './ui/Button';
 import type { ImagePreviewProps } from '@/lib/types';
+import { Card, CardContent } from './ui/card';
 
 const PlaceholderIcon = () => (
   <svg
@@ -26,36 +27,35 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   alt = 'Image preview',
 }) => {
   return (
-    <div
-      data-testid="image-preview-container"
-      className="w-full h-64 bg-white shadow-lg rounded-xl flex items-center justify-center overflow-hidden relative"
-    >
-      {imageUrl ? (
-        <>
-          <Image
-            src={imageUrl}
-            alt={alt}
-            width={256}
-            height={256}
-            className="object-contain"
-          />
-          {onRemove && (
-            <Button
-              variant="destructive"
-              className="absolute top-2 right-2 z-10"
-              onClick={onRemove}
-              aria-label="Remove Image"
-            >
-              Remove Image
-            </Button>
-          )}
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full text-gray-500">
-          <PlaceholderIcon />
-          <p className="text-base font-medium">Upload an image to see preview</p>
-        </div>
-      )}
-    </div>
+    <Card data-testid="image-preview-container" className="w-full h-64 overflow-hidden">
+      <CardContent className="p-0 w-full h-full flex items-center justify-center relative">
+        {imageUrl ? (
+          <>
+            <Image
+              src={imageUrl}
+              alt={alt}
+              width={256}
+              height={256}
+              className="object-contain"
+            />
+            {onRemove && (
+              <Button
+                variant="destructive"
+                className="absolute top-2 right-2 z-10"
+                onClick={onRemove}
+                aria-label="Remove Image"
+              >
+                Remove Image
+              </Button>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <PlaceholderIcon />
+            <p className="text-base font-medium">Upload an image to see preview</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

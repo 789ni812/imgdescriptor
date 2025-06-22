@@ -1,6 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ImagePreview } from './ImagePreview';
+import { Card, CardContent } from './ui/card';
+
+// Mock the Card components to check for their presence
+jest.mock('./ui/card', () => ({
+  Card: ({ children, ...props }: { children: React.ReactNode }) => <div {...props} data-testid="card">{children}</div>,
+  CardContent: ({ children, ...props }: { children: React.ReactNode }) => <div {...props} data-testid="card-content">{children}</div>,
+}));
 
 describe('ImagePreview Component', () => {
   const validImageUrl = '/test-image.jpg';
@@ -13,12 +20,18 @@ describe('ImagePreview Component', () => {
     jest.clearAllMocks();
   });
 
-  it('displays the image with correct dimensions when an imageUrl is provided', () => {
+  it('displays the image within a Card component', () => {
     render(<ImagePreview {...defaultProps} />);
-    const image = screen.getByRole('img');
-    expect(image).toBeInTheDocument();
     
-    // Check that the image is rendered with the specified width and height
+    // Check that the main container is a Card
+    expect(screen.getByTestId('card')).toBeInTheDocument();
+    
+    // Check that the image is within CardContent
+    const cardContent = screen.getByTestId('card-content');
+    const image = screen.getByRole('img');
+    expect(cardContent).toContainElement(image);
+
+    // Check for width and height attributes
     expect(image).toHaveAttribute('width', '256');
     expect(image).toHaveAttribute('height', '256');
   });
