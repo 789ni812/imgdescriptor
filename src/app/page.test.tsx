@@ -6,7 +6,16 @@ import Home from './page';
 
 // Simplified mocks for child components
 jest.mock('@/components/ImageUpload', () => ({
-  ImageUpload: jest.fn((props) => <div data-testid="image-upload"><button onClick={() => props.onImageSelect(new File([''], 'test.png'))}>Upload</button></div>),
+  ImageUpload: jest.fn((props) => (
+    <div data-testid="image-upload">
+      <button onClick={() => props.onImageSelect(new File([''], 'test.png'), 'Custom prompt')}>
+        Upload with Custom Prompt
+      </button>
+      <button onClick={() => props.onImageSelect(new File([''], 'test.png'))}>
+        Upload with Default Prompt
+      </button>
+    </div>
+  )),
 }));
 jest.mock('@/components/ImagePreview', () => ({
   ImagePreview: jest.fn((props) => <div data-testid="image-preview">{props.imageUrl && <img src={props.imageUrl} alt="preview" />}</div>),
@@ -82,6 +91,90 @@ describe('Home Page', () => {
     expect(screen.queryByTestId('story-display')).not.toBeInTheDocument();
   });
 
+  // --- Custom Prompt Integration Tests ---
+  it('should handle custom prompt input and pass it to image analysis', async () => {
+    const customPrompt = 'Analyze the architectural elements';
+    (fetch as jest.Mock).mockImplementationOnce(() => 
+      new Promise(resolve => 
+        setTimeout(() => 
+          resolve({
+            ok: true,
+            json: () => Promise.resolve({ success: true, description: 'Architectural analysis result.' }),
+          }), 100)
+      )
+    );
+
+    render(<Home />);
+
+    // Trigger image upload with custom prompt
+    const uploadButton = screen.getByRole('button', { name: /upload with custom prompt/i });
+    
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
+
+    // Simulate the FileReader finishing
+    await act(async () => {
+        mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
+    });
+    
+    // Wait for the fetch to complete
+    await waitFor(() => {
+      expect(screen.getByTestId('description-display')).toBeInTheDocument();
+    });
+
+    // Verify the custom prompt was used in the API call
+    expect(fetch).toHaveBeenCalledWith('/api/analyze-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: 'test-base64-string',
+        prompt: customPrompt,
+      }),
+    });
+  });
+
+  it('should use default prompt when no custom prompt is provided', async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() => 
+      new Promise(resolve => 
+        setTimeout(() => 
+          resolve({
+            ok: true,
+            json: () => Promise.resolve({ success: true, description: 'Default analysis result.' }),
+          }), 100)
+      )
+    );
+
+    render(<Home />);
+
+    // Trigger image upload with default prompt
+    const uploadButton = screen.getByRole('button', { name: /upload with default prompt/i });
+    
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
+
+    // Simulate the FileReader finishing
+    await act(async () => {
+        mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
+    });
+    
+    // Wait for the fetch to complete
+    await waitFor(() => {
+      expect(screen.getByTestId('description-display')).toBeInTheDocument();
+    });
+
+    // Verify the default prompt was used in the API call
+    expect(fetch).toHaveBeenCalledWith('/api/analyze-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: 'test-base64-string',
+        prompt: 'Describe this image in detail.',
+      }),
+    });
+  });
+
   // --- Core Functional Test ---
   it('should show preview and loading spinner immediately, then display description', async () => {
     // Mock the fetch for image analysis to resolve after a delay
@@ -102,7 +195,7 @@ describe('Home Page', () => {
     expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
 
     // Trigger image upload
-    const uploadButton = screen.getByRole('button', { name: /upload/i });
+    const uploadButton = screen.getByRole('button', { name: /upload with default prompt/i });
     
     // Use `act` to handle state updates from the upload
     await act(async () => {
