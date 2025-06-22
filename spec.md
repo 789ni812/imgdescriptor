@@ -168,4 +168,44 @@ The goal of this phase is to improve the development workflow by providing more 
   2. Update `ImagePreview.test.tsx` to assert that the main container has the appropriate `div` structure and classes for a `Card` component, as the semantic role may not be present.
   3. Refactor `ImagePreview.tsx` to use `<Card>`, `<CardContent>`, and other `Card` sub-components to wrap the image or placeholder.
   4. Run the `ImagePreview` test to ensure it passes with the new structure.
-- **Commit:** `feat(ui): replace image preview container with shadcn Card` 
+- **Commit:** `feat(ui): replace image preview container with shadcn Card`
+
+---
+
+## Phase 14: Layout and Theming Enhancements
+
+**Objective:** Refine the application's layout for better readability and update the color scheme to match a new visual direction.
+
+### Step 1: Adjust DevDebugWrapper Spacing
+- **Goal:** Add vertical space below the `DevDebugWrapper` component for better visual separation.
+- **TDD:**
+  1. Update the `DevDebugWrapper.test.tsx` file to assert that the component's main `div` has the `mb-8` class (Tailwind's class for `margin-bottom: 2rem` or `32px`).
+  2. Run the test to confirm it fails.
+  3. Add the `mb-8` class to the `div` in `DevDebugWrapper.tsx`.
+  4. Run the test again to confirm it passes.
+- **Commit:** `style(dev): add bottom margin to DevDebugWrapper`
+
+### Step 2: Encapsulate Description in a Card
+- **Goal:** Improve the visual structure of the image description by placing it inside a `shadcn/ui` `Card`.
+- **TDD:**
+  1. Update `DescriptionDisplay.test.tsx` to mock the `Card` component and assert that the description text is rendered within a `CardContent` element.
+  2. Run the test to confirm failure.
+  3. Refactor the `DescriptionDisplay.tsx` component to wrap its content in `<Card>` and `<CardContent>`.
+  4. Run the test to confirm it passes.
+- **Commit:** `feat(ui): display image description within a Card`
+
+### Step 3: Implement Two-Column Layout
+- **Goal:** Position the image preview on the left and the description on the right for a more organized desktop view.
+- **TDD:**
+  1. In `page.test.tsx`, assert that the main container for the content columns has the Tailwind CSS classes `grid` and `md:grid-cols-2`.
+  2. Refactor `page.tsx` to wrap the two columns in a `div` with these grid classes. The left column (image) and right column (description) will then align correctly on medium screens and wider.
+  3. Run the test to verify the new layout structure.
+- **Commit:** `feat(layout): implement two-column view for image and description`
+
+### Step 4: Update Primary Button Color to Blue
+- **Goal:** Change the primary action button color from Amber to Blue.
+- **TDD:** This is a visual theme change not easily testable with JSDOM. Verification will be done visually after the change.
+- **Action:**
+  1. Find the HSL values for a suitable blue color from the Tailwind CSS palette (e.g., `blue-500`).
+  2. Update the `--primary` and `--primary-foreground` CSS variables in `src/app/globals.css` with the new blue theme values.
+- **Commit:** `style(theme): change primary color to blue` 
