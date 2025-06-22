@@ -27,7 +27,13 @@ describe('ImageUpload Component', () => {
     const { container } = renderComponent();
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon).toHaveClass('w-14', 'h-14', 'text-gray-400', 'heroicon-stroke-1');
+
+    if (icon) {
+      expect(icon).toHaveClass('w-full', 'h-full', 'text-gray-400', 'heroicon-stroke-1');
+      const wrapper = icon.parentElement;
+      expect(wrapper).toHaveStyle('width: 50px');
+      expect(wrapper).toHaveStyle('height: 50px');
+    }
   });
 
   it('should display instructional text for the user', () => {

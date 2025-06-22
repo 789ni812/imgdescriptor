@@ -28,7 +28,9 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: Image
         transition-colors duration-200 ease-in-out`}
     >
       <input {...getInputProps({ id: 'image-upload', 'aria-label': 'Upload an image' })} />
-      <ArrowUpOnSquareIcon className="w-14 h-14 text-gray-400 heroicon-stroke-1" />
+      <div style={{ width: '50px', height: '50px' }}>
+        <ArrowUpOnSquareIcon className="w-full h-full text-gray-400 heroicon-stroke-1" />
+      </div>
       <p className="mt-4 text-lg text-gray-400">
         <span className="font-semibold text-primary">Click to upload</span> or drag and drop
       </p>

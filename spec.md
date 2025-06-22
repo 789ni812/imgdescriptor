@@ -49,12 +49,18 @@ The goal of this phase is to improve usability and visual clarity by making icon
   - **Run Test:** Confirm pass.
   - **Commit:** `feat(icons): increase upload icon size and apply custom stroke width`.
 
-- **Task 9.5: Reduce Upload Icon Size to `w-14 h-14`**
+- **Task 9.5: Reduce Upload Icon Size to `w-14 h-14`** - *Complete*
   - **TDD:** Write a failing test in `ImageUpload.test.tsx` to assert the `ArrowUpOnSquareIcon` has `w-14` and `h-14` classes.
   - **Run Test:** Confirm failure.
   - **Code:** Update the class names in `ImageUpload.tsx`.
   - **Run Test:** Confirm pass.
   - **Commit:** `feat(icons): reduce upload icon size to w-14`.
+
+- **Task 9.6: Debug Icon Size and Verify Tailwind**
+  - **TDD (Header):** Write a failing test in `Header.test.tsx` to assert the title has a `text-blue-400` class. Update the component to pass.
+  - **TDD (Icon):** Write a failing test in `ImageUpload.test.tsx` to assert the icon is wrapped in a `div` with inline styles `width: 50px` and `height: 50px`.
+  - **Code:** Add the wrapper `div` in `ImageUpload.tsx` to pass the test.
+  - **Commit:** `fix(ui): wrap upload icon and verify tailwind`.
 
 ### Phase 10: Final Polish & Readme
 The goal of this phase is to finalize the application and prepare the final readme file.

@@ -1,6 +1,6 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Header } from './Header';
-import React from 'react';
 
 // Mock Next.js Link component for testing
 jest.mock('next/link', () => {
@@ -10,17 +10,15 @@ jest.mock('next/link', () => {
 });
 
 describe('Header Component', () => {
-  it('should render the application title', () => {
-    render(<Header />);
-    const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
-    expect(titleElement).toBeInTheDocument();
-  });
-
-  it('should link the title to the homepage', () => {
+  it('renders the title correctly with a link to the homepage', () => {
     render(<Header />);
     const linkElement = screen.getByRole('link', { name: /ai image describer/i });
     expect(linkElement).toBeInTheDocument();
     expect(linkElement).toHaveAttribute('href', '/');
+
+    const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
+    expect(titleElement).toBeInTheDocument();
+    expect(titleElement).toHaveClass('text-2xl', 'font-bold', 'text-blue-400');
   });
 
   it('should have proper styling for a site header', () => {
@@ -37,11 +35,5 @@ describe('Header Component', () => {
     // Check for flex layout to align items
     const flexContainer = innerContainer?.querySelector('div');
     expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-between', 'h-16');
-  });
-
-  it('renders the main title and subtitle', () => {
-    render(<Header />);
-    const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
-    expect(titleElement).toBeInTheDocument();
   });
 }); 

@@ -7,7 +7,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-white hover:text-primary-light transition-colors">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-2xl font-bold text-blue-400">
                 AI Image Describer
               </h1>
             </Link>
