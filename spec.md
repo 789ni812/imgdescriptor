@@ -236,3 +236,25 @@ Transform the application from a functional prototype into a polished, professio
 4. **Design**: Modern minimal, image left, description right
 5. **Error Handling**: Basic error messages displayed on screen
 6. **Additional Features**: None at this stage 
+
+### **Phase 8: Advanced UI Polish & Layout Refinement**
+
+The goal of this phase is to transform the functional application into a visually appealing and professional-looking tool.
+
+- [ ] **Task 8.1: Implement a Global Layout Structure:**
+  - [x] Write a test in `page.test.tsx` to verify the main content area has a `max-w-7xl` and `mx-auto` class.
+  - [x] Write a test to ensure a consistent `gap-8` between main sections.
+  - [x] Refactor `page.tsx` to use a main container `<div>` with these properties.
+
+- [ ] **Task 8.2: Redesign Header and Footer:**
+  - [ ] Write tests in `Header.test.tsx` and `Footer.test.tsx` to check for background color, padding, and border styles.
+  - [ ] Implement the styling changes in the `Header` and `Footer` components.
+
+- [ ] **Task 8.3: Enhance Readability on Display Cards:**
+  - [ ] Write a test in `DescriptionDisplay.test.tsx` and `StoryDisplay.test.tsx` to assert that text color is dark (e.g., `text-gray-800`).
+  - [ ] Refactor the components to remove `prose-invert` and use default `prose` styling for light backgrounds.
+
+- [ ] **Task 8.4: Implement a Two-Column Layout:**
+  - [ ] Write tests in `page.test.tsx` to verify a two-column grid layout (`grid`, `grid-cols-2`, `gap-8`).
+  - [ ] Test that input components (`ImageUpload`, `ImagePreview`) are in the first column and output components (`DescriptionDisplay`, `StoryDisplay`) are in the second.
+  - [ ] Refactor `page.tsx` to implement this grid structure. 

@@ -126,39 +126,44 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-12 bg-gray-900 text-white">
-      <div className="w-full max-w-6xl z-10">
-        <header className="text-center mb-10">
-          <h1 className="text-5xl font-bold">AI Image Describer</h1>
-          <p className="text-xl text-gray-400 mt-2">
-            Upload an image and let our AI describe it for you.
-          </p>
-        </header>
-
+    <main className="min-h-screen bg-gray-900 text-white">
+      <div 
+        data-testid="main-content-container"
+        className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left Column: Image Upload and Preview */}
-          <div
-            data-testid="content-card"
-            className="flex flex-col gap-6 p-6 bg-gray-800 rounded-lg shadow-lg"
-          >
+          <div className="space-y-6">
             <ImageUpload onImageSelect={handleImageSelect} />
-            <ImagePreview imageUrl={previewUrl} isLoading={isLoading} /> {/* No longer show loading here */}
+            <ImagePreview 
+              imageUrl={previewUrl} 
+              isLoading={isLoading} 
+              onRemove={() => {
+                setPreviewUrl(null);
+                setSelectedFile(null);
+                setDescription(null);
+                setError(null);
+                setStory(null);
+                setStoryError(null);
+              }}
+            />
           </div>
 
-          {/* Right Column: Description Display */}
-          <div
-            data-testid="content-card"
-            className="p-6 bg-gray-800 rounded-lg shadow-lg min-h-[300px]"
-          >
+          {/* Right Column: Description Display and Story */}
+          <div className="space-y-6">
             <DescriptionDisplay description={description} isLoading={isLoading} error={error} />
+            
             {description && !isLoading && !error && (
-              <div className="mt-4 text-center">
+              <div className="text-center">
                 <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
                   {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
                 </Button>
               </div>
             )}
-            <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+
+            { (isStoryLoading || story || storyError) && (
+              <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+            )}
           </div>
         </div>
       </div>
