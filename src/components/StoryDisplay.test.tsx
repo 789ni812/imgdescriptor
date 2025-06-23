@@ -3,10 +3,19 @@ import { render, screen } from '@testing-library/react';
 import { StoryDisplay } from './StoryDisplay';
 import { StoryDisplayProps } from '@/lib/types';
 
-// Mock the react-markdown component
-jest.mock('react-markdown', () => ({
+// Mock MarkdownRenderer to test integration
+jest.mock('./ui/MarkdownRenderer', () => ({
   __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="markdown-display">{children}</div>,
+  default: ({ content, className }: { content: string; className?: string }) => (
+    <div data-testid="markdown-renderer" className={className}>
+      {content}
+    </div>
+  ),
+}));
+
+// Mock the LoadingSpinner to simplify testing
+jest.mock('./ui/LoadingSpinner', () => ({
+  LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
 }));
 
 type RenderProps = Partial<StoryDisplayProps>;
@@ -29,22 +38,83 @@ describe('StoryDisplay', () => {
   it('should render the story when provided', () => {
     const testStory = 'This is a test story.';
     renderComponent({ story: testStory });
-    expect(screen.getByTestId('markdown-display')).toHaveTextContent(testStory);
+    expect(screen.getByTestId('markdown-renderer')).toHaveTextContent(testStory);
+  });
+
+  it('should use MarkdownRenderer for story content', () => {
+    const testStory = 'This is a **bold** story.';
+    renderComponent({ story: testStory });
+    
+    const markdownRenderer = screen.getByTestId('markdown-renderer');
+    expect(markdownRenderer).toBeInTheDocument();
+    expect(markdownRenderer).toHaveTextContent(testStory);
+  });
+
+  it('should pass story content to MarkdownRenderer', () => {
+    const testStory = 'A story with *italic* text.';
+    renderComponent({ story: testStory });
+    
+    const markdownRenderer = screen.getByTestId('markdown-renderer');
+    expect(markdownRenderer).toHaveTextContent(testStory);
+  });
+
+  it('should not use MarkdownRenderer when error is present', () => {
+    const testStory = 'This is a **bold** story.';
+    const testError = 'This is a test error.';
+    renderComponent({ story: testStory, error: testError });
+    
+    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
+    expect(screen.getByText(testError)).toBeInTheDocument();
+  });
+
+  it('should handle markdown content with headings and lists', () => {
+    const markdownStory = `
+# The Adventure Begins
+
+This is a **bold** and *italic* story.
+
+## Characters
+- **Hero**: Brave warrior
+- **Villain**: Evil sorcerer
+
+> "This is a memorable quote from the story."
+
+The story continues with [more details](https://example.com).
+    `;
+    
+    renderComponent({ story: markdownStory });
+    
+    const markdownRenderer = screen.getByTestId('markdown-renderer');
+    expect(markdownRenderer).toBeInTheDocument();
+    expect(markdownRenderer).toHaveTextContent('The Adventure Begins');
+    expect(markdownRenderer).toHaveTextContent('Characters');
+    expect(markdownRenderer).toHaveTextContent('Hero');
+    expect(markdownRenderer).toHaveTextContent('Villain');
   });
 
   it('should display a loading spinner when isLoading is true', () => {
     renderComponent({ isLoading: true });
-    expect(screen.getByTestId('loading-spinner-svg')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
     expect(screen.getByText('Generating story...')).toBeInTheDocument();
   });
 
   it('should not display a loading spinner when not loading', () => {
     renderComponent({ isLoading: false });
-    expect(screen.queryByTestId('loading-spinner-svg')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
   });
 
   it('should display an error message when an error is provided', () => {
     renderComponent({ error: 'Test Error' });
     expect(screen.getByText('Test Error')).toBeInTheDocument();
+  });
+
+  it('should prioritize error over story and loading', () => {
+    const testStory = 'This is a test story.';
+    const testError = 'This is a test error.';
+    renderComponent({ story: testStory, error: testError, isLoading: true });
+    
+    expect(screen.getByText(testError)).toBeInTheDocument();
+    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
   });
 }); 
