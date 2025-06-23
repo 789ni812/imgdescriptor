@@ -325,9 +325,10 @@ The goal of this phase is to improve the development workflow by providing more 
 - [x] Remove the "View Source on GitHub" link from the footer and update layout
 - [x] Remove the DevDebugWrapper component entirely (including from all tests and code)
 - [x] Add a solid white top border to the footer
-- [ ] Create a comprehensive default image description prompt stored in constants
+- [x] Create a comprehensive default image description prompt stored in constants
 - [ ] Add a dual prompt system allowing custom or default prompts for both image description and story generation
 
 **Status:**
 - DevDebugWrapper has been fully removed from all components and tests. The component and its test file were deleted. All tests pass and the build is successful as of commit d9c3dc7.
-- Footer now has a solid white top border. All tests and build pass as of commit 0451116. 
+- Footer now has a solid white top border. All tests and build pass as of commit 0451116.
+- Comprehensive default image description prompt is now stored in src/lib/constants and used throughout the app. All tests and build pass as of commit 4a26bfb. 
