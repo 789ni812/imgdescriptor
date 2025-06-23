@@ -98,105 +98,107 @@ export default function Home() {
   const isTurnLimitReached = character.currentTurn >= 3;
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      <div 
-        data-testid="main-content-container"
-        className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
-      >
-        {/* Reset Game Button */}
-        {character.currentTurn > 0 && (
-          <div className="mb-4">
-            <Button onClick={resetCharacter} variant="outline" size="sm">
-              Reset Game
-            </Button>
-          </div>
-        )}
-        <div className="flex flex-wrap gap-6 justify-start">
-          {/* Image Upload/Preview Card */}
-          <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-            <CardContent className="p-6">
-              {imageUrl ? (
-                <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
-              ) : (
-                <div className="space-y-4">
-                  {isTurnLimitReached && (
-                    <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-yellow-200 text-sm">
-                      <p className="font-medium">Turn limit reached!</p>
-                      <p className="text-xs text-yellow-300/80">
-                        You&apos;ve used all 3 turns. Your character has gained experience and stats from analyzing images.
-                      </p>
-                    </div>
-                  )}
-                  <ImageUpload 
-                    onImageSelect={handleImageSelect} 
-                    disabled={isTurnLimitReached}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Loading Spinner Card */}
-          {isDescriptionLoading && (
-            <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-              <CardContent className="p-6">
-                <div className="flex justify-center items-center h-full min-h-[80px]">
-                  <LoadingSpinner />
-                </div>
-              </CardContent>
-            </Card>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <main>
+        <div 
+          data-testid="main-content-container"
+          className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
+        >
+          {/* Reset Game Button */}
+          {character.currentTurn > 0 && (
+            <div className="mb-4">
+              <Button onClick={resetCharacter} variant="outline" size="sm">
+                Reset Game
+              </Button>
+            </div>
           )}
-
-          {/* Description Display Card */}
-          {!isDescriptionLoading && (description || descriptionError) && (
+          <div className="flex flex-wrap gap-6 justify-start">
+            {/* Image Upload/Preview Card */}
             <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
               <CardContent className="p-6">
-                <DescriptionDisplay description={description} error={descriptionError} />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Generate Story Card with Dual Prompt System */}
-          {description && !isDescriptionLoading && !descriptionError && (
-            <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Generate Story</h3>
-                  <CustomPromptInput 
-                    onPromptChange={setCustomStoryPrompt}
-                    value={customStoryPrompt}
-                  />
-                  <div className="flex space-x-4">
-                    <Button 
-                      onClick={handleGenerateStoryWithDefaultPrompt} 
-                      disabled={isStoryLoading}
-                      className="flex-1"
-                    >
-                      {isStoryLoading ? 'Generating...' : 'Default Prompt'}
-                    </Button>
-                    <Button 
-                      onClick={handleGenerateStoryWithCustomPrompt} 
-                      disabled={isStoryLoading}
-                      className="flex-1"
-                    >
-                      {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
-                    </Button>
+                {imageUrl ? (
+                  <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
+                ) : (
+                  <div className="space-y-4">
+                    {isTurnLimitReached && (
+                      <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-yellow-200 text-sm">
+                        <p className="font-medium">Turn limit reached!</p>
+                        <p className="text-xs text-yellow-300/80">
+                          You&apos;ve used all 3 turns. Your character has gained experience and stats from analyzing images.
+                        </p>
+                      </div>
+                    )}
+                    <ImageUpload 
+                      onImageSelect={handleImageSelect} 
+                      disabled={isTurnLimitReached}
+                    />
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
-          )}
 
-          {/* Story Display Card */}
-          {(isStoryLoading || story || storyError) && (
-            <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-              <CardContent className="p-6">
-                <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
-              </CardContent>
-            </Card>
-          )}
+            {/* Loading Spinner Card */}
+            {isDescriptionLoading && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <div className="flex justify-center items-center h-full min-h-[80px]">
+                    <LoadingSpinner />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Description Display Card */}
+            {!isDescriptionLoading && (description || descriptionError) && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <DescriptionDisplay description={description} error={descriptionError} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Generate Story Card with Dual Prompt System */}
+            {description && !isDescriptionLoading && !descriptionError && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white">Generate Story</h3>
+                    <CustomPromptInput 
+                      onPromptChange={setCustomStoryPrompt}
+                      value={customStoryPrompt}
+                    />
+                    <div className="flex space-x-4">
+                      <Button 
+                        onClick={handleGenerateStoryWithDefaultPrompt} 
+                        disabled={isStoryLoading}
+                        className="flex-1"
+                      >
+                        {isStoryLoading ? 'Generating...' : 'Default Prompt'}
+                      </Button>
+                      <Button 
+                        onClick={handleGenerateStoryWithCustomPrompt} 
+                        disabled={isStoryLoading}
+                        className="flex-1"
+                      >
+                        {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Story Display Card */}
+            {(isStoryLoading || story || storyError) && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

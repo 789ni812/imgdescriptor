@@ -79,17 +79,22 @@
   - Write tests for character stats display
   - **Commit:** `feat(header): add character stats display component`
 
-- [ ] **19.2: Integrate Character Stats in Header**
+- [x] **19.2: Integrate Character Stats in Header**
   - Update `Header` component to include character stats
   - Connect to Zustand store for real-time updates
   - Write tests for header integration
   - **Commit:** `feat(header): integrate character stats in header`
 
-- [ ] **19.3: Style Header Stats**
+- [x] **19.3: Style Header Stats**
   - Apply small font styling and proper layout
   - Ensure responsive design for different screen sizes
   - Write tests for styling and responsiveness
   - **Commit:** `style(header): style character stats display`
+
+> **2025-06-24:**
+> - Fixed a bug where character stats were shown twice (in both header and main content).
+> - Now, `CharacterStats` is only rendered in the header, with proper responsive design (desktop: in header bar, mobile: below bar).
+> - Improved header layout and visual separation from main content.
 
 ### Phase 20: Turn-Based Game System
 **Objective:** Implement a 3-turn system for continuing the story with new images.
