@@ -43,27 +43,27 @@
   - Write tests for character initialization logic
   - **Commit:** `feat(character): implement character initialization system`
 
-### Phase 18: Markdown Formatting for Descriptions and Stories
-**Objective:** Add markdown rendering for both image descriptions and generated stories.
+### Phase 18: Markdown Formatting
+**Objective:** Add markdown rendering to descriptions and stories for better formatting and readability.
 
 #### Tasks
-- [ ] **18.1: Install Markdown Renderer**
+- [x] **18.1: Install Markdown Renderer**
   - Install react-markdown: `npm install react-markdown`
   - Create markdown rendering component in `src/components/ui/MarkdownRenderer.tsx`
   - Write tests for markdown rendering functionality
   - **Commit:** `feat(ui): add markdown rendering component`
 
-- [ ] **18.2: Update Image Description Display**
+- [x] **18.2: Update Image Description Display**
   - Modify `DescriptionDisplay` to render markdown content
   - Update tests to verify markdown rendering
   - **Commit:** `feat(description): add markdown formatting to image descriptions`
 
-- [ ] **18.3: Update Story Display**
+- [x] **18.3: Update Story Display**
   - Modify `StoryDisplay` to render markdown content
   - Update tests to verify markdown rendering
   - **Commit:** `feat(story): add markdown formatting to generated stories`
 
-- [ ] **18.4: Update AI Prompts for Markdown**
+- [x] **18.4: Update AI Prompts for Markdown**
   - Modify default prompts to request markdown formatting
   - Update constants to include markdown formatting instructions
   - Write tests for markdown-formatted responses
