@@ -31,9 +31,9 @@
   - Build and browser preview successful
   - **Commit:** `feat(types): define comprehensive character schema and validation`
 
-- [ ] **17.3: Implement Character Store Actions**
-  - Create actions for: updateHealth, updateHeartrate, updateAge, updatePersona
-  - Add computed selectors for derived character stats
+- [x] **17.3: Implement Character Store Actions**
+  - Create actions for: updateStat, updateStats, addExperience, updateCharacterName
+  - Add computed selectors for derived character stats (getTotalStats, getAverageStats)
   - Write tests for all store actions and selectors
   - **Commit:** `feat(store): implement character store actions and selectors`
 
@@ -159,25 +159,30 @@
 ### Character Schema
 ```typescript
 interface Character {
-  // Basic Stats
-  health: number;
-  heartrate: number;
-  age: number;
+  // Basic Info
+  id: string;
+  name: string;
   
-  // Personality
-  persona: string;
-  traits: string[];
+  // RPG Stats (1-20 range)
+  stats: {
+    intelligence: number;
+    creativity: number;
+    perception: number;
+    wisdom: number;
+  };
   
   // Game Stats
   experience: number;
   level: number;
-  
-  // Inventory/Items
-  inventory: Item[];
+  experienceToNext: number;
   
   // Story Context
   storyHistory: StoryEntry[];
   currentTurn: number;
+  
+  // Metadata
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 

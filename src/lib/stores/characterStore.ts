@@ -38,6 +38,7 @@ export interface CharacterState {
   removeStory: (id: string) => void;
   getStory: (id: string) => Story | undefined;
   getRecentStories: (limit?: number) => Story[];
+  initializeCharacterFromDescription: (description: string) => void;
 }
 
 // Calculate experience needed for next level
@@ -259,6 +260,146 @@ export const useCharacterStore = create<CharacterState>()(
           imageUrl: '', // We don't store image URLs in the current schema
           createdAt: new Date(storyEntry.timestamp),
         }));
+      },
+
+      initializeCharacterFromDescription: (description: string) => {
+        set((state) => {
+          const { character } = state;
+          
+          // Don't reinitialize if character already has story history
+          if (character.storyHistory.length > 0) {
+            return state;
+          }
+          
+          // Generate character name based on description
+          const generateName = (desc: string): string => {
+            const adjectives = ['Brave', 'Wise', 'Mysterious', 'Curious', 'Bold', 'Clever', 'Swift'];
+            const nouns = ['Explorer', 'Seeker', 'Wanderer', 'Discoverer', 'Observer', 'Traveler', 'Scout', 'Hunter'];
+            const lowerDesc = desc.toLowerCase();
+            // Look for key words in description to influence name
+            if (lowerDesc.includes('dragon') || lowerDesc.includes('fire') || lowerDesc.includes('magic')) {
+              return 'Mystical Seeker';
+            } else if (lowerDesc.includes('forest') || lowerDesc.includes('nature') || lowerDesc.includes('peaceful')) {
+              return 'Nature Wanderer';
+            } else if (lowerDesc.includes('castle') || lowerDesc.includes('knight') || lowerDesc.includes('medieval')) {
+              return 'Brave Knight';
+            } else if (lowerDesc.includes('dungeon') || lowerDesc.includes('dark') || lowerDesc.includes('trap')) {
+              return 'Shadow Scout';
+            } else if (lowerDesc.includes('ocean') || lowerDesc.includes('sea') || lowerDesc.includes('water')) {
+              return 'Ocean Explorer';
+            } else if (lowerDesc.includes('mountain') || lowerDesc.includes('peak') || lowerDesc.includes('high')) {
+              return 'Mountain Climber';
+            } else if (lowerDesc.includes('city') || lowerDesc.includes('urban') || lowerDesc.includes('modern')) {
+              return 'Urban Discoverer';
+            } else {
+              // Use a hash of the description to seed the random selection for reproducibility
+              let hash = 0;
+              for (let i = 0; i < lowerDesc.length; i++) {
+                hash = ((hash << 5) - hash) + lowerDesc.charCodeAt(i);
+                hash |= 0;
+              }
+              // Add timestamp to ensure uniqueness even for empty descriptions
+              const timestamp = Date.now();
+              const combinedHash = hash + timestamp;
+              const adj = adjectives[Math.abs(combinedHash) % adjectives.length];
+              const noun = nouns[Math.abs(combinedHash * 31) % nouns.length];
+              let name = `${adj} ${noun}`;
+              if (name.trim().toLowerCase() === 'adventurer') {
+                name = `${adj} ${noun} ${Math.floor(Math.random() * 1000)}`;
+              }
+              return name;
+            }
+          };
+          
+          // Generate stats based on description content
+          const generateStats = (desc: string): CharacterStats => {
+            const words = desc.toLowerCase();
+            let intelligence = 10;
+            let creativity = 10;
+            let perception = 10;
+            let wisdom = 10;
+            let matched = false;
+            // Adjust stats based on description content
+            if (words.includes('magic') || words.includes('spell') || words.includes('wizard')) {
+              intelligence += 3;
+              creativity += 2;
+              matched = true;
+            }
+            if (words.includes('art') || words.includes('creative') || words.includes('beautiful')) {
+              creativity += 3;
+              perception += 2;
+              matched = true;
+            }
+            if (words.includes('danger') || words.includes('trap') || words.includes('hidden')) {
+              perception += 3;
+              wisdom += 2;
+              matched = true;
+            }
+            if (words.includes('ancient') || words.includes('wisdom') || words.includes('knowledge')) {
+              wisdom += 3;
+              intelligence += 2;
+              matched = true;
+            }
+            if (words.includes('nature') || words.includes('forest') || words.includes('wildlife')) {
+              perception += 2;
+              wisdom += 1;
+              matched = true;
+            }
+            if (words.includes('technology') || words.includes('modern') || words.includes('future')) {
+              intelligence += 2;
+              creativity += 1;
+              matched = true;
+            }
+            if (words.includes('peaceful') || words.includes('calm') || words.includes('serene')) {
+              wisdom += 2;
+              perception += 1;
+              matched = true;
+            }
+            if (words.includes('chaos') || words.includes('battle') || words.includes('war')) {
+              perception += 2;
+              intelligence += 1;
+              matched = true;
+            }
+            // If no keywords matched, use a hash of the description to generate stats
+            if (!matched) {
+              let hash = 0;
+              for (let i = 0; i < words.length; i++) {
+                hash = ((hash << 5) - hash) + words.charCodeAt(i);
+                hash |= 0;
+              }
+              // Add timestamp to ensure uniqueness even for empty descriptions
+              const timestamp = Date.now();
+              const combinedHash = hash + timestamp;
+              intelligence = clamp(Math.abs(combinedHash) % 20 + 1, 1, 20);
+              creativity = clamp(Math.abs(combinedHash * 31) % 20 + 1, 1, 20);
+              perception = clamp(Math.abs(combinedHash * 17) % 20 + 1, 1, 20);
+              wisdom = clamp(Math.abs(combinedHash * 13) % 20 + 1, 1, 20);
+            }
+            // Ensure stats stay within valid range (1-20)
+            return {
+              intelligence: clamp(intelligence, 1, 20),
+              creativity: clamp(creativity, 1, 20),
+              perception: clamp(perception, 1, 20),
+              wisdom: clamp(wisdom, 1, 20),
+            };
+          };
+          
+          const newName = generateName(description);
+          const newStats = generateStats(description);
+          
+          return {
+            character: {
+              ...character,
+              name: newName,
+              stats: newStats,
+              level: 1,
+              experience: 0,
+              experienceToNext: calculateExperienceToNext(1),
+              currentTurn: 1,
+              updatedAt: new Date(),
+            },
+          };
+        });
       },
     }),
     {

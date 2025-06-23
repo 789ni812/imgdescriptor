@@ -4,7 +4,7 @@ jest.mock('zustand/middleware', () => ({
 }));
 
 import { renderHook, act } from '@testing-library/react';
-import { useCharacterStore } from './characterStore';
+import { useCharacterStore, Story } from './characterStore';
 
 // (No mock for createCharacter)
 
@@ -417,6 +417,111 @@ describe('Character Store Actions', () => {
     // Skipping persist/localStorage test due to known limitation with zustand persist in test environment
     it.skip('should persist character state in localStorage', () => {
       // This test is skipped due to known issues with zustand persist and jsdom/localStorage in test environments.
+    });
+  });
+
+  // Character Initialization System Tests
+  describe('Character Initialization System', () => {
+    it('should initialize character from image description', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const imageDescription = 'A majestic dragon soaring over a medieval castle with knights below';
+      act(() => {
+        result.current.initializeCharacterFromDescription(imageDescription);
+      });
+      
+      const character = result.current.character;
+      
+      // Debug log
+      console.log('Generated name:', character.name);
+      console.log('Generated stats:', character.stats);
+      
+      // Should have generated stats based on the description
+      expect(character.stats.intelligence).toBeGreaterThanOrEqual(1);
+      expect(character.stats.intelligence).toBeLessThanOrEqual(20);
+      expect(character.stats.creativity).toBeGreaterThanOrEqual(1);
+      expect(character.stats.creativity).toBeLessThanOrEqual(20);
+      expect(character.stats.perception).toBeGreaterThanOrEqual(1);
+      expect(character.stats.perception).toBeLessThanOrEqual(20);
+      expect(character.stats.wisdom).toBeGreaterThanOrEqual(1);
+      expect(character.stats.wisdom).toBeLessThanOrEqual(20);
+      
+      // Should have generated a name that is not exactly 'Adventurer'
+      expect(character.name).not.toBe('Adventurer');
+      expect(character.name.length).toBeGreaterThan(0);
+      
+      // Should be at level 1 with 0 experience
+      expect(character.level).toBe(1);
+      expect(character.experience).toBe(0);
+      expect(character.currentTurn).toBe(1);
+    });
+
+    it('should generate different stats for different image descriptions', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const description1 = 'A peaceful forest with gentle streams and wildlife';
+      const description2 = 'A dark dungeon with ancient traps and mysterious artifacts';
+      
+      act(() => {
+        result.current.initializeCharacterFromDescription(description1);
+      });
+      const character1 = { ...result.current.character };
+      
+      act(() => {
+        result.current.resetCharacter();
+      });
+      act(() => {
+        result.current.initializeCharacterFromDescription(description2);
+      });
+      const character2 = { ...result.current.character };
+      
+      // Debug log
+      console.log('Character 1 name:', character1.name, 'stats:', character1.stats);
+      console.log('Character 2 name:', character2.name, 'stats:', character2.stats);
+      
+      // Stats should be different for different descriptions (not all 10s)
+      expect(character1.stats).not.toEqual(character2.stats);
+      expect(character1.name).not.toBe(character2.name);
+      // At least one stat should not be 10
+      const allTens1 = Object.values(character1.stats).every(v => v === 10);
+      const allTens2 = Object.values(character2.stats).every(v => v === 10);
+      expect(allTens1 && allTens2).toBe(false);
+    });
+
+    it('should handle empty or invalid descriptions gracefully', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      result.current.initializeCharacterFromDescription('');
+      const character = result.current.character;
+      
+      // Should still have valid stats
+      expect(character.stats.intelligence).toBeGreaterThanOrEqual(1);
+      expect(character.stats.intelligence).toBeLessThanOrEqual(20);
+      expect(character.name).toBeTruthy();
+    });
+
+    it('should not reinitialize if character already has a story history', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      // Add a story to simulate existing character
+      const story: Story = {
+        id: '1',
+        title: 'First Story',
+        description: 'Initial description',
+        story: 'Initial story',
+        imageUrl: 'test.jpg',
+        createdAt: new Date(),
+      };
+      result.current.addStory(story);
+      
+      const originalCharacter = { ...result.current.character };
+      
+      result.current.initializeCharacterFromDescription('New description');
+      const newCharacter = result.current.character;
+      
+      // Should not change existing character
+      expect(newCharacter.storyHistory).toEqual(originalCharacter.storyHistory);
+      expect(newCharacter.name).toBe(originalCharacter.name);
     });
   });
 }); 
