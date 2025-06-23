@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { ArrowUpOnSquareIcon } from '@heroicons/react/24/outline';
 import { ImageUploadProps } from '@/lib/types';
 import { CustomPromptInput } from './CustomPromptInput';
+import { DEFAULT_IMAGE_DESCRIPTION_PROMPT } from '@/lib/constants';
 
 export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: ImageUploadProps) {
   const [customPrompt, setCustomPrompt] = useState('Analyze the architectural elements');
@@ -29,7 +30,7 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: Image
 
   const handleUploadWithDefaultPrompt = () => {
     if (selectedFile) {
-      onImageSelect(selectedFile, 'Describe this image in detail.');
+      onImageSelect(selectedFile, DEFAULT_IMAGE_DESCRIPTION_PROMPT);
     }
   };
 

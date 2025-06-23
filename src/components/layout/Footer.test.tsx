@@ -7,7 +7,7 @@ describe('Footer Component', () => {
     const currentYear = new Date().getFullYear();
     const footerElement = screen.getByRole('contentinfo'); // footers have a default role of contentinfo
     
-    expect(footerElement).toHaveTextContent(`© ${currentYear} AI Image Describer. All rights reserved.`);
+    expect(footerElement).toHaveTextContent(`© ${currentYear}`);
   });
 
   it('should not include a link to the GitHub repository', () => {

@@ -1,0 +1,1 @@
+export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Describe the contents of this image in vivid detail. Include information about the setting, objects, people, actions, mood, colors, and any notable features. If relevant, infer the possible context or story behind the image. Be as comprehensive and imaginative as possible, but do not invent details that are not visually present.`; 

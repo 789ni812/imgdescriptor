@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ImageUpload } from './ImageUpload';
 import { ImageUploadProps } from '@/lib/types';
+import { DEFAULT_IMAGE_DESCRIPTION_PROMPT } from '@/lib/constants';
 
 // Mock the CustomPromptInput component
 jest.mock('./CustomPromptInput', () => ({
@@ -122,7 +123,7 @@ describe('ImageUpload Component', () => {
     const defaultPromptButton = screen.getByRole('button', { name: /upload with default prompt/i });
     fireEvent.click(defaultPromptButton);
 
-    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Describe this image in detail.');
+    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, DEFAULT_IMAGE_DESCRIPTION_PROMPT);
   });
 
   it('should not show upload buttons before file selection', () => {
