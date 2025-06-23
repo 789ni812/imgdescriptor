@@ -14,7 +14,7 @@ describe('Character Schema and Types', () => {
       expect(character.level).toBe(1);
       expect(character.inventory).toEqual([]);
       expect(character.storyHistory).toEqual([]);
-      expect(character.currentTurn).toBe(1);
+      expect(character.currentTurn).toBe(0);
     });
 
     it('should create a character with custom values', () => {
@@ -37,7 +37,7 @@ describe('Character Schema and Types', () => {
       expect(customCharacter.level).toBe(3);
       expect(customCharacter.inventory).toEqual([]);
       expect(customCharacter.storyHistory).toEqual([]);
-      expect(customCharacter.currentTurn).toBe(1);
+      expect(customCharacter.currentTurn).toBe(0);
     });
   });
 
@@ -53,7 +53,7 @@ describe('Character Schema and Types', () => {
         level: 1,
         inventory: [],
         storyHistory: [],
-        currentTurn: 1,
+        currentTurn: 0,
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -78,7 +78,7 @@ describe('Character Schema and Types', () => {
         level: 1,
         inventory: [],
         storyHistory: [],
-        currentTurn: 1,
+        currentTurn: 0,
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -103,7 +103,7 @@ describe('Character Schema and Types', () => {
         level: 1,
         inventory: [],
         storyHistory: [],
-        currentTurn: 1,
+        currentTurn: 0,
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -128,7 +128,7 @@ describe('Character Schema and Types', () => {
         level: 1,
         inventory: [],
         storyHistory: [],
-        currentTurn: 1,
+        currentTurn: 0,
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -153,7 +153,7 @@ describe('Character Schema and Types', () => {
         level: 0, // Invalid: level must be at least 1
         inventory: [],
         storyHistory: [],
-        currentTurn: 1,
+        currentTurn: 0,
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -178,7 +178,7 @@ describe('Character Schema and Types', () => {
         level: 1,
         inventory: [],
         storyHistory: [],
-        currentTurn: 0, // Invalid: turn must be at least 1
+        currentTurn: -1, // Invalid: turn must be at least 0
         stats: {
           intelligence: 10,
           creativity: 10,
@@ -189,7 +189,7 @@ describe('Character Schema and Types', () => {
 
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Current turn must be at least 1');
+      expect(result.errors).toContain('Current turn must be at least 0');
     });
   });
 
@@ -215,13 +215,13 @@ describe('Character Schema and Types', () => {
         id: 'story-001',
         text: 'You find yourself in a mysterious forest...',
         timestamp: new Date().toISOString(),
-        turnNumber: 1,
+        turnNumber: 0,
         imageDescription: 'A dark forest with ancient trees',
       };
 
       expect(validStoryEntry.id).toBe('story-001');
       expect(validStoryEntry.text).toBe('You find yourself in a mysterious forest...');
-      expect(validStoryEntry.turnNumber).toBe(1);
+      expect(validStoryEntry.turnNumber).toBe(0);
       expect(validStoryEntry.imageDescription).toBe('A dark forest with ancient trees');
     });
   });

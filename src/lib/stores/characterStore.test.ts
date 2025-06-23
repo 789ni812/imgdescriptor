@@ -40,7 +40,7 @@ describe('Character Store Actions', () => {
       expect(character.persona).toBe('Adventurer');
       expect(character.traits).toEqual([]);
       expect(character.inventory).toEqual([]);
-      expect(character.currentTurn).toBe(1);
+      expect(character.currentTurn).toBe(0);
       expect(character.storyHistory).toEqual([]);
       expect(character.createdAt).toBeInstanceOf(Date);
       expect(character.updatedAt).toBeInstanceOf(Date);
@@ -78,7 +78,7 @@ describe('Character Store Actions', () => {
       expect(character.persona).toBe('Adventurer');
       expect(character.traits).toEqual([]);
       expect(character.inventory).toEqual([]);
-      expect(character.currentTurn).toBe(1);
+      expect(character.currentTurn).toBe(0);
       expect(character.storyHistory).toEqual([]);
       expect(character.createdAt).toBeInstanceOf(Date);
       expect(character.updatedAt).toBeInstanceOf(Date);
@@ -204,7 +204,7 @@ describe('Character Store Actions', () => {
         id: 'story-1',
         text: 'Once upon a time...',
         timestamp: expect.any(String),
-        turnNumber: 1,
+        turnNumber: 0,
         imageDescription: 'A detailed description of the image',
       };
       
@@ -220,7 +220,10 @@ describe('Character Store Actions', () => {
       });
       
       expect(result.current.character.storyHistory).toHaveLength(initialStoryCount + 1);
-      expect(result.current.character.storyHistory[0]).toEqual(expect.objectContaining(newStory));
+      expect(result.current.character.storyHistory[0]).toEqual(expect.objectContaining({
+        ...newStory,
+        turnNumber: 0,
+      }));
     });
 
     it('should update existing story in character history', () => {
@@ -252,7 +255,7 @@ describe('Character Store Actions', () => {
         text: 'Updated story content...',
         imageDescription: 'A detailed description of the image',
         timestamp: expect.any(String),
-        turnNumber: 1,
+        turnNumber: 0,
       });
       expect(result.current.character.storyHistory[0]).toEqual(updatedStory);
     });

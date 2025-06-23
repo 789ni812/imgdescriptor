@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useEffect, useState } from 'react';
+import { useReducer, useEffect, useState, useRef } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
+import { useCharacterStore } from '@/lib/stores/characterStore';
 
 export default function Home() {
   const { 
@@ -27,6 +28,14 @@ export default function Home() {
     generateStory 
   } = useStoryGeneration();
 
+  const { 
+    character, 
+    initializeCharacterFromDescription, 
+    addExperience, 
+    incrementTurn, 
+    resetCharacter 
+  } = useCharacterStore();
+
   const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
     if (newUrl === null && _ !== null) {
       URL.revokeObjectURL(_);
@@ -36,19 +45,38 @@ export default function Home() {
 
   const [customStoryPrompt, setCustomStoryPrompt] = useState('Write a fantasy adventure story');
 
+  const hasProcessed = useRef(false);
+
+  // Reset the flag only when description changes
   useEffect(() => {
-    return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
-      }
-    };
-  }, [imageUrl]);
+    hasProcessed.current = false;
+  }, [description]);
+
+  // Track if we need to initialize the character after analysis
+  const [shouldInitCharacter, setShouldInitCharacter] = useState(false);
 
   const handleImageSelect = (file: File, prompt?: string) => {
     const url = URL.createObjectURL(file);
     setImageUrl(url);
     analyzeImage(file, prompt);
+
+    // Only increment turn and add experience here
+    addExperience(50);
+    incrementTurn();
+
+    // If this is the first analysis, set flag to initialize character after description is available
+    if (character.currentTurn === 0) {
+      setShouldInitCharacter(true);
+    }
   };
+
+  // After description is available, initialize character if needed
+  useEffect(() => {
+    if (shouldInitCharacter && description) {
+      initializeCharacterFromDescription(description);
+      setShouldInitCharacter(false);
+    }
+  }, [shouldInitCharacter, description, initializeCharacterFromDescription]);
 
   const handleGenerateStoryWithDefaultPrompt = () => {
     if (description) {
@@ -67,12 +95,22 @@ export default function Home() {
     // Future: The hooks could also expose reset functions
   };
 
+  const isTurnLimitReached = character.currentTurn >= 3;
+
   return (
     <main className="min-h-screen bg-gray-900 text-white">
       <div 
         data-testid="main-content-container"
         className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
       >
+        {/* Reset Game Button */}
+        {character.currentTurn > 0 && (
+          <div className="mb-4">
+            <Button onClick={resetCharacter} variant="outline" size="sm">
+              Reset Game
+            </Button>
+          </div>
+        )}
         <div className="flex flex-wrap gap-6 justify-start">
           {/* Image Upload/Preview Card */}
           <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
@@ -80,7 +118,20 @@ export default function Home() {
               {imageUrl ? (
                 <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
               ) : (
-                <ImageUpload onImageSelect={handleImageSelect} />
+                <div className="space-y-4">
+                  {isTurnLimitReached && (
+                    <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-yellow-200 text-sm">
+                      <p className="font-medium">Turn limit reached!</p>
+                      <p className="text-xs text-yellow-300/80">
+                        You&apos;ve used all 3 turns. Your character has gained experience and stats from analyzing images.
+                      </p>
+                    </div>
+                  )}
+                  <ImageUpload 
+                    onImageSelect={handleImageSelect} 
+                    disabled={isTurnLimitReached}
+                  />
+                </div>
               )}
             </CardContent>
           </Card>

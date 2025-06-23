@@ -23,6 +23,7 @@ export interface ImageUploadProps {
   onImageSelect: (file: File, prompt?: string) => void;
   acceptedFormats?: string[];
   maxSize?: number;
+  disabled?: boolean;
 }
 
 export interface ImagePreviewProps {

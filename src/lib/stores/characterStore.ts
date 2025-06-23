@@ -39,6 +39,7 @@ export interface CharacterState {
   getStory: (id: string) => Story | undefined;
   getRecentStories: (limit?: number) => Story[];
   initializeCharacterFromDescription: (description: string) => void;
+  incrementTurn: () => void;
 }
 
 // Calculate experience needed for next level
@@ -396,6 +397,19 @@ export const useCharacterStore = create<CharacterState>()(
               experience: 0,
               experienceToNext: calculateExperienceToNext(1),
               currentTurn: 1,
+              updatedAt: new Date(),
+            },
+          };
+        });
+      },
+
+      incrementTurn: () => {
+        set((state) => {
+          console.log('incrementTurn called, prev turn:', state.character.currentTurn);
+          return {
+            character: {
+              ...state.character,
+              currentTurn: state.character.currentTurn + 1,
               updatedAt: new Date(),
             },
           };

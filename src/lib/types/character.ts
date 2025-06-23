@@ -34,7 +34,7 @@ export interface Character {
   level: number; // >= 1
   inventory: Item[];
   storyHistory: StoryEntry[];
-  currentTurn: number; // >= 1
+  currentTurn: number; // >= 0
   stats: CharacterStats; // RPG stats
 }
 
@@ -49,7 +49,7 @@ export function createCharacter(overrides: Partial<Character> = {}): Character {
     level: 1,
     inventory: [],
     storyHistory: [],
-    currentTurn: 1,
+    currentTurn: 0,
     stats: {
       intelligence: 10,
       creativity: 10,
@@ -74,8 +74,8 @@ export function validateCharacter(character: Character): { isValid: boolean; err
   if (character.level < 1) {
     errors.push('Level must be at least 1');
   }
-  if (character.currentTurn < 1) {
-    errors.push('Current turn must be at least 1');
+  if (character.currentTurn < 0) {
+    errors.push('Current turn must be at least 0');
   }
   
   // Validate stats
