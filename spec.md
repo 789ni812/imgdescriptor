@@ -25,11 +25,11 @@
   - Build and browser preview successful
   - **Commit:** `feat(state): add Zustand for character state management`
 
-- [ ] **17.2: Define Character Schema and Types**
-  - Create comprehensive character types in `src/lib/types/character.ts`
-  - Include: health, heartrate, age, persona, skills, inventory, etc.
-  - Write tests for type validation and character creation
-  - **Commit:** `feat(types): define comprehensive character schema`
+- [x] **17.2: Define Character Schema and Types**
+  - Comprehensive character types, creation, and validation implemented in `src/lib/types/character.ts`
+  - Tests for type validation and character creation all passing
+  - Build and browser preview successful
+  - **Commit:** `feat(types): define comprehensive character schema and validation`
 
 - [ ] **17.3: Implement Character Store Actions**
   - Create actions for: updateHealth, updateHeartrate, updateAge, updatePersona
