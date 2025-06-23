@@ -1,5 +1,13 @@
 # Project Specification: Image Analysis with LM Studio
 
+## TDD Workflow (for each task)
+1. **Write/Update the Test** (make it fail if needed)
+2. **Implement the Code** (make the test pass)
+3. **Run All Relevant Tests** (ensure everything passes)
+4. **Run `npm run build`** (ensure the build is successful)
+5. **Update `spec.md`** (mark the task as complete, e.g., with a checkmark or status update)
+6. **Commit All Changes** (code, tests, and spec.md) with a clear, conventional commit message
+
 ## Current Status: In Progress 🚧
 - **Phases 1-8:** Complete
 - **Phase 9: Iconography & Action Elements Refinement:** In Progress

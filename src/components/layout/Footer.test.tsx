@@ -10,11 +10,10 @@ describe('Footer Component', () => {
     expect(footerElement).toHaveTextContent(`© ${currentYear} AI Image Describer. All rights reserved.`);
   });
 
-  it('should include a link to the GitHub repository', () => {
+  it('should not include a link to the GitHub repository', () => {
     render(<Footer />);
-    const linkElement = screen.getByRole('link', { name: /view source on github/i });
-    expect(linkElement).toBeInTheDocument();
-    expect(linkElement).toHaveAttribute('href', 'https://github.com/789ni812/imgdescriptor');
+    const linkElement = screen.queryByRole('link', { name: /view source on github/i });
+    expect(linkElement).not.toBeInTheDocument();
   });
 
   it('should have proper styling for a site footer', () => {
@@ -30,6 +29,6 @@ describe('Footer Component', () => {
 
     // Check for flex layout to align items
     const flexContainer = innerContainer?.querySelector('div');
-    expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-between', 'h-16');
+    expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-center', 'h-16');
   });
 }); 
