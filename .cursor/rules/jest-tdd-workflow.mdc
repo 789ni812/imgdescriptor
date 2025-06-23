@@ -59,11 +59,18 @@ Strictly adhere to Test-Driven Development (TDD) principles when implementing fe
 6.  **Full Regression Test:**
     *   After the specific feature's tests are passing, run the entire test suite (`npm test`).
     *   Ensure that no existing functionality has been broken by the new changes.
-7.  **Document and Commit:**
+7.  **Build Verification:**
+    *   Run `npm run build` to ensure the production build passes.
+    *   This step is critical to catch any build-time issues before deployment.
+8.  **Browser Preview:**
+    *   **Check for Running Dev Server:** Check if localhost:3000 is running and stop it if needed.
+    *   **Start Dev Server:** Run `npm run dev` to start the development server for browser review.
+    *   **Notify User:** Inform the user that the dev server is running and they can review changes at http://localhost:3000.
+9.  **Document and Commit:**
     *   **Update Spec:** After tests pass, update the `spec.md` or relevant project plan to mark the task as complete.
     *   **Stage Changes:** Automatically stage all changes using `git add .`.
     *   **Commit Changes:** Commit the work with a clear, conventional commit message (e.g., `feat(ui): implement Header component`).
-8.  **Repeat:**
+10. **Repeat:**
     * For the next piece of functionality or edge case, go back to step 1.
 
 **Test File Conventions:**
@@ -71,6 +78,21 @@ Strictly adhere to Test-Driven Development (TDD) principles when implementing fe
 -   Use `.test.ts` or `.spec.ts` suffix for test files.
 -   Place test files alongside their components: `ComponentName.test.tsx`.
 -   Organize tests logically, mirroring the project structure.
+
+**Browser Preview Commands:**
+
+- **Check if localhost:3000 is running:**
+  ```bash
+  netstat -ano | findstr :3000
+  ```
+- **Stop the dev server if running:**
+  ```bash
+  taskkill /F /PID <PID>  # Replace <PID> with the actual process ID
+  ```
+- **Start dev server:**
+  ```bash
+  npm run dev
+  ```
 
 **Troubleshooting Common Issues:**
 
@@ -83,5 +105,6 @@ Strictly adhere to Test-Driven Development (TDD) principles when implementing fe
   npm cache clean --force
   npm install
   ```
+- **Port 3000 already in use:** Use the browser preview commands above to properly manage the dev server.
 
-**Important:** The AI *must* run tests using the appropriate `npm test -- file.test.tsx` commands in the terminal after making code changes. If tests fail, the AI *must* identify the issue, propose a fix, apply it, and re-run tests until they pass before considering the task complete. Provide clear log outputs if tests fail.
+**Important:** The AI *must* run tests using the appropriate `npm test -- file.test.tsx` commands in the terminal after making code changes. If tests fail, the AI *must* identify the issue, propose a fix, apply it, and re-run tests until they pass before considering the task complete. Provide clear log outputs if tests fail. After successful builds, the AI *must* start the dev server for browser review.
