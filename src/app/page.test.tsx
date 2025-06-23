@@ -4,21 +4,21 @@ import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import Home from './page';
 
-// Simplified mocks for child components
+// Mock the components
 jest.mock('@/components/ImageUpload', () => ({
-  ImageUpload: jest.fn((props) => (
+  ImageUpload: jest.fn(({ onImageSelect }) => (
     <div data-testid="image-upload">
-      <button onClick={() => props.onImageSelect(new File([''], 'test.png'), 'Custom prompt')}>
+      <button onClick={() => onImageSelect(new File(['test'], 'test.jpg', { type: 'image/jpeg' }), 'Custom prompt')}>
         Upload with Custom Prompt
       </button>
-      <button onClick={() => props.onImageSelect(new File([''], 'test.png'))}>
+      <button onClick={() => onImageSelect(new File(['test'], 'test.jpg', { type: 'image/jpeg' }), 'Describe this image in detail.')}>
         Upload with Default Prompt
       </button>
     </div>
   )),
 }));
 jest.mock('@/components/ImagePreview', () => ({
-  ImagePreview: jest.fn((props) => <div data-testid="image-preview">{props.imageUrl && <img src={props.imageUrl} alt="preview" />}</div>),
+  ImagePreview: jest.fn(({ imageUrl }) => <img data-testid="image-preview" src={imageUrl} alt="preview" />),
 }));
 jest.mock('@/components/DescriptionDisplay', () => ({
   DescriptionDisplay: jest.fn((props) => <div data-testid="description-display">{props.description}</div>),
@@ -31,6 +31,18 @@ jest.mock('@/components/ui/Button', () => ({
 }));
 jest.mock('@/components/ui/LoadingSpinner', () => ({
   LoadingSpinner: jest.fn(() => <div data-testid="loading-spinner" />),
+}));
+jest.mock('@/components/CustomPromptInput', () => ({
+  CustomPromptInput: ({ onPromptChange, value }: { onPromptChange: (prompt: string) => void; value?: string }) => (
+    <div data-testid="custom-prompt-input">
+      <textarea
+        data-testid="prompt-textarea"
+        value={value || ''}
+        onChange={(e) => onPromptChange(e.target.value)}
+        placeholder="Custom prompt input"
+      />
+    </div>
+  ),
 }));
 
 // Mock fetch
@@ -76,10 +88,10 @@ describe('Home Page', () => {
     expect(mainContainer).toHaveClass('max-w-7xl', 'mx-auto', 'p-4', 'sm:p-6', 'lg:p-8');
   });
 
-  it('should implement a two-column grid layout on medium screens', () => {
+  it('should implement a flex wrap layout for cards', () => {
     render(<Home />);
     const mainGrid = screen.getByTestId('main-content-container').querySelector('div');
-    expect(mainGrid).toHaveClass('grid', 'md:grid-cols-[auto_1fr]', 'gap-8');
+    expect(mainGrid).toHaveClass('flex', 'flex-wrap', 'gap-6', 'justify-start');
   });
 
   it('renders only the ImageUpload component on initial load', () => {
@@ -93,7 +105,7 @@ describe('Home Page', () => {
 
   // --- Custom Prompt Integration Tests ---
   it('should handle custom prompt input and pass it to image analysis', async () => {
-    const customPrompt = 'Analyze the architectural elements';
+    const customPrompt = 'Custom prompt'; // This matches the mock
     (fetch as jest.Mock).mockImplementationOnce(() => 
       new Promise(resolve => 
         setTimeout(() => 
@@ -106,7 +118,7 @@ describe('Home Page', () => {
 
     render(<Home />);
 
-    // Trigger image upload with custom prompt
+    // Just click the upload with custom prompt button
     const uploadButton = screen.getByRole('button', { name: /upload with custom prompt/i });
     
     await act(async () => {
@@ -194,7 +206,7 @@ describe('Home Page', () => {
     expect(screen.getByTestId('image-upload')).toBeInTheDocument();
     expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
 
-    // Trigger image upload
+    // Trigger image upload with default prompt
     const uploadButton = screen.getByRole('button', { name: /upload with default prompt/i });
     
     // Use `act` to handle state updates from the upload

@@ -7,13 +7,14 @@ import { ImageUploadProps } from '@/lib/types';
 import { CustomPromptInput } from './CustomPromptInput';
 
 export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: ImageUploadProps) {
-  const [customPrompt, setCustomPrompt] = useState('Describe this image in detail.');
+  const [customPrompt, setCustomPrompt] = useState('Analyze the architectural elements');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      onImageSelect(acceptedFiles[0], customPrompt);
+      setSelectedFile(acceptedFiles[0]);
     }
-  }, [onImageSelect, customPrompt]);
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -24,6 +25,18 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: Image
 
   const handlePromptChange = (prompt: string) => {
     setCustomPrompt(prompt);
+  };
+
+  const handleUploadWithDefaultPrompt = () => {
+    if (selectedFile) {
+      onImageSelect(selectedFile, 'Describe this image in detail.');
+    }
+  };
+
+  const handleUploadWithCustomPrompt = () => {
+    if (selectedFile) {
+      onImageSelect(selectedFile, customPrompt);
+    }
   };
 
   return (
@@ -49,6 +62,26 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024 }: Image
         onPromptChange={handlePromptChange}
         value={customPrompt}
       />
+
+      {selectedFile && (
+        <div className="space-y-4">
+          <p className="text-sm text-gray-400">Selected: {selectedFile.name}</p>
+          <div className="flex space-x-4">
+            <button
+              onClick={handleUploadWithDefaultPrompt}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Upload with Default Prompt
+            </button>
+            <button
+              onClick={handleUploadWithCustomPrompt}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+            >
+              Upload with Custom Prompt
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

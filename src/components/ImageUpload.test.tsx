@@ -67,7 +67,7 @@ describe('ImageUpload Component', () => {
     expect(screen.getByTestId('custom-prompt-input')).toBeInTheDocument();
   });
 
-  it('should call onImageSelect with file and prompt when both are provided', async () => {
+  it('should show upload buttons after file selection and call onImageSelect with custom prompt when custom prompt button is clicked', async () => {
     const mockOnImageSelectWithPrompt = jest.fn();
     renderComponent({ onImageSelect: mockOnImageSelectWithPrompt });
     
@@ -89,10 +89,19 @@ describe('ImageUpload Component', () => {
       });
     });
 
+    // Check that the file selection info and buttons are shown
+    expect(screen.getByText('Selected: chucknorris.png')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /upload with default prompt/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /upload with custom prompt/i })).toBeInTheDocument();
+
+    // Click the custom prompt button
+    const customPromptButton = screen.getByRole('button', { name: /upload with custom prompt/i });
+    fireEvent.click(customPromptButton);
+
     expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Analyze the colors and composition');
   });
 
-  it('should call onImageSelect with file and default prompt when no custom prompt is set', async () => {
+  it('should call onImageSelect with file and default prompt when default prompt button is clicked', async () => {
     const mockOnImageSelectWithPrompt = jest.fn();
     renderComponent({ onImageSelect: mockOnImageSelectWithPrompt });
     
@@ -109,25 +118,18 @@ describe('ImageUpload Component', () => {
       });
     });
 
+    // Click the default prompt button
+    const defaultPromptButton = screen.getByRole('button', { name: /upload with default prompt/i });
+    fireEvent.click(defaultPromptButton);
+
     expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Describe this image in detail.');
   });
 
-  it('should call onImageSelect with the file when a user selects an image via drop', async () => {
+  it('should not show upload buttons before file selection', () => {
     renderComponent();
-    const dropzone = screen.getByTestId('image-upload');
-    const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
-
-    await act(async () => {
-      fireEvent.drop(dropzone, {
-        dataTransfer: {
-          files: [file],
-          items: [{ kind: 'file', type: file.type, getAsFile: () => file }],
-          types: ['Files'],
-        },
-      });
-    });
-
-    expect(mockOnImageSelect).toHaveBeenCalledWith(file, 'Describe this image in detail.');
+    
+    expect(screen.queryByRole('button', { name: /upload with default prompt/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /upload with custom prompt/i })).not.toBeInTheDocument();
   });
 
   it('should not call onImageSelect for an invalid file type', async () => {
@@ -146,5 +148,6 @@ describe('ImageUpload Component', () => {
     });
 
     expect(mockOnImageSelect).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: /upload with default prompt/i })).not.toBeInTheDocument();
   });
 }); 
