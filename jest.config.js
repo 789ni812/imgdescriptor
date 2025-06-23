@@ -15,6 +15,14 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  // Allow transformation of ESM modules like react-markdown
+  transformIgnorePatterns: [
+    '/node_modules/(?!(react-markdown)/)'
+  ],
+  // Use a custom Babel config for tests only
+  transform: {
+    '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './test/babel.config.js' }],
+  },
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

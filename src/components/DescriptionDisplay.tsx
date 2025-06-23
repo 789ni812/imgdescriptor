@@ -1,37 +1,34 @@
 import React from 'react';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import MarkdownRenderer from './ui/MarkdownRenderer';
+import { DescriptionDisplayProps } from '@/lib/types';
 
-interface DescriptionDisplayProps {
-  description: string | null;
-  error: string | null;
-}
+export const DescriptionDisplay: React.FC<DescriptionDisplayProps> = ({ description, error }) => {
+  if (error) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-600" data-testid="error-message">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-export function DescriptionDisplay({
-  description,
-  error,
-}: DescriptionDisplayProps) {
   return (
-    <Card className="w-full h-full min-h-[80px]">
+    <Card className="mt-4">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">
-          Image Description
-        </CardTitle>
+        <CardTitle>Image Description</CardTitle>
       </CardHeader>
       <CardContent>
-        {error ? (
-          <ErrorMessage message={error} />
+        {description ? (
+          <MarkdownRenderer content={description} className="text-gray-800 leading-relaxed" />
         ) : (
-          <p className="text-gray-800 leading-relaxed">
-            {description || 'Description will appear here...'}
-          </p>
+          <p className="text-gray-400">Description will appear here...</p>
         )}
       </CardContent>
     </Card>
   );
-} 
+}; 
