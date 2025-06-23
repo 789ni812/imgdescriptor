@@ -16,6 +16,14 @@ export interface StoryEntry {
   imageDescription: string;
 }
 
+// RPG Stats interface
+export interface CharacterStats {
+  intelligence: number; // 1-20
+  creativity: number;   // 1-20
+  perception: number;   // 1-20
+  wisdom: number;       // 1-20
+}
+
 export interface Character {
   health: number; // 0-200
   heartrate: number; // 40-180
@@ -27,6 +35,7 @@ export interface Character {
   inventory: Item[];
   storyHistory: StoryEntry[];
   currentTurn: number; // >= 1
+  stats: CharacterStats; // RPG stats
 }
 
 export function createCharacter(overrides: Partial<Character> = {}): Character {
@@ -41,6 +50,12 @@ export function createCharacter(overrides: Partial<Character> = {}): Character {
     inventory: [],
     storyHistory: [],
     currentTurn: 1,
+    stats: {
+      intelligence: 10,
+      creativity: 10,
+      perception: 10,
+      wisdom: 10,
+    },
     ...overrides,
   };
 }
@@ -62,6 +77,25 @@ export function validateCharacter(character: Character): { isValid: boolean; err
   if (character.currentTurn < 1) {
     errors.push('Current turn must be at least 1');
   }
-  // Add more validation as needed
+  
+  // Validate stats
+  const stats = character.stats;
+  if (!stats) {
+    errors.push('Stats are required');
+  } else {
+    if (stats.intelligence < 1 || stats.intelligence > 20) {
+      errors.push('Intelligence must be between 1 and 20');
+    }
+    if (stats.creativity < 1 || stats.creativity > 20) {
+      errors.push('Creativity must be between 1 and 20');
+    }
+    if (stats.perception < 1 || stats.perception > 20) {
+      errors.push('Perception must be between 1 and 20');
+    }
+    if (stats.wisdom < 1 || stats.wisdom > 20) {
+      errors.push('Wisdom must be between 1 and 20');
+    }
+  }
+  
   return { isValid: errors.length === 0, errors };
 } 

@@ -54,6 +54,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(validCharacter);
@@ -73,6 +79,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(invalidCharacter);
@@ -92,6 +104,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(invalidCharacter);
@@ -111,6 +129,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(invalidCharacter);
@@ -130,6 +154,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(invalidCharacter);
@@ -149,6 +179,12 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 0, // Invalid: turn must be at least 1
+        stats: {
+          intelligence: 10,
+          creativity: 10,
+          perception: 10,
+          wisdom: 10,
+        },
       };
 
       const result = validateCharacter(invalidCharacter);
