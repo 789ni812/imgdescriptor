@@ -206,9 +206,9 @@ A Next.js application that allows users to upload images and get AI-generated de
 - ✅ Story generation based on image descriptions
 - ✅ Dual prompt system (default and custom prompts)
 - ✅ Modern UI with shadcn/ui components
-- ✅ Responsive card-based layout
-- ✅ Comprehensive test coverage
-- ✅ TDD workflow with browser preview
+- ✅ Responsive card-based layout (flex-wrap, not grid)
+- ✅ Reset Game button to clear state and turns
+- ✅ Robust test coverage for reset/game logic
 
 ## Development Phases
 
