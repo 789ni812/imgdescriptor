@@ -97,7 +97,6 @@ describe('Home Page', () => {
   it('renders only the ImageUpload component on initial load', () => {
     render(<Home />);
     expect(screen.getByTestId('image-upload')).toBeInTheDocument();
-    expect(screen.getByText('ImageUpload.tsx')).toBeInTheDocument();
     expect(screen.queryByTestId('image-preview')).not.toBeInTheDocument();
     expect(screen.queryByTestId('description-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('story-display')).not.toBeInTheDocument();

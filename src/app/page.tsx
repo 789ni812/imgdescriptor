@@ -6,7 +6,6 @@ import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
 import { StoryDisplay } from '@/components/StoryDisplay';
 import { Button } from '@/components/ui/Button';
-import { DevDebugWrapper } from '@/components/dev/DevDebugWrapper';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { useImageAnalysis } from '@/hooks/useImageAnalysis';
@@ -70,13 +69,9 @@ export default function Home() {
           <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
             <CardContent className="p-6">
               {imageUrl ? (
-                <DevDebugWrapper key="image-preview" filename="ImagePreview.tsx">
-                  <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
-                </DevDebugWrapper>
+                <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
               ) : (
-                <DevDebugWrapper key="image-upload" filename="ImageUpload.tsx">
-                  <ImageUpload onImageSelect={handleImageSelect} />
-                </DevDebugWrapper>
+                <ImageUpload onImageSelect={handleImageSelect} />
               )}
             </CardContent>
           </Card>
@@ -96,9 +91,7 @@ export default function Home() {
           {!isDescriptionLoading && (description || descriptionError) && (
             <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
               <CardContent className="p-6">
-                <DevDebugWrapper filename="DescriptionDisplay.tsx">
-                  <DescriptionDisplay description={description} error={descriptionError} />
-                </DevDebugWrapper>
+                <DescriptionDisplay description={description} error={descriptionError} />
               </CardContent>
             </Card>
           )}
@@ -120,9 +113,7 @@ export default function Home() {
           {(isStoryLoading || story || storyError) && (
             <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
               <CardContent className="p-6">
-                <DevDebugWrapper filename="StoryDisplay.tsx">
-                  <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
-                </DevDebugWrapper>
+                <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
               </CardContent>
             </Card>
           )}
