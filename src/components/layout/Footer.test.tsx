@@ -31,4 +31,12 @@ describe('Footer Component', () => {
     const flexContainer = innerContainer?.querySelector('div');
     expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-center', 'h-16');
   });
+
+  it('should have a solid white top border', () => {
+    render(<Footer />);
+    const footerElement = screen.getByTestId('footer');
+    // Check for Tailwind border classes
+    expect(footerElement.className).toMatch(/border-t(-[0-9]+)?/);
+    expect(footerElement.className).toMatch(/border-white/);
+  });
 }); 
