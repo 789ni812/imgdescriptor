@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useState } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { DescriptionDisplay } from '@/components/DescriptionDisplay';
@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
+import { CustomPromptInput } from '@/components/CustomPromptInput';
 
 export default function Home() {
   const { 
@@ -33,6 +34,8 @@ export default function Home() {
     return newUrl;
   }, null);
 
+  const [customStoryPrompt, setCustomStoryPrompt] = useState('Write a fantasy adventure story');
+
   useEffect(() => {
     return () => {
       if (imageUrl) {
@@ -47,9 +50,15 @@ export default function Home() {
     analyzeImage(file, prompt);
   };
 
-  const handleGenerateStory = () => {
+  const handleGenerateStoryWithDefaultPrompt = () => {
     if (description) {
       generateStory(description);
+    }
+  };
+
+  const handleGenerateStoryWithCustomPrompt = () => {
+    if (description) {
+      generateStory(description, customStoryPrompt);
     }
   };
 
@@ -96,14 +105,32 @@ export default function Home() {
             </Card>
           )}
 
-          {/* Generate Story Button Card */}
+          {/* Generate Story Card with Dual Prompt System */}
           {description && !isDescriptionLoading && !descriptionError && (
             <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
               <CardContent className="p-6">
-                <div className="text-center">
-                  <Button onClick={handleGenerateStory} disabled={isStoryLoading}>
-                    {isStoryLoading ? 'Generating Story...' : 'Generate a Story'}
-                  </Button>
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white">Generate Story</h3>
+                  <CustomPromptInput 
+                    onPromptChange={setCustomStoryPrompt}
+                    value={customStoryPrompt}
+                  />
+                  <div className="flex space-x-4">
+                    <Button 
+                      onClick={handleGenerateStoryWithDefaultPrompt} 
+                      disabled={isStoryLoading}
+                      className="flex-1"
+                    >
+                      {isStoryLoading ? 'Generating...' : 'Default Prompt'}
+                    </Button>
+                    <Button 
+                      onClick={handleGenerateStoryWithCustomPrompt} 
+                      disabled={isStoryLoading}
+                      className="flex-1"
+                    >
+                      {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

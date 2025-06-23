@@ -3,6 +3,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import Home from './page';
+import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
 
 // Mock the components
 jest.mock('@/components/ImageUpload', () => ({
@@ -228,6 +229,67 @@ describe('Home Page', () => {
       expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
       expect(screen.getByTestId('description-display')).toBeInTheDocument();
       expect(screen.getByText('A test description.')).toBeInTheDocument();
+    });
+  });
+
+  it('should support dual prompt system for story generation with default and custom prompts', async () => {
+    // Mock the fetch for image analysis to return a description
+    (fetch as jest.Mock).mockImplementationOnce(() => 
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, description: 'A test description.' }),
+      })
+    );
+    // Mock the fetch for story generation
+    (fetch as jest.Mock).mockImplementationOnce(() => 
+      new Promise(resolve => 
+        setTimeout(() => 
+          resolve({
+            ok: true,
+            json: () => Promise.resolve({ success: true, story: 'A custom story based on the description.' }),
+          }), 100)
+      )
+    );
+
+    render(<Home />);
+
+    // First, trigger image upload with default prompt to get a description
+    const uploadButton = screen.getByRole('button', { name: /upload with default prompt/i });
+    
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
+
+    // Simulate the FileReader finishing
+    await act(async () => {
+        mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
+    });
+    
+    // Wait for the description to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('description-display')).toBeInTheDocument();
+    });
+
+    // Now test that story generation uses the default prompt when no custom prompt is provided
+    const generateStoryButton = screen.getByRole('button', { name: /default prompt/i });
+    
+    await act(async () => {
+      fireEvent.click(generateStoryButton);
+    });
+
+    // Wait for the story to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('story-display')).toBeInTheDocument();
+    });
+
+    // Verify the story generation API was called with the description (no custom prompt)
+    expect(fetch).toHaveBeenCalledWith('/api/generate-story', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description: 'A test description.',
+        prompt: DEFAULT_STORY_GENERATION_PROMPT,
+      }),
     });
   });
 }); 

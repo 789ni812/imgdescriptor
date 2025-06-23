@@ -3,11 +3,12 @@ import { generateStory } from '@/lib/lmstudio-client';
 
 interface GenerateStoryRequest {
   description: string;
+  prompt?: string;
 }
 
 export async function POST(request: Request) {
   try {
-    const { description } = (await request.json()) as GenerateStoryRequest;
+    const { description, prompt } = (await request.json()) as GenerateStoryRequest;
 
     if (!description) {
       return NextResponse.json(
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
       );
     }
     
-    const storyResult = await generateStory(description);
+    const storyResult = await generateStory(description, prompt);
 
     if (!storyResult.success) {
       return NextResponse.json(

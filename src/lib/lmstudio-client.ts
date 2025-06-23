@@ -70,9 +70,13 @@ export const analyzeImage = async (
 
 export const generateStory = async (
   description: string,
+  prompt?: string
 ): Promise<StoryResult> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), STORY_TIMEOUT_MS);
+
+  const defaultPrompt = "Here is a description of an image, please write a short story based on it:";
+  const userPrompt = prompt ? `${prompt}\n\n${description}` : `${defaultPrompt}\n\n${description}`;
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -89,7 +93,7 @@ export const generateStory = async (
           },
           {
             role: 'user',
-            content: `Here is a description of an image, please write a short story based on it:\n\n${description}`,
+            content: userPrompt,
           },
         ],
         temperature: 0.85,

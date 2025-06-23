@@ -84,7 +84,7 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(500);
     expect(data.success).toBe(false);
     expect(data.error).toBe('LM Studio connection failed');
-    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape');
+    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined);
   });
 
   it('should return 200 with story when generation succeeds', async () => {
@@ -106,7 +106,7 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.story).toBe(mockStory);
-    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape');
+    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined);
   });
 
   it('should handle JSON parsing errors', async () => {
@@ -184,6 +184,6 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.story).toBe(mockStory);
-    expect(mockGenerateStory).toHaveBeenCalledWith(longDescription);
+    expect(mockGenerateStory).toHaveBeenCalledWith(longDescription, undefined);
   });
 }); 
