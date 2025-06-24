@@ -154,11 +154,12 @@
   - **Completed 2025-06-24**
   - **Commit:** `feat(ui): add image gallery component`
 
-- [ ] **21.2: Integrate Image Gallery in Layout**
-  - Add image gallery to main page layout
-  - Position images appropriately in the UI
+- [x] **21.2: Integrate Image Gallery in Layout**
+  - Add image gallery to the main page layout in a visually appealing and logical position
+  - Ensure the gallery is responsive and fits well with the rest of the UI
   - Write tests for gallery integration
-  - **Commit:** `feat(layout): integrate image gallery in main layout`
+  - **Completed 2025-06-24**
+  - **Commit:** `feat(layout): integrate session-persistent image gallery into main layout and ensure robust test coverage`
 
 - [ ] **21.3: Implement Story Continuation Logic**
   - Create logic to continue story based on new images and character state
