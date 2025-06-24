@@ -1,4 +1,10 @@
 import type { AnalysisResult, StoryResult } from './types';
+import { 
+  DEFAULT_IMAGE_DESCRIPTION_PROMPT, 
+  DEFAULT_STORY_GENERATION_PROMPT,
+  IMAGE_ANALYSIS_SYSTEM_PROMPT,
+  STORY_GENERATION_SYSTEM_PROMPT
+} from './constants';
 
 const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 3 * 60 * 1000;    // 3 minutes
@@ -24,12 +30,12 @@ export const analyzeImage = async (
         messages: [
           {
             role: 'system',
-            content: 'You are a highly skilled visual analyst AI. Given the image input, describe it in clear, detailed UK English. Focus on the following:\n- Objects or people present\n- Physical setting or location\n- Actions or events taking place\n- Style, mood, or any distinctive features\nAvoid assumptions. Only describe what is visibly present. Keep your description concise but comprehensive.',
+            content: IMAGE_ANALYSIS_SYSTEM_PROMPT,
           },
           {
             role: 'user',
             content: [
-              { type: 'text', text: prompt },
+              { type: 'text', text: prompt || DEFAULT_IMAGE_DESCRIPTION_PROMPT },
               {
                 type: 'image_url',
                 image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
@@ -75,8 +81,7 @@ export const generateStory = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), STORY_TIMEOUT_MS);
 
-  const defaultPrompt = "Here is a description of an image, please write a short story based on it:";
-  const userPrompt = prompt ? `${prompt}\n\n${description}` : `${defaultPrompt}\n\n${description}`;
+  const userPrompt = prompt ? `${prompt}\n\n${description}` : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${description}`;
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -89,7 +94,7 @@ export const generateStory = async (
         messages: [
            {
             role: 'system',
-            content: "You are a creative storyteller. Based on the description of an image, write a short, engaging story (2-3 paragraphs). The story should be imaginative and suitable for a general audience. Use UK English spelling and grammar.",
+            content: STORY_GENERATION_SYSTEM_PROMPT,
           },
           {
             role: 'user',
