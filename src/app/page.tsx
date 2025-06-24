@@ -13,6 +13,7 @@ import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { ImageGallery } from '@/components/ImageGallery';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const { 
@@ -34,7 +35,8 @@ export default function Home() {
     initializeCharacterFromDescription, 
     addExperience, 
     incrementTurn, 
-    resetCharacter 
+    resetCharacter,
+    addImageToHistory
   } = useCharacterStore();
 
   const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
@@ -56,14 +58,17 @@ export default function Home() {
   // Track if we need to initialize the character after analysis
   const [shouldInitCharacter, setShouldInitCharacter] = useState(false);
 
-  // Add state for gallery image URLs
-  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
-
   const handleImageSelect = (file: File, prompt?: string) => {
     const url = URL.createObjectURL(file);
     setImageUrl(url);
-    // Add to gallery (up to 3 images)
-    setGalleryUrls(prev => prev.length < 3 ? [...prev, url] : prev);
+    // Add to imageHistory in the store
+    addImageToHistory({
+      id: uuidv4(),
+      url,
+      description: `Uploaded image ${(character.imageHistory ? character.imageHistory.length : 0) + 1}`,
+      turn: character.currentTurn + 1, // incrementTurn is called after this
+      uploadedAt: new Date().toISOString(),
+    });
     analyzeImage(file, prompt);
 
     // Only increment turn and add experience here
@@ -98,8 +103,7 @@ export default function Home() {
 
   const handleReset = () => {
     setImageUrl(null);
-    setGalleryUrls([]);
-    // Future: The hooks could also expose reset functions
+    // No need to reset galleryUrls; imageHistory is session-only and will reset on reload
   };
 
   const isTurnLimitReached = character.currentTurn >= 3;
@@ -204,9 +208,9 @@ export default function Home() {
               </Card>
             )}
           </div>
-          {/* Image Gallery below main cards */}
+          {/* Image Gallery */}
           <div className="mt-8">
-            <ImageGallery imageUrls={galleryUrls} />
+            <ImageGallery images={character.imageHistory} />
           </div>
         </div>
       </main>

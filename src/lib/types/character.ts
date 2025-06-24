@@ -16,6 +16,14 @@ export interface StoryEntry {
   imageDescription: string;
 }
 
+export interface ImageHistoryEntry {
+  id: string;
+  url: string;
+  description: string;
+  turn: number;
+  uploadedAt: string;
+}
+
 // RPG Stats interface
 export interface CharacterStats {
   intelligence: number; // 1-20
@@ -34,6 +42,7 @@ export interface Character {
   level: number; // >= 1
   inventory: Item[];
   storyHistory: StoryEntry[];
+  imageHistory: ImageHistoryEntry[];
   currentTurn: number; // >= 0
   stats: CharacterStats; // RPG stats
 }
@@ -49,6 +58,7 @@ export function createCharacter(overrides: Partial<Character> = {}): Character {
     level: 1,
     inventory: [],
     storyHistory: [],
+    imageHistory: [],
     currentTurn: 0,
     stats: {
       intelligence: 10,

@@ -116,6 +116,7 @@ describe('Home Page', () => {
         currentTurn: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -132,6 +133,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
   });
 
@@ -373,6 +375,7 @@ describe('Home Page', () => {
         currentTurn: 0, // Set to 0 to trigger initialization
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -389,6 +392,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: mockInitializeCharacter,
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
 
     (fetch as jest.Mock).mockImplementationOnce(() => 
@@ -431,6 +435,7 @@ describe('Home Page', () => {
         currentTurn: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -447,6 +452,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: mockIncrementTurn,
+      addImageToHistory: jest.fn(),
     });
 
     (fetch as jest.Mock).mockImplementationOnce(() => 
@@ -489,6 +495,7 @@ describe('Home Page', () => {
         currentTurn: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -505,6 +512,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
 
     (fetch as jest.Mock).mockImplementationOnce(() => 
@@ -547,6 +555,7 @@ describe('Home Page', () => {
         currentTurn: 3, // At the limit
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: mockUpdateCharacter,
@@ -563,6 +572,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
 
     render(<Home />);
@@ -593,6 +603,7 @@ describe('Home Page', () => {
         currentTurn,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -609,6 +620,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: mockIncrementTurn,
+      addImageToHistory: jest.fn(),
     });
 
     render(<Home />);
@@ -644,6 +656,7 @@ describe('Home Page', () => {
         currentTurn: 3,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -660,6 +673,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
 
     // Try to upload again
@@ -683,6 +697,7 @@ describe('Home Page', () => {
         currentTurn,
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageHistory: [],
       },
       resetCharacter: mockResetCharacter,
       updateCharacter: jest.fn(),
@@ -699,6 +714,7 @@ describe('Home Page', () => {
       getRecentStories: jest.fn(),
       initializeCharacterFromDescription: jest.fn(),
       incrementTurn: jest.fn(),
+      addImageToHistory: jest.fn(),
     });
 
     render(<Home />);

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry } from '../types/character';
 
 // Extended Character interface for the store with additional fields
 export interface ExtendedCharacter extends Character {
@@ -9,6 +9,7 @@ export interface ExtendedCharacter extends Character {
   experienceToNext: number;
   createdAt: Date;
   updatedAt: Date;
+  imageHistory: ImageHistoryEntry[];
 }
 
 // Story interface for the store
@@ -40,6 +41,7 @@ export interface CharacterState {
   getRecentStories: (limit?: number) => Story[];
   initializeCharacterFromDescription: (description: string) => void;
   incrementTurn: () => void;
+  addImageToHistory: (image: ImageHistoryEntry) => void;
 }
 
 // Calculate experience needed for next level
@@ -62,6 +64,7 @@ const createDefaultCharacter = (): ExtendedCharacter => {
     experienceToNext: calculateExperienceToNext(1),
     createdAt: new Date(),
     updatedAt: new Date(),
+    imageHistory: [],
   };
 };
 
@@ -415,9 +418,29 @@ export const useCharacterStore = create<CharacterState>()(
           };
         });
       },
+
+      addImageToHistory: (image: ImageHistoryEntry) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            imageHistory: [
+              ...state.character.imageHistory,
+              image,
+            ],
+            updatedAt: new Date(),
+          },
+        }));
+      },
     }),
     {
       name: 'character-store',
+      partialize: (state) => ({
+        ...state,
+        character: {
+          ...state.character,
+          imageHistory: [], // Exclude imageHistory from persistence
+        },
+      }),
     }
   )
 ); 
