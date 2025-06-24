@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
-import { MOCK_STORY, MOCK_STORY_TEXT } from '@/lib/config';
+import { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Character, StoryEntry } from '@/lib/types/character';
 
@@ -50,7 +50,13 @@ export function useStoryGeneration(injectedCharacter?: Character) {
     // Mock mode: instantly return mock story
     if (MOCK_STORY) {
       setTimeout(() => {
-        setStory(MOCK_STORY_TEXT);
+        // Try to get turn-based mock data first
+        const turnBasedStory = TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof TURN_BASED_MOCK_DATA.stories];
+        
+        // Use turn-based data if available, otherwise fall back to default
+        const mockStory = turnBasedStory || MOCK_STORY_TEXT;
+        
+        setStory(mockStory);
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
       return;

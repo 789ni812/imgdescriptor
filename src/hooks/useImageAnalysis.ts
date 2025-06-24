@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT } from '@/lib/config';
+import { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
+import { useCharacterStore } from '@/lib/stores/characterStore';
 
 export function useImageAnalysis() {
   const [description, setDescription] = useState<string | null>(null);
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { character } = useCharacterStore();
 
   const analyzeImage = (file: File, prompt?: string) => {
     setIsDescriptionLoading(true);
@@ -14,7 +16,13 @@ export function useImageAnalysis() {
     // Mock mode: instantly return mock description
     if (MOCK_IMAGE_DESCRIPTION) {
       setTimeout(() => {
-        setDescription(MOCK_IMAGE_DESCRIPTION_TEXT);
+        // Try to get turn-based mock data first
+        const turnBasedDescription = TURN_BASED_MOCK_DATA.imageDescriptions[character.currentTurn as keyof typeof TURN_BASED_MOCK_DATA.imageDescriptions];
+        // Debug log
+        console.log('[DEBUG] useImageAnalysis: currentTurn =', character.currentTurn, 'turnBasedDescription =', turnBasedDescription);
+        // Use turn-based data if available, otherwise fall back to default
+        const mockDescription = turnBasedDescription || MOCK_IMAGE_DESCRIPTION_TEXT;
+        setDescription(mockDescription);
         setIsDescriptionLoading(false);
       }, 300); // Simulate a short delay
       return;
