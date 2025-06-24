@@ -1,9 +1,9 @@
 // Developer mock mode configuration
 // Set any of these to true to enable mocks for that feature
 
-export const MOCK_IMAGE = true; // Not used directly, but placeholder for future
-export const MOCK_IMAGE_DESCRIPTION = true;
-export const MOCK_STORY = false;
+export const MOCK_IMAGE = false; // Not used directly, but placeholder for future
+export const MOCK_IMAGE_DESCRIPTION = false;
+export const MOCK_STORY = true;
 
 // Mock data
 export const MOCK_IMAGE_URL = '/img-tree.jpg';
