@@ -100,22 +100,24 @@
 **Objective:** Implement a 3-turn system for continuing the story with new images.
 
 #### Tasks
-- [ ] **20.1: Implement Turn Management**
-  - Create turn state management in character store
-  - Add turn counter and validation logic
-  - Write tests for turn management system
+- [x] **20.1: Implement Turn Management**
+  - Turn state management (`currentTurn`, `incrementTurn`, reset) implemented in character store
+  - Turn counter and validation logic (max 3 turns, UI disables upload and shows message)
+  - Tests for turn management system in `characterStore.test.ts`
+  - **Completed 2025-06-24**
   - **Commit:** `feat(game): implement turn-based game system`
 
-- [ ] **20.2: Create Turn Display Component**
-  - Create `src/components/ui/TurnCounter.tsx` to show remaining turns
-  - Display turn count and game status
-  - Write tests for turn counter display
+- [x] **20.2: Create Turn Display Component**
+  - Turn display is implemented in `CharacterStats` (header) and shows current turn in the UI
+  - Also shown as `Turn {character.currentTurn}/3` in the header for clarity
+  - **Completed 2025-06-24**
   - **Commit:** `feat(ui): add turn counter component`
 
-- [ ] **20.3: Update Story Generation for Turns**
-  - Modify story generation to incorporate character stats and turn context
-  - Update prompts to include character state and previous story context
-  - Write tests for turn-based story generation
+- [x] **20.3: Update Story Generation for Turns**
+  - Story generation prompt now includes turn number, character stats, and previous story context
+  - Refactored prompt construction into a pure function for TDD
+  - Fully tested with unit and integration tests
+  - **Completed 2025-06-24**
   - **Commit:** `feat(story): update story generation for turn-based gameplay`
 
 - [ ] **20.4: Implement Turn Validation**
@@ -151,6 +153,32 @@
   - Pass story context to AI for continuation
   - Write tests for story history management
   - **Commit:** `feat(story): add story history and context management`
+
+### Developer Mock Mode for Fast UI/UX Review (2025-06-24)
+**Objective:** Allow developers to instantly review UI changes by toggling between real and mocked responses for image upload, image description, and story generation.
+
+#### Features
+- Config file (`src/lib/config.ts`) to enable/disable mocks for:
+  - Image upload (use a static image)
+  - Image description (use a static or random description)
+  - Story generation (use a static or random story)
+- When enabled, the app instantly returns mock data instead of calling the real API/AI.
+- Works independently for each feature (can mock one, two, or all three).
+- (Optional) UI toggle in dev mode to enable/disable mocks without code changes.
+
+#### Status
+- **Implemented and enabled for all features via config.**
+- Toggle mocks by editing `src/lib/config.ts`.
+
+#### Steps
+1. Create `src/lib/config.ts` with mock flags for each feature. **(Done)**
+2. Update hooks (`useImageAnalysis`, `useStoryGeneration`) to use config and return mock data if enabled. **(Done)**
+3. Provide mock data (static image in `public/`, mock description/story strings). **(Done)**
+4. (Optional) Add a dev-only UI toggle for enabling/disabling mocks.
+
+#### Benefits
+- Instantly see UI changes without waiting for AI responses.
+- Test all flows, including error states, with predictable data.
 
 ---
 

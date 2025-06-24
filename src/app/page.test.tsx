@@ -61,6 +61,14 @@ jest.mock('@/components/CustomPromptInput', () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
+// Mock the config module to disable mock mode during tests
+jest.mock('@/lib/config', () => ({
+  MOCK_IMAGE_DESCRIPTION: false,
+  MOCK_STORY: false,
+  MOCK_IMAGE_DESCRIPTION_TEXT: 'Mock description',
+  MOCK_STORY_TEXT: 'Mock story',
+}));
+
 // --- Correct FileReader Mock ---
 const mockFileReaderInstance = {
   readAsDataURL: jest.fn(),
@@ -345,7 +353,7 @@ describe('Home Page', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         description: 'A test description.',
-        prompt: DEFAULT_STORY_GENERATION_PROMPT,
+        prompt: `${DEFAULT_STORY_GENERATION_PROMPT}\n\nTurn: 1\n\nStats: INT 15, CRE 12, PER 18, WIS 14\n\nA test description.`,
       }),
     });
   });

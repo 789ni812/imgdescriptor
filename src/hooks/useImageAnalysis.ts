@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT } from '@/lib/config';
 
 export function useImageAnalysis() {
   const [description, setDescription] = useState<string | null>(null);
@@ -9,6 +10,15 @@ export function useImageAnalysis() {
     setIsDescriptionLoading(true);
     setError(null);
     setDescription(null);
+
+    // Mock mode: instantly return mock description
+    if (MOCK_IMAGE_DESCRIPTION) {
+      setTimeout(() => {
+        setDescription(MOCK_IMAGE_DESCRIPTION_TEXT);
+        setIsDescriptionLoading(false);
+      }, 300); // Simulate a short delay
+      return;
+    }
 
     const defaultPrompt = 'Describe this image in detail.';
     const finalPrompt = prompt || defaultPrompt;

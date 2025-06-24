@@ -1,5 +1,11 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useImageAnalysis } from './useImageAnalysis';
+
+// Mock the config module to disable mock mode during tests
+jest.mock('@/lib/config', () => ({
+  MOCK_IMAGE_DESCRIPTION: false,
+  MOCK_IMAGE_DESCRIPTION_TEXT: 'Mock description',
+}));
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -47,7 +53,10 @@ describe('useImageAnalysis', () => {
       }
     });
     
-    expect(result.current.isDescriptionLoading).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isDescriptionLoading).toBe(false);
+    });
+    
     expect(result.current.description).toBe(mockDescription);
     expect(result.current.error).toBeNull();
     
@@ -82,7 +91,10 @@ describe('useImageAnalysis', () => {
       }
     });
     
-    expect(result.current.isDescriptionLoading).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isDescriptionLoading).toBe(false);
+    });
+    
     expect(result.current.description).toBe(mockDescription);
     expect(result.current.error).toBeNull();
     
@@ -113,7 +125,10 @@ describe('useImageAnalysis', () => {
         }
     });
 
-    expect(result.current.isDescriptionLoading).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isDescriptionLoading).toBe(false);
+    });
+
     expect(result.current.description).toBeNull();
     expect(result.current.error).toBe('API Error');
   });
@@ -131,7 +146,10 @@ describe('useImageAnalysis', () => {
         }
     });
 
-    expect(result.current.isDescriptionLoading).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isDescriptionLoading).toBe(false);
+    });
+
     expect(result.current.description).toBeNull();
     expect(result.current.error).toContain('An unexpected error occurred: Network failure');
   });
@@ -151,6 +169,10 @@ describe('useImageAnalysis', () => {
       if (mockFileReaderInstance.onload) {
         mockFileReaderInstance.onload({} as ProgressEvent<FileReader>);
       }
+    });
+    
+    await waitFor(() => {
+      expect(result.current.isDescriptionLoading).toBe(false);
     });
     
     // Verify the default prompt was used when undefined is passed

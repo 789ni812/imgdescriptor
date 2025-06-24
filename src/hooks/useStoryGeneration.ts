@@ -1,10 +1,41 @@
 import { useState } from 'react';
 import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
+import { MOCK_STORY, MOCK_STORY_TEXT } from '@/lib/config';
+import { useCharacterStore } from '@/lib/stores/characterStore';
+import type { Character, StoryEntry } from '@/lib/types/character';
 
-export function useStoryGeneration() {
+export function buildStoryPrompt({ character, description, customPrompt }: {
+  character: Character,
+  description: string,
+  customPrompt?: string
+}) {
+  const turn = character.currentTurn;
+  const stats = character.stats;
+  const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
+  const previousStories = character.storyHistory
+    .filter((s: StoryEntry) => s.turnNumber < turn)
+    .map((s: StoryEntry) => s.text)
+    .join('\n');
+  const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
+
+  const contextPrompt = [
+    `Turn: ${turn}`,
+    `Stats: ${statsString}`,
+    previousStoryContext,
+    description
+  ].filter(Boolean).join('\n\n');
+
+  return customPrompt
+    ? `${customPrompt}\n\n${contextPrompt}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${contextPrompt}`;
+}
+
+export function useStoryGeneration(injectedCharacter?: Character) {
   const [story, setStory] = useState<string | null>(null);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const { character } = useCharacterStore();
+  const effectiveCharacter = injectedCharacter || character;
 
   const generateStory = async (description: string, customPrompt?: string) => {
     if (!description) {
@@ -16,7 +47,16 @@ export function useStoryGeneration() {
     setStory(null);
     setStoryError(null);
 
-    const prompt = customPrompt || DEFAULT_STORY_GENERATION_PROMPT;
+    // Mock mode: instantly return mock story
+    if (MOCK_STORY) {
+      setTimeout(() => {
+        setStory(MOCK_STORY_TEXT);
+        setIsStoryLoading(false);
+      }, 300); // Simulate a short delay
+      return;
+    }
+
+    const prompt = buildStoryPrompt({ character: effectiveCharacter, description, customPrompt });
 
     try {
       const response = await fetch('/api/generate-story', {
