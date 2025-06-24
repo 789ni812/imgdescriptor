@@ -128,6 +128,13 @@
   - **Completed 2025-06-24**
   - **Commit:** `feat(story): update story generation for turn-based gameplay`
 
+- [ ] **20.3.1: Add 3-Turn Mock Data for Story Evolution**
+  - Create 3 sets of mocked image descriptions (one for each turn)
+  - Create 3 sets of mocked story generations that build upon each other
+  - Update mock system to return different data based on current turn
+  - Write tests for turn-based mock data selection
+  - **Commit:** `feat(mocks): add 3-turn mock data for story evolution testing`
+
 - [ ] **20.4: Implement Turn Validation**
   - Add logic to prevent image uploads after 3 turns
   - Show appropriate messages when turns are exhausted
