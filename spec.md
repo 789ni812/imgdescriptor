@@ -135,10 +135,11 @@
   - Write tests for turn-based mock data selection
   - **Commit:** `feat(mocks): add 3-turn mock data for story evolution testing`
 
-- [ ] **20.4: Implement Turn Validation**
-  - Add logic to prevent image uploads after 3 turns
-  - Show appropriate messages when turns are exhausted
-  - Write tests for turn validation
+- [x] **20.4: Implement Turn Validation**
+  - Image upload is disabled after 3 turns (turn limit enforced in UI)
+  - User sees a clear message when turns are exhausted
+  - Tests in page.test.tsx verify upload is disabled and message is shown
+  - **Completed 2025-06-24**
   - **Commit:** `feat(game): implement turn validation and game end logic`
 
 ### Phase 21: Image Gallery and Story Continuation
