@@ -2,11 +2,35 @@ import { useState } from 'react';
 import { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 
-export function useImageAnalysis() {
+// Types for dependency injection
+interface ConfigDependencies {
+  MOCK_IMAGE_DESCRIPTION: boolean;
+  MOCK_IMAGE_DESCRIPTION_TEXT: string;
+  TURN_BASED_MOCK_DATA: {
+    imageDescriptions: Record<number, string>;
+  };
+}
+
+interface StoreDependencies {
+  character: {
+    currentTurn: number;
+  };
+}
+
+export function useImageAnalysis(
+  configOverride?: ConfigDependencies,
+  storeOverride?: StoreDependencies
+) {
   const [description, setDescription] = useState<string | null>(null);
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { character } = useCharacterStore();
+  
+  // Always call the hook unconditionally
+  const storeFromHook = useCharacterStore();
+  // Use injected dependencies or fall back to real modules
+  const config = configOverride || { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT, TURN_BASED_MOCK_DATA };
+  const store = storeOverride || storeFromHook;
+  const { character } = store;
 
   const analyzeImage = (file: File, prompt?: string) => {
     setIsDescriptionLoading(true);
@@ -14,14 +38,14 @@ export function useImageAnalysis() {
     setDescription(null);
 
     // Mock mode: instantly return mock description
-    if (MOCK_IMAGE_DESCRIPTION) {
+    if (config.MOCK_IMAGE_DESCRIPTION) {
       setTimeout(() => {
         // Try to get turn-based mock data first
-        const turnBasedDescription = TURN_BASED_MOCK_DATA.imageDescriptions[character.currentTurn as keyof typeof TURN_BASED_MOCK_DATA.imageDescriptions];
+        const turnBasedDescription = config.TURN_BASED_MOCK_DATA.imageDescriptions[character.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.imageDescriptions];
         // Debug log
         console.log('[DEBUG] useImageAnalysis: currentTurn =', character.currentTurn, 'turnBasedDescription =', turnBasedDescription);
         // Use turn-based data if available, otherwise fall back to default
-        const mockDescription = turnBasedDescription || MOCK_IMAGE_DESCRIPTION_TEXT;
+        const mockDescription = turnBasedDescription || config.MOCK_IMAGE_DESCRIPTION_TEXT;
         setDescription(mockDescription);
         setIsDescriptionLoading(false);
       }, 300); // Simulate a short delay

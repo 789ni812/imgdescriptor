@@ -170,6 +170,32 @@
   - Write tests for story history management
   - **Commit:** `feat(story): add story history and context management`
 
+### 21.3: Add Loading Indicator for LLM Operations
+
+**Goal:**
+Display a clear loading indicator (spinner or message) whenever the user is waiting for a response from the LLM (image description or story generation), so users know the app is working and not frozen.
+
+**Requirements:**
+- Show a loading spinner or animated message in the UI:
+  - When image description is being generated.
+  - When story generation is in progress.
+- The indicator should be visible in the relevant panel/section (not just global).
+- The indicator disappears as soon as the response is received or an error occurs.
+- The rest of the UI should remain interactive (except for the specific operation in progress).
+- Optionally, display a message like "Generating story, this may take a few minutes..." for long operations.
+
+**Acceptance Criteria:**
+- Users see a clear loading indicator while waiting for LLM responses.
+- The indicator is removed immediately when the result or error is shown.
+- No UI flicker or blocking of unrelated actions.
+
+**Todo List:**
+1. Write a failing Jest test for the loading indicator behavior in both image and story panels.
+2. Implement a loading spinner or message in the UI.
+3. Ensure the indicator is shown/hidden based on loading state from hooks.
+4. Test with both fast and slow LLM responses.
+5. Refactor and commit.
+
 ### Developer Mock Mode for Fast UI/UX Review (2025-06-24)
 **Objective:** Allow developers to instantly review UI changes by toggling between real and mocked responses for image upload, image description, and story generation.
 
@@ -332,4 +358,13 @@ src/
 ├── hooks/              # Custom React hooks
 ├── lib/                # Utilities and constants
 └── types/              # TypeScript type definitions
-``` 
+```
+
+# Project Status Update (2024-06-23)
+
+- The project is in a clean, TDD-verified state.
+- All tests and the production build pass.
+- Mock mode for image, description, and story generation is implemented and documented in `src/lib/config.ts`.
+- Skipped tests are tracked in code comments or directly in test files (the previous `skipped-tests.md` was deleted).
+- The app works with both mock and live data.
+- Ready for review of skipped tests, turn validation, or image gallery/story continuation. 

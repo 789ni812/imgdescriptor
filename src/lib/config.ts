@@ -3,7 +3,7 @@
 
 export const MOCK_IMAGE = true; // Not used directly, but placeholder for future
 export const MOCK_IMAGE_DESCRIPTION = true;
-export const MOCK_STORY = true;
+export const MOCK_STORY = false;
 
 // Mock data
 export const MOCK_IMAGE_URL = '/img-tree.jpg';

@@ -30,12 +30,33 @@ export function buildStoryPrompt({ character, description, customPrompt }: {
     : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${contextPrompt}`;
 }
 
-export function useStoryGeneration(injectedCharacter?: Character) {
+// Types for dependency injection
+interface ConfigDependencies {
+  MOCK_STORY: boolean;
+  MOCK_STORY_TEXT: string;
+  TURN_BASED_MOCK_DATA: {
+    stories: Record<number, string>;
+  };
+}
+
+interface StoreDependencies {
+  character: Character;
+}
+
+export function useStoryGeneration(
+  configOverride?: ConfigDependencies,
+  storeOverride?: StoreDependencies
+) {
   const [story, setStory] = useState<string | null>(null);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
-  const { character } = useCharacterStore();
-  const effectiveCharacter = injectedCharacter || character;
+  
+  // Always call the hook unconditionally
+  const storeFromHook = useCharacterStore();
+  // Use injected dependencies or fall back to real modules
+  const config = configOverride || { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA };
+  const store = storeOverride || storeFromHook;
+  const effectiveCharacter = store.character;
 
   const generateStory = async (description: string, customPrompt?: string) => {
     if (!description) {
@@ -48,13 +69,13 @@ export function useStoryGeneration(injectedCharacter?: Character) {
     setStoryError(null);
 
     // Mock mode: instantly return mock story
-    if (MOCK_STORY) {
+    if (config.MOCK_STORY) {
       setTimeout(() => {
         // Try to get turn-based mock data first
-        const turnBasedStory = TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof TURN_BASED_MOCK_DATA.stories];
+        const turnBasedStory = config.TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.stories];
         
         // Use turn-based data if available, otherwise fall back to default
-        const mockStory = turnBasedStory || MOCK_STORY_TEXT;
+        const mockStory = turnBasedStory || config.MOCK_STORY_TEXT;
         
         setStory(mockStory);
         setIsStoryLoading(false);

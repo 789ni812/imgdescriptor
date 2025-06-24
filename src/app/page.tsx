@@ -12,6 +12,7 @@ import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
+import { ImageGallery } from '@/components/ImageGallery';
 
 export default function Home() {
   const { 
@@ -55,9 +56,14 @@ export default function Home() {
   // Track if we need to initialize the character after analysis
   const [shouldInitCharacter, setShouldInitCharacter] = useState(false);
 
+  // Add state for gallery image URLs
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+
   const handleImageSelect = (file: File, prompt?: string) => {
     const url = URL.createObjectURL(file);
     setImageUrl(url);
+    // Add to gallery (up to 3 images)
+    setGalleryUrls(prev => prev.length < 3 ? [...prev, url] : prev);
     analyzeImage(file, prompt);
 
     // Only increment turn and add experience here
@@ -92,6 +98,7 @@ export default function Home() {
 
   const handleReset = () => {
     setImageUrl(null);
+    setGalleryUrls([]);
     // Future: The hooks could also expose reset functions
   };
 
@@ -196,6 +203,10 @@ export default function Home() {
                 </CardContent>
               </Card>
             )}
+          </div>
+          {/* Image Gallery below main cards */}
+          <div className="mt-8">
+            <ImageGallery imageUrls={galleryUrls} />
           </div>
         </div>
       </main>

@@ -34,3 +34,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Project Status (2024-06-23)
+
+- All tests and the production build pass (TDD enforced).
+- Mock mode is available for image, description, and story generation (see `src/lib/config.ts`).
+- Skipped tests are tracked in code comments or test files (the previous `skipped-tests.md` was deleted).
+- The app works with both mock and live data.
+- Next steps: review skipped tests, implement turn validation, or continue with image gallery/story features.
