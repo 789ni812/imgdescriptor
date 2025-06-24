@@ -21,7 +21,7 @@ const config = {
   ],
   // Use a custom Babel config for tests only
   transform: {
-    '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './test/babel.config.js' }],
+    '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { configFile: './test/babel.config.js' }],
   },
 };
 

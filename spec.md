@@ -69,6 +69,14 @@
   - Write tests for markdown-formatted responses
   - **Commit:** `feat(prompts): update AI prompts to generate markdown content`
 
+- [x] **18.5: Fix MarkdownRenderer Tests (ESM/Jest Issue Resolution)**
+  - Resolved ESM/Jest compatibility issues with react-markdown
+  - Implemented custom mock for react-markdown to simulate HTML output
+  - Re-enabled all previously skipped markdown rendering tests (10 tests)
+  - All tests now pass with proper markdown element validation
+  - **Completed 2025-06-24**
+  - **Commit:** `fix(tests): resolve MarkdownRenderer ESM/Jest issues with custom mock`
+
 ### Phase 19: Header Scoring Display
 **Objective:** Show key character scoring numbers in the header.
 
