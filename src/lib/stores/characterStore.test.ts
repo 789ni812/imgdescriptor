@@ -1,3 +1,28 @@
+// Suppress console noise during tests
+const originalError = console.error;
+const originalLog = console.log;
+
+beforeAll(() => {
+  // Suppress act(...) warnings
+  console.error = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('not wrapped in act')
+    ) {
+      return;
+    }
+    originalError(...args);
+  };
+  
+  // Suppress console.log in tests
+  console.log = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalError;
+  console.log = originalLog;
+});
+
 // Mock persist to passthrough for initialization test
 jest.mock('zustand/middleware', () => ({
   persist: (config: any) => config,
