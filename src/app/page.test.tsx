@@ -1,86 +1,14 @@
 "use client";
 
-import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Home from './page';
-import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
-import { useCharacterStore } from '@/lib/stores/characterStore';
 
-// Mock the components
-jest.mock('@/components/ImageUpload', () => ({
-  ImageUpload: jest.fn(({ onImageSelect, disabled }) => (
-    <div data-testid="image-upload">
-      <button 
-        onClick={() => onImageSelect(new File(['test'], 'test.jpg', { type: 'image/jpeg' }), 'Custom prompt')}
-        disabled={disabled}
-      >
-        Upload with Custom Prompt
-      </button>
-      <button 
-        onClick={() => onImageSelect(new File(['test'], 'test.jpg', { type: 'image/jpeg' }), 'Describe this image in detail.')}
-        disabled={disabled}
-      >
-        Upload with Default Prompt
-      </button>
-    </div>
-  )),
+// Mock Next.js Image component
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
-jest.mock('@/components/ImagePreview', () => ({
-  ImagePreview: jest.fn(({ imageUrl, onRemove }) => (
-    <div>
-      <img data-testid="image-preview" src={imageUrl} alt="preview" />
-      <button onClick={onRemove} aria-label="Remove">Remove</button>
-    </div>
-  )),
-}));
-jest.mock('@/components/DescriptionDisplay', () => ({
-  DescriptionDisplay: jest.fn((props) => <div data-testid="description-display">{props.description}</div>),
-}));
-jest.mock('@/components/StoryDisplay', () => ({
-  StoryDisplay: jest.fn((props) => <div data-testid="story-display">{props.story}</div>),
-}));
-jest.mock('@/components/ui/Button', () => ({
-  Button: jest.fn(({ children, onClick, disabled }) => <button onClick={onClick} disabled={disabled}>{children}</button>),
-}));
-jest.mock('@/components/ui/LoadingSpinner', () => ({
-  LoadingSpinner: jest.fn(() => <div data-testid="loading-spinner" />),
-}));
-jest.mock('@/components/CustomPromptInput', () => ({
-  CustomPromptInput: ({ onPromptChange, value }: { onPromptChange: (prompt: string) => void; value?: string }) => (
-    <div data-testid="custom-prompt-input">
-      <textarea
-        data-testid="prompt-textarea"
-        value={value || ''}
-        onChange={(e) => onPromptChange(e.target.value)}
-        placeholder="Custom prompt input"
-      />
-    </div>
-  ),
-}));
-
-// Mock fetch
-global.fetch = jest.fn();
-
-// Mock the config module to disable mock mode during tests
-jest.mock('@/lib/config', () => ({
-  MOCK_IMAGE_DESCRIPTION: false,
-  MOCK_STORY: false,
-  MOCK_IMAGE_DESCRIPTION_TEXT: 'Mock description',
-  MOCK_STORY_TEXT: 'Mock story',
-}));
-
-// --- Correct FileReader Mock ---
-const mockFileReaderInstance = {
-  readAsDataURL: jest.fn(),
-  onload: jest.fn(),
-  result: 'data:image/png;base64,test-base64-string',
-};
-
-const mockFileReader = jest.fn(() => mockFileReaderInstance);
-global.FileReader = mockFileReader as jest.Mock as any;
-
-jest.mock('@/lib/lmstudio-client');
 
 // Mock the character store
 jest.mock('@/lib/stores/characterStore', () => ({
@@ -117,6 +45,9 @@ jest.mock('@/hooks/useStoryGeneration', () => ({
     generateStory: jest.fn(),
   }),
 }));
+
+// Mock fetch
+global.fetch = jest.fn();
 
 describe('Home Page', () => {
   beforeEach(() => {

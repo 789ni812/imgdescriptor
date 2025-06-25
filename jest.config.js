@@ -17,7 +17,7 @@ const config = {
   },
   // Allow transformation of ESM modules like react-markdown
   transformIgnorePatterns: [
-    '/node_modules/(?!(react-markdown)/)'
+    'node_modules/(?!(react-markdown|remark-.*|rehype-.*|unified|bail|is-plain-obj|trough|vfile|unist-.*|mdast-.*|micromark|decode-named-character-reference|character-entities|property-information|hast-util-.*|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount)/)'
   ],
   // Use a custom Babel config for tests only
   transform: {

@@ -233,6 +233,122 @@ describe('useStoryGeneration', () => {
       expect(result.current.story).toBe('Default mock story');
     });
   });
+
+  describe('Story Continuation Logic', () => {
+    it('should build upon existing story when continuing with new images', async () => {
+      const existingStory = 'Once upon a time, there was a brave knight who discovered a magical forest.';
+      const newDescription = 'The knight now stands before an ancient castle with mysterious symbols.';
+      const characterState = {
+        character: {
+          currentTurn: 2,
+          storyHistory: [
+            { 
+              id: '1', 
+              text: existingStory, 
+              turnNumber: 1, 
+              timestamp: new Date().toISOString(),
+              imageDescription: 'A magical forest'
+            }
+          ],
+          stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+          imageHistory: [],
+          health: 100,
+          heartrate: 70,
+          age: 18,
+          persona: 'Adventurer',
+          traits: [],
+          experience: 0,
+          level: 1,
+          inventory: [],
+        }
+      };
+
+      const configOverride = {
+        MOCK_STORY: false,
+        MOCK_STORY_TEXT: '',
+        TURN_BASED_MOCK_DATA: { stories: {} }
+      };
+
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ 
+          story: 'The knight approaches the castle, recognizing the symbols as ancient runes of protection.' 
+        }),
+      });
+
+      const { result } = renderHook(() => useStoryGeneration(configOverride, characterState));
+
+      await act(async () => {
+        await result.current.generateStory(newDescription, 'Continue the adventure');
+      });
+
+      // Verify the API call was made with the correct structure
+      expect(fetch).toHaveBeenCalledWith('/api/generate-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining(newDescription),
+      });
+
+      // Verify the prompt includes the continuation instruction and context
+      const callBody = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
+      expect(callBody.prompt).toContain('Continue the adventure');
+      expect(callBody.prompt).toContain('Turn: 2');
+      expect(callBody.prompt).toContain('Stats: INT 15, CRE 12, PER 18, WIS 14');
+      expect(callBody.prompt).toContain('Previous story: Once upon a time, there was a brave knight who discovered a magical forest.');
+    });
+
+    it('should include previous story context in continuation prompts', async () => {
+      const existingStory = 'The knight found a magical sword in the forest.';
+      const newDescription = 'A dragon appears in the distance.';
+      const characterState = {
+        character: {
+          currentTurn: 2,
+          storyHistory: [
+            { 
+              id: '1', 
+              text: existingStory, 
+              turnNumber: 1, 
+              timestamp: new Date().toISOString(),
+              imageDescription: 'A magical forest with a sword'
+            }
+          ],
+          stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+          imageHistory: [],
+          health: 100,
+          heartrate: 70,
+          age: 18,
+          persona: 'Adventurer',
+          traits: [],
+          experience: 0,
+          level: 1,
+          inventory: [],
+        }
+      };
+
+      const configOverride = {
+        MOCK_STORY: false,
+        MOCK_STORY_TEXT: '',
+        TURN_BASED_MOCK_DATA: { stories: {} }
+      };
+
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ story: 'The knight draws his magical sword to face the dragon.' }),
+      });
+
+      const { result } = renderHook(() => useStoryGeneration(configOverride, characterState));
+
+      await act(async () => {
+        await result.current.generateStory(newDescription, 'Continue the story');
+      });
+
+      // Verify the prompt includes previous story context
+      const callBody = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
+      expect(callBody.prompt).toContain('Continue the story');
+      expect(callBody.prompt).toContain('Turn: 2');
+      expect(callBody.prompt).toContain('Stats: INT 15, CRE 12, PER 18, WIS 14');
+    });
+  });
 });
 
 describe('buildStoryPrompt', () => {

@@ -5,3 +5,5 @@
 import '@testing-library/jest-dom';
 
 // No longer importing from undici here 
+
+jest.mock('react-markdown'); 

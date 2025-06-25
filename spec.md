@@ -161,6 +161,35 @@
   - **Completed 2025-06-24**
   - **Commit:** `feat(layout): integrate session-persistent image gallery into main layout and ensure robust test coverage`
 
+#### 21.2.1: Display Image, Description, and Story Together in Gallery Cards
+**Objective:**
+For each image in the gallery, display its associated AI-generated description and story together in a single shadcn Card component.
+
+**Tasks:**
+1. Update state/data model to ensure each gallery entry stores image, description, and story.
+2. Write a failing Jest test for the gallery to assert each card displays image, description, and story.
+3. Refactor the gallery to render a shadcn Card for each image, showing all three elements.
+4. Create or update a `GalleryCard` component as needed.
+5. Ensure markdown rendering works in the card context.
+6. Test, refactor, and ensure all tests pass.
+7. Update documentation/spec.
+8. Commit: `feat(gallery): display image, description, and story together in gallery cards`
+
+#### 21.2.2: Use Accordion for Description and Story in Gallery Cards
+**Objective:**
+Within each gallery card, use a shadcn Accordion so the user can expand/collapse the image description and story. The story panel should be open by default.
+
+**Tasks:**
+1. Write a failing Jest test to assert that each gallery card uses an Accordion with two sections: one for the description, one for the story.
+2. Implement the Accordion in the `GalleryCard` (or equivalent) component.
+   - Section 1: "Image Description" (collapsed by default)
+   - Section 2: "Image Story" (expanded by default)
+3. Ensure only one section can be open at a time (if desired).
+4. Ensure markdown rendering works inside the Accordion panels.
+5. Test, refactor, and ensure all tests pass.
+6. Update documentation/spec.
+7. Commit: `feat(gallery): add accordion for description and story in gallery cards`
+
 - [ ] **21.3: Implement Story Continuation Logic**
   - Create logic to continue story based on new images and character state
   - Update story generation to reference previous story elements
