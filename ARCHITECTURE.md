@@ -27,6 +27,7 @@ jest.config.js           # Jest configuration
   - Store: `src/lib/stores/characterStore.ts`
   - Uses `persist` middleware for localStorage persistence
   - All state updates are via store actions (no direct mutation)
+  - **Image History:** Each image entry now stores its own AI-generated description and story, enabling robust per-turn display and replay.
 - **Turn System:**
   - 3-turn limit, managed in Zustand
   - Reset Game button resets all state
@@ -44,7 +45,11 @@ jest.config.js           # Jest configuration
 
 ## UI/UX
 - **Layout:**
-  - Responsive flex-wrap card layout (no grid)
+  - Responsive, stacked card layout (no grid)
+  - Each image/turn is displayed as a vertical `GalleryCard` with:
+    - The image at the top
+    - An accordion below with two sections: "Image Description" (collapsed by default) and "Image Story" (expanded by default)
+    - A "Turn X" label for each card, newest at the top
   - Header displays character stats
   - Main area: image upload, preview, description, story, and controls
 - **Reset Game:**
@@ -75,7 +80,7 @@ jest.config.js           # Jest configuration
 - **Zustand:** Simple, scalable state management with persistence
 - **shadcn/ui:** Modern, accessible UI components
 - **TDD:** Ensures reliability and maintainability
-- **Card Layout:** More flexible and visually appealing than grid for this use case
+- **Stacked Card Layout:** More flexible and visually appealing than a grid for this use case; supports per-turn replay and accordion-based detail viewing.
 
 ---
 This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices. 

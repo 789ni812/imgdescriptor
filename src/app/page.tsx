@@ -12,7 +12,7 @@ import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
-import { ImageGallery } from '@/components/ImageGallery';
+import { GalleryCard } from '@/components/GalleryCard';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
@@ -36,7 +36,9 @@ export default function Home() {
     addExperience, 
     incrementTurn, 
     resetCharacter,
-    addImageToHistory
+    addImageToHistory,
+    updateImageDescription,
+    updateImageStory
   } = useCharacterStore();
 
   const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
@@ -107,6 +109,26 @@ export default function Home() {
   };
 
   const isTurnLimitReached = character.currentTurn >= 3;
+
+  // Save description to imageHistory when it changes
+  useEffect(() => {
+    if (description && character.imageHistory.length > 0) {
+      const latestImage = character.imageHistory[character.imageHistory.length - 1];
+      if (latestImage && latestImage.description !== description) {
+        updateImageDescription(latestImage.id, description);
+      }
+    }
+  }, [description, character.imageHistory, updateImageDescription]);
+
+  // Save story to imageHistory when it changes
+  useEffect(() => {
+    if (story && character.imageHistory.length > 0) {
+      const latestImage = character.imageHistory[character.imageHistory.length - 1];
+      if (latestImage && latestImage.story !== story) {
+        updateImageStory(latestImage.id, story);
+      }
+    }
+  }, [story, character.imageHistory, updateImageStory]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -208,9 +230,20 @@ export default function Home() {
               </Card>
             )}
           </div>
-          {/* Image Gallery */}
-          <div className="mt-8">
-            <ImageGallery images={character.imageHistory} />
+          {/* Image Gallery - replaced with stacked GalleryCards */}
+          <div className="mt-8 space-y-6">
+            {[...character.imageHistory].slice().reverse().map((img) => (
+              <div key={img.id} className="w-full max-w-md mx-auto">
+                <div className="text-xs text-gray-400 mb-1">Turn {img.turn}</div>
+                <GalleryCard
+                  id={img.id}
+                  url={img.url}
+                  description={img.description}
+                  story={img.story || ''}
+                  turn={img.turn}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </main>

@@ -190,6 +190,22 @@ Within each gallery card, use a shadcn Accordion so the user can expand/collapse
 6. Update documentation/spec.
 7. Commit: `feat(gallery): add accordion for description and story in gallery cards`
 
+#### 21.2.3: Replace Gallery Grid with Stacked GalleryCards
+**Objective:**
+Remove the gallery grid. For each image/turn, render a GalleryCard with the image at the top and an accordion underneath containing:
+  - Image Description (collapsed by default)
+  - Image Story (expanded by default)
+Cards should be stacked vertically (one per row), newest at the top, with a 'Turn X' label on each card.
+
+**Tasks:**
+1. Remove the gallery grid from the UI.
+2. For each image/turn, render a GalleryCard in the main content area, passing image, description, and story.
+3. Stack cards vertically, newest at the top.
+4. Add a 'Turn X' label to each card.
+5. Update or remove any tests that expect the old gallery grid.
+6. Refactor and ensure all tests pass.
+7. Commit: `feat(gallery): replace grid with stacked GalleryCards for each image/turn`
+
 - [ ] **21.3: Implement Story Continuation Logic**
   - Create logic to continue story based on new images and character state
   - Update story generation to reference previous story elements

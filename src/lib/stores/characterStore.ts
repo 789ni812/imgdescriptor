@@ -42,6 +42,8 @@ export interface CharacterState {
   initializeCharacterFromDescription: (description: string) => void;
   incrementTurn: () => void;
   addImageToHistory: (image: ImageHistoryEntry) => void;
+  updateImageDescription: (id: string, description: string) => void;
+  updateImageStory: (id: string, story: string) => void;
 }
 
 // Calculate experience needed for next level
@@ -423,10 +425,31 @@ export const useCharacterStore = create<CharacterState>()(
         set((state) => ({
           character: {
             ...state.character,
-            imageHistory: [
-              ...state.character.imageHistory,
-              image,
-            ],
+            imageHistory: [...state.character.imageHistory, image],
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      updateImageDescription: (id, description) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            imageHistory: state.character.imageHistory.map(img =>
+              img.id === id ? { ...img, description } : img
+            ),
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      updateImageStory: (id, story) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            imageHistory: state.character.imageHistory.map(img =>
+              img.id === id ? { ...img, story } : img
+            ),
             updatedAt: new Date(),
           },
         }));

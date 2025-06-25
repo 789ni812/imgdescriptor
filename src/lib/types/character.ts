@@ -20,6 +20,7 @@ export interface ImageHistoryEntry {
   id: string;
   url: string;
   description: string;
+  story?: string;
   turn: number;
   uploadedAt: string;
 }
