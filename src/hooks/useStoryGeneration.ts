@@ -30,6 +30,21 @@ export function buildStoryPrompt({ character, description, customPrompt }: {
     : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${contextPrompt}`;
 }
 
+export function buildFinalStoryPrompt(character: Character & { name?: string }) {
+  const stats = character.stats;
+  const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
+  const name = character.name || character.persona;
+  const descriptions = character.storyHistory.map((s, i) => `Image ${i + 1} Description: ${s.imageDescription}`).join('\n');
+  const stories = character.storyHistory.map((s, i) => `Turn ${i + 1} Story: ${s.text}`).join('\n');
+  return [
+    `Character: ${name}`,
+    `Stats: ${statsString}`,
+    descriptions,
+    stories,
+    'Write a single, cohesive final story that weaves together all the above descriptions and stories into an epic adventure.'
+  ].filter(Boolean).join('\n\n');
+}
+
 // Types for dependency injection
 interface ConfigDependencies {
   MOCK_STORY: boolean;

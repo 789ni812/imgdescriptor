@@ -227,10 +227,11 @@ describe('Character Store Actions', () => {
       const initialStoryCount = result.current.character.storyHistory.length;
       const newStory = {
         id: 'story-1',
-        text: 'Once upon a time...',
-        timestamp: expect.any(String),
-        turnNumber: 0,
-        imageDescription: 'A detailed description of the image',
+        title: 'The Mysterious Image',
+        description: 'A detailed description of the image',
+        story: 'Once upon a time...',
+        imageUrl: 'data:image/jpeg;base64,test',
+        createdAt: new Date(),
       };
       
       act(() => {
@@ -246,8 +247,11 @@ describe('Character Store Actions', () => {
       
       expect(result.current.character.storyHistory).toHaveLength(initialStoryCount + 1);
       expect(result.current.character.storyHistory[0]).toEqual(expect.objectContaining({
-        ...newStory,
-        turnNumber: 0,
+        id: 'story-1',
+        text: 'Once upon a time...',
+        imageDescription: 'A detailed description of the image',
+        timestamp: expect.any(String),
+        turnNumber: 1,
       }));
     });
 
@@ -280,7 +284,7 @@ describe('Character Store Actions', () => {
         text: 'Updated story content...',
         imageDescription: 'A detailed description of the image',
         timestamp: expect.any(String),
-        turnNumber: 0,
+        turnNumber: 1,
       });
       expect(result.current.character.storyHistory[0]).toEqual(updatedStory);
     });
@@ -569,6 +573,146 @@ describe('Character Store Actions', () => {
       // Should not change existing character
       expect(newCharacter.storyHistory).toEqual(originalCharacter.storyHistory);
       expect(newCharacter.name).toBe(originalCharacter.name);
+    });
+  });
+
+  describe('Story History and Context Management', () => {
+    it('should add stories to history and retrieve them', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const testStory = {
+        id: 'story-1',
+        title: 'Test Story',
+        description: 'A test image description',
+        story: 'Once upon a time, there was a brave knight.',
+        imageUrl: 'test-image.jpg',
+        createdAt: new Date('2025-01-27T10:00:00Z')
+      };
+
+      act(() => {
+        result.current.addStory(testStory);
+      });
+
+      expect(result.current.character.storyHistory).toHaveLength(1);
+      expect(result.current.character.storyHistory[0].text).toBe(testStory.story);
+      expect(result.current.character.storyHistory[0].imageDescription).toBe(testStory.description);
+    });
+
+    it('should retrieve stories by ID', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const testStory = {
+        id: 'story-1',
+        title: 'Test Story',
+        description: 'A test image description',
+        story: 'Once upon a time, there was a brave knight.',
+        imageUrl: 'test-image.jpg',
+        createdAt: new Date('2025-01-27T10:00:00Z')
+      };
+
+      act(() => {
+        result.current.addStory(testStory);
+      });
+
+      const retrievedStory = result.current.getStory('story-1');
+      expect(retrievedStory).toBeDefined();
+      expect(retrievedStory?.story).toBe(testStory.story);
+      expect(retrievedStory?.description).toBe(testStory.description);
+    });
+
+    it('should get recent stories with limit', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const stories = [
+        {
+          id: 'story-1',
+          title: 'Story 1',
+          description: 'First story',
+          story: 'First story content',
+          imageUrl: 'image1.jpg',
+          createdAt: new Date('2025-01-27T10:00:00Z')
+        },
+        {
+          id: 'story-2',
+          title: 'Story 2',
+          description: 'Second story',
+          story: 'Second story content',
+          imageUrl: 'image2.jpg',
+          createdAt: new Date('2025-01-27T10:05:00Z')
+        },
+        {
+          id: 'story-3',
+          title: 'Story 3',
+          description: 'Third story',
+          story: 'Third story content',
+          imageUrl: 'image3.jpg',
+          createdAt: new Date('2025-01-27T10:10:00Z')
+        }
+      ];
+
+      act(() => {
+        stories.forEach(story => result.current.addStory(story));
+      });
+
+      const recentStories = result.current.getRecentStories(2);
+      expect(recentStories).toHaveLength(2);
+      // Should be ordered by most recent first
+      expect(recentStories[0].story).toBe('Third story content');
+      expect(recentStories[1].story).toBe('Second story content');
+    });
+
+    it('should update existing stories', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const testStory = {
+        id: 'story-1',
+        title: 'Test Story',
+        description: 'A test image description',
+        story: 'Once upon a time, there was a brave knight.',
+        imageUrl: 'test-image.jpg',
+        createdAt: new Date('2025-01-27T10:00:00Z')
+      };
+
+      act(() => {
+        result.current.addStory(testStory);
+      });
+
+      act(() => {
+        result.current.updateStory('story-1', {
+          story: 'Updated story content',
+          description: 'Updated description'
+        });
+      });
+
+      const updatedStory = result.current.getStory('story-1');
+      expect(updatedStory?.story).toBe('Updated story content');
+      expect(updatedStory?.description).toBe('Updated description');
+    });
+
+    it('should remove stories from history', () => {
+      const { result } = renderHook(() => useCharacterStore());
+      
+      const testStory = {
+        id: 'story-1',
+        title: 'Test Story',
+        description: 'A test image description',
+        story: 'Once upon a time, there was a brave knight.',
+        imageUrl: 'test-image.jpg',
+        createdAt: new Date('2025-01-27T10:00:00Z')
+      };
+
+      act(() => {
+        result.current.addStory(testStory);
+      });
+
+      expect(result.current.character.storyHistory).toHaveLength(1);
+
+      act(() => {
+        result.current.removeStory('story-1');
+      });
+
+      expect(result.current.character.storyHistory).toHaveLength(0);
+      expect(result.current.getStory('story-1')).toBeUndefined();
     });
   });
 }); 

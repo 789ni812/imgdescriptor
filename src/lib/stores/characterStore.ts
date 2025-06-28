@@ -192,7 +192,7 @@ export const useCharacterStore = create<CharacterState>()(
                 id: story.id,
                 text: story.story,
                 timestamp: story.createdAt.toISOString(),
-                turnNumber: state.character.currentTurn,
+                turnNumber: state.character.currentTurn + 1,
                 imageDescription: story.description,
               },
             ],

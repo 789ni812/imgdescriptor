@@ -1,8 +1,9 @@
 "use client";
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Home from './page';
+import { createCharacter } from '@/lib/types/character';
 
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
@@ -11,38 +12,23 @@ jest.mock('next/image', () => ({
 }));
 
 // Mock the character store
+const mockUseCharacterStore = jest.fn();
 jest.mock('@/lib/stores/characterStore', () => ({
-  useCharacterStore: () => ({
-    character: {
-      imageHistory: [],
-      currentTurn: 0,
-      storyHistory: [],
-      stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
-    },
-    addImageToHistory: jest.fn(),
-    initializeCharacterFromDescription: jest.fn(),
-    addExperience: jest.fn(),
-    incrementTurn: jest.fn(),
-    resetCharacter: jest.fn(),
-  }),
+  useCharacterStore: () => mockUseCharacterStore(),
 }));
 
 // Mock the hooks
+const mockUseStoryGeneration = jest.fn();
+jest.mock('@/hooks/useStoryGeneration', () => ({
+  useStoryGeneration: () => mockUseStoryGeneration(),
+}));
+
 jest.mock('@/hooks/useImageAnalysis', () => ({
   useImageAnalysis: () => ({
     description: null,
     isDescriptionLoading: false,
     error: null,
     analyzeImage: jest.fn(),
-  }),
-}));
-
-jest.mock('@/hooks/useStoryGeneration', () => ({
-  useStoryGeneration: () => ({
-    story: null,
-    isStoryLoading: false,
-    error: null,
-    generateStory: jest.fn(),
   }),
 }));
 
@@ -55,6 +41,30 @@ describe('Home Page', () => {
     (fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ description: 'A beautiful landscape with mountains.' }),
+    });
+    
+    // Default mock implementations
+    mockUseCharacterStore.mockReturnValue({
+      character: {
+        imageHistory: [],
+        currentTurn: 0,
+        storyHistory: [],
+        stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+      },
+      addImageToHistory: jest.fn(),
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+
+    mockUseStoryGeneration.mockReturnValue({
+      story: null,
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
     });
   });
 
@@ -95,5 +105,194 @@ describe('Home Page', () => {
     expect(gallerySection).toBeInTheDocument();
     // Should be empty initially since no images are uploaded
     expect(gallerySection?.children.length).toBe(0);
+  });
+});
+
+describe('Final Story Generation Button', () => {
+  it('should show final story generation button on Turn 3 after story is generated', () => {
+    // Arrange: Set up character on Turn 3 with story
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      storyHistory: [
+        {
+          id: 'story-1',
+          text: 'Turn 1 story content',
+          timestamp: '2025-01-27T10:00:00Z',
+          turnNumber: 1,
+          imageDescription: 'Turn 1 description'
+        },
+        {
+          id: 'story-2',
+          text: 'Turn 2 story content',
+          timestamp: '2025-01-27T10:05:00Z',
+          turnNumber: 2,
+          imageDescription: 'Turn 2 description'
+        }
+      ]
+    };
+
+    // Mock the store to return our test character
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+
+    // Mock story generation to return a story
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story content',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    // Act: Render the page
+    render(<Home />);
+
+    // Assert: Final story generation button should be visible
+    const finalStoryButton = screen.getByRole('button', { name: /generate final story/i });
+    expect(finalStoryButton).toBeInTheDocument();
+  });
+
+  it('should not show final story generation button before Turn 3', () => {
+    // Arrange: Set up character on Turn 2
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 2,
+      storyHistory: [
+        {
+          id: 'story-1',
+          text: 'Turn 1 story content',
+          timestamp: '2025-01-27T10:00:00Z',
+          turnNumber: 1,
+          imageDescription: 'Turn 1 description'
+        }
+      ]
+    };
+
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 2 story content',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    // Act: Render the page
+    render(<Home />);
+
+    // Assert: Final story generation button should NOT be visible
+    const finalStoryButton = screen.queryByRole('button', { name: /generate final story/i });
+    expect(finalStoryButton).not.toBeInTheDocument();
+  });
+
+  it('should not show final story generation button on Turn 3 if no story is generated', () => {
+    // Arrange: Set up character on Turn 3 but no story yet
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      storyHistory: [
+        {
+          id: 'story-1',
+          text: 'Turn 1 story content',
+          timestamp: '2025-01-27T10:00:00Z',
+          turnNumber: 1,
+          imageDescription: 'Turn 1 description'
+        },
+        {
+          id: 'story-2',
+          text: 'Turn 2 story content',
+          timestamp: '2025-01-27T10:05:00Z',
+          turnNumber: 2,
+          imageDescription: 'Turn 2 description'
+        }
+      ]
+    };
+
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+
+    mockUseStoryGeneration.mockReturnValue({
+      story: null,
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    // Act: Render the page
+    render(<Home />);
+
+    // Assert: Final story generation button should NOT be visible
+    const finalStoryButton = screen.queryByRole('button', { name: /generate final story/i });
+    expect(finalStoryButton).not.toBeInTheDocument();
+  });
+});
+
+describe('Final Story Generation Flow', () => {
+  it('should show a loading indicator and then display the final story after clicking the button', async () => {
+    // Arrange: Set up character on Turn 3 with story
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      storyHistory: [
+        { id: 'story-1', text: 'Turn 1 story', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'Desc 1' },
+        { id: 'story-2', text: 'Turn 2 story', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'Desc 2' },
+        { id: 'story-3', text: 'Turn 3 story', timestamp: '2025-01-27T10:10:00Z', turnNumber: 3, imageDescription: 'Desc 3' }
+      ]
+    };
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    render(<Home />);
+
+    // Act: Click the button
+    const button = screen.getByRole('button', { name: /generate final story/i });
+    expect(button).toBeInTheDocument();
+    fireEvent.click(button);
+
+    // Assert: Loading indicator appears
+    expect(await screen.findByText(/generating your final story/i)).toBeInTheDocument();
+
+    // Simulate the mock final story appearing
+    expect(await screen.findByRole('heading', { name: /final story/i })).toBeInTheDocument();
+    expect(screen.getByText(/this is your final adventure/i)).toBeInTheDocument();
   });
 }); 

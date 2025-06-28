@@ -14,6 +14,8 @@ import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { GalleryCard } from '@/components/GalleryCard';
 import { v4 as uuidv4 } from 'uuid';
+import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
+import { MOCK_STORY } from '@/lib/config';
 
 export default function Home() {
   const { 
@@ -59,6 +61,10 @@ export default function Home() {
 
   // Track if we need to initialize the character after analysis
   const [shouldInitCharacter, setShouldInitCharacter] = useState(false);
+
+  const [isFinalStoryLoading, setIsFinalStoryLoading] = useState(false);
+  const [finalStory, setFinalStory] = useState<string | null>(null);
+  const [finalStoryError, setFinalStoryError] = useState<string | null>(null);
 
   const handleImageSelect = (file: File, prompt?: string) => {
     const url = URL.createObjectURL(file);
@@ -129,6 +135,40 @@ export default function Home() {
       }
     }
   }, [story, character.imageHistory, updateImageStory]);
+
+  const handleGenerateFinalStory = async () => {
+    setIsFinalStoryLoading(true);
+    setFinalStory(null);
+    setFinalStoryError(null);
+    // Use mock if enabled
+    if (MOCK_STORY) {
+      setTimeout(() => {
+        setFinalStory(
+          `# Final Story\n\nThis is your final adventure, combining all your turns into one epic tale!\n\n(Replace this with real AI output.)`
+        );
+        setIsFinalStoryLoading(false);
+      }, 1200);
+      return;
+    }
+    try {
+      const prompt = buildFinalStoryPrompt(character);
+      const response = await fetch('/api/generate-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: '', prompt }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setFinalStory(data.story);
+      } else {
+        setFinalStoryError(data.error || 'An unknown error occurred while generating the final story.');
+      }
+    } catch (err) {
+      setFinalStoryError('An unexpected error occurred while generating the final story.');
+    } finally {
+      setIsFinalStoryLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -226,6 +266,55 @@ export default function Home() {
               <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
                 <CardContent className="p-6">
                   <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Final Story Generation Button - only show on Turn 3 after story is generated */}
+            {character.currentTurn === 3 && story && !isStoryLoading && !storyError && !finalStory && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white">Complete Your Adventure</h3>
+                    <p className="text-sm text-gray-300">
+                      Generate a final cohesive story that ties together all three turns of your adventure.
+                    </p>
+                    <Button 
+                      onClick={handleGenerateFinalStory}
+                      className="w-full"
+                      size="lg"
+                      disabled={isFinalStoryLoading}
+                    >
+                      {isFinalStoryLoading ? 'Generating...' : 'Generate Final Story'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {/* Final Story Loading Indicator */}
+            {isFinalStoryLoading && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6 flex items-center justify-center">
+                  <span className="text-primary text-lg font-semibold">Generating your final story...</span>
+                </CardContent>
+              </Card>
+            )}
+            {/* Final Story Error */}
+            {finalStoryError && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px] border-red-500">
+                <CardContent className="p-6">
+                  <span className="text-red-400 font-semibold">{finalStoryError}</span>
+                </CardContent>
+              </Card>
+            )}
+            {/* Final Story Display */}
+            {finalStory && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold mb-2" role="heading">Final Story</h2>
+                  <div className="prose prose-invert max-w-none">
+                    <div data-testid="final-story-markdown">{finalStory}</div>
+                  </div>
                 </CardContent>
               </Card>
             )}

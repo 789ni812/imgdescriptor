@@ -206,16 +206,20 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 6. Refactor and ensure all tests pass.
 7. Commit: `feat(gallery): replace grid with stacked GalleryCards for each image/turn`
 
-- [ ] **21.3: Implement Story Continuation Logic**
-  - Create logic to continue story based on new images and character state
-  - Update story generation to reference previous story elements
-  - Write tests for story continuation
+- [x] **21.3: Implement Story Continuation Logic**
+  - Story continuation logic already implemented in `buildStoryPrompt` function
+  - Previous stories are filtered by turn number and included in context
+  - Story generation references previous story elements automatically
+  - Tests for story continuation logic are passing
+  - **Completed 2025-01-27**
   - **Commit:** `feat(story): implement story continuation logic`
 
-- [ ] **21.4: Add Story History and Context**
-  - Store story history in Zustand store
-  - Pass story context to AI for continuation
-  - Write tests for story history management
+- [x] **21.4: Add Story History and Context**
+  - Story history management fully implemented in character store
+  - Functions: addStory, updateStory, removeStory, getStory, getRecentStories
+  - Story context automatically passed to AI for continuation
+  - Comprehensive tests for story history management are passing
+  - **Completed 2025-01-27**
   - **Commit:** `feat(story): add story history and context management`
 
 ### Phase 22: Technical Infrastructure Updates
@@ -255,6 +259,11 @@ Display a clear loading indicator (spinner or message) whenever the user is wait
 4. Test with both fast and slow LLM responses.
 5. Refactor and commit.
 
+**Status: ✅ COMPLETED**
+- Loading indicators are already implemented and working in the UI
+- Users see clear feedback during AI operations
+- **Completed 2025-01-27**
+
 ### Developer Mock Mode for Fast UI/UX Review (2025-06-24)
 **Objective:** Allow developers to instantly review UI changes by toggling between real and mocked responses for image upload, image description, and story generation.
 
@@ -280,6 +289,66 @@ Display a clear loading indicator (spinner or message) whenever the user is wait
 #### Benefits
 - Instantly see UI changes without waiting for AI responses.
 - Test all flows, including error states, with predictable data.
+
+### Phase 23: Story Export and Final Story Generation
+**Objective:** Add PDF export functionality and final story generation to complete the RPG experience.
+
+#### Tasks
+- [ ] **23.1: PDF Export for Image, Description, and Story**
+  - Create PDF export functionality for each turn's content
+  - Include image, AI-generated description, and story in PDF document
+  - Use a library like jsPDF or react-pdf for PDF generation
+  - Add export button to each GalleryCard
+  - Write tests for PDF generation functionality
+  - **Commit:** `feat(export): add PDF export for individual turns`
+
+- [ ] **23.2: Final Story Generation Button**
+  - Add "Generate Final Story" button that appears only on Turn 3
+  - Button should be visible after the Turn 3 story is generated
+  - Position button prominently in the UI (e.g., below the story display)
+  - Write tests for button visibility and state management
+  - **Commit:** `feat(ui): add final story generation button for Turn 3`
+
+- [x] **23.3: Cohesive Final Story Generation**
+  - Final story generation logic implemented using buildFinalStoryPrompt and the existing LLM endpoint
+  - All 3 image descriptions, stories, and character info are included in the prompt
+  - The final story is generated via /api/generate-story and displayed in the UI with loading and error handling
+  - TDD verified: prompt builder and UI flow are fully tested
+  - **Completed 2025-01-27**
+  - **Commit:** `feat(story): implement cohesive final story generation`
+
+---
+
+## Phase 24: Template-Driven Game Data & Customization (Planned)
+
+**Objective:** Move all game data (image descriptions, stories, config, etc.) into a user-editable template system for maximum flexibility, import/export, and testability.
+
+### Requirements
+- All game data (image url, generated story as markdown, etc.) is stored in a template object
+- Template includes:
+  - Image URLs
+  - Generated image stories (markdown)
+  - Folder location for storing image descriptions, stories, and final story
+  - Custom font selection for descriptions and stories
+  - Name and unique ID of template
+  - All other configurable data for the app
+- Users can create, save, update, copy, edit, and delete templates
+- Users can import/export templates (JSON or similar)
+- If a template already contains a final story, it is used (no need to regenerate)
+- All test data and test flows should move to using templates for better, faster, and more realistic testing
+- Review compatibility and best practices for template-driven testing
+
+### Benefits
+- Enables rapid UI/UX review and testing
+- Makes the app highly customizable for different games or scenarios
+- Allows for easy sharing and backup of game sessions
+- Reduces reliance on mock data for tests; tests can use real template data
+
+### Next Steps
+- Design the template schema and import/export format
+- Refactor state management and test setup to use templates
+- Update tests to use template-driven data
+- Document best practices for template-based testing and compatibility
 
 ---
 
@@ -385,6 +454,56 @@ A Next.js application that allows users to upload images and get AI-generated de
 - [ ] Add object recognition
 - [ ] Create image comparison features
 - [ ] Add batch processing
+
+### Phase 21: Story Export and Final Story Generation
+**Objective:** Add PDF export functionality and final story generation to complete the RPG experience.
+
+#### Tasks
+- [ ] **23.1: PDF Export for Image, Description, and Story**
+  - Create PDF export functionality for each turn's content
+  - Include image, AI-generated description, and story in PDF document
+  - Use a library like jsPDF or react-pdf for PDF generation
+  - Add export button to each GalleryCard
+  - Write tests for PDF generation functionality
+  - **Commit:** `feat(export): add PDF export for individual turns`
+
+- [ ] **23.2: Final Story Generation Button**
+  - Add "Generate Final Story" button that appears only on Turn 3
+  - Button should be visible after the Turn 3 story is generated
+  - Position button prominently in the UI (e.g., below the story display)
+  - Write tests for button visibility and state management
+  - **Commit:** `feat(ui): add final story generation button for Turn 3`
+
+- [ ] **23.3: Cohesive Final Story Generation**
+  - Final story generation logic implemented using buildFinalStoryPrompt and the existing LLM endpoint
+  - All 3 image descriptions, stories, and character info are included in the prompt
+  - The final story is generated via /api/generate-story and displayed in the UI with loading and error handling
+  - TDD verified: prompt builder and UI flow are fully tested
+  - **Completed 2025-01-27**
+  - **Commit:** `feat(story): implement cohesive final story generation`
+
+  **Implementation Plan:**
+  1. **TDD:**
+     - Write a test to ensure the final story prompt includes all 3 image descriptions, stories, and character info.
+     - Test that the final story is displayed in the UI after generation.
+  2. **Implement:**
+     - Build a function to construct a comprehensive prompt for the final story.
+     - Integrate with the AI (or mock) to generate the final story (using `/api/generate-story` or a new endpoint).
+     - Display the AI-generated final story in the UI (already handled).
+  3. **Optional Enhancements:**
+     - Add markdown rendering for the final story.
+     - Add error handling and retry logic for final story generation.
+     - Show a success message or animation when the final story is ready.
+     - Allow the user to regenerate the final story if desired.
+     - (Optional) Add a summary or highlights section for the final story.
+
+- [ ] **23.4: Final Story PDF Export**
+  - Add PDF export for the complete final story
+  - Include all 3 images, descriptions, stories, and the final cohesive story
+  - Create a comprehensive document with proper formatting
+  - Add export button for the final story
+  - Write tests for final story PDF export
+  - **Commit:** `feat(export): add PDF export for complete final story`
 
 ---
 

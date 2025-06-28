@@ -3,7 +3,7 @@
 ## Platform & Framework
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS v4 (using `@import "tailwindcss"` syntax)
 - **UI Components:** shadcn/ui
 - **AI Integration:** LM Studio SDK
 
@@ -81,6 +81,30 @@ jest.config.js           # Jest configuration
 - **shadcn/ui:** Modern, accessible UI components
 - **TDD:** Ensures reliability and maintainability
 - **Stacked Card Layout:** More flexible and visually appealing than a grid for this use case; supports per-turn replay and accordion-based detail viewing.
+
+## Template-Driven Game Data & Customization (Planned)
+
+- **All game data (image URLs, descriptions, stories, config, etc.) will be stored in a user-editable template object.**
+- **Templates** will support:
+  - Import/export (JSON or similar)
+  - Custom font selection for descriptions and stories
+  - Folder location for storing image descriptions, stories, and final story
+  - Name and unique ID for each template
+  - All other configurable data for the app
+- **User Actions:** Create, save, update, copy, edit, delete, import, and export templates
+- **Game Flow:**
+  - If a template already contains a final story, it is used (no need to regenerate)
+  - All test data and test flows will move to using templates for better, faster, and more realistic testing
+- **Benefits:**
+  - Enables rapid UI/UX review and testing
+  - Makes the app highly customizable for different games or scenarios
+  - Allows for easy sharing and backup of game sessions
+  - Reduces reliance on mock data for tests; tests can use real template data
+- **Next Steps:**
+  - Design the template schema and import/export format
+  - Refactor state management and test setup to use templates
+  - Update tests to use template-driven data
+  - Document best practices for template-based testing and compatibility
 
 ---
 This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices. 
