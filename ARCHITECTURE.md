@@ -90,10 +90,11 @@ jest.config.js           # Jest configuration
   - Custom font selection for descriptions and stories
   - Folder location for storing image descriptions, stories, and final story
   - Name and unique ID for each template
+  - **Initial character stats, persona, and traits can be set or overridden by the template**
   - All other configurable data for the app
 - **User Actions:** Create, save, update, copy, edit, delete, import, and export templates
 - **Game Flow:**
-  - If a template already contains a final story, it is used (no need to regenerate)
+  - If a template already contains a final story or other data, it is used (no need to regenerate)
   - All test data and test flows will move to using templates for better, faster, and more realistic testing
 - **Benefits:**
   - Enables rapid UI/UX review and testing

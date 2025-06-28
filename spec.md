@@ -331,6 +331,7 @@ Display a clear loading indicator (spinner or message) whenever the user is wait
   - Folder location for storing image descriptions, stories, and final story
   - Custom font selection for descriptions and stories
   - Name and unique ID of template
+  - **Initial character scoring system (stats, persona, traits, etc.)**
   - All other configurable data for the app
 - Users can create, save, update, copy, edit, and delete templates
 - Users can import/export templates (JSON or similar)
