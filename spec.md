@@ -218,6 +218,17 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
   - Write tests for story history management
   - **Commit:** `feat(story): add story history and context management`
 
+### Phase 22: Technical Infrastructure Updates
+**Objective:** Update technical infrastructure to latest standards and best practices.
+
+#### Tasks
+- [x] **22.1: Update Tailwind CSS to v4 Syntax**
+  - Replace deprecated `@tailwind` directives with new `@import "tailwindcss"` syntax
+  - Update `src/app/globals.css` to use Tailwind CSS v4 best practices
+  - Verify build and tests still pass after update
+  - **Completed 2025-01-27**
+  - **Commit:** `fix(css): update to Tailwind CSS v4 import syntax`
+
 ### 21.3: Add Loading Indicator for LLM Operations
 
 **Goal:**
