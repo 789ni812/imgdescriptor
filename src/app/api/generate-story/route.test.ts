@@ -33,7 +33,7 @@ describe('/api/generate-story', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.error).toBe('Description is required.');
+    expect(data.error).toBe('Description or prompt is required.');
   });
 
   it('should return 400 when description is empty string', async () => {
@@ -48,7 +48,7 @@ describe('/api/generate-story', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.error).toBe('Description is required.');
+    expect(data.error).toBe('Description or prompt is required.');
   });
 
   it('should return 400 when description is null', async () => {
@@ -63,7 +63,7 @@ describe('/api/generate-story', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.error).toBe('Description is required.');
+    expect(data.error).toBe('Description or prompt is required.');
   });
 
   it('should return 500 when generateStory fails', async () => {

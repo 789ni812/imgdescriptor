@@ -166,29 +166,29 @@
 For each image in the gallery, display its associated AI-generated description and story together in a single shadcn Card component.
 
 **Tasks:**
-1. Update state/data model to ensure each gallery entry stores image, description, and story.
-2. Write a failing Jest test for the gallery to assert each card displays image, description, and story.
-3. Refactor the gallery to render a shadcn Card for each image, showing all three elements.
-4. Create or update a `GalleryCard` component as needed.
-5. Ensure markdown rendering works in the card context.
-6. Test, refactor, and ensure all tests pass.
-7. Update documentation/spec.
-8. Commit: `feat(gallery): display image, description, and story together in gallery cards`
+- [x] Update state/data model to ensure each gallery entry stores image, description, and story.
+- [x] Write a failing Jest test for the gallery to assert each card displays image, description, and story.
+- [x] Refactor the gallery to render a shadcn Card for each image, showing all three elements.
+- [x] Create or update a `GalleryCard` component as needed.
+- [x] Ensure markdown rendering works in the card context.
+- [x] Test, refactor, and ensure all tests pass.
+- [x] Update documentation/spec.
+- [x] Commit: `feat(gallery): display image, description, and story together in gallery cards`
 
 #### 21.2.2: Use Accordion for Description and Story in Gallery Cards
 **Objective:**
 Within each gallery card, use a shadcn Accordion so the user can expand/collapse the image description and story. The story panel should be open by default.
 
 **Tasks:**
-1. Write a failing Jest test to assert that each gallery card uses an Accordion with two sections: one for the description, one for the story.
-2. Implement the Accordion in the `GalleryCard` (or equivalent) component.
-   - Section 1: "Image Description" (collapsed by default)
-   - Section 2: "Image Story" (expanded by default)
-3. Ensure only one section can be open at a time (if desired).
-4. Ensure markdown rendering works inside the Accordion panels.
-5. Test, refactor, and ensure all tests pass.
-6. Update documentation/spec.
-7. Commit: `feat(gallery): add accordion for description and story in gallery cards`
+- [x] Write a failing Jest test to assert that each gallery card uses an Accordion with two sections: one for the description, one for the story.
+- [x] Implement the Accordion in the `GalleryCard` (or equivalent) component.
+  - Section 1: "Image Description" (collapsed by default)
+  - Section 2: "Image Story" (expanded by default)
+- [x] Ensure only one section can be open at a time (if desired).
+- [x] Ensure markdown rendering works inside the Accordion panels.
+- [x] Test, refactor, and ensure all tests pass.
+- [x] Update documentation/spec.
+- [x] Commit: `feat(gallery): add accordion for description and story in gallery cards`
 
 #### 21.2.3: Replace Gallery Grid with Stacked GalleryCards
 **Objective:**
@@ -198,13 +198,13 @@ Remove the gallery grid. For each image/turn, render a GalleryCard with the imag
 Cards should be stacked vertically (one per row), newest at the top, with a 'Turn X' label on each card.
 
 **Tasks:**
-1. Remove the gallery grid from the UI.
-2. For each image/turn, render a GalleryCard in the main content area, passing image, description, and story.
-3. Stack cards vertically, newest at the top.
-4. Add a 'Turn X' label to each card.
-5. Update or remove any tests that expect the old gallery grid.
-6. Refactor and ensure all tests pass.
-7. Commit: `feat(gallery): replace grid with stacked GalleryCards for each image/turn`
+- [x] Remove the gallery grid from the UI.
+- [x] For each image/turn, render a GalleryCard in the main content area, passing image, description, and story.
+- [x] Stack cards vertically, newest at the top.
+- [x] Add a 'Turn X' label to each card.
+- [x] Update or remove any tests that expect the old gallery grid.
+- [x] Refactor and ensure all tests pass.
+- [x] Commit: `feat(gallery): replace grid with stacked GalleryCards for each image/turn`
 
 - [x] **21.3: Implement Story Continuation Logic**
   - Story continuation logic already implemented in `buildStoryPrompt` function
@@ -539,7 +539,15 @@ src/
 └── types/              # TypeScript type definitions
 ```
 
-# Project Status Update (2024-06-23)
+# Project Status Update (2025-06-24)
+
+- GalleryCard now displays image, description, and story in a shadcn Card with Accordion (Phase 21.2.1, 21.2.2, 21.2.3 complete)
+- Gallery grid replaced with stacked GalleryCards, newest at top, with Turn X label
+- All tests and production build pass
+- Strict typing enforced for GameTemplate and Template types (no any/unknown)
+- Final story generation API now allows prompt-only requests (fix for 'Description is required' bug)
+- All code and types are now type-safe
+- src/components/ImageGallery and its test have been removed (replaced by GalleryCard stack)
 
 - The project is in a clean, TDD-verified state.
 - All tests and the production build pass.

@@ -225,14 +225,6 @@ describe('Character Store Actions', () => {
     it('should add a new story to character history', () => {
       const { result } = renderHook(() => useCharacterStore());
       const initialStoryCount = result.current.character.storyHistory.length;
-      const newStory = {
-        id: 'story-1',
-        title: 'The Mysterious Image',
-        description: 'A detailed description of the image',
-        story: 'Once upon a time...',
-        imageUrl: 'data:image/jpeg;base64,test',
-        createdAt: new Date(),
-      };
       
       act(() => {
         result.current.addStory({

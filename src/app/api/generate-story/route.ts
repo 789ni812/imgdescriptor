@@ -10,14 +10,15 @@ export async function POST(request: Request) {
   try {
     const { description, prompt } = (await request.json()) as GenerateStoryRequest;
 
-    if (!description) {
+    // Allow either description (normal) or prompt (final story)
+    if (!description && !prompt) {
       return NextResponse.json(
-        { success: false, error: 'Description is required.' },
+        { success: false, error: 'Description or prompt is required.' },
         { status: 400 }
       );
     }
     
-    const storyResult = await generateStory(description, prompt);
+    const storyResult = await generateStory(description || '', prompt);
 
     if (!storyResult.success) {
       return NextResponse.json(
