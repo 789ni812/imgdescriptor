@@ -58,7 +58,7 @@ export function ChoiceDisplay({ choices = [], outcomes = [], className = '' }: C
         <Card>
           <CardHeader>
             <CardTitle>Make a Choice</CardTitle>
-            <CardDescription>Your decision will affect your character's journey</CardDescription>
+            <CardDescription>Your decision will affect your character&apos;s journey</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {choices.map((choice) => (

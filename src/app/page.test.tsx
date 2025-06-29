@@ -121,6 +121,7 @@ describe('Final Story Generation Button Visibility', () => {
     const mockCharacter = {
       ...createCharacter(),
       currentTurn: 3,
+      currentStory: 'Turn 3 story content', // This is required for the button to show
       storyHistory: [
         {
           id: 'story-1',
@@ -263,6 +264,60 @@ describe('Final Story Generation Button Visibility', () => {
     const finalStoryButton = screen.queryByRole('button', { name: /generate final story/i });
     expect(finalStoryButton).not.toBeInTheDocument();
   });
+
+  it('should show final story generation button on Turn 3 after story is generated', () => {
+    // Arrange: Set up character on Turn 3 with story
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      currentStory: 'Turn 3 story content', // This is required for the button to show
+      storyHistory: [
+        {
+          id: 'story-1',
+          text: 'Turn 1 story content',
+          timestamp: '2025-01-27T10:00:00Z',
+          turnNumber: 1,
+          imageDescription: 'Turn 1 description'
+        },
+        {
+          id: 'story-2',
+          text: 'Turn 2 story content',
+          timestamp: '2025-01-27T10:05:00Z',
+          turnNumber: 2,
+          imageDescription: 'Turn 2 description'
+        }
+      ]
+    };
+
+    // Mock the store to return our test character
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
+    });
+
+    // Mock story generation to return a story
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story content',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    // Act: Render the page
+    render(<Home />);
+
+    // Assert: Final story generation button should be visible
+    const finalStoryButton = screen.getByRole('button', { name: /generate final story/i });
+    expect(finalStoryButton).toBeInTheDocument();
+  });
 });
 
 describe('Final Story Generation Flow', () => {
@@ -271,6 +326,7 @@ describe('Final Story Generation Flow', () => {
     const mockCharacter = {
       ...createCharacter(),
       currentTurn: 3,
+      currentStory: 'Turn 3 story', // This is required for the button to show
       storyHistory: [
         { id: 'story-1', text: 'Turn 1 story', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'Desc 1' },
         { id: 'story-2', text: 'Turn 2 story', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'Desc 2' },
@@ -323,6 +379,7 @@ describe('Template Import and Final Story Button', () => {
     const mockCharacter = {
       ...createCharacter(),
       currentTurn: 3,
+      currentStory: 'Turn 3 story content', // This is required for the button to show
       imageHistory: [
         { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'story1', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
         { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'story2', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },

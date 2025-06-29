@@ -33,6 +33,7 @@ describe('TemplateManager', () => {
     version: '1.0.0',
     createdAt: '2025-01-27T10:00:00Z',
     updatedAt: '2025-01-27T10:00:00Z',
+    type: 'game',
     character: {
       persona: 'Explorer',
       traits: ['brave', 'curious'],

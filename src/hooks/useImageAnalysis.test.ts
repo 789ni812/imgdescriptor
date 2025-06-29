@@ -205,7 +205,7 @@ describe('useImageAnalysis', () => {
       expect(result.current.isDescriptionLoading).toBe(false);
     });
 
-    expect(result.current.error).toContain('Network error');
+    expect(result.current.error).toBe('An unexpected error occurred during image analysis.');
     expect(result.current.description).toBeNull();
   });
 

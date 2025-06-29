@@ -378,13 +378,11 @@ describe('Template Application System', () => {
   });
 
   it('should fail to apply invalid template', () => {
-    const invalidTemplate = {
+    const result = applyTemplate({
       id: 'template-3',
       name: 'Invalid Template',
       // Missing required fields
-    } as GameTemplate;
-
-    const result = applyTemplate(invalidTemplate);
+    } as GameTemplate);
     
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -460,7 +458,6 @@ describe('Template Type Field', () => {
   it('should validate template type field', () => {
     // Arrange
     const validTemplate = createDefaultTemplate('Valid Template');
-    const invalidTemplate = { ...createDefaultTemplate('Invalid Template'), type: 'invalid' as any };
     
     // Assert
     expect(validateGameTemplate(validTemplate)).toBe(true);

@@ -64,7 +64,7 @@ interface StoreDependencies {
 }
 
 // Function to generate choices based on story content
-function generateChoicesFromStory(story: string, character: Character): Choice[] {
+function generateChoicesFromStory(story: string): Choice[] {
   const choices: Choice[] = [];
   
   // Simple choice generation logic based on story keywords
@@ -170,7 +170,7 @@ export function useStoryGeneration(
         }
         
         // Generate choices after story
-        const choices = generateChoicesFromStory(mockStory, effectiveCharacter);
+        const choices = generateChoicesFromStory(mockStory);
         choices.forEach(choice => {
           if (storeFromHook.addChoice) {
             storeFromHook.addChoice(choice);
@@ -211,7 +211,7 @@ export function useStoryGeneration(
         }
         
         // Generate choices after story
-        const choices = generateChoicesFromStory(data.story, effectiveCharacter);
+        const choices = generateChoicesFromStory(data.story);
         choices.forEach(choice => {
           if (storeFromHook.addChoice) {
             storeFromHook.addChoice(choice);
