@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { ImageUpload } from './ImageUpload';
 import { ImageUploadProps } from '@/lib/types';
 import { DEFAULT_IMAGE_DESCRIPTION_PROMPT } from '@/lib/constants';
@@ -27,6 +27,18 @@ const renderComponent = (props: Partial<ImageUploadProps> = {}) => {
   };
   return render(<ImageUpload {...defaultProps} {...props} />);
 };
+
+// Mock fetch for API integration
+beforeAll(() => {
+  global.fetch = jest.fn();
+});
+afterAll(() => {
+  // @ts-expect-error: fetch may not have mockRestore in some environments
+  if (global.fetch.mockRestore) global.fetch.mockRestore();
+});
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('ImageUpload Component', () => {
   beforeEach(() => {
@@ -95,11 +107,22 @@ describe('ImageUpload Component', () => {
     expect(screen.getByRole('button', { name: /upload with default prompt/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /upload with custom prompt/i })).toBeInTheDocument();
 
+    // Mock fetch response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ url: '/imgRepository/chucknorris-123.png' }),
+    });
+
     // Click the custom prompt button
     const customPromptButton = screen.getByRole('button', { name: /upload with custom prompt/i });
     fireEvent.click(customPromptButton);
 
-    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, 'Analyze the colors and composition');
+    await waitFor(() => {
+      expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(
+        { url: '/imgRepository/chucknorris-123.png', file },
+        'Analyze the colors and composition'
+      );
+    });
   });
 
   it('should call onImageSelect with file and default prompt when default prompt button is clicked', async () => {
@@ -119,11 +142,22 @@ describe('ImageUpload Component', () => {
       });
     });
 
+    // Mock fetch response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ url: '/imgRepository/chucknorris-123.png' }),
+    });
+
     // Click the default prompt button
     const defaultPromptButton = screen.getByRole('button', { name: /upload with default prompt/i });
     fireEvent.click(defaultPromptButton);
 
-    expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(file, DEFAULT_IMAGE_DESCRIPTION_PROMPT);
+    await waitFor(() => {
+      expect(mockOnImageSelectWithPrompt).toHaveBeenCalledWith(
+        { url: '/imgRepository/chucknorris-123.png', file },
+        DEFAULT_IMAGE_DESCRIPTION_PROMPT
+      );
+    });
   });
 
   it('should not show upload buttons before file selection', () => {
@@ -150,5 +184,37 @@ describe('ImageUpload Component', () => {
 
     expect(mockOnImageSelect).not.toHaveBeenCalled();
     expect(screen.queryByRole('button', { name: /upload with default prompt/i })).not.toBeInTheDocument();
+  });
+
+  it('should upload image to API and use returned URL in onImageSelect', async () => {
+    const mockOnImageSelectWithUrl = jest.fn();
+    renderComponent({ onImageSelect: mockOnImageSelectWithUrl });
+    const dropzone = screen.getByTestId('image-upload');
+    const file = new File(['(⌐□_□)'], 'cat.png', { type: 'image/png' });
+    // Mock fetch response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ url: '/imgRepository/cat-123.png' }),
+    });
+    // Drop a file
+    await act(async () => {
+      fireEvent.drop(dropzone, {
+        dataTransfer: {
+          files: [file],
+          items: [{ kind: 'file', type: file.type, getAsFile: () => file }],
+          types: ['Files'],
+        },
+      });
+    });
+    // Click the default prompt button
+    const defaultPromptButton = screen.getByRole('button', { name: /upload with default prompt/i });
+    fireEvent.click(defaultPromptButton);
+    // Wait for async
+    await waitFor(() => {
+      expect(mockOnImageSelectWithUrl).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/imgRepository/cat-123.png' }),
+        DEFAULT_IMAGE_DESCRIPTION_PROMPT
+      );
+    });
   });
 }); 

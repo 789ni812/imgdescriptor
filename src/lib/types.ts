@@ -20,7 +20,7 @@ export interface ButtonProps {
 }
 
 export interface ImageUploadProps {
-  onImageSelect: (file: File, prompt?: string) => void;
+  onImageSelect: (image: { url: string; file: File }, prompt?: string) => void;
   acceptedFormats?: string[];
   maxSize?: number;
   disabled?: boolean;

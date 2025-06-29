@@ -67,18 +67,17 @@ export default function Home() {
   const [finalStory, setFinalStory] = useState<string | null>(null);
   const [finalStoryError, setFinalStoryError] = useState<string | null>(null);
 
-  const handleImageSelect = (file: File, prompt?: string) => {
-    const url = URL.createObjectURL(file);
-    setImageUrl(url);
+  const handleImageSelect = (image: { url: string; file: File }, prompt?: string) => {
+    setImageUrl(image.url);
     // Add to imageHistory in the store
     addImageToHistory({
       id: uuidv4(),
-      url,
+      url: image.url,
       description: `Uploaded image ${(character.imageHistory ? character.imageHistory.length : 0) + 1}`,
       turn: character.currentTurn + 1, // incrementTurn is called after this
       uploadedAt: new Date().toISOString(),
     });
-    analyzeImage(file, prompt);
+    analyzeImage(image.file, prompt);
 
     // Only increment turn and add experience here
     addExperience(50);

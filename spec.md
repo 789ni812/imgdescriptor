@@ -242,3 +242,14 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 #### Tasks
 - [x] **22.1: Update Tailwind CSS to v4 Syntax**
   - Replace deprecated `@tailwind` directives with new `
+
+## [2025-06-29] Image Upload API Integration Complete
+
+- The frontend ImageUpload component now uses the `/api/upload-image` API endpoint for all image uploads.
+- Strict TDD was followed: failing Jest tests were written, then the component was refactored to POST files to the API and use the returned URL.
+- All types were updated for strict type safety; no `any` or `unknown` used.
+- Robust error handling and logging were added to the API route for debugging and reliability.
+- A bug with Busboy's filename argument (object vs string) was fixed for compatibility with Windows and Next.js 15.3.4.
+- The upload flow is now fully automated and browser-reviewable: uploading an image via the UI saves it to `public/imgRepository/` and returns a public URL.
+- All tests and the build must pass before commit.
+- This closes the image upload API integration milestone.

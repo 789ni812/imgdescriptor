@@ -10,6 +10,7 @@ import { DEFAULT_IMAGE_DESCRIPTION_PROMPT } from '@/lib/constants';
 export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024, disabled = false }: ImageUploadProps) {
   const [customPrompt, setCustomPrompt] = useState('Analyze the architectural elements');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0 && !disabled) {
@@ -31,17 +32,37 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024, disable
     }
   };
 
-  const handleUploadWithDefaultPrompt = () => {
-    if (selectedFile && !disabled) {
-      onImageSelect(selectedFile, DEFAULT_IMAGE_DESCRIPTION_PROMPT);
+  const uploadImageToApi = async (file: File): Promise<string | null> => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      return data.url;
+    } catch {
+      // Optionally show error to user
+      return null;
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleUploadWithCustomPrompt = () => {
+  const handleUploadWithPrompt = async (prompt: string) => {
     if (selectedFile && !disabled) {
-      onImageSelect(selectedFile, customPrompt);
+      const url = await uploadImageToApi(selectedFile);
+      if (url) {
+        onImageSelect({ url, file: selectedFile }, prompt);
+      }
     }
   };
+
+  const handleUploadWithDefaultPrompt = () => handleUploadWithPrompt(DEFAULT_IMAGE_DESCRIPTION_PROMPT);
+  const handleUploadWithCustomPrompt = () => handleUploadWithPrompt(customPrompt);
 
   return (
     <div className="space-y-6">
@@ -78,25 +99,25 @@ export function ImageUpload({ onImageSelect, maxSize = 10 * 1024 * 1024, disable
           <div className="flex space-x-4">
             <button
               onClick={handleUploadWithDefaultPrompt}
-              disabled={disabled}
+              disabled={disabled || uploading}
               className={`px-4 py-2 rounded transition-colors ${
-                disabled 
+                disabled || uploading
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
-              Upload with Default Prompt
+              {uploading ? 'Uploading...' : 'Upload with Default Prompt'}
             </button>
             <button
               onClick={handleUploadWithCustomPrompt}
-              disabled={disabled}
+              disabled={disabled || uploading}
               className={`px-4 py-2 rounded transition-colors ${
-                disabled 
+                disabled || uploading
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
                   : 'bg-green-600 text-white hover:bg-green-700'
               }`}
             >
-              Upload with Custom Prompt
+              {uploading ? 'Uploading...' : 'Upload with Custom Prompt'}
             </button>
           </div>
         </div>
