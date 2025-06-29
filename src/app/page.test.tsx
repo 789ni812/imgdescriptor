@@ -115,9 +115,9 @@ describe('Home Page', () => {
   });
 });
 
-describe('Final Story Generation Button', () => {
-  it('should show final story generation button on Turn 3 after story is generated', () => {
-    // Arrange: Set up character on Turn 3 with story
+describe('Final Story Generation Button Visibility', () => {
+  it('should show final story generation button on Turn 3 with story', () => {
+    // Arrange: Set up character on Turn 3 with story history
     const mockCharacter = {
       ...createCharacter(),
       currentTurn: 3,
@@ -149,6 +149,8 @@ describe('Final Story Generation Button', () => {
       addImageToHistory: jest.fn(),
       updateImageDescription: jest.fn(),
       updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
     });
 
     // Mock story generation to return a story
@@ -192,6 +194,8 @@ describe('Final Story Generation Button', () => {
       addImageToHistory: jest.fn(),
       updateImageDescription: jest.fn(),
       updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
     });
 
     mockUseStoryGeneration.mockReturnValue({
@@ -241,6 +245,8 @@ describe('Final Story Generation Button', () => {
       addImageToHistory: jest.fn(),
       updateImageDescription: jest.fn(),
       updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
     });
 
     mockUseStoryGeneration.mockReturnValue({
@@ -280,6 +286,8 @@ describe('Final Story Generation Flow', () => {
       addImageToHistory: jest.fn(),
       updateImageDescription: jest.fn(),
       updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
     });
     mockUseStoryGeneration.mockReturnValue({
       story: 'Turn 3 story',
@@ -333,6 +341,8 @@ describe('Template Import and Final Story Button', () => {
       addImageToHistory: jest.fn(),
       updateImageDescription: jest.fn(),
       updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
     });
 
     mockUseStoryGeneration.mockReturnValue({

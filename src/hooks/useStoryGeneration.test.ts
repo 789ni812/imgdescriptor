@@ -5,6 +5,17 @@ import { createCharacter, type Character } from '@/lib/types/character';
 // Mock fetch
 (global as any).fetch = jest.fn();
 
+// Mock the character store
+const mockAddStory = jest.fn();
+const mockUpdateCurrentStory = jest.fn();
+
+jest.mock('@/lib/stores/characterStore', () => ({
+  useCharacterStore: () => ({
+    addStory: mockAddStory,
+    updateCurrentStory: mockUpdateCurrentStory,
+  }),
+}));
+
 const defaultCharacter = createCharacter({
   currentTurn: 1,
   stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
@@ -14,6 +25,8 @@ const defaultCharacter = createCharacter({
 describe('useStoryGeneration', () => {
   beforeEach(() => {
     (fetch as jest.Mock).mockClear();
+    mockAddStory.mockClear();
+    mockUpdateCurrentStory.mockClear();
   });
 
   it('should return initial state correctly', () => {
@@ -38,7 +51,7 @@ describe('useStoryGeneration', () => {
     expect(typeof result.current.generateStory).toBe('function');
   });
 
-  it('should handle successful story generation', async () => {
+  it('should handle successful story generation and add to character history', async () => {
     const mockConfig = {
       MOCK_STORY: false,
       MOCK_STORY_TEXT: '',
@@ -72,6 +85,16 @@ describe('useStoryGeneration', () => {
 
     expect(result.current.story).toBe('A magical adventure begins...');
     expect(result.current.storyError).toBeNull();
+    
+    // Verify that the story was added to character history
+    expect(mockAddStory).toHaveBeenCalledWith({
+      id: expect.any(String),
+      title: 'Story 1',
+      description: 'A beautiful landscape',
+      story: 'A magical adventure begins...',
+      imageUrl: '',
+      createdAt: expect.any(Date),
+    });
   });
 
   it('should handle API errors during story generation', async () => {
@@ -106,6 +129,9 @@ describe('useStoryGeneration', () => {
 
     expect(result.current.storyError).toBe('API Error');
     expect(result.current.story).toBeNull();
+    
+    // Verify that no story was added to character history on error
+    expect(mockAddStory).not.toHaveBeenCalled();
   });
 
   it('should handle network errors during story generation', async () => {
@@ -136,6 +162,9 @@ describe('useStoryGeneration', () => {
 
     expect(result.current.storyError).toContain('Network error');
     expect(result.current.story).toBeNull();
+    
+    // Verify that no story was added to character history on error
+    expect(mockAddStory).not.toHaveBeenCalled();
   });
 
   it('should return error when no description is provided', () => {
@@ -160,10 +189,13 @@ describe('useStoryGeneration', () => {
 
     expect(result.current.storyError).toBe('Cannot generate a story without a description.');
     expect(result.current.story).toBeNull();
+    
+    // Verify that no story was added to character history on error
+    expect(mockAddStory).not.toHaveBeenCalled();
   });
 
   describe('turn-based mock data selection', () => {
-    it('should return different mock stories based on current turn when mock mode is enabled', async () => {
+    it('should return different mock stories based on current turn when mock mode is enabled and add to character history', async () => {
       const mockConfig = {
         MOCK_STORY: true,
         MOCK_STORY_TEXT: 'Default mock story',
@@ -189,8 +221,19 @@ describe('useStoryGeneration', () => {
       });
 
       expect(result1.current.story).toBe('Turn 1: The story begins in the ancient forest.');
+      
+      // Verify that the story was added to character history
+      expect(mockAddStory).toHaveBeenCalledWith({
+        id: expect.any(String),
+        title: 'Story 1',
+        description: 'A beautiful landscape',
+        story: 'Turn 1: The story begins in the ancient forest.',
+        imageUrl: '',
+        createdAt: expect.any(Date),
+      });
 
       // Test turn 2
+      mockAddStory.mockClear();
       const mockStore2 = { character: { ...defaultCharacter, currentTurn: 2 } };
       const { result: result2 } = renderHook(() => useStoryGeneration(mockConfig, mockStore2));
 
@@ -203,9 +246,19 @@ describe('useStoryGeneration', () => {
       });
 
       expect(result2.current.story).toBe('Turn 2: The adventure continues in the mysterious cave.');
+      
+      // Verify that the story was added to character history
+      expect(mockAddStory).toHaveBeenCalledWith({
+        id: expect.any(String),
+        title: 'Story 2',
+        description: 'A beautiful landscape',
+        story: 'Turn 2: The adventure continues in the mysterious cave.',
+        imageUrl: '',
+        createdAt: expect.any(Date),
+      });
     });
 
-    it('should fallback to default mock story when turn-based data is not available', async () => {
+    it('should fallback to default mock story when turn-based data is not available and add to character history', async () => {
       const mockConfig = {
         MOCK_STORY: true,
         MOCK_STORY_TEXT: 'Default mock story',
@@ -231,6 +284,16 @@ describe('useStoryGeneration', () => {
       });
 
       expect(result.current.story).toBe('Default mock story');
+      
+      // Verify that the story was added to character history
+      expect(mockAddStory).toHaveBeenCalledWith({
+        id: expect.any(String),
+        title: 'Story 4',
+        description: 'A beautiful landscape',
+        story: 'Default mock story',
+        imageUrl: '',
+        createdAt: expect.any(Date),
+      });
     });
   });
 

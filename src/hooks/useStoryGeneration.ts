@@ -3,6 +3,7 @@ import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
 import { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Character, StoryEntry } from '@/lib/types/character';
+import { v4 as uuidv4 } from 'uuid';
 
 export function buildStoryPrompt({ character, description, customPrompt }: {
   character: Character,
@@ -101,6 +102,19 @@ export function useStoryGeneration(
         const mockStory = turnBasedStory || config.MOCK_STORY_TEXT;
         
         setStory(mockStory);
+        
+        // Add the story to character history
+        if (storeFromHook.addStory) {
+          storeFromHook.addStory({
+            id: uuidv4(),
+            title: `Story ${effectiveCharacter.currentTurn}`,
+            description: description,
+            story: mockStory,
+            imageUrl: '',
+            createdAt: new Date(),
+          });
+        }
+        
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
       return;
@@ -121,6 +135,18 @@ export function useStoryGeneration(
 
       if (response.ok && data.success) {
         setStory(data.story);
+        
+        // Add the story to character history
+        if (storeFromHook.addStory) {
+          storeFromHook.addStory({
+            id: uuidv4(),
+            title: `Story ${effectiveCharacter.currentTurn}`,
+            description: description,
+            story: data.story,
+            imageUrl: '',
+            createdAt: new Date(),
+          });
+        }
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the story.');
       }
