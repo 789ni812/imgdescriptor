@@ -27,8 +27,10 @@ const defaultCharacter = createCharacter({
 describe('useStoryGeneration', () => {
   beforeEach(() => {
     (fetch as jest.Mock).mockClear();
+    (fetch as jest.Mock).mockReset();
     mockAddStory.mockClear();
     mockUpdateCurrentStory.mockClear();
+    mockAddChoice.mockClear();
   });
 
   it('should return initial state correctly', () => {
@@ -546,6 +548,101 @@ describe('Choice Generation', () => {
           consequences: expect.any(Array),
         })
       );
+    });
+  });
+
+  it('should generate LLM-based choices after story generation', async () => {
+    const mockConfig = {
+      MOCK_STORY: false,
+      MOCK_STORY_TEXT: 'Mock story',
+      TURN_BASED_MOCK_DATA: {
+        stories: {
+          1: 'The adventurer enters a dark cave with ancient symbols on the walls.'
+        }
+      }
+    };
+    const mockStore = { 
+      character: { 
+        currentTurn: 1,
+        stats: { intelligence: 12, creativity: 15, perception: 10, wisdom: 8 },
+        storyHistory: [],
+        health: 100,
+        heartrate: 70,
+        age: 25,
+        level: 1,
+        experience: 0,
+        persona: 'Adventurer',
+        traits: ['brave', 'curious'],
+        inventory: [],
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: []
+      }
+    };
+
+    // Mock the fetch for story generation
+    const mockStoryResponse = { success: true, story: 'The adventurer discovers ancient symbols in the cave.' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockStoryResponse,
+    });
+
+    // Mock the fetch for choice generation
+    const mockChoicesResponse = { 
+      success: true, 
+      choices: [
+        {
+          id: 'choice-1',
+          text: 'Study the symbols carefully',
+          description: 'Use your intelligence to decipher the ancient markings',
+          statRequirements: { intelligence: 10 },
+          consequences: ['May unlock hidden knowledge', 'Could trigger a trap']
+        },
+        {
+          id: 'choice-2', 
+          text: 'Touch the symbols',
+          description: 'Interact directly with the mysterious markings',
+          statRequirements: { creativity: 12 },
+          consequences: ['May activate ancient magic', 'Could be dangerous']
+        }
+      ]
+    };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockChoicesResponse,
+    });
+
+    const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
+
+    act(() => {
+      result.current.generateStory('A dark cave with ancient symbols');
+    });
+
+    await waitFor(() => {
+      expect(result.current.isStoryLoading).toBe(false);
+    });
+
+    // Verify story was generated
+    expect(result.current.story).toBe('The adventurer discovers ancient symbols in the cave.');
+
+    // Debug: Log all fetch calls
+    console.log('Fetch calls:', (fetch as jest.Mock).mock.calls.map((call, index) => ({
+      index,
+      url: call[0],
+      method: call[1]?.method,
+      body: call[1]?.body ? JSON.parse(call[1].body) : undefined
+    })));
+
+    // Verify choices were generated via LLM
+    expect(fetch).toHaveBeenCalledTimes(2);
+    
+    // Check that the second call was for choice generation
+    const choiceCall = (fetch as jest.Mock).mock.calls[1];
+    expect(choiceCall[0]).toBe('/api/generate-choices');
+    expect(JSON.parse(choiceCall[1].body)).toEqual({
+      story: 'The adventurer discovers ancient symbols in the cave.',
+      character: mockStore.character,
+      turn: 1
     });
   });
 });

@@ -169,7 +169,7 @@ export function useStoryGeneration(
           });
         }
         
-        // Generate choices after story
+        // Generate choices after story (using static generation for mock mode)
         const choices = generateChoicesFromStory(mockStory);
         choices.forEach(choice => {
           if (storeFromHook.addChoice) {
@@ -210,13 +210,8 @@ export function useStoryGeneration(
           });
         }
         
-        // Generate choices after story
-        const choices = generateChoicesFromStory(data.story);
-        choices.forEach(choice => {
-          if (storeFromHook.addChoice) {
-            storeFromHook.addChoice(choice);
-          }
-        });
+        // Generate LLM-based choices after story
+        await generateLLMChoices(data.story, effectiveCharacter);
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the story.');
       }
@@ -225,6 +220,51 @@ export function useStoryGeneration(
       setStoryError(`An unexpected error occurred: ${errorMessage}`);
     } finally {
       setIsStoryLoading(false);
+    }
+  };
+
+  const generateLLMChoices = async (story: string, character: Character) => {
+    try {
+      const response = await fetch('/api/generate-choices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          story,
+          character,
+          turn: character.currentTurn
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Add the generated choices to the character store
+        data.choices.forEach((choice: Choice) => {
+          if (storeFromHook.addChoice) {
+            storeFromHook.addChoice(choice);
+          }
+        });
+      } else {
+        console.error('Failed to generate choices:', data.error);
+        // Fallback to static choices if LLM generation fails
+        const fallbackChoices = generateChoicesFromStory(story);
+        fallbackChoices.forEach(choice => {
+          if (storeFromHook.addChoice) {
+            storeFromHook.addChoice(choice);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error generating LLM choices:', error);
+      // Fallback to static choices if API call fails
+      const fallbackChoices = generateChoicesFromStory(story);
+      fallbackChoices.forEach(choice => {
+        if (storeFromHook.addChoice) {
+          storeFromHook.addChoice(choice);
+        }
+      });
     }
   };
 

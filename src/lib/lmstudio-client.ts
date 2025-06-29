@@ -10,7 +10,7 @@ const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
 
 const DESCRIBER_MODEL = 'google/gemma-3-4b';  // Smaller, faster model for image description
-const WRITER_MODEL = 'gemma-the-writer-n-restless-quill-10b-uncensored@q2_k';  // Smaller story generation model
+const WRITER_MODEL = 'gemma-the-writer-n-restless-quill-10b-uncensored@q2_k';  // Uncensored model for story generation
 
 export const analyzeImage = async (
   imageBase64: string,
