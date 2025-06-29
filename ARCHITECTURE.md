@@ -198,4 +198,25 @@ if (template.finalStory) {
 - Advanced editing and management features
 
 ---
-This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices. 
+This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices.
+
+## Image Storage and Template Portability
+
+### Best Practices
+- All images referenced in templates should be stored in `public/imageRepository/` and referenced as `/imageRepository/filename.jpg`.
+- On local development, copy uploaded/generated images to this folder.
+- On template export, ensure all referenced images are present and optionally export as a zip with images + template JSON for portability.
+- On Vercel (production), the `public/` folder is read-only; all images must be present at build time and committed to the repo.
+- No uploads or LLM generation in production unless using a cloud storage backend.
+- In the future, for uploads in production, use a cloud storage solution (e.g., S3, Supabase Storage) and update template image URLs accordingly.
+
+### Environment Handling Table
+| Environment      | Image Storage Location         | Uploads Allowed? | LLM Generation? | Template Usage         |
+|------------------|-------------------------------|------------------|-----------------|-----------------------|
+| Local (Windows)  | public/imageRepository/       | Yes              | Yes             | Generate & Export     |
+| Vercel (Prod)    | public/imageRepository/       | No               | No              | Import & Use Only     |
+
+### Notes
+- This section is a reference for future-proofing and deployment strategy.
+- When deploying to Vercel, ensure all images referenced in templates are present in `public/imageRepository/` and committed to the repo.
+- For future cloud storage, update image management and template export/import logic accordingly. 

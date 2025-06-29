@@ -1,5 +1,19 @@
 # Project Specification: AI Image Describer RPG Game (from 2025-06-23)
 
+## TypeScript Type Safety Policy
+
+- **Never use `any`** in production code. Always use the most specific, strict, and descriptive TypeScript types possible.
+- **Never use `unknown`** as a replacement for `any` unless:
+  - The user is explicitly notified and approves the use of `unknown` for a specific case.
+  - There is a clear, documented reason why `unknown` is the safest and most correct type (e.g., for generic, untyped external data).
+- **If a type is unclear or not well-defined:**
+  - Pause and ask the user for clarification or for a more precise type definition.
+  - Propose a specific interface or type alias that matches the actual data structure.
+- **All function arguments, return values, and data structures must be strictly typed.**
+- **Document any edge cases or places where type safety cannot be guaranteed.**
+
+> This policy ensures maximum type safety, maintainability, and clarity throughout the codebase. All contributors must follow these rules for any TypeScript code.
+
 ## TDD Workflow (for each task)
 1. **Write/Update the Test** (make it fail if needed)
 2. **Implement the Code** (make the test pass)
@@ -227,209 +241,4 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 
 #### Tasks
 - [x] **22.1: Update Tailwind CSS to v4 Syntax**
-  - Replace deprecated `@tailwind` directives with new `@import "tailwindcss"` syntax
-  - Update `src/app/globals.css` to use Tailwind CSS v4 best practices
-  - Verify build and tests still pass after update
-  - **Completed 2025-01-27**
-  - **Commit:** `fix(css): update to Tailwind CSS v4 import syntax`
-
-### 21.3: Add Loading Indicator for LLM Operations
-
-**Goal:**
-Display a clear loading indicator (spinner or message) whenever the user is waiting for a response from the LLM (image description or story generation), so users know the app is working and not frozen.
-
-**Requirements:**
-- Show a loading spinner or animated message in the UI:
-  - When image description is being generated.
-  - When story generation is in progress.
-- The indicator should be visible in the relevant panel/section (not just global).
-- The indicator disappears as soon as the response is received or an error occurs.
-- The rest of the UI should remain interactive (except for the specific operation in progress).
-- Optionally, display a message like "Generating story, this may take a few minutes..." for long operations.
-
-**Acceptance Criteria:**
-- Users see a clear loading indicator while waiting for LLM responses.
-- The indicator is removed immediately when the result or error is shown.
-- No UI flicker or blocking of unrelated actions.
-
-**Todo List:**
-1. Write a failing Jest test for the loading indicator behavior in both image and story panels.
-2. Implement a loading spinner or message in the UI.
-3. Ensure the indicator is shown/hidden based on loading state from hooks.
-4. Test with both fast and slow LLM responses.
-5. Refactor and commit.
-
-**Status: ✅ COMPLETED**
-- Loading indicators are already implemented and working in the UI
-- Users see clear feedback during AI operations
-- **Completed 2025-01-27**
-
-### Developer Mock Mode for Fast UI/UX Review (2025-06-24)
-**Objective:** Allow developers to instantly review UI changes by toggling between real and mocked responses for image upload, image description, and story generation.
-
-#### Features
-- Config file (`src/lib/config.ts`) to enable/disable mocks for:
-  - Image upload (use a static image)
-  - Image description (use a static or random description)
-  - Story generation (use a static or random story)
-- When enabled, the app instantly returns mock data instead of calling the real API/AI.
-- Works independently for each feature (can mock one, two, or all three).
-- (Optional) UI toggle in dev mode to enable/disable mocks without code changes.
-
-#### Status
-- **Implemented and enabled for all features via config.**
-- Toggle mocks by editing `src/lib/config.ts`.
-
-#### Steps
-1. Create `src/lib/config.ts` with mock flags for each feature. **(Done)**
-2. Update hooks (`useImageAnalysis`, `useStoryGeneration`) to use config and return mock data if enabled. **(Done)**
-3. Provide mock data (static image in `public/`, mock description/story strings). **(Done)**
-4. (Optional) Add a dev-only UI toggle for enabling/disabling mocks.
-
-#### Benefits
-- Instantly see UI changes without waiting for AI responses.
-- Test all flows, including error states, with predictable data.
-
-### Phase 23: Story Export and Final Story Generation
-**Objective:** Add PDF export functionality and final story generation to complete the RPG experience.
-
-#### Tasks
-- [ ] **23.1: PDF Export for Image, Description, and Story**
-  - Create PDF export functionality for each turn's content
-  - Include image, AI-generated description, and story in PDF document
-  - Use a library like jsPDF or react-pdf for PDF generation
-  - Add export button to each GalleryCard
-  - Write tests for PDF generation functionality
-  - **Commit:** `feat(export): add PDF export for individual turns`
-
-- [ ] **23.2: Final Story Generation Button**
-  - Add "Generate Final Story" button that appears only on Turn 3
-  - Button should be visible after the Turn 3 story is generated
-  - Position button prominently in the UI (e.g., below the story display)
-  - Write tests for button visibility and state management
-  - **Commit:** `feat(ui): add final story generation button for Turn 3`
-
-- [x] **23.3: Cohesive Final Story Generation**
-  - Final story generation logic implemented using buildFinalStoryPrompt and the existing LLM endpoint
-  - All 3 image descriptions, stories, and character info are included in the prompt
-  - The final story is generated via /api/generate-story and displayed in the UI with loading and error handling
-  - TDD verified: prompt builder and UI flow are fully tested
-  - **Completed 2025-01-27**
-  - **Commit:** `feat(story): implement cohesive final story generation`
-
----
-
-## Phase 24: Enhanced Template System (In Progress)
-
-### Phase 24.1: Enhanced Schema ✅ COMPLETED
-- **Status**: ✅ COMPLETED
-- **Description**: Enhanced GameTemplate schema to store complete game state
-- **Implementation**:
-  - Added character state, image history, current turn, final story to template schema
-  - Enhanced validation functions with strict type checking
-  - Added template utilities (create, clone, validate, version compatibility)
-  - Comprehensive test coverage for all template operations
-- **Files Modified**: `src/lib/types/template.ts`, `src/lib/types/template.test.ts`
-- **Benefits**: Templates now store complete game state for exact resumption
-
-### Phase 24.2: Template Application System ✅ COMPLETED
-- **Status**: ✅ COMPLETED
-- **Description**: Core functionality to apply templates and restore complete game state
-- **Implementation**:
-  - `applyTemplate()` function that validates and applies templates
-  - Integration with character store to restore character state, image history, and final story
-  - Missing content detection for incomplete templates
-  - Template application result with success status and missing content list
-  - Enhanced TemplateManager UI with Apply Template button and result display
-  - Comprehensive test coverage for template application scenarios
-- **Files Modified**: 
-  - `src/lib/types/template.ts` - Added applyTemplate and related functions
-  - `src/lib/types/template.test.ts` - Added comprehensive application tests
-  - `src/components/TemplateManager.tsx` - Added apply functionality and UI
-  - `src/components/TemplateManager.test.tsx` - Added application tests
-  - `src/lib/stores/characterStore.ts` - Added finalStory property
-- **Benefits**: 
-  - Complete game state restoration from templates
-  - Visual feedback on missing content
-  - Seamless integration with existing character store
-  - Robust error handling and validation
-
-### Phase 24.3: Smart Content Regeneration (Next)
-- **Status**: 🔄 PENDING
-- **Description**: Automatically regenerate missing content when applying incomplete templates
-- **Implementation Plan**:
-  - Detect missing images and stories in incomplete templates
-  - Use AI to generate placeholder content for missing turns
-  - Provide options to regenerate specific missing content
-  - Integration with existing image analysis and story generation hooks
-- **Benefits**: Faster testing and development with auto-completion of templates
-
-### Phase 24.4: Testing Integration (Next)
-- **Status**: 🔄 PENDING
-- **Description**: Integrate template system with testing workflow
-- **Implementation Plan**:
-  - Create test templates for different scenarios
-  - Automated template application in test suites
-  - Template-based test data generation
-  - Integration with Jest test environment
-- **Benefits**: Consistent test data and faster test development
-
-### Phase 24.5: Advanced Template Features (Next)
-- **Status**: 🔄 PENDING
-- **Description**: Advanced template management and sharing features
-- **Implementation Plan**:
-  - Template categories and tags
-  - Template sharing and import/export
-  - Template versioning and migration
-  - Template validation and compatibility checking
-- **Benefits**: Better template organization and collaboration
-
----
-
-## Technical Stack
-- **Framework:** Next.js 15 with App Router
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** shadcn/ui
-- **Testing:** Jest + React Testing Library
-- **AI Integration:** LM Studio SDK
-- **Development:** TDD workflow with browser preview
-
-## Getting Started
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start LM Studio and ensure it's running on localhost:1234
-4. Run development server: `npm run dev`
-5. Open http://localhost:3000
-
-## Testing
-- Run tests: `npm test`
-- Run tests in watch mode: `npm run test:watch`
-- Run build: `npm run build`
-
-## Project Structure
-```
-src/
-├── app/                 # Next.js App Router
-├── components/          # React components
-├── hooks/              # Custom React hooks
-├── lib/                # Utilities and constants
-└── types/              # TypeScript type definitions
-```
-
-# Project Status Update (2025-06-24)
-
-- GalleryCard now displays image, description, and story in a shadcn Card with Accordion (Phase 21.2.1, 21.2.2, 21.2.3 complete)
-- Gallery grid replaced with stacked GalleryCards, newest at top, with Turn X label
-- All tests and production build pass
-- Strict typing enforced for GameTemplate and Template types (no any/unknown)
-- Final story generation API now allows prompt-only requests (fix for 'Description is required' bug)
-- All code and types are now type-safe
-- src/components/ImageGallery and its test have been removed (replaced by GalleryCard stack)
-
-- The project is in a clean, TDD-verified state.
-- All tests and the production build pass.
-- Mock mode for image, description, and story generation is implemented and documented in `src/lib/config.ts`.
-- Skipped tests are tracked in code comments or directly in test files (the previous `skipped-tests.md` was deleted).
-- The app works with both mock and live data.
-- Ready for review of skipped tests, turn validation, or image gallery/story continuation. 
+  - Replace deprecated `@tailwind` directives with new `
