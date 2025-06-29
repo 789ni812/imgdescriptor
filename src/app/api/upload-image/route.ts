@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
   let fileUrl = '';
   let fileError: Error | null = null;
+  const fileSavePromises: Promise<void>[] = [];
 
   const finished = new Promise<void>((resolve, reject) => {
     busboy.on('file', async (fieldname: string, file: NodeJS.ReadableStream, info: { filename: string; encoding: string; mimeType: string }) => {
@@ -34,16 +35,17 @@ export async function POST(req: NextRequest) {
         file.resume();
         return;
       }
-      try {
-        fileUrl = await saveUploadedImage(file, actualFilename);
-        console.log('[API] File saved:', fileUrl);
-      } catch (err) {
-        fileError = err instanceof Error ? err : new Error('Upload failed');
-        console.error('[API] Error saving file:', fileError);
-      }
+      const savePromise = saveUploadedImage(file, actualFilename)
+        .then(url => { fileUrl = url; console.log('[API] File saved:', fileUrl); })
+        .catch(err => {
+          fileError = err instanceof Error ? err : new Error('Upload failed');
+          console.error('[API] Error saving file:', fileError);
+        });
+      fileSavePromises.push(savePromise);
     });
-    busboy.on('finish', () => {
+    busboy.on('finish', async () => {
       console.log('[API] busboy finish event');
+      await Promise.all(fileSavePromises);
       resolve();
     });
     busboy.on('error', (err) => {

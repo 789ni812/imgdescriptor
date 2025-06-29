@@ -307,4 +307,46 @@ describe('Final Story Generation Flow', () => {
     );
     expect(finalStoryMarkdown.textContent).toContain('final adventure');
   });
+});
+
+describe('Template Import and Final Story Button', () => {
+  it('should show final story button after importing a template with 3 images', async () => {
+    // Arrange: Mock a character store state after template import
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'story1', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'story2', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'story3', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
+      storyHistory: [],
+      stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+    };
+
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+    });
+
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story content',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+
+    // Act: Render the page
+    render(<Home />);
+
+    // Assert: Final story generation button should be visible
+    const finalStoryButton = screen.getByRole('button', { name: /generate final story/i });
+    expect(finalStoryButton).toBeInTheDocument();
+  });
 }); 

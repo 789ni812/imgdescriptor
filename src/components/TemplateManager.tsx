@@ -43,6 +43,25 @@ export function TemplateManager() {
         const json = JSON.parse(event.target?.result as string);
         if (validateGameTemplate(json)) {
           addTemplate(json as GameTemplate);
+          // Immediately apply the imported template
+          const result = applyTemplate(json as GameTemplate);
+          setApplyResult(result);
+          if (result.success && result.gameState) {
+            // Apply to character store
+            characterStore.updateCharacter({
+              ...result.gameState.character,
+              currentTurn: result.gameState.currentTurn,
+            });
+            // Clear existing image history and add template images
+            characterStore.updateCharacter({ imageHistory: [] });
+            result.gameState.imageHistory.forEach(image => {
+              characterStore.addImageToHistory(image);
+            });
+            // Set final story if it exists
+            if (result.gameState.finalStory) {
+              characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
+            }
+          }
         } else {
           setImportError('Invalid template: missing required fields');
         }
