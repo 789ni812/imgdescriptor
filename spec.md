@@ -281,3 +281,11 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 - Toasts should be non-intrusive, visually consistent, and disappear automatically after a short duration.
 - All toast messages must be clear, concise, and accessible.
 - All relevant tests must verify that toasts appear for these actions.
+
+## Template Uniqueness and Naming (2025-07-01)
+
+- All template IDs are now generated using `uuid.v4()` for guaranteed global uniqueness.
+- On creation, import, and edit (if the name is changed to a duplicate), a new UUID is always assigned.
+- Template names are auto-incremented: if a name already exists, the new template will be named `name (copy)`, `name (copy 2)`, etc.
+- This ensures no duplicate keys in React lists, and users can always distinguish between templates, even with rapid edits, copies, or imports.
+- The system is robust against all edge cases and user actions.

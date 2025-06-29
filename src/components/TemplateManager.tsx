@@ -5,6 +5,7 @@ import type { GameTemplate as GameTemplateType } from '@/lib/types/template';
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 interface EditFields {
   name: string;
@@ -26,6 +27,19 @@ const defaultConfig: GameTemplateType['config'] = {
   theme: 'default',
   language: 'en',
 };
+
+// Utility to generate a unique template name
+function getUniqueTemplateName(baseName: string, templates: GameTemplate[]): string {
+  const existingNames = templates.map(t => t.name);
+  if (!existingNames.includes(baseName)) return baseName;
+  let copyNumber = 1;
+  let newName = `${baseName} (copy)`;
+  while (existingNames.includes(newName)) {
+    copyNumber++;
+    newName = `${baseName} (copy ${copyNumber})`;
+  }
+  return newName;
+}
 
 export function TemplateManager() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +73,9 @@ export function TemplateManager() {
       try {
         const json = JSON.parse(event.target?.result as string);
         if (validateGameTemplate(json)) {
-          addTemplate(json as GameTemplate);
+          // Always assign a new UUID on import
+          const imported = { ...json, id: uuidv4() };
+          addTemplate(imported as GameTemplate);
           setImportError(null);
           toast.success('Template imported successfully!');
         } else {
@@ -107,7 +123,14 @@ export function TemplateManager() {
           })),
         },
       };
-      const template = createTemplateFromCurrentState(newName.trim(), safeCharacterStore, defaultPrompts, defaultConfig);
+      // Ensure unique name
+      const uniqueName = getUniqueTemplateName(newName.trim(), templates);
+      // Always generate a new UUID
+      const template = {
+        ...createTemplateFromCurrentState(uniqueName, safeCharacterStore, defaultPrompts, defaultConfig),
+        id: uuidv4(),
+        name: uniqueName,
+      };
       addTemplate(template);
       setNewName('');
       toast.success('Template saved successfully!');
@@ -181,9 +204,16 @@ export function TemplateManager() {
       toast.error('Template name is required');
       return;
     }
+    // Ensure unique name for edit (except for the current template)
+    const baseName = editFields.name.trim();
+    const otherTemplates = templates.filter(t => t.id !== selectedTemplate.id);
+    const uniqueName = getUniqueTemplateName(baseName, otherTemplates);
+    // If the name is changed to a duplicate, assign a new UUID
+    const isNameChanged = uniqueName !== selectedTemplate.name;
     addTemplate({
       ...selectedTemplate,
-      name: editFields.name,
+      id: isNameChanged ? uuidv4() : selectedTemplate.id,
+      name: uniqueName,
       prompts: editFields.prompts,
       config: editFields.config,
       updatedAt: new Date().toISOString(),

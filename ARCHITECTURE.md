@@ -236,4 +236,11 @@ This document should be updated as the project evolves. Use it as a reference fo
 - All toast logic is centralized for maintainability and consistency.
 - All relevant tests verify toast appearance and content for user actions.
 
+## Template ID and Naming Architecture (2025-07-01)
+- All template IDs are generated using `uuid.v4()` (from the uuid npm package) to guarantee uniqueness across all operations (creation, copy, import, edit).
+- When a template is created, imported, or renamed to a duplicate, a new UUID is assigned.
+- Template names are auto-incremented: if a name already exists, the new template will be named `name (copy)`, `name (copy 2)`, etc.
+- This approach eliminates duplicate React key warnings and ensures a clear, user-friendly template list.
+- The system is robust against all edge cases, including rapid user actions and bulk imports.
+
 --- 
