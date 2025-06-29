@@ -35,14 +35,18 @@ export function buildFinalStoryPrompt(character: Character & { name?: string }) 
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
   const name = character.name || character.persona;
-  const descriptions = character.storyHistory.map((s, i) => `Image ${i + 1} Description: ${s.imageDescription}`).join('\n');
-  const stories = character.storyHistory.map((s, i) => `Turn ${i + 1} Story: ${s.text}`).join('\n');
+  // Structure each turn's info
+  const turns = character.storyHistory.map((s, i) =>
+    `Turn ${i + 1}:
+Image Description: ${s.imageDescription}
+Story: ${s.text}`
+  ).join('\n\n');
+
   return [
     `Character: ${name}`,
     `Stats: ${statsString}`,
-    descriptions,
-    stories,
-    'Write a single, cohesive final story that weaves together all the above descriptions and stories into an epic adventure.'
+    turns,
+    `\nINSTRUCTIONS:\n1. Carefully read the descriptions and stories for each turn above.\n2. Briefly summarize the main event of each turn.\n3. Then, write a single, cohesive final story that weaves together the key events, characters, and settings from all three turns into an epic adventure.\n4. Make sure the final story references important details from each turn and feels like a natural conclusion to the adventure.\n\nFirst, provide the summaries for each turn. Then, write the final story below:`
   ].filter(Boolean).join('\n\n');
 }
 
