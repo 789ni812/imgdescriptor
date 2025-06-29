@@ -197,6 +197,11 @@ if (template.finalStory) {
 - Template sharing and collaboration
 - Advanced editing and management features
 
+### Template Generation Type
+- Each template includes a `type` field (e.g., `game`, `comics`, `business`, etc.).
+- The app uses this field to enable or disable features and UI for different use cases.
+- All new features must check the template type and be designed for extensibility.
+
 ---
 This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices.
 
@@ -243,4 +248,12 @@ This document should be updated as the project evolves. Use it as a reference fo
 - This approach eliminates duplicate React key warnings and ensures a clear, user-friendly template list.
 - The system is robust against all edge cases, including rapid user actions and bulk imports.
 
---- 
+---
+
+# AI Image Describer Architecture
+
+## Future Directions & Use Cases
+
+For a living list of game mechanics and creative/business/educational use cases, see [IDEAS.md](./IDEAS.md).
+
+The codebase is designed to remain flexible and extensible, so that future features—such as branching game mechanics, marketing story generation, or educational tools—can be added without major refactoring. 

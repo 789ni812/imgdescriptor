@@ -289,3 +289,113 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 - Template names are auto-incremented: if a name already exists, the new template will be named `name (copy)`, `name (copy 2)`, etc.
 - This ensures no duplicate keys in React lists, and users can always distinguish between templates, even with rapid edits, copies, or imports.
 - The system is robust against all edge cases and user actions.
+
+## Future Directions & Use Cases
+
+See [IDEAS.md](./IDEAS.md) for a living list of game and creative/business/educational use cases.
+
+**Design Principle:**
+All features should be implemented in a way that keeps these future directions possible. Avoid hardcoding logic or assumptions that would make it difficult to add new game mechanics, creative workflows, or business/educational features later.
+
+## Gamification Roadmap: Points 1–5
+
+### Overview
+We will implement the following game mechanics, ensuring all features are extensible and support multiple generation types (game, comics, business, etc.). The template model will include a `type` field to enable context-specific features and UI.
+
+---
+
+### 1. Branching Choices / Player Decisions
+- **Data Model:**  
+  - Update turn structure to allow for choices and outcomes.
+  - Add `choices` array to each turn (with text, result, stat effects).
+- **UI/UX:**  
+  - After each story, present 2–3 choices to the player.
+  - Show outcome and update stats/inventory accordingly.
+- **API/LLM:**  
+  - Update prompts to ask the LLM to suggest choices based on the story.
+- **TDD Steps:**  
+  1. Write failing test for rendering choices after a turn.
+  2. Implement UI and state logic.
+  3. Test LLM prompt for generating choices.
+  4. Refactor and ensure all tests pass.
+- **Template Integration:**  
+  - Allow templates of type `game` to define custom choice logic or use LLM-generated choices.
+
+---
+
+### 2. Inventory & Items
+- **Data Model:**  
+  - Add `inventory` array to character.
+  - Define item structure (id, name, effect, description).
+- **UI/UX:**  
+  - Show inventory panel.
+  - Allow using or equipping items if relevant.
+- **API/LLM:**  
+  - Prompt LLM to award/find items based on story events or choices.
+- **TDD Steps:**  
+  1. Write failing test for inventory display and item acquisition.
+  2. Implement inventory logic and UI.
+  3. Test LLM integration for item generation.
+  4. Refactor and ensure all tests pass.
+- **Template Integration:**  
+  - Templates can define starting items or item pools.
+
+---
+
+### 3. Skill Checks / Dice Rolls
+- **Data Model:**  
+  - Add skill check events to turns (type, stat, difficulty, result).
+- **UI/UX:**  
+  - Show skill check prompt and result (success/failure).
+  - Animate dice roll or randomizer.
+- **API/LLM:**  
+  - Prompt LLM to suggest skill checks or outcomes.
+- **TDD Steps:**  
+  1. Write failing test for skill check UI and logic.
+  2. Implement skill check system.
+  3. Test LLM prompt for skill check suggestions.
+  4. Refactor and ensure all tests pass.
+- **Template Integration:**  
+  - Templates can define custom skill checks or use LLM-generated ones.
+
+---
+
+### 4. Achievements & Quests
+- **Data Model:**  
+  - Add `achievements` and `quests` arrays to character or session.
+- **UI/UX:**  
+  - Show achievements/quests panel.
+  - Notify player when unlocked/completed.
+- **API/LLM:**  
+  - Prompt LLM to suggest quests or achievements based on story.
+- **TDD Steps:**  
+  1. Write failing test for achievement/quest tracking and display.
+  2. Implement logic and UI.
+  3. Test LLM integration for quest/achievement suggestions.
+  4. Refactor and ensure all tests pass.
+- **Template Integration:**  
+  - Templates can define custom achievements/quests.
+
+---
+
+### 5. Character Progression
+- **Data Model:**  
+  - Allow stats to increase, new traits/abilities to be unlocked.
+- **UI/UX:**  
+  - Show level-up/trait selection screens.
+  - Display stat changes after turns or events.
+- **API/LLM:**  
+  - Prompt LLM to suggest progression events or new abilities.
+- **TDD Steps:**  
+  1. Write failing test for progression events and UI.
+  2. Implement progression logic.
+  3. Test LLM integration for progression suggestions.
+  4. Refactor and ensure all tests pass.
+- **Template Integration:**  
+  - Templates can define progression rules or use LLM-generated events.
+
+---
+
+### General Principle
+- All new features must check the template's `type` field and only activate if appropriate.
+- The codebase must remain extensible for future generation types.
