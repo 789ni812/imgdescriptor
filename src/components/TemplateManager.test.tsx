@@ -174,6 +174,25 @@ describe('TemplateManager', () => {
   });
 
   it('should handle template creation', () => {
+    // Provide proper mock character data
+    const mockCharacterWithData = {
+      ...mockCharacterStore,
+      character: {
+        persona: 'Adventurer',
+        traits: ['brave'],
+        stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+        health: 100,
+        heartrate: 70,
+        age: 25,
+        level: 1,
+        experience: 0,
+        imageHistory: [],
+        finalStory: undefined,
+      },
+    };
+
+    mockUseCharacterStore.mockReturnValue(mockCharacterWithData);
+
     render(<TemplateManager />);
     
     const nameInput = screen.getByPlaceholderText('New template name');
@@ -221,5 +240,192 @@ describe('TemplateManager', () => {
     render(<TemplateManager />);
     
     expect(screen.getByText('No templates yet.')).toBeInTheDocument();
+  });
+
+  it('should create template from current game state', () => {
+    // Mock character store with current game state
+    const mockCharacterWithState = {
+      ...mockCharacterStore,
+      character: {
+        persona: 'Explorer',
+        traits: ['brave', 'curious'],
+        stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+        health: 85,
+        heartrate: 75,
+        age: 25,
+        level: 2,
+        experience: 150,
+        imageHistory: [
+          {
+            id: 'img-1',
+            url: '/images/forest.jpg',
+            description: 'A mysterious forest with ancient trees',
+            story: 'The explorer enters the forest and discovers ancient ruins...',
+            turn: 1,
+            uploadedAt: '2025-01-27T10:01:00Z',
+          },
+          {
+            id: 'img-2',
+            url: '/images/cave.jpg',
+            description: 'A dark cave entrance with mysterious symbols',
+            story: 'The explorer finds a cave with glowing symbols on the walls...',
+            turn: 2,
+            uploadedAt: '2025-01-27T10:02:00Z',
+          },
+        ],
+        finalStory: 'The explorer completes their journey through the forest and cave.',
+      },
+    };
+
+    mockUseCharacterStore.mockReturnValue(mockCharacterWithState);
+
+    render(<TemplateManager />);
+    
+    const nameInput = screen.getByPlaceholderText('New template name');
+    const createButton = screen.getByTestId('create-template-btn');
+    
+    fireEvent.change(nameInput, { target: { value: 'Current Adventure' } });
+    fireEvent.click(createButton);
+    
+    // Verify template was created with current game state
+    expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Current Adventure',
+        character: {
+          persona: 'Explorer',
+          traits: ['brave', 'curious'],
+          stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+          health: 85,
+          heartrate: 75,
+          age: 25,
+          level: 2,
+          experience: 150,
+        },
+        images: [
+          {
+            id: 'img-1',
+            url: '/images/forest.jpg',
+            description: 'A mysterious forest with ancient trees',
+            story: 'The explorer enters the forest and discovers ancient ruins...',
+            turn: 1,
+            uploadedAt: '2025-01-27T10:01:00Z',
+          },
+          {
+            id: 'img-2',
+            url: '/images/cave.jpg',
+            description: 'A dark cave entrance with mysterious symbols',
+            story: 'The explorer finds a cave with glowing symbols on the walls...',
+            turn: 2,
+            uploadedAt: '2025-01-27T10:02:00Z',
+          },
+        ],
+        finalStory: 'The explorer completes their journey through the forest and cave.',
+      })
+    );
+  });
+
+  it('should export template with current game state', () => {
+    // Mock character store with current game state
+    const mockCharacterWithState = {
+      ...mockCharacterStore,
+      character: {
+        persona: 'Explorer',
+        traits: ['brave', 'curious'],
+        stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+        health: 85,
+        heartrate: 75,
+        age: 25,
+        level: 2,
+        experience: 150,
+        imageHistory: [
+          {
+            id: 'img-1',
+            url: '/images/forest.jpg',
+            description: 'A mysterious forest with ancient trees',
+            story: 'The explorer enters the forest and discovers ancient ruins...',
+            turn: 1,
+            uploadedAt: '2025-01-27T10:01:00Z',
+          },
+        ],
+        finalStory: 'The explorer completes their journey.',
+      },
+    };
+
+    mockUseCharacterStore.mockReturnValue(mockCharacterWithState);
+
+    // Mock URL methods for JSDOM environment
+    const url = 'blob:http://localhost/fake';
+    const createObjectURL = jest.fn(() => url);
+    const revokeObjectURL = jest.fn();
+    global.URL.createObjectURL = createObjectURL;
+    global.URL.revokeObjectURL = revokeObjectURL;
+
+    render(<TemplateManager />);
+    
+    const exportButton = screen.getByTestId('export-template-btn');
+    fireEvent.click(exportButton);
+    
+    // Verify that createObjectURL was called with template containing current state
+    expect(createObjectURL).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'application/json',
+      })
+    );
+  });
+
+  it('should handle images without stories when creating template', () => {
+    // Mock character store with images that don't have stories
+    const mockCharacterWithImagesNoStories = {
+      ...mockCharacterStore,
+      character: {
+        persona: 'Explorer',
+        traits: ['brave'],
+        stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+        health: 100,
+        heartrate: 70,
+        age: 25,
+        level: 1,
+        experience: 0,
+        imageHistory: [
+          {
+            id: 'img-1',
+            url: '/images/forest.jpg',
+            description: 'A mysterious forest',
+            story: undefined, // No story
+            turn: 1,
+            uploadedAt: '2025-01-27T10:01:00Z',
+          },
+        ],
+        finalStory: undefined,
+      },
+    };
+
+    mockUseCharacterStore.mockReturnValue(mockCharacterWithImagesNoStories);
+
+    render(<TemplateManager />);
+    
+    const nameInput = screen.getByPlaceholderText('New template name');
+    const createButton = screen.getByTestId('create-template-btn');
+    
+    fireEvent.change(nameInput, { target: { value: 'No Stories Adventure' } });
+    fireEvent.click(createButton);
+    
+    // Verify template was created with empty story string
+    expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'No Stories Adventure',
+        images: [
+          {
+            id: 'img-1',
+            url: '/images/forest.jpg',
+            description: 'A mysterious forest',
+            story: '', // Should be empty string when story is undefined
+            turn: 1,
+            uploadedAt: '2025-01-27T10:01:00Z',
+          },
+        ],
+        finalStory: undefined,
+      })
+    );
   });
 }); 

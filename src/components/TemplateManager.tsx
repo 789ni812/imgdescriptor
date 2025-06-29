@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from './ui/Button';
-import { GameTemplate, createDefaultTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/template';
+import { GameTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/template';
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 
@@ -47,12 +47,38 @@ export function TemplateManager() {
       alert('No template selected.');
       return;
     }
-    const template = selectedTemplate;
-    const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+
+    // Create a template from current game state to capture any updates
+    const currentCharacter = characterStore.character;
+    const currentTemplate: GameTemplate = {
+      ...selectedTemplate,
+      character: {
+        persona: currentCharacter.persona,
+        traits: currentCharacter.traits,
+        stats: currentCharacter.stats,
+        health: currentCharacter.health,
+        heartrate: currentCharacter.heartrate,
+        age: currentCharacter.age,
+        level: currentCharacter.level,
+        experience: currentCharacter.experience,
+      },
+      images: currentCharacter.imageHistory.map(img => ({
+        id: img.id,
+        url: img.url,
+        description: img.description,
+        story: img.story || '', // Handle optional story property
+        turn: img.turn,
+        uploadedAt: img.uploadedAt,
+      })),
+      finalStory: currentCharacter.finalStory,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(currentTemplate, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const templateName = template.name || 'template';
+    const templateName = currentTemplate.name || 'template';
     a.download = `${templateName}.json`;
     document.body.appendChild(a);
     a.click();
@@ -64,7 +90,49 @@ export function TemplateManager() {
 
   const handleCreateTemplate = () => {
     const name = newName.trim() || `Adventure ${templates.length + 1}`;
-    const template = createDefaultTemplate(name);
+    
+    // Create template from current game state instead of default template
+    const currentCharacter = characterStore.character;
+    const template: GameTemplate = {
+      id: `template-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name,
+      version: '1.0.0',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      character: {
+        persona: currentCharacter.persona,
+        traits: currentCharacter.traits,
+        stats: currentCharacter.stats,
+        health: currentCharacter.health,
+        heartrate: currentCharacter.heartrate,
+        age: currentCharacter.age,
+        level: currentCharacter.level,
+        experience: currentCharacter.experience,
+      },
+      images: currentCharacter.imageHistory.map(img => ({
+        id: img.id,
+        url: img.url,
+        description: img.description,
+        story: img.story || '', // Handle optional story property
+        turn: img.turn,
+        uploadedAt: img.uploadedAt,
+      })),
+      prompts: {
+        imageDescription: 'Describe this image in detail for an RPG adventure.',
+        storyGeneration: 'Generate a story based on this image description.',
+        finalStory: 'Create a cohesive final story combining all previous stories.',
+        characterInitialization: 'Initialize a character based on this image.',
+      },
+      config: {
+        maxTurns: 3,
+        enableMarkdown: true,
+        autoSave: true,
+        theme: 'default',
+        language: 'en',
+      },
+      finalStory: currentCharacter.finalStory,
+    };
+
     addTemplate(template);
     setNewName('');
     selectTemplate(template.id);
@@ -114,7 +182,7 @@ export function TemplateManager() {
           className="border rounded px-2 py-1 text-sm"
         />
         <Button onClick={handleCreateTemplate} size="sm" variant="outline" data-testid="create-template-btn">
-          New Template
+          Save Current State
         </Button>
         <Button onClick={handleImportClick} variant="outline" size="sm" data-testid="import-template-btn">
           Import Template
