@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
 import { TemplateManager } from '@/components/TemplateManager';
+import { ChoiceDisplay } from '@/components/ChoiceDisplay';
 
 export default function Home() {
   const { 
@@ -272,6 +273,15 @@ export default function Home() {
               <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
                 <CardContent className="p-6">
                   <StoryDisplay story={story ?? null} isLoading={isStoryLoading} error={storyError} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Choice Display Card */}
+            {character.currentChoices && (character.currentChoices.length > 0 || character.choiceHistory.length > 0) && (
+              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+                <CardContent className="p-6">
+                  <ChoiceDisplay choices={character.currentChoices} outcomes={character.choiceHistory.slice(-3)} />
                 </CardContent>
               </Card>
             )}
