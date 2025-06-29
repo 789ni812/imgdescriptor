@@ -82,30 +82,174 @@ jest.config.js           # Jest configuration
 - **TDD:** Ensures reliability and maintainability
 - **Stacked Card Layout:** More flexible and visually appealing than a grid for this use case; supports per-turn replay and accordion-based detail viewing.
 
-## Template-Driven Game Data & Customization (Planned)
+## Enhanced Template-Driven Game System (In Progress)
 
-- **All game data (image URLs, descriptions, stories, config, etc.) will be stored in a user-editable template object.**
-- **Templates** will support:
-  - Import/export (JSON or similar)
-  - Custom font selection for descriptions and stories
-  - Folder location for storing image descriptions, stories, and final story
-  - Name and unique ID for each template
-  - **Initial character stats, persona, and traits can be set or overridden by the template**
-  - All other configurable data for the app
-- **User Actions:** Create, save, update, copy, edit, delete, import, and export templates
-- **Game Flow:**
-  - If a template already contains a final story or other data, it is used (no need to regenerate)
-  - All test data and test flows will move to using templates for better, faster, and more realistic testing
-- **Benefits:**
-  - Enables rapid UI/UX review and testing
-  - Makes the app highly customizable for different games or scenarios
-  - Allows for easy sharing and backup of game sessions
-  - Reduces reliance on mock data for tests; tests can use real template data
-- **Next Steps:**
-  - Design the template schema and import/export format
-  - Refactor state management and test setup to use templates
-  - Update tests to use template-driven data
-  - Document best practices for template-based testing and compatibility
+### Overview
+The template system has evolved from basic configuration storage to a comprehensive game state management system that enables complete game continuity and rapid testing.
+
+### Architecture Components
+
+#### 1. Template Schema
+```typescript
+interface GameTemplate {
+  // Basic metadata
+  id: string;
+  name: string;
+  version: string;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Complete game state
+  gameState: {
+    currentTurn: number;
+    character: Character; // Full character state with current stats
+    imageHistory: ImageHistoryEntry[]; // All images with descriptions/stories
+    finalStory?: string;
+  };
+  
+  // App configuration
+  prompts: {
+    imageDescription: string;
+    storyGeneration: string;
+    finalStory: string;
+    characterInitialization: string;
+  };
+  config: {
+    maxTurns: number;
+    enableMarkdown: boolean;
+    autoSave: boolean;
+    theme: string;
+    language: string;
+  };
+  
+  // Template metadata
+  metadata: {
+    isTestTemplate: boolean;
+    description?: string;
+    tags?: string[];
+    category?: string;
+  };
+}
+```
+
+#### 2. Template Store (Zustand)
+- **Location:** `src/lib/stores/templateStore.ts`
+- **Features:**
+  - CRUD operations for templates
+  - Template selection and management
+  - State persistence (optional)
+- **Actions:** `addTemplate`, `updateTemplate`, `deleteTemplate`, `selectTemplate`
+
+#### 3. Template Application System
+- **Function:** `applyTemplate(template: GameTemplate)`
+- **Process:**
+  1. Validate template version and data integrity
+  2. Restore complete character state
+  3. Load all image history with generated content
+  4. Set current turn and game progress
+  5. Update UI to reflect restored state
+- **Smart Regeneration:** Only regenerate missing content
+
+#### 4. Template Manager UI
+- **Location:** `src/components/TemplateManager.tsx`
+- **Features:**
+  - Template creation, selection, deletion
+  - Import/export with validation
+  - Template application to game state
+  - Visual indicators for template status
+
+### Template Application Flow
+
+```
+1. User selects template file
+   ↓
+2. Validate template (version, data integrity)
+   ↓
+3. Apply game state:
+   - Restore character (stats, experience, level)
+   - Load image history (images, descriptions, stories)
+   - Set current turn
+   - Restore final story (if exists)
+   ↓
+4. Check content completeness:
+   - Determine what content exists
+   - Identify what needs generation
+   ↓
+5. Update UI:
+   - Show current state
+   - Indicate what actions are available
+   ↓
+6. Resume game from exact saved state
+```
+
+### Testing Integration
+
+#### Test Templates
+- **Purpose:** Pre-generated templates with realistic content
+- **Benefits:** Instant UI testing without AI generation delays
+- **Structure:** Complete game state with mock-generated content
+
+#### Mock System Integration
+- **Location:** `src/lib/config.ts`
+- **Feature:** Use template data when available
+- **Fallback:** Standard mock data when no template selected
+
+#### Template-Based Testing
+- **Scenarios:** Different templates for different test cases
+- **Rapid Iteration:** No need to regenerate content during development
+- **Realistic Data:** Test with actual game state structures
+
+### Benefits
+
+#### Gameplay Continuity
+- **Resume Games:** Continue from exact saved state
+- **Content Preservation:** All generated content is maintained
+- **State Restoration:** Character progress, image history, turn number
+
+#### Development Speed
+- **Rapid Testing:** Instant UI testing with pre-generated content
+- **Scenario Testing:** Different templates for different test cases
+- **Content Reuse:** Share complete game sessions
+
+#### Testing Efficiency
+- **No AI Delays:** Test with pre-generated content
+- **Realistic Data:** Use actual game state structures
+- **Scenario Coverage:** Multiple templates for different scenarios
+
+### Implementation Status
+
+#### ✅ Completed (Phase 24.1)
+- Enhanced template schema with complete game state
+- Template validation and creation utilities
+- Zustand template store with CRUD operations
+- Template management UI (create, select, delete, import/export)
+
+#### 🔄 In Progress (Phase 24.2)
+- Template application system
+- Complete game state restoration
+- Character store integration
+
+#### 📋 Planned
+- Smart content regeneration (Phase 24.3)
+- Testing integration (Phase 24.4)
+- Advanced template features (Phase 24.5)
+
+### Technical Decisions
+
+#### Why Complete Game State?
+- **User Experience:** Resume games exactly where left off
+- **Testing Efficiency:** No need to regenerate content
+- **Data Integrity:** Preserve all generated content
+
+#### Why Template Application System?
+- **State Management:** Centralized state restoration
+- **Validation:** Ensure data integrity and compatibility
+- **UI Integration:** Seamless user experience
+
+#### Why Testing Integration?
+- **Development Speed:** Eliminate AI generation delays
+- **Scenario Coverage:** Multiple test scenarios
+- **Realistic Testing:** Use actual game state structures
 
 ---
 This document should be updated as the project evolves. Use it as a reference for onboarding, architecture decisions, and best practices. 

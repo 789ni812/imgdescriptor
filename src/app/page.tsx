@@ -17,8 +17,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
 import { TemplateManager } from '@/components/TemplateManager';
-import { importGameTemplate, GameTemplate } from '@/lib/types/template';
-import { ImageHistoryEntry } from '@/lib/types/character';
 
 export default function Home() {
   const { 
@@ -44,7 +42,6 @@ export default function Home() {
     addImageToHistory,
     updateImageDescription,
     updateImageStory,
-    updateCharacter
   } = useCharacterStore();
 
   const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
@@ -174,22 +171,6 @@ export default function Home() {
     }
   };
 
-  // Template import handler
-  const handleTemplateImport = (template: unknown) => {
-    // Type guard or assertion
-    const imported = importGameTemplate(template as GameTemplate);
-    updateCharacter(imported.character);
-    if (imported.imageHistory) {
-      (imported.imageHistory as ImageHistoryEntry[]).forEach((img) => {
-        addImageToHistory(img);
-      });
-    }
-    if (imported.finalStory) {
-      setFinalStory(imported.finalStory);
-    }
-    alert('Template imported successfully!');
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <main>
@@ -199,7 +180,7 @@ export default function Home() {
         >
           {/* Template Manager */}
           <div className="mb-6">
-            <TemplateManager onImport={handleTemplateImport} />
+            <TemplateManager />
           </div>
           {/* Reset Game Button */}
           {character.currentTurn > 0 && (

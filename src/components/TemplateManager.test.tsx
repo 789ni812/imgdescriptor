@@ -1,64 +1,225 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { TemplateManager } from './TemplateManager';
+import { useTemplateStore } from '@/lib/stores/templateStore';
+import { useCharacterStore } from '@/lib/stores/characterStore';
+import { GameTemplate } from '@/lib/types/template';
 
-const mockTemplate = {
-  id: 'template-1',
-  name: 'Test Adventure',
-  createdAt: '2025-01-27T10:00:00Z',
-  updatedAt: '2025-01-27T10:00:00Z',
-};
+// Mock the stores
+jest.mock('@/lib/stores/templateStore');
+jest.mock('@/lib/stores/characterStore');
+
+const mockUseTemplateStore = useTemplateStore as jest.MockedFunction<typeof useTemplateStore>;
+const mockUseCharacterStore = useCharacterStore as jest.MockedFunction<typeof useCharacterStore>;
+
+// Mock alert
+const mockAlert = jest.fn();
+global.alert = mockAlert;
 
 describe('TemplateManager', () => {
-  it('should call onImport with parsed template when a file is uploaded', () => {
-    const onImport = jest.fn();
-    render(<TemplateManager onImport={onImport} />);
-    const file = new File([JSON.stringify(mockTemplate)], 'template.json', { type: 'application/json' });
-    const input = screen.getByTestId('template-file-input') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [file] } });
-    // FileReader is async, so we need to wait for the callback
-    setTimeout(() => {
-      expect(onImport).toHaveBeenCalledWith(mockTemplate);
-    }, 10);
+  const mockTemplate: GameTemplate = {
+    id: 'template-1',
+    name: 'Test Adventure',
+    version: '1.0.0',
+    createdAt: '2025-01-27T10:00:00Z',
+    updatedAt: '2025-01-27T10:00:00Z',
+    character: {
+      persona: 'Explorer',
+      traits: ['brave', 'curious'],
+      stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
+      health: 85,
+      heartrate: 75,
+      age: 25,
+      level: 2,
+      experience: 150,
+    },
+    images: [
+      {
+        id: 'img-1',
+        url: '/images/forest.jpg',
+        description: 'A mysterious forest with ancient trees',
+        story: 'The explorer enters the forest and discovers ancient ruins...',
+        turn: 1,
+        uploadedAt: '2025-01-27T10:01:00Z',
+      },
+      {
+        id: 'img-2',
+        url: '/images/cave.jpg',
+        description: 'A dark cave entrance with mysterious symbols',
+        story: 'The explorer finds a cave with glowing symbols on the walls...',
+        turn: 2,
+        uploadedAt: '2025-01-27T10:02:00Z',
+      },
+    ],
+    prompts: {
+      imageDescription: 'Describe this image in detail for an RPG adventure.',
+      storyGeneration: 'Generate a story based on this image description.',
+      finalStory: 'Create a cohesive final story combining all previous stories.',
+      characterInitialization: 'Initialize a character based on this image.',
+    },
+    config: {
+      maxTurns: 3,
+      enableMarkdown: true,
+      autoSave: true,
+      theme: 'default',
+      language: 'en',
+    },
+    finalStory: 'The explorer completes their journey through the forest and cave, discovering ancient secrets.',
+  };
+
+  const mockCharacterStore = {
+    updateCharacter: jest.fn(),
+    addImageToHistory: jest.fn(),
+  };
+
+  const mockTemplateStore = {
+    templates: [mockTemplate],
+    selectedTemplateId: 'template-1',
+    selectedTemplate: mockTemplate,
+    addTemplate: jest.fn(),
+    deleteTemplate: jest.fn(),
+    selectTemplate: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseTemplateStore.mockReturnValue(mockTemplateStore);
+    mockUseCharacterStore.mockReturnValue(mockCharacterStore);
   });
-});
 
-describe('TemplateManager export', () => {
-  it('triggers download with correct JSON when Export Template is clicked', () => {
-    const template = { name: 'TestTemplate', foo: 'bar' };
-    const getTemplate = jest.fn(() => template);
-    // Mock createObjectURL and revokeObjectURL
-    const url = 'blob:http://localhost/fake';
-    const createObjectURL = jest.fn(() => url);
-    const revokeObjectURL = jest.fn();
-    global.URL.createObjectURL = createObjectURL;
-    global.URL.revokeObjectURL = revokeObjectURL;
-    // Mock anchor click
-    const click = jest.fn();
-    document.body.appendChild = (jest.fn((el: Node) => {
-      if ((el as HTMLElement).tagName === 'A') {
-        (el as HTMLAnchorElement).click = click;
-      }
-      return el;
-    }) as unknown) as <T extends Node>(node: T) => T;
-    document.body.removeChild = jest.fn();
+  it('should render template manager with apply button', () => {
+    render(<TemplateManager />);
+    
+    expect(screen.getByText('Templates')).toBeInTheDocument();
+    expect(screen.getByText('Test Adventure')).toBeInTheDocument();
+    expect(screen.getByTestId('apply-template-btn')).toBeInTheDocument();
+    expect(screen.getByText('Apply Template')).toBeInTheDocument();
+  });
 
-    const { getByTestId, container } = render(
-      <TemplateManager onImport={jest.fn()} getTemplate={getTemplate} />
-    );
-    try {
-      fireEvent.click(getByTestId('export-template-btn'));
-    } catch (e) {
-      // Print the rendered HTML for debugging
-      // eslint-disable-next-line no-console
-      console.log(container.innerHTML);
-      throw e;
-    }
-    expect(getTemplate).toHaveBeenCalled();
-    expect(createObjectURL).toHaveBeenCalled();
-    expect(click).toHaveBeenCalled();
-    expect(document.body.appendChild).toHaveBeenCalled();
-    expect(document.body.removeChild).toHaveBeenCalled();
-    expect(revokeObjectURL).toHaveBeenCalledWith(url);
+  it('should display template details including images and final story', () => {
+    render(<TemplateManager />);
+    
+    expect(screen.getByText('Images: 2')).toBeInTheDocument();
+    expect(screen.getByText('Final Story: Yes')).toBeInTheDocument();
+  });
+
+  it('should apply template successfully when apply button is clicked', async () => {
+    render(<TemplateManager />);
+    
+    const applyButton = screen.getByTestId('apply-template-btn');
+    fireEvent.click(applyButton);
+
+    await waitFor(() => {
+      expect(mockAlert).toHaveBeenCalledWith('Template "Test Adventure" applied successfully!');
+    });
+
+    // Verify character store was updated
+    expect(mockCharacterStore.updateCharacter).toHaveBeenCalledWith({
+      ...mockTemplate.character,
+      currentTurn: 2,
+    });
+
+    // Verify image history was cleared and re-added
+    expect(mockCharacterStore.updateCharacter).toHaveBeenCalledWith({ imageHistory: [] });
+    expect(mockCharacterStore.addImageToHistory).toHaveBeenCalledTimes(2);
+    expect(mockCharacterStore.addImageToHistory).toHaveBeenCalledWith(mockTemplate.images[0]);
+    expect(mockCharacterStore.addImageToHistory).toHaveBeenCalledWith(mockTemplate.images[1]);
+
+    // Verify final story was set
+    expect(mockCharacterStore.updateCharacter).toHaveBeenCalledWith({ 
+      finalStory: mockTemplate.finalStory 
+    });
+  });
+
+  it('should show success message and missing content when template is applied', async () => {
+    const incompleteTemplate = {
+      ...mockTemplate,
+      images: [mockTemplate.images[0]], // Only one image
+      finalStory: undefined, // No final story
+    };
+
+    mockUseTemplateStore.mockReturnValue({
+      ...mockTemplateStore,
+      selectedTemplate: incompleteTemplate,
+    });
+
+    render(<TemplateManager />);
+    
+    const applyButton = screen.getByTestId('apply-template-btn');
+    fireEvent.click(applyButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Template applied successfully!')).toBeInTheDocument();
+      expect(screen.getByText('Missing content:')).toBeInTheDocument();
+      expect(screen.getByText('turn-2-image')).toBeInTheDocument();
+      expect(screen.getByText('turn-3-image')).toBeInTheDocument();
+      expect(screen.getByText('final-story')).toBeInTheDocument();
+    });
+  });
+
+  it('should show error message when no template is selected', () => {
+    mockUseTemplateStore.mockReturnValue({
+      ...mockTemplateStore,
+      selectedTemplateId: null,
+      selectedTemplate: null,
+    });
+
+    render(<TemplateManager />);
+    
+    // When no template is selected, the Apply Template button should not be rendered
+    expect(screen.queryByTestId('apply-template-btn')).not.toBeInTheDocument();
+    
+    // The selected template section should not be rendered
+    expect(screen.queryByText('Selected Template')).not.toBeInTheDocument();
+  });
+
+  it('should handle template creation', () => {
+    render(<TemplateManager />);
+    
+    const nameInput = screen.getByPlaceholderText('New template name');
+    const createButton = screen.getByTestId('create-template-btn');
+    
+    fireEvent.change(nameInput, { target: { value: 'New Adventure' } });
+    fireEvent.click(createButton);
+    
+    expect(mockTemplateStore.addTemplate).toHaveBeenCalled();
+    expect(mockTemplateStore.selectTemplate).toHaveBeenCalled();
+  });
+
+  it('should handle template deletion', () => {
+    render(<TemplateManager />);
+    
+    const deleteButton = screen.getByText('Delete');
+    fireEvent.click(deleteButton);
+    
+    expect(mockTemplateStore.deleteTemplate).toHaveBeenCalledWith('template-1');
+  });
+
+  it('should handle template selection', () => {
+    render(<TemplateManager />);
+    
+    const templateName = screen.getByText('Test Adventure');
+    fireEvent.click(templateName);
+    
+    expect(mockTemplateStore.selectTemplate).toHaveBeenCalledWith('template-1');
+  });
+
+  it('should display selected template indicator', () => {
+    render(<TemplateManager />);
+    
+    expect(screen.getByText('(selected)')).toBeInTheDocument();
+  });
+
+  it('should show no templates message when empty', () => {
+    mockUseTemplateStore.mockReturnValue({
+      ...mockTemplateStore,
+      templates: [],
+      selectedTemplateId: null,
+      selectedTemplate: null,
+    });
+
+    render(<TemplateManager />);
+    
+    expect(screen.getByText('No templates yet.')).toBeInTheDocument();
   });
 }); 

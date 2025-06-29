@@ -319,192 +319,70 @@ Display a clear loading indicator (spinner or message) whenever the user is wait
 
 ---
 
-## Phase 24: Template-Driven Game Data & Customization (Planned)
+## Phase 24: Enhanced Template System (In Progress)
 
-**Objective:** Move all game data (image descriptions, stories, config, etc.) into a user-editable template system for maximum flexibility, import/export, and testability.
+### Phase 24.1: Enhanced Schema ✅ COMPLETED
+- **Status**: ✅ COMPLETED
+- **Description**: Enhanced GameTemplate schema to store complete game state
+- **Implementation**:
+  - Added character state, image history, current turn, final story to template schema
+  - Enhanced validation functions with strict type checking
+  - Added template utilities (create, clone, validate, version compatibility)
+  - Comprehensive test coverage for all template operations
+- **Files Modified**: `src/lib/types/template.ts`, `src/lib/types/template.test.ts`
+- **Benefits**: Templates now store complete game state for exact resumption
 
-### Requirements
-- All game data (image url, generated story as markdown, etc.) is stored in a template object
-- Template includes:
-  - Image URLs
-  - Generated image stories (markdown)
-  - Folder location for storing image descriptions, stories, and final story
-  - Custom font selection for descriptions and stories
-  - Name and unique ID of template
-  - **Initial character scoring system (stats, persona, traits, etc.)**
-  - All other configurable data for the app
-- Users can create, save, update, copy, edit, and delete templates
-- Users can import/export templates (JSON or similar)
-- If a template already contains a final story, it is used (no need to regenerate)
-- All test data and test flows should move to using templates for better, faster, and more realistic testing
-- Review compatibility and best practices for template-driven testing
+### Phase 24.2: Template Application System ✅ COMPLETED
+- **Status**: ✅ COMPLETED
+- **Description**: Core functionality to apply templates and restore complete game state
+- **Implementation**:
+  - `applyTemplate()` function that validates and applies templates
+  - Integration with character store to restore character state, image history, and final story
+  - Missing content detection for incomplete templates
+  - Template application result with success status and missing content list
+  - Enhanced TemplateManager UI with Apply Template button and result display
+  - Comprehensive test coverage for template application scenarios
+- **Files Modified**: 
+  - `src/lib/types/template.ts` - Added applyTemplate and related functions
+  - `src/lib/types/template.test.ts` - Added comprehensive application tests
+  - `src/components/TemplateManager.tsx` - Added apply functionality and UI
+  - `src/components/TemplateManager.test.tsx` - Added application tests
+  - `src/lib/stores/characterStore.ts` - Added finalStory property
+- **Benefits**: 
+  - Complete game state restoration from templates
+  - Visual feedback on missing content
+  - Seamless integration with existing character store
+  - Robust error handling and validation
 
-### Benefits
-- Enables rapid UI/UX review and testing
-- Makes the app highly customizable for different games or scenarios
-- Allows for easy sharing and backup of game sessions
-- Reduces reliance on mock data for tests; tests can use real template data
+### Phase 24.3: Smart Content Regeneration (Next)
+- **Status**: 🔄 PENDING
+- **Description**: Automatically regenerate missing content when applying incomplete templates
+- **Implementation Plan**:
+  - Detect missing images and stories in incomplete templates
+  - Use AI to generate placeholder content for missing turns
+  - Provide options to regenerate specific missing content
+  - Integration with existing image analysis and story generation hooks
+- **Benefits**: Faster testing and development with auto-completion of templates
 
-### Next Steps
-- Design the template schema and import/export format
-- Refactor state management and test setup to use templates
-- Update tests to use template-driven data
-- Document best practices for template-based testing and compatibility
+### Phase 24.4: Testing Integration (Next)
+- **Status**: 🔄 PENDING
+- **Description**: Integrate template system with testing workflow
+- **Implementation Plan**:
+  - Create test templates for different scenarios
+  - Automated template application in test suites
+  - Template-based test data generation
+  - Integration with Jest test environment
+- **Benefits**: Consistent test data and faster test development
 
----
-
-## Technical Requirements
-
-### State Management
-- **Zustand** for character state and game state
-- Persistent storage for character data
-- Real-time updates across components
-
-### Character Schema
-```typescript
-interface Character {
-  // Basic Info
-  id: string;
-  name: string;
-  
-  // RPG Stats (1-20 range)
-  stats: {
-    intelligence: number;
-    creativity: number;
-    perception: number;
-    wisdom: number;
-  };
-  
-  // Game Stats
-  experience: number;
-  level: number;
-  experienceToNext: number;
-  
-  // Story Context
-  storyHistory: StoryEntry[];
-  currentTurn: number;
-  
-  // Metadata
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-### Game Flow
-1. User uploads first image → Character initialization
-2. Story generated → Character stats updated
-3. User has 3 turns to upload new images
-4. Each turn: New image → Updated story → Character evolution
-5. Game ends after 3 turns
-
----
-
-## Use this file to plan, track, and TDD all new features from this point forward.
-
-## Project Overview
-A Next.js application that allows users to upload images and get AI-generated descriptions and stories using the LM Studio SDK. The project follows a strict Test-Driven Development (TDD) workflow with automatic browser preview.
-
-## Current Features
-- ✅ Image upload with drag & drop
-- ✅ AI-powered image description generation
-- ✅ Story generation based on image descriptions
-- ✅ Dual prompt system (default and custom prompts)
-- ✅ Modern UI with shadcn/ui components
-- ✅ Responsive card-based layout (flex-wrap, not grid)
-- ✅ Reset Game button to clear state and turns
-- ✅ Robust test coverage for reset/game logic
-
-## Development Phases
-
-### Phase 17: Story Continuation Game
-**Objective:** Add a story continuation feature that allows users to continue stories based on previous image descriptions.
-
-#### Tasks
-- [ ] Create story history storage system
-- [ ] Add "Continue Story" functionality
-- [ ] Implement story branching based on new images
-- [ ] Add story export as markdown files
-- [ ] Create story timeline visualization
-
-### Phase 18: Enhanced UI/UX
-**Objective:** Improve the user interface and experience with advanced features.
-
-#### Tasks
-- [ ] Add dark/light theme toggle
-- [ ] Implement keyboard shortcuts
-- [ ] Add image gallery view
-- [ ] Create progress indicators for AI operations
-- [ ] Add undo/redo functionality
-
-### Phase 19: Performance & Optimization
-**Objective:** Optimize application performance and add advanced features.
-
-#### Tasks
-- [ ] Implement image caching
-- [ ] Add offline support
-- [ ] Optimize bundle size
-- [ ] Add service worker
-- [ ] Implement lazy loading
-
-### Phase 20: Advanced AI Features
-**Objective:** Add more sophisticated AI capabilities.
-
-#### Tasks
-- [ ] Add image style analysis
-- [ ] Implement emotion detection
-- [ ] Add object recognition
-- [ ] Create image comparison features
-- [ ] Add batch processing
-
-### Phase 21: Story Export and Final Story Generation
-**Objective:** Add PDF export functionality and final story generation to complete the RPG experience.
-
-#### Tasks
-- [ ] **23.1: PDF Export for Image, Description, and Story**
-  - Create PDF export functionality for each turn's content
-  - Include image, AI-generated description, and story in PDF document
-  - Use a library like jsPDF or react-pdf for PDF generation
-  - Add export button to each GalleryCard
-  - Write tests for PDF generation functionality
-  - **Commit:** `feat(export): add PDF export for individual turns`
-
-- [ ] **23.2: Final Story Generation Button**
-  - Add "Generate Final Story" button that appears only on Turn 3
-  - Button should be visible after the Turn 3 story is generated
-  - Position button prominently in the UI (e.g., below the story display)
-  - Write tests for button visibility and state management
-  - **Commit:** `feat(ui): add final story generation button for Turn 3`
-
-- [ ] **23.3: Cohesive Final Story Generation**
-  - Final story generation logic implemented using buildFinalStoryPrompt and the existing LLM endpoint
-  - All 3 image descriptions, stories, and character info are included in the prompt
-  - The final story is generated via /api/generate-story and displayed in the UI with loading and error handling
-  - TDD verified: prompt builder and UI flow are fully tested
-  - **Completed 2025-01-27**
-  - **Commit:** `feat(story): implement cohesive final story generation`
-
-  **Implementation Plan:**
-  1. **TDD:**
-     - Write a test to ensure the final story prompt includes all 3 image descriptions, stories, and character info.
-     - Test that the final story is displayed in the UI after generation.
-  2. **Implement:**
-     - Build a function to construct a comprehensive prompt for the final story.
-     - Integrate with the AI (or mock) to generate the final story (using `/api/generate-story` or a new endpoint).
-     - Display the AI-generated final story in the UI (already handled).
-  3. **Optional Enhancements:**
-     - Add markdown rendering for the final story.
-     - Add error handling and retry logic for final story generation.
-     - Show a success message or animation when the final story is ready.
-     - Allow the user to regenerate the final story if desired.
-     - (Optional) Add a summary or highlights section for the final story.
-
-- [ ] **23.4: Final Story PDF Export**
-  - Add PDF export for the complete final story
-  - Include all 3 images, descriptions, stories, and the final cohesive story
-  - Create a comprehensive document with proper formatting
-  - Add export button for the final story
-  - Write tests for final story PDF export
-  - **Commit:** `feat(export): add PDF export for complete final story`
+### Phase 24.5: Advanced Template Features (Next)
+- **Status**: 🔄 PENDING
+- **Description**: Advanced template management and sharing features
+- **Implementation Plan**:
+  - Template categories and tags
+  - Template sharing and import/export
+  - Template versioning and migration
+  - Template validation and compatibility checking
+- **Benefits**: Better template organization and collaboration
 
 ---
 

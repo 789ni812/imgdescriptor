@@ -10,6 +10,7 @@ export interface ExtendedCharacter extends Character {
   createdAt: Date;
   updatedAt: Date;
   imageHistory: ImageHistoryEntry[];
+  finalStory?: string;
 }
 
 // Story interface for the store
