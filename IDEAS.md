@@ -16,6 +16,12 @@ This document captures a range of future directions for the AI Image Describer a
   - Players can find or earn items that boost stats, unlock story paths, or are used in later turns.
 - **Skill Checks / Dice Rolls**
   - Add RPG-style skill checks (e.g., Perception, Wisdom) that use stats and random rolls to determine outcomes.
+  - **Dice Roll System**: Implement comprehensive dice mechanics (d4, d6, d8, d10, d12, d20, d100)
+  - **Critical Success/Failure**: Natural 1s and 20s create dramatic outcomes
+  - **Stat Modifiers**: Character stats (INT, CRE, PER, WIS) modify dice rolls
+  - **Combat System**: Turn-based combat with attack rolls, damage calculation, and health management
+  - **Status Effects**: Poison, healing, temporary buffs/debuffs that affect gameplay
+  - **Death & Resurrection**: High-stakes gameplay with recovery mechanics
 - **Achievements & Quests**
   - Add achievements for creative play and introduce quests or objectives (e.g., 'Find the lost artifact').
 - **Character Progression**
@@ -28,6 +34,13 @@ This document captures a range of future directions for the AI Image Describer a
   - Show a map or visual journey as the player progresses.
 - **Multiple Endings & Replayability**
   - Different endings based on choices, stats, and items.
+- **Combat & Health System**
+  - **Health Management**: Track character health (0-200) with visual indicators
+  - **Damage Calculation**: Dice-based damage with character stats affecting outcomes
+  - **Combat Choices**: Fight, flee, or negotiate with different risk/reward ratios
+  - **Combat History**: Track all combat events and dice rolls for replay
+  - **Experience System**: Award XP for successful combat and skill checks
+  - **Level Progression**: Unlock new abilities and increase stats through experience
 
 ---
 

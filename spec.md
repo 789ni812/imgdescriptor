@@ -329,6 +329,59 @@ We will implement the following game mechanics, ensuring all features are extens
 
 ---
 
+### Phase 23: Dice Roll and Combat System (2025-01-27)
+**Objective:** Implement a comprehensive dice roll and combat system that integrates with story generation, character stats, and health management.
+
+#### Tasks
+- [ ] **23.1: Core Dice System**
+  - Create `src/lib/utils/dice.ts` with roll functions (`rollDice`, `rollWithModifier`, `calculateSuccess`)
+  - Create `src/lib/types/dice.ts` with `DiceRoll`, `RollOutcome`, `SkillCheck` interfaces
+  - Implement critical success/failure detection (natural 1/20 on d20)
+  - Write comprehensive tests for all dice functions
+  - **Commit:** `feat(dice): implement core dice roll system with types and utilities`
+
+- [ ] **23.2: Health & Combat System**
+  - Extend character types to include combat state (health, maxHealth, statusEffects, combatHistory)
+  - Create `src/lib/utils/combat.ts` with damage calculation and health management
+  - Implement death detection and resurrection mechanics
+  - Add status effect system (poison, healing, buffs/debuffs)
+  - Write tests for combat system
+  - **Commit:** `feat(combat): implement health management and combat system`
+
+- [ ] **23.3: Story-Dice Integration**
+  - Update story generation prompts to detect dangerous situations
+  - Integrate dice rolls into story generation flow
+  - Generate skill checks based on image descriptions and character stats
+  - Update story outcomes to reflect dice roll results
+  - Write tests for story-dice integration
+  - **Commit:** `feat(story): integrate dice rolls and combat into story generation`
+
+- [ ] **23.4: Choice System Enhancement**
+  - Update choice generation to consider character health and combat state
+  - Add combat choices (fight/flee/negotiate) with different risk levels
+  - Implement stat-based success chances for choices
+  - Track all choice outcomes and their effects on character state
+  - Write tests for enhanced choice system
+  - **Commit:** `feat(choices): enhance choice system with combat and risk assessment`
+
+- [ ] **23.5: UI Components**
+  - Create `src/components/DiceRoll.tsx` with animated dice roll display
+  - Create `src/components/HealthBar.tsx` with visual health indicator
+  - Create `src/components/CombatNotification.tsx` for damage and status updates
+  - Add death/resurrection UI components
+  - Write tests for all UI components
+  - **Commit:** `feat(ui): add dice roll, health bar, and combat notification components`
+
+- [ ] **23.6: Template Integration**
+  - Update template system to include combat settings and rules
+  - Add template type checking for combat features
+  - Implement combat history persistence in templates
+  - Add difficulty scaling based on template configuration
+  - Write tests for template combat integration
+  - **Commit:** `feat(template): integrate combat system with template management`
+
+---
+
 ### 1. Branching Choices / Player Decisions
 - **TODO:** LLM-generated choices are not yet implemented. Next steps:
   1. Design LLM prompt for generating choices after each story.

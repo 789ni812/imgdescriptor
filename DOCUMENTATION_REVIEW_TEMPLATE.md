@@ -97,6 +97,15 @@ npm test && npm run build
 - [ ] **Migration Notes**: Document any breaking changes
 - [ ] **Knowledge Transfer**: Document decisions and trade-offs
 
+### Tier 3: Game Mechanics & Dice Systems
+- [ ] **Dice System Documentation**: Document all dice types, modifiers, and calculations
+- [ ] **Combat Flow Diagrams**: Create visual representations of combat sequences
+- [ ] **Character State Updates**: Document how game mechanics affect character stats
+- [ ] **Template Integration**: Ensure game mechanics work with all template types
+- [ ] **Balance Documentation**: Document difficulty scaling and progression curves
+- [ ] **Testing Strategy**: Comprehensive test coverage for random elements
+- [ ] **User Experience**: Document how mechanics enhance storytelling
+
 ---
 
 ## 💡 Efficiency Tips
