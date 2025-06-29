@@ -124,5 +124,5 @@ export function useStoryGeneration(
     }
   };
 
-  return { story, isStoryLoading, storyError, generateStory };
+  return { story, isStoryLoading, storyError, generateStory, setStory };
 } 

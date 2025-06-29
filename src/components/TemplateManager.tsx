@@ -3,6 +3,7 @@ import { Button } from './ui/Button';
 import { GameTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/template';
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
+import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 
 interface EditFields {
   name: string;
@@ -24,6 +25,7 @@ export function TemplateManager() {
   } = useTemplateStore();
 
   const characterStore = useCharacterStore();
+  const { setStory } = useStoryGeneration();
   const [editing, setEditing] = useState(false);
   const [editFields, setEditFields] = useState<EditFields | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
@@ -60,6 +62,13 @@ export function TemplateManager() {
             // Set final story if it exists
             if (result.gameState.finalStory) {
               characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
+            }
+            // Set the story state to the last image's story if present
+            const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
+            if (lastImage && lastImage.story) {
+              setStory(lastImage.story);
+            } else {
+              setStory(null);
             }
           }
         } else {
@@ -193,6 +202,13 @@ export function TemplateManager() {
       // Set final story if it exists
       if (result.gameState.finalStory) {
         characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
+      }
+      // Set the story state to the last image's story if present
+      const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
+      if (lastImage && lastImage.story) {
+        setStory(lastImage.story);
+      } else {
+        setStory(null);
       }
 
       alert(`Template "${selectedTemplate.name}" applied successfully!`);
