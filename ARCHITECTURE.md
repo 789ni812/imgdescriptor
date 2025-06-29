@@ -219,4 +219,21 @@ This document should be updated as the project evolves. Use it as a reference fo
 ### Notes
 - This section is a reference for future-proofing and deployment strategy.
 - When deploying to Vercel, ensure all images referenced in templates are present in `public/imageRepository/` and committed to the repo.
-- For future cloud storage, update image management and template export/import logic accordingly. 
+- For future cloud storage, update image management and template export/import logic accordingly.
+
+## Turn Limit Editing (2025-07-01)
+- The template system allows users to increase the turn limit at any time.
+- Users can decrease the turn limit only if the current turn is less than or equal to the new limit.
+- All turn-based logic (story generation, upload disabling, final story button, etc.) uses the dynamic turn limit from the template config.
+- Validation prevents decreasing the turn limit below the current turn, with clear user feedback.
+
+## Toast Notification System (2025-07-01)
+- A global toast notification system is used for all key template and game interactions:
+  - Export, import, save, delete, select, apply, and edit templates
+  - Any other important user action (success or error)
+- Toasts are small, subtle, and non-intrusive, appearing in a consistent location (e.g., bottom-right or top-right).
+- Toasts disappear automatically after a short duration and are accessible to screen readers.
+- All toast logic is centralized for maintainability and consistency.
+- All relevant tests verify toast appearance and content for user actions.
+
+--- 

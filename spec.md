@@ -258,3 +258,26 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 - The upload flow is now fully automated and browser-reviewable: uploading an image via the UI saves it to `public/imgRepository/` and returns a public URL.
 - All tests and the build must pass before commit.
 - This closes the image upload API integration milestone.
+
+## Turn Limit Editing Rules (2025-07-01)
+
+- Users can increase the turn limit at any time via the template editor.
+- Users can decrease the turn limit only if the current turn is less than or equal to the new limit.
+  - Example: If on turn 1, you can decrease from 3 to 2 or 1. If on turn 2, you can decrease from 3 to 2, but not to 1. If on turn 3, you cannot decrease below 3.
+- Attempting to decrease the turn limit below the current turn will show a clear error and prevent the change.
+- No data loss: Existing images/stories are never removed or hidden by a turn limit change.
+
+## Toast Notification System (2025-07-01)
+
+- Introduce a subtle, small toast notification system for all key user interactions:
+  - Exporting a template
+  - Importing a template
+  - Saving current state as a template
+  - Deleting a template
+  - Changing selected template
+  - Applying a template
+  - Saving an edited template
+  - Any other important user action (success or error)
+- Toasts should be non-intrusive, visually consistent, and disappear automatically after a short duration.
+- All toast messages must be clear, concise, and accessible.
+- All relevant tests must verify that toasts appear for these actions.
