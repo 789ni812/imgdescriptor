@@ -1,14 +1,31 @@
 import React, { useRef, useState } from 'react';
 import { Button } from './ui/Button';
-import { GameTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/template';
+import { GameTemplate, validateGameTemplate, applyTemplate, createTemplateFromCurrentState } from '@/lib/types/template';
+import type { GameTemplate as GameTemplateType } from '@/lib/types/template';
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
+import { toast } from 'sonner';
 
 interface EditFields {
   name: string;
   prompts: GameTemplate['prompts'];
   config: GameTemplate['config'];
 }
+
+const defaultPrompts: GameTemplateType['prompts'] = {
+  imageDescription: 'Describe this image in detail for an RPG adventure.',
+  storyGeneration: 'Generate a story based on this image description.',
+  finalStory: 'Create a cohesive final story combining all previous stories.',
+  characterInitialization: 'Initialize a character based on this image.',
+};
+
+const defaultConfig: GameTemplateType['config'] = {
+  maxTurns: 3,
+  enableMarkdown: true,
+  autoSave: true,
+  theme: 'default',
+  language: 'en',
+};
 
 export function TemplateManager() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,187 +60,93 @@ export function TemplateManager() {
         const json = JSON.parse(event.target?.result as string);
         if (validateGameTemplate(json)) {
           addTemplate(json as GameTemplate);
-          // Immediately apply the imported template
-          const result = applyTemplate(json as GameTemplate);
-          setApplyResult(result);
-          if (result.success && result.gameState) {
-            // Apply to character store
-            characterStore.updateCharacter({
-              ...result.gameState.character,
-              currentTurn: result.gameState.currentTurn,
-            });
-            // Clear existing image history and add template images
-            characterStore.updateCharacter({ imageHistory: [] });
-            result.gameState.imageHistory.forEach(image => {
-              characterStore.addImageToHistory(image);
-            });
-            // Set final story if it exists
-            if (result.gameState.finalStory) {
-              characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
-            }
-            // Set the global currentStory to the last image's story if present
-            const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
-            if (lastImage && lastImage.story) {
-              characterStore.updateCurrentStory(lastImage.story);
-            } else {
-              characterStore.updateCurrentStory(null);
-            }
-            // Set the global currentDescription to the last image's description if present
-            if (lastImage && lastImage.description) {
-              characterStore.updateCurrentDescription(lastImage.description);
-            } else {
-              characterStore.updateCurrentDescription(null);
-            }
-          }
+          setImportError(null);
+          toast.success('Template imported successfully!');
         } else {
-          setImportError('Invalid template: missing required fields');
+          setImportError('Invalid template file.');
+          toast.error('Invalid template file.');
         }
       } catch {
-        setImportError('Invalid template: missing required fields');
+        setImportError('Failed to import template.');
+        toast.error('Failed to import template.');
       }
     };
     reader.readAsText(file);
   };
 
   const handleExportClick = () => {
-    if (!selectedTemplate) {
-      alert('No template selected.');
-      return;
+    if (!selectedTemplate) return;
+    try {
+      const dataStr =
+        'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(selectedTemplate, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute('href', dataStr);
+      downloadAnchorNode.setAttribute('download', `${selectedTemplate.name || 'template'}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast('Template exported successfully!');
+    } catch {
+      toast.error('Failed to export template.');
     }
-
-    // Create a template from current game state to capture any updates
-    const currentCharacter = characterStore.character;
-    const currentTemplate: GameTemplate = {
-      ...selectedTemplate,
-      character: {
-        persona: currentCharacter.persona,
-        traits: currentCharacter.traits,
-        stats: currentCharacter.stats,
-        health: currentCharacter.health,
-        heartrate: currentCharacter.heartrate,
-        age: currentCharacter.age,
-        level: currentCharacter.level,
-        experience: currentCharacter.experience,
-      },
-      images: currentCharacter.imageHistory.map(img => ({
-        id: img.id,
-        url: img.url,
-        description: img.description,
-        story: img.story || '', // Handle optional story property
-        turn: img.turn,
-        uploadedAt: img.uploadedAt,
-      })),
-      finalStory: currentCharacter.finalStory,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const blob = new Blob([JSON.stringify(currentTemplate, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const templateName = currentTemplate.name || 'template';
-    a.download = `${templateName}.json`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
   };
 
   const handleCreateTemplate = () => {
-    const name = newName.trim() || `Adventure ${templates.length + 1}`;
-    
-    // Create template from current game state instead of default template
-    const currentCharacter = characterStore.character;
-    const template: GameTemplate = {
-      id: `template-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name,
-      version: '1.0.0',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      character: {
-        persona: currentCharacter.persona,
-        traits: currentCharacter.traits,
-        stats: currentCharacter.stats,
-        health: currentCharacter.health,
-        heartrate: currentCharacter.heartrate,
-        age: currentCharacter.age,
-        level: currentCharacter.level,
-        experience: currentCharacter.experience,
-      },
-      images: currentCharacter.imageHistory.map(img => ({
-        id: img.id,
-        url: img.url,
-        description: img.description,
-        story: img.story || '', // Handle optional story property
-        turn: img.turn,
-        uploadedAt: img.uploadedAt,
-      })),
-      prompts: {
-        imageDescription: 'Describe this image in detail for an RPG adventure.',
-        storyGeneration: 'Generate a story based on this image description.',
-        finalStory: 'Create a cohesive final story combining all previous stories.',
-        characterInitialization: 'Initialize a character based on this image.',
-      },
-      config: {
-        maxTurns: 3,
-        enableMarkdown: true,
-        autoSave: true,
-        theme: 'default',
-        language: 'en',
-      },
-      finalStory: currentCharacter.finalStory,
-    };
-
-    addTemplate(template);
-    setNewName('');
-    selectTemplate(template.id);
+    if (!newName.trim()) {
+      toast.error('Template name is required');
+      return;
+    }
+    try {
+      // Map imageHistory to ensure all stories are strings
+      const safeCharacterStore = {
+        character: {
+          ...characterStore.character,
+          imageHistory: characterStore.character.imageHistory.map(img => ({
+            ...img,
+            story: img.story ?? '',
+          })),
+        },
+      };
+      const template = createTemplateFromCurrentState(newName.trim(), safeCharacterStore, defaultPrompts, defaultConfig);
+      addTemplate(template);
+      setNewName('');
+      toast.success('Template saved successfully!');
+    } catch {
+      toast.error('Failed to save template.');
+    }
   };
 
   const handleApplyTemplate = () => {
     if (!selectedTemplate) {
-      alert('No template selected.');
+      toast.error('No template selected.');
       return;
     }
-
     const result = applyTemplate(selectedTemplate);
     setApplyResult(result);
 
     if (result.success && result.gameState) {
-      // Apply to character store
-      characterStore.updateCharacter({
-        ...result.gameState.character,
-        currentTurn: result.gameState.currentTurn,
-      });
-
-      // Clear existing image history and add template images
+      characterStore.updateCharacter({ ...result.gameState.character, currentTurn: result.gameState.currentTurn });
       characterStore.updateCharacter({ imageHistory: [] });
       result.gameState.imageHistory.forEach(image => {
         characterStore.addImageToHistory(image);
       });
-
-      // Set final story if it exists
       if (result.gameState.finalStory) {
         characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
       }
-      // Set the global currentStory to the last image's story if present
       const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
       if (lastImage && lastImage.story) {
         characterStore.updateCurrentStory(lastImage.story);
       } else {
         characterStore.updateCurrentStory(null);
       }
-      // Set the global currentDescription to the last image's description if present
       if (lastImage && lastImage.description) {
         characterStore.updateCurrentDescription(lastImage.description);
       } else {
         characterStore.updateCurrentDescription(null);
       }
-
-      alert(`Template "${selectedTemplate.name}" applied successfully!`);
+      toast.success('Template applied successfully!');
     } else {
-      alert(`Failed to apply template: ${result.error}`);
+      toast.error(`Failed to apply template: ${result.error}`);
     }
   };
 
@@ -239,6 +162,7 @@ export function TemplateManager() {
 
   const handleEditFieldChange = (field: keyof EditFields, value: string) => {
     setEditFields(prev => prev ? { ...prev, [field]: value } : prev);
+    if (field === 'name') toast('Template name changed.');
   };
 
   const handleEditPromptChange = (field: keyof GameTemplate['prompts'], value: string) => {
@@ -254,6 +178,7 @@ export function TemplateManager() {
     if (!selectedTemplate || !editFields) return;
     if (!editFields.name || editFields.name.trim() === '') {
       setEditError('Template name is required');
+      toast.error('Template name is required');
       return;
     }
     addTemplate({
@@ -264,6 +189,7 @@ export function TemplateManager() {
       updatedAt: new Date().toISOString(),
     });
     setEditing(false);
+    toast.success('Template edited and saved!');
   };
 
   return (

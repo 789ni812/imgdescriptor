@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <main className="font-sans p-4 md:p-8 flex-grow">
           {children}
         </main>
+        <Toaster position="bottom-right" richColors={false} />
         <Footer />
       </body>
     </html>

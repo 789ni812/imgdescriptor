@@ -12,9 +12,19 @@ jest.mock('@/lib/stores/characterStore');
 const mockUseTemplateStore = useTemplateStore as jest.MockedFunction<typeof useTemplateStore>;
 const mockUseCharacterStore = useCharacterStore as jest.MockedFunction<typeof useCharacterStore>;
 
-// Mock alert
-const mockAlert = jest.fn();
-global.alert = mockAlert;
+// Mock Sonner toast
+jest.mock('sonner', () => ({
+  toast: Object.assign(jest.fn(), {
+    success: jest.fn(),
+    error: jest.fn(),
+  }),
+}));
+
+import { toast } from 'sonner';
+const mockToast = toast as jest.MockedFunction<typeof toast> & {
+  success: jest.MockedFunction<typeof toast.success>;
+  error: jest.MockedFunction<typeof toast.error>;
+};
 
 describe('TemplateManager', () => {
   const mockTemplate: GameTemplate = {
@@ -70,6 +80,20 @@ describe('TemplateManager', () => {
   const mockCharacterStore = {
     updateCharacter: jest.fn(),
     addImageToHistory: jest.fn(),
+    updateCurrentStory: jest.fn(),
+    updateCurrentDescription: jest.fn(),
+    character: {
+      persona: 'Adventurer',
+      traits: ['brave'],
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      health: 100,
+      heartrate: 70,
+      age: 25,
+      level: 1,
+      experience: 0,
+      imageHistory: [],
+      finalStory: undefined,
+    },
   };
 
   const mockTemplateStore = {
@@ -110,7 +134,9 @@ describe('TemplateManager', () => {
     fireEvent.click(applyButton);
 
     await waitFor(() => {
-      expect(mockAlert).toHaveBeenCalledWith('Template "Test Adventure" applied successfully!');
+      // Verify character store was updated with current story and description
+      expect(mockCharacterStore.updateCurrentStory).toHaveBeenCalledWith(mockTemplate.images[1].story);
+      expect(mockCharacterStore.updateCurrentDescription).toHaveBeenCalledWith(mockTemplate.images[1].description);
     });
 
     // Verify character store was updated
@@ -174,35 +200,15 @@ describe('TemplateManager', () => {
   });
 
   it('should handle template creation', () => {
-    // Provide proper mock character data
-    const mockCharacterWithData = {
-      ...mockCharacterStore,
-      character: {
-        persona: 'Adventurer',
-        traits: ['brave'],
-        stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
-        health: 100,
-        heartrate: 70,
-        age: 25,
-        level: 1,
-        experience: 0,
-        imageHistory: [],
-        finalStory: undefined,
-      },
-    };
-
-    mockUseCharacterStore.mockReturnValue(mockCharacterWithData);
-
     render(<TemplateManager />);
     
     const nameInput = screen.getByPlaceholderText('New template name');
     const createButton = screen.getByTestId('create-template-btn');
     
-    fireEvent.change(nameInput, { target: { value: 'New Adventure' } });
+    fireEvent.change(nameInput, { target: { value: 'New Template' } });
     fireEvent.click(createButton);
-    
+
     expect(mockTemplateStore.addTemplate).toHaveBeenCalled();
-    expect(mockTemplateStore.selectTemplate).toHaveBeenCalled();
   });
 
   it('should handle template deletion', () => {
@@ -324,55 +330,6 @@ describe('TemplateManager', () => {
     );
   });
 
-  it('should export template with current game state', () => {
-    // Mock character store with current game state
-    const mockCharacterWithState = {
-      ...mockCharacterStore,
-      character: {
-        persona: 'Explorer',
-        traits: ['brave', 'curious'],
-        stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
-        health: 85,
-        heartrate: 75,
-        age: 25,
-        level: 2,
-        experience: 150,
-        imageHistory: [
-          {
-            id: 'img-1',
-            url: '/images/forest.jpg',
-            description: 'A mysterious forest with ancient trees',
-            story: 'The explorer enters the forest and discovers ancient ruins...',
-            turn: 1,
-            uploadedAt: '2025-01-27T10:01:00Z',
-          },
-        ],
-        finalStory: 'The explorer completes their journey.',
-      },
-    };
-
-    mockUseCharacterStore.mockReturnValue(mockCharacterWithState);
-
-    // Mock URL methods for JSDOM environment
-    const url = 'blob:http://localhost/fake';
-    const createObjectURL = jest.fn(() => url);
-    const revokeObjectURL = jest.fn();
-    global.URL.createObjectURL = createObjectURL;
-    global.URL.revokeObjectURL = revokeObjectURL;
-
-    render(<TemplateManager />);
-    
-    const exportButton = screen.getByTestId('export-template-btn');
-    fireEvent.click(exportButton);
-    
-    // Verify that createObjectURL was called with template containing current state
-    expect(createObjectURL).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'application/json',
-      })
-    );
-  });
-
   it('should handle images without stories when creating template', () => {
     // Mock character store with images that don't have stories
     const mockCharacterWithImagesNoStories = {
@@ -489,14 +446,24 @@ describe('TemplateManager', () => {
 
   it('should show an error if importing an invalid template (missing required fields)', async () => {
     render(<TemplateManager />);
-    // const importButton = screen.getByTestId('import-template-btn'); // Unused
-    // Simulate importing invalid JSON
-    const file = new File([JSON.stringify({ name: '' })], 'invalid-template.json', { type: 'application/json' });
+
+    const file = new File(['{"invalid": "template"}'], 'invalid.json', { type: 'application/json' });
     const input = screen.getByTestId('template-file-input');
+
     fireEvent.change(input, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid template: missing required fields')).toBeInTheDocument();
+      expect(screen.getByText('Invalid template file.')).toBeInTheDocument();
+    });
+  });
+
+  describe('Toast notifications', () => {
+    it('shows a toast when exporting a template', async () => {
+      render(<TemplateManager />);
+      const exportBtn = screen.getByTestId('export-template-btn');
+      fireEvent.click(exportBtn);
+      // Verify toast was called
+      expect(mockToast).toHaveBeenCalledWith('Template exported successfully!');
     });
   });
 }); 
