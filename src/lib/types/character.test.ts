@@ -225,4 +225,42 @@ describe('Character Schema and Types', () => {
       expect(validStoryEntry.imageDescription).toBe('A dark forest with ancient trees');
     });
   });
+
+  describe('Character Choice System', () => {
+    it('should have choice history in character', () => {
+      // Arrange
+      const character = createCharacter();
+      
+      // Assert
+      expect(character.choiceHistory).toBeDefined();
+      expect(Array.isArray(character.choiceHistory)).toBe(true);
+    });
+
+    it('should have current choices available', () => {
+      // Arrange
+      const character = createCharacter();
+      
+      // Assert
+      expect(character.currentChoices).toBeDefined();
+      expect(Array.isArray(character.currentChoices)).toBe(true);
+    });
+
+    it('should track choice outcomes and stat changes', () => {
+      // Arrange
+      const character = createCharacter();
+      const choice = {
+        id: 'choice-1',
+        text: 'Explore the cave',
+        outcome: 'You found ancient treasure',
+        statChanges: { intelligence: +2, creativity: +1 }
+      };
+      
+      // Act
+      character.choiceHistory.push(choice);
+      
+      // Assert
+      expect(character.choiceHistory).toHaveLength(1);
+      expect(character.choiceHistory[0]).toEqual(choice);
+    });
+  });
 }); 

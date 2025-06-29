@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
 import { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
-import type { Character, StoryEntry } from '@/lib/types/character';
+import type { Character, StoryEntry, Choice } from '@/lib/types/character';
 import { v4 as uuidv4 } from 'uuid';
 
 export function buildStoryPrompt({ character, description, customPrompt }: {
@@ -63,6 +63,56 @@ interface StoreDependencies {
   character: Character;
 }
 
+// Function to generate choices based on story content
+function generateChoicesFromStory(story: string, character: Character): Choice[] {
+  const choices: Choice[] = [];
+  
+  // Simple choice generation logic based on story keywords
+  const storyLower = story.toLowerCase();
+  
+  // Choice 1: Exploration-based choice
+  if (storyLower.includes('cave') || storyLower.includes('forest') || storyLower.includes('ruins')) {
+    choices.push({
+      id: uuidv4(),
+      text: 'Explore further',
+      description: 'Venture deeper into the unknown to discover more secrets',
+      statRequirements: { perception: 8, intelligence: 6 },
+      consequences: ['May find valuable treasures', 'Risk of encountering danger'],
+    });
+  }
+  
+  // Choice 2: Caution-based choice
+  choices.push({
+    id: uuidv4(),
+    text: 'Proceed with caution',
+    description: 'Take a careful, measured approach to the situation',
+    statRequirements: { wisdom: 7 },
+    consequences: ['Safer approach', 'May miss opportunities'],
+  });
+  
+  // Choice 3: Creative solution
+  if (storyLower.includes('puzzle') || storyLower.includes('riddle') || storyLower.includes('symbol')) {
+    choices.push({
+      id: uuidv4(),
+      text: 'Think creatively',
+      description: 'Use your imagination to find an unconventional solution',
+      statRequirements: { creativity: 9 },
+      consequences: ['May find unique solutions', 'Could be risky'],
+    });
+  }
+  
+  // Choice 4: Return/retreat option
+  choices.push({
+    id: uuidv4(),
+    text: 'Return to safety',
+    description: 'Head back to a known safe location',
+    consequences: ['Guaranteed safety', 'Miss potential rewards'],
+  });
+  
+  // Return 2-3 choices, prioritizing based on story content
+  return choices.slice(0, 3);
+}
+
 export function useStoryGeneration(
   configOverride?: ConfigDependencies,
   storeOverride?: StoreDependencies
@@ -119,6 +169,14 @@ export function useStoryGeneration(
           });
         }
         
+        // Generate choices after story
+        const choices = generateChoicesFromStory(mockStory, effectiveCharacter);
+        choices.forEach(choice => {
+          if (storeFromHook.addChoice) {
+            storeFromHook.addChoice(choice);
+          }
+        });
+        
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
       return;
@@ -151,6 +209,14 @@ export function useStoryGeneration(
             createdAt: new Date(),
           });
         }
+        
+        // Generate choices after story
+        const choices = generateChoicesFromStory(data.story, effectiveCharacter);
+        choices.forEach(choice => {
+          if (storeFromHook.addChoice) {
+            storeFromHook.addChoice(choice);
+          }
+        });
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the story.');
       }

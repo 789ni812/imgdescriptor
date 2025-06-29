@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter, ImageHistoryEntry } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome } from '../types/character';
+import { v4 as uuidv4 } from 'uuid';
 
 // Extended Character interface for the store with additional fields
 export interface ExtendedCharacter extends Character {
@@ -49,6 +50,9 @@ export interface CharacterState {
   updateImageStory: (id: string, story: string) => void;
   updateCurrentStory: (story: string | null) => void;
   updateCurrentDescription: (description: string | null) => void;
+  makeChoice: (choiceId: string) => void;
+  addChoice: (choice: Choice) => void;
+  clearCurrentChoices: () => void;
 }
 
 // Calculate experience needed for next level
@@ -477,6 +481,83 @@ export const useCharacterStore = create<CharacterState>()(
           character: {
             ...state.character,
             currentDescription: description,
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      makeChoice: (choiceId: string) => {
+        set((state) => {
+          const { character } = state;
+          const choice = character.currentChoices.find(c => c.id === choiceId);
+          
+          if (!choice) {
+            return state; // No change if choice not found
+          }
+
+          // Generate outcome based on choice
+          const outcome: ChoiceOutcome = {
+            id: uuidv4(),
+            choiceId: choice.id,
+            text: choice.text,
+            outcome: `You chose to ${choice.text.toLowerCase()}. This decision shapes your journey.`,
+            statChanges: choice.statRequirements ? 
+              Object.entries(choice.statRequirements).reduce((acc, [stat, required]) => {
+                const currentStat = character.stats[stat as keyof CharacterStats];
+                if (currentStat >= required) {
+                  acc[stat as keyof CharacterStats] = Math.floor(Math.random() * 3) + 1; // +1 to +3
+                } else {
+                  acc[stat as keyof CharacterStats] = -1; // Penalty for not meeting requirement
+                }
+                return acc;
+              }, {} as Partial<CharacterStats>) : 
+              { intelligence: Math.floor(Math.random() * 2) + 1 }, // Default small boost
+            timestamp: new Date().toISOString(),
+            turnNumber: character.currentTurn,
+          };
+
+          // Apply stat changes
+          const newStats = { ...character.stats };
+          if (outcome.statChanges) {
+            Object.entries(outcome.statChanges).forEach(([stat, change]) => {
+              newStats[stat as keyof CharacterStats] = clamp(
+                newStats[stat as keyof CharacterStats] + change,
+                1,
+                20
+              );
+            });
+          }
+
+          // Remove the chosen choice from current choices
+          const remainingChoices = character.currentChoices.filter(c => c.id !== choiceId);
+
+          return {
+            character: {
+              ...character,
+              stats: newStats,
+              choiceHistory: [...character.choiceHistory, outcome],
+              currentChoices: remainingChoices,
+              updatedAt: new Date(),
+            },
+          };
+        });
+      },
+
+      addChoice: (choice: Choice) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            currentChoices: [...state.character.currentChoices, choice],
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      clearCurrentChoices: () => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            currentChoices: [],
             updatedAt: new Date(),
           },
         }));

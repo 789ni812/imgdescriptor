@@ -8,11 +8,13 @@ import { createCharacter, type Character } from '@/lib/types/character';
 // Mock the character store
 const mockAddStory = jest.fn();
 const mockUpdateCurrentStory = jest.fn();
+const mockAddChoice = jest.fn();
 
 jest.mock('@/lib/stores/characterStore', () => ({
   useCharacterStore: () => ({
     addStory: mockAddStory,
     updateCurrentStory: mockUpdateCurrentStory,
+    addChoice: mockAddChoice,
   }),
 }));
 
@@ -474,5 +476,76 @@ describe('Final Story Prompt Builder', () => {
     expect(prompt).toContain('Story 1 text');
     expect(prompt).toContain('Story 2 text');
     expect(prompt).toContain('Story 3 text');
+  });
+});
+
+describe('Choice Generation', () => {
+  it('should generate choices after story generation', async () => {
+    // Arrange
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+      choiceHistory: [],
+      currentChoices: [],
+    };
+    
+    const { result } = renderHook(() => useStoryGeneration(
+      { 
+        MOCK_STORY: true, 
+        MOCK_STORY_TEXT: 'A mysterious story about a forest', 
+        TURN_BASED_MOCK_DATA: { stories: {} }
+      },
+      { character: mockCharacter }
+    ));
+    const description = 'A mysterious forest with ancient trees';
+
+    // Act
+    await act(async () => {
+      await result.current.generateStory(description);
+    });
+
+    // Assert
+    await waitFor(() => {
+      expect(result.current.story).toBeTruthy();
+      // Check that choices were generated (this will be implemented)
+      expect(mockAddChoice).toHaveBeenCalled();
+    });
+  });
+
+  it('should generate choices based on story content and character stats', async () => {
+    // Arrange
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+      choiceHistory: [],
+      currentChoices: [],
+    };
+    
+    const { result } = renderHook(() => useStoryGeneration(
+      undefined,
+      { character: mockCharacter }
+    ));
+    const description = 'A dark cave entrance with glowing symbols';
+
+    // Act
+    await act(async () => {
+      await result.current.generateStory(description);
+    });
+
+    // Assert
+    await waitFor(() => {
+      expect(mockAddChoice).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: expect.any(String),
+          description: expect.any(String),
+          statRequirements: expect.any(Object),
+          consequences: expect.any(Array),
+        })
+      );
+    });
   });
 });

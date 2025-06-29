@@ -25,6 +25,25 @@ export interface ImageHistoryEntry {
   uploadedAt: string;
 }
 
+// Choice system interfaces
+export interface Choice {
+  id: string;
+  text: string;
+  description?: string;
+  statRequirements?: Partial<CharacterStats>;
+  consequences?: string[];
+}
+
+export interface ChoiceOutcome {
+  id: string;
+  choiceId: string;
+  text: string;
+  outcome: string;
+  statChanges?: Partial<CharacterStats>;
+  timestamp: string;
+  turnNumber: number;
+}
+
 // RPG Stats interface
 export interface CharacterStats {
   intelligence: number; // 1-20
@@ -44,6 +63,8 @@ export interface Character {
   inventory: Item[];
   storyHistory: StoryEntry[];
   imageHistory: ImageHistoryEntry[];
+  choiceHistory: ChoiceOutcome[];
+  currentChoices: Choice[];
   currentTurn: number; // >= 0
   stats: CharacterStats; // RPG stats
 }
@@ -60,6 +81,8 @@ export function createCharacter(overrides: Partial<Character> = {}): Character {
     inventory: [],
     storyHistory: [],
     imageHistory: [],
+    choiceHistory: [],
+    currentChoices: [],
     currentTurn: 0,
     stats: {
       intelligence: 10,
