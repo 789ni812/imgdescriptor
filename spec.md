@@ -236,12 +236,17 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
   - **Completed 2025-01-27**
   - **Commit:** `feat(story): add story history and context management`
 
-### Phase 22: Technical Infrastructure Updates
-**Objective:** Update technical infrastructure to latest standards and best practices.
+### Phase 22: Template Editing & Validation (2025-06-29)
+**Objective:** Allow editing templates in the UI, validate required fields, and handle invalid imports.
 
 #### Tasks
-- [x] **22.1: Update Tailwind CSS to v4 Syntax**
-  - Replace deprecated `@tailwind` directives with new `
+- [x] Allow editing template name, prompts, and config from the TemplateManager UI.
+- [x] Validate required fields (e.g., template name) when saving.
+- [x] Show error messages for missing required fields.
+- [x] Show error messages for invalid template import (missing required fields).
+- [x] All changes are strictly typed, TDD-driven, and browser-reviewable.
+- [x] All tests and the build pass.
+- **Commit:** `feat(template): add template editing, validation, and error handling in TemplateManager`
 
 ## [2025-06-29] Image Upload API Integration Complete
 

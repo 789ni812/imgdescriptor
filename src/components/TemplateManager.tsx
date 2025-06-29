@@ -4,6 +4,12 @@ import { GameTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/t
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 
+interface EditFields {
+  name: string;
+  prompts: GameTemplate['prompts'];
+  config: GameTemplate['config'];
+}
+
 export function TemplateManager() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newName, setNewName] = useState('');
@@ -18,12 +24,17 @@ export function TemplateManager() {
   } = useTemplateStore();
 
   const characterStore = useCharacterStore();
+  const [editing, setEditing] = useState(false);
+  const [editFields, setEditFields] = useState<EditFields | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError(null);
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -33,10 +44,10 @@ export function TemplateManager() {
         if (validateGameTemplate(json)) {
           addTemplate(json as GameTemplate);
         } else {
-          alert('Invalid template file.');
+          setImportError('Invalid template: missing required fields');
         }
       } catch {
-        alert('Invalid template file.');
+        setImportError('Invalid template: missing required fields');
       }
     };
     reader.readAsText(file);
@@ -171,6 +182,45 @@ export function TemplateManager() {
     }
   };
 
+  const startEditing = () => {
+    if (!selectedTemplate) return;
+    setEditFields({
+      name: selectedTemplate.name,
+      prompts: { ...selectedTemplate.prompts },
+      config: { ...selectedTemplate.config },
+    });
+    setEditing(true);
+  };
+
+  const handleEditFieldChange = (field: keyof EditFields, value: string) => {
+    setEditFields(prev => prev ? { ...prev, [field]: value } : prev);
+  };
+
+  const handleEditPromptChange = (field: keyof GameTemplate['prompts'], value: string) => {
+    setEditFields(prev => prev ? { ...prev, prompts: { ...prev.prompts, [field]: value } } : prev);
+  };
+
+  const handleEditConfigChange = (field: keyof GameTemplate['config'], value: number) => {
+    setEditFields(prev => prev ? { ...prev, config: { ...prev.config, [field]: value } } : prev);
+  };
+
+  const handleSaveEdit = () => {
+    setEditError(null);
+    if (!selectedTemplate || !editFields) return;
+    if (!editFields.name || editFields.name.trim() === '') {
+      setEditError('Template name is required');
+      return;
+    }
+    addTemplate({
+      ...selectedTemplate,
+      name: editFields.name,
+      prompts: editFields.prompts,
+      config: editFields.config,
+      updatedAt: new Date().toISOString(),
+    });
+    setEditing(false);
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-xl mx-auto">
       <div className="flex gap-2 items-center mb-2">
@@ -215,26 +265,66 @@ export function TemplateManager() {
           ))}
         </ul>
       </div>
+      {importError && <div className="text-red-600 text-sm" role="alert">{importError}</div>}
       {selectedTemplate && (
         <div className="border rounded p-2 mt-2 bg-muted">
           <div className="font-semibold mb-1">Selected Template</div>
           <div className="text-xs text-muted-foreground">ID: {selectedTemplate.id}</div>
-          <div className="text-sm">Name: {selectedTemplate.name}</div>
-          <div className="text-sm">Created: {selectedTemplate.createdAt}</div>
-          <div className="text-sm">Updated: {selectedTemplate.updatedAt}</div>
-          <div className="text-sm">Images: {selectedTemplate.images.length}</div>
-          <div className="text-sm">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
-          <div className="mt-2">
-            <Button 
-              onClick={handleApplyTemplate} 
-              variant="default" 
-              size="sm" 
-              data-testid="apply-template-btn"
-              className="w-full"
-            >
-              Apply Template
-            </Button>
-          </div>
+          {!editing ? (
+            <>
+              <div className="text-sm">Name: {selectedTemplate.name}</div>
+              <div className="text-sm">Created: {selectedTemplate.createdAt}</div>
+              <div className="text-sm">Updated: {selectedTemplate.updatedAt}</div>
+              <div className="text-sm">Images: {selectedTemplate.images.length}</div>
+              <div className="text-sm">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
+              <div className="flex gap-2 mt-2">
+                <Button onClick={startEditing} size="sm" variant="outline" data-testid="edit-template-btn">Edit</Button>
+                <Button 
+                  onClick={handleApplyTemplate} 
+                  variant="default" 
+                  size="sm" 
+                  data-testid="apply-template-btn"
+                  className="flex-1"
+                >
+                  Apply Template
+                </Button>
+              </div>
+            </>
+          ) : (
+            <form className="space-y-2 mt-2">
+              <label className="block text-xs font-medium">Name
+                <input
+                  type="text"
+                  value={editFields ? editFields.name : ''}
+                  onChange={e => handleEditFieldChange('name', e.target.value)}
+                  className="border rounded px-2 py-1 text-sm w-full"
+                  data-testid="edit-template-name"
+                />
+              </label>
+              {editError && <div className="text-red-600 text-xs" role="alert">{editError}</div>}
+              <label className="block text-xs font-medium">Image Description Prompt
+                <input
+                  type="text"
+                  value={editFields ? editFields.prompts.imageDescription : ''}
+                  onChange={e => handleEditPromptChange('imageDescription', e.target.value)}
+                  className="border rounded px-2 py-1 text-sm w-full"
+                />
+              </label>
+              <label className="block text-xs font-medium">Max Turns
+                <input
+                  type="number"
+                  value={editFields ? editFields.config.maxTurns : ''}
+                  onChange={e => handleEditConfigChange('maxTurns', Number(e.target.value))}
+                  className="border rounded px-2 py-1 text-sm w-full"
+                  aria-label="Max Turns"
+                />
+              </label>
+              <div className="flex gap-2 mt-2">
+                <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" data-testid="save-template-btn">Save</Button>
+                <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline">Cancel</Button>
+              </div>
+            </form>
+          )}
           {applyResult && (
             <div className={`mt-2 p-2 rounded text-sm ${applyResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
               {applyResult.success ? (

@@ -428,4 +428,75 @@ describe('TemplateManager', () => {
       })
     );
   });
+
+  it('should allow editing template name, prompts, and config from the UI', async () => {
+    render(<TemplateManager />);
+
+    // Select the template to edit
+    fireEvent.click(screen.getByText('Test Adventure'));
+    // Click Edit to show the edit form
+    fireEvent.click(screen.getByTestId('edit-template-btn'));
+
+    // Edit name
+    const nameInput = screen.getByDisplayValue('Test Adventure');
+    fireEvent.change(nameInput, { target: { value: 'Epic Quest' } });
+    expect(nameInput).toHaveValue('Epic Quest');
+
+    // Edit a prompt
+    const promptInput = screen.getByDisplayValue('Describe this image in detail for an RPG adventure.');
+    fireEvent.change(promptInput, { target: { value: 'Describe the scene for a fantasy RPG.' } });
+    expect(promptInput).toHaveValue('Describe the scene for a fantasy RPG.');
+
+    // Edit config
+    const maxTurnsInput = screen.getByLabelText('Max Turns');
+    fireEvent.change(maxTurnsInput, { target: { value: 5 } });
+    expect(maxTurnsInput).toHaveValue(5);
+
+    // Save changes
+    const saveButton = screen.getByTestId('save-template-btn');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Epic Quest',
+          prompts: expect.objectContaining({
+            imageDescription: 'Describe the scene for a fantasy RPG.'
+          }),
+          config: expect.objectContaining({ maxTurns: 5 })
+        })
+      );
+    });
+  });
+
+  it('should show validation errors for missing required fields when saving a template', async () => {
+    render(<TemplateManager />);
+    fireEvent.click(screen.getByText('Test Adventure'));
+    fireEvent.click(screen.getByTestId('edit-template-btn'));
+
+    // Clear the name field
+    const nameInput = screen.getByDisplayValue('Test Adventure');
+    fireEvent.change(nameInput, { target: { value: '' } });
+
+    // Try to save
+    const saveButton = screen.getByTestId('save-template-btn');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Template name is required')).toBeInTheDocument();
+    });
+  });
+
+  it('should show an error if importing an invalid template (missing required fields)', async () => {
+    render(<TemplateManager />);
+    // const importButton = screen.getByTestId('import-template-btn'); // Unused
+    // Simulate importing invalid JSON
+    const file = new File([JSON.stringify({ name: '' })], 'invalid-template.json', { type: 'application/json' });
+    const input = screen.getByTestId('template-file-input');
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid template: missing required fields')).toBeInTheDocument();
+    });
+  });
 }); 
