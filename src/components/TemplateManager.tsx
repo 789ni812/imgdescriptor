@@ -3,7 +3,6 @@ import { Button } from './ui/Button';
 import { GameTemplate, validateGameTemplate, applyTemplate } from '@/lib/types/template';
 import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
-import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 
 interface EditFields {
   name: string;
@@ -25,7 +24,6 @@ export function TemplateManager() {
   } = useTemplateStore();
 
   const characterStore = useCharacterStore();
-  const { setStory } = useStoryGeneration();
   const [editing, setEditing] = useState(false);
   const [editFields, setEditFields] = useState<EditFields | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
@@ -63,12 +61,18 @@ export function TemplateManager() {
             if (result.gameState.finalStory) {
               characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
             }
-            // Set the story state to the last image's story if present
+            // Set the global currentStory to the last image's story if present
             const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
             if (lastImage && lastImage.story) {
-              setStory(lastImage.story);
+              characterStore.updateCurrentStory(lastImage.story);
             } else {
-              setStory(null);
+              characterStore.updateCurrentStory(null);
+            }
+            // Set the global currentDescription to the last image's description if present
+            if (lastImage && lastImage.description) {
+              characterStore.updateCurrentDescription(lastImage.description);
+            } else {
+              characterStore.updateCurrentDescription(null);
             }
           }
         } else {
@@ -203,12 +207,18 @@ export function TemplateManager() {
       if (result.gameState.finalStory) {
         characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
       }
-      // Set the story state to the last image's story if present
+      // Set the global currentStory to the last image's story if present
       const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
       if (lastImage && lastImage.story) {
-        setStory(lastImage.story);
+        characterStore.updateCurrentStory(lastImage.story);
       } else {
-        setStory(null);
+        characterStore.updateCurrentStory(null);
+      }
+      // Set the global currentDescription to the last image's description if present
+      if (lastImage && lastImage.description) {
+        characterStore.updateCurrentDescription(lastImage.description);
+      } else {
+        characterStore.updateCurrentDescription(null);
       }
 
       alert(`Template "${selectedTemplate.name}" applied successfully!`);

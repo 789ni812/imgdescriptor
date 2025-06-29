@@ -11,6 +11,8 @@ export interface ExtendedCharacter extends Character {
   updatedAt: Date;
   imageHistory: ImageHistoryEntry[];
   finalStory?: string;
+  currentStory?: string | null;
+  currentDescription?: string | null;
 }
 
 // Story interface for the store
@@ -45,6 +47,8 @@ export interface CharacterState {
   addImageToHistory: (image: ImageHistoryEntry) => void;
   updateImageDescription: (id: string, description: string) => void;
   updateImageStory: (id: string, story: string) => void;
+  updateCurrentStory: (story: string | null) => void;
+  updateCurrentDescription: (description: string | null) => void;
 }
 
 // Calculate experience needed for next level
@@ -68,6 +72,8 @@ const createDefaultCharacter = (): ExtendedCharacter => {
     createdAt: new Date(),
     updatedAt: new Date(),
     imageHistory: [],
+    currentStory: null,
+    currentDescription: null,
   };
 };
 
@@ -451,6 +457,26 @@ export const useCharacterStore = create<CharacterState>()(
             imageHistory: state.character.imageHistory.map(img =>
               img.id === id ? { ...img, story } : img
             ),
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      updateCurrentStory: (story: string | null) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            currentStory: story,
+            updatedAt: new Date(),
+          },
+        }));
+      },
+
+      updateCurrentDescription: (description: string | null) => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            currentDescription: description,
             updatedAt: new Date(),
           },
         }));

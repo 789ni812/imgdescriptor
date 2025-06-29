@@ -32,10 +32,18 @@ export function useImageAnalysis(
   const store = storeOverride || storeFromHook;
   const { character } = store;
 
+  // Update both local state and global store
+  const setDescriptionGlobal = (desc: string | null) => {
+    setDescription(desc);
+    if (storeFromHook.updateCurrentDescription) {
+      storeFromHook.updateCurrentDescription(desc);
+    }
+  };
+
   const analyzeImage = (file: File, prompt?: string) => {
     setIsDescriptionLoading(true);
     setError(null);
-    setDescription(null);
+    setDescriptionGlobal(null);
 
     // Mock mode: instantly return mock description
     if (config.MOCK_IMAGE_DESCRIPTION) {
@@ -46,7 +54,7 @@ export function useImageAnalysis(
         console.log('[DEBUG] useImageAnalysis: currentTurn =', character.currentTurn, 'turnBasedDescription =', turnBasedDescription);
         // Use turn-based data if available, otherwise fall back to default
         const mockDescription = turnBasedDescription || config.MOCK_IMAGE_DESCRIPTION_TEXT;
-        setDescription(mockDescription);
+        setDescriptionGlobal(mockDescription);
         setIsDescriptionLoading(false);
       }, 300); // Simulate a short delay
       return;
@@ -73,19 +81,22 @@ export function useImageAnalysis(
         const data = await response.json();
 
         if (response.ok && data.success) {
-          setDescription(data.description);
+          setDescriptionGlobal(data.description);
+          setError(null);
         } else {
-          setError(data.error || 'An unknown error occurred.');
+          setDescriptionGlobal(null);
+          setError(data.error || 'Failed to analyze image');
         }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-        setError(`An unexpected error occurred: ${errorMessage}`);
+      } catch {
+        setDescriptionGlobal(null);
+        setError('An unexpected error occurred during image analysis.');
       } finally {
         setIsDescriptionLoading(false);
       }
     };
 
     reader.onerror = () => {
+      setDescriptionGlobal(null);
       setError('Failed to read the image file.');
       setIsDescriptionLoading(false);
     };

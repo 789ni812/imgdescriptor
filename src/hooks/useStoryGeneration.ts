@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
 import { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
@@ -62,7 +62,7 @@ export function useStoryGeneration(
   configOverride?: ConfigDependencies,
   storeOverride?: StoreDependencies
 ) {
-  const [story, setStory] = useState<string | null>(null);
+  const [story, setStoryState] = useState<string | null>(null);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
   
@@ -72,6 +72,14 @@ export function useStoryGeneration(
   const config = configOverride || { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA };
   const store = storeOverride || storeFromHook;
   const effectiveCharacter = store.character;
+
+  // Update both local state and global store
+  const setStory = useCallback((s: string | null) => {
+    setStoryState(s);
+    if (storeFromHook.updateCurrentStory) {
+      storeFromHook.updateCurrentStory(s);
+    }
+  }, [storeFromHook]);
 
   const generateStory = async (description: string, customPrompt?: string) => {
     if (!description) {

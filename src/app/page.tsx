@@ -20,14 +20,12 @@ import { TemplateManager } from '@/components/TemplateManager';
 
 export default function Home() {
   const { 
-    description, 
     isDescriptionLoading, 
     error: descriptionError, 
     analyzeImage 
   } = useImageAnalysis();
   
   const { 
-    story, 
     isStoryLoading, 
     storyError, 
     generateStory 
@@ -58,7 +56,7 @@ export default function Home() {
   // Reset the flag only when description changes
   useEffect(() => {
     hasProcessed.current = false;
-  }, [description]);
+  }, [character.currentDescription]);
 
   // Track if we need to initialize the character after analysis
   const [shouldInitCharacter, setShouldInitCharacter] = useState(false);
@@ -66,6 +64,10 @@ export default function Home() {
   const [isFinalStoryLoading, setIsFinalStoryLoading] = useState(false);
   const [finalStory, setFinalStory] = useState<string | null>(null);
   const [finalStoryError, setFinalStoryError] = useState<string | null>(null);
+
+  const story = character.currentStory;
+
+  const description = character.currentDescription ?? null;
 
   const handleImageSelect = (image: { url: string; file: File }, prompt?: string) => {
     setImageUrl(image.url);
@@ -269,7 +271,7 @@ export default function Home() {
             {(isStoryLoading || story || storyError) && (
               <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
                 <CardContent className="p-6">
-                  <StoryDisplay story={story} isLoading={isStoryLoading} error={storyError} />
+                  <StoryDisplay story={story ?? null} isLoading={isStoryLoading} error={storyError} />
                 </CardContent>
               </Card>
             )}
