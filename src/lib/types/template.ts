@@ -4,6 +4,7 @@ export interface GameTemplate {
   version: string;
   createdAt: string;
   updatedAt: string;
+  type: 'game' | 'comics' | 'business' | 'education' | 'marketing';
   // Character config
   character: {
     persona: string;
@@ -70,6 +71,12 @@ export function importGameTemplate(template: GameTemplate) {
 export function validateGameTemplate(template: GameTemplate): boolean {
   // Check required fields
   if (!template.id || !template.name || !template.version || !template.createdAt || !template.updatedAt) {
+    return false;
+  }
+
+  // Check type field
+  const validTypes = ['game', 'comics', 'business', 'education', 'marketing'] as const;
+  if (!validTypes.includes(template.type)) {
     return false;
   }
 
@@ -153,6 +160,7 @@ export function createDefaultTemplate(name: string): GameTemplate {
     version: '1.0.0',
     createdAt: now,
     updatedAt: now,
+    type: 'game',
     character: {
       persona: 'Adventurer',
       traits: ['brave', 'curious'],
@@ -194,6 +202,7 @@ export function cloneTemplate(template: GameTemplate, newName: string): GameTemp
     updatedAt: now,
     images: [], // Reset images for new game
     finalStory: undefined, // Reset final story
+    type: template.type || 'game',
   };
 }
 
@@ -357,6 +366,7 @@ export function createTemplateFromCurrentState(
     version: '1.0.0',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    type: 'game',
     character: {
       persona: character.persona,
       traits: character.traits,

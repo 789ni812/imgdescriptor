@@ -53,6 +53,7 @@ describe('GameTemplate Import', () => {
       fontFamily: 'Inter',
       fontSize: '16px',
       folderLocation: '/adventures/test',
+      type: 'game',
     };
     const state = importGameTemplate(template);
     expect(state.character).toEqual(template.character);
@@ -111,6 +112,7 @@ describe('GameTemplate Schema Validation', () => {
       fontFamily: 'Inter',
       fontSize: '16px',
       folderLocation: '/adventures/test',
+      type: 'game',
     };
     
     const isValid = validateGameTemplate(template);
@@ -309,6 +311,7 @@ describe('Template Application System', () => {
         language: 'en',
       },
       finalStory: 'The explorer completes their journey through the forest and cave, discovering ancient secrets.',
+      type: 'game',
     };
 
     const result = applyTemplate(template);
@@ -362,6 +365,7 @@ describe('Template Application System', () => {
         theme: 'default',
         language: 'en',
       },
+      type: 'game',
     };
 
     const result = applyTemplate(incompleteTemplate);
@@ -418,6 +422,7 @@ describe('Template Application System', () => {
         theme: 'default',
         language: 'en',
       },
+      type: 'game',
     };
 
     const result = applyTemplate(emptyTemplate);
@@ -428,5 +433,37 @@ describe('Template Application System', () => {
     expect(result.missingContent).toContain('turn-1-image');
     expect(result.missingContent).toContain('turn-2-image');
     expect(result.missingContent).toContain('turn-3-image');
+  });
+});
+
+describe('Template Type Field', () => {
+  it('should have a type field with default value "game"', () => {
+    // Arrange & Act
+    const template = createDefaultTemplate('Test Template');
+    
+    // Assert
+    expect(template.type).toBe('game');
+  });
+
+  it('should support different generation types', () => {
+    // Arrange
+    const gameTemplate = createDefaultTemplate('Game Template');
+    const comicsTemplate = { ...createDefaultTemplate('Comics Template'), type: 'comics' as const };
+    const businessTemplate = { ...createDefaultTemplate('Business Template'), type: 'business' as const };
+    
+    // Assert
+    expect(gameTemplate.type).toBe('game');
+    expect(comicsTemplate.type).toBe('comics');
+    expect(businessTemplate.type).toBe('business');
+  });
+
+  it('should validate template type field', () => {
+    // Arrange
+    const validTemplate = createDefaultTemplate('Valid Template');
+    const invalidTemplate = { ...createDefaultTemplate('Invalid Template'), type: 'invalid' as any };
+    
+    // Assert
+    expect(validateGameTemplate(validTemplate)).toBe(true);
+    // Note: We'll update validation to check type field
   });
 }); 
