@@ -23,6 +23,23 @@
 6. **Update `spec.md`** (mark the task as complete)
 7. **Commit All Changes** (code, tests, and spec.md) with a clear, conventional commit message
 
+## Documentation Review Workflow
+
+**Before proposing or implementing new functionality, always review and update all relevant documentation:**
+
+1. **Use the Documentation Review Template** (`DOCUMENTATION_REVIEW_TEMPLATE.md`) to ensure comprehensive coverage
+2. **Review Core Documents**:
+   - `ARCHITECTURE.md` - Update architecture, data models, and diagrams
+   - `spec.md` - Add new phases/tasks and update implementation status
+   - `IDEAS.md` - Document new use cases and future directions
+   - `README.md` - Update setup instructions and feature lists
+3. **Review Supporting Documents**:
+   - `.cursor/rules/` - Update development workflow and coding standards
+   - Configuration files - Update dependencies, testing, and TypeScript settings
+4. **Follow the complete workflow** detailed in `ARCHITECTURE.md` under "Documentation Review Workflow"
+
+**This ensures all documentation remains comprehensive, accurate, and useful for current and future development.**
+
 ## Archive
 - All previous phases and project history are now in `spec-2025-06-23.md`.
 
@@ -290,6 +307,14 @@ Cards should be stacked vertically (one per row), newest at the top, with a 'Tur
 - This ensures no duplicate keys in React lists, and users can always distinguish between templates, even with rapid edits, copies, or imports.
 - The system is robust against all edge cases and user actions.
 
+## Template Prompt and Image Storage (2025-07-xx)
+
+- Prompts for each template (image description, story, final story, choices) are stored as JSON in `public/templates/[templateName]/prompts/prompts.json`, where `[templateName]` is a URL-safe string.
+- All images for a template are stored in `public/templates/[templateName]/images/`.
+- The template JSON references these relative paths for prompts and images.
+- No zip export is required; copying the template folder is sufficient for portability and sharing.
+- TDD: Write failing tests for prompt/image save/load, template portability, and browser verification.
+
 ## Future Directions & Use Cases
 
 See [IDEAS.md](./IDEAS.md) for a living list of game and creative/business/educational use cases.
@@ -305,6 +330,13 @@ We will implement the following game mechanics, ensuring all features are extens
 ---
 
 ### 1. Branching Choices / Player Decisions
+- **TODO:** LLM-generated choices are not yet implemented. Next steps:
+  1. Design LLM prompt for generating choices after each story.
+  2. Implement API call to LLM for choices.
+  3. Replace static choice generation with LLM response.
+  4. Persist all generated choices and outcomes to the template (per turn).
+  5. Update final story prompt to reference choices/outcomes.
+  6. Write/adjust tests and verify in the browser.
 - **Data Model:**  
   - Update turn structure to allow for choices and outcomes.
   - Add `choices` array to each turn (with text, result, stat effects).
