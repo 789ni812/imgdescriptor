@@ -234,8 +234,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, and not at turn limit */}
-          {(!imageUrl && !isDescriptionLoading && !isTurnLimitReached) && (
+          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, no image description, and not at turn limit */}
+          {(!latestImageEntry && !isDescriptionLoading && !isTurnLimitReached) && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
@@ -309,14 +309,19 @@ export default function Home() {
 
           {/* Turn Cards - Display all completed turns */}
           <div className="space-y-6">
-            {Array.from({ length: character.currentTurn }, (_, i) => i + 1).map(turnNumber => (
-              <TurnCard
-                key={turnNumber}
-                {...buildTurnData(turnNumber)}
-                isDescriptionLoading={isDescriptionLoading && character.currentTurn === turnNumber}
-                onSelectChoice={handleChoiceSelect}
-              />
-            ))}
+            {Array.from({ length: character.currentTurn }, (_, i) => i + 1).map(turnNumber => {
+              // Get choices for this turn if available
+              const turnChoices = (character.currentTurn === turnNumber) ? character.currentChoices : [];
+              return (
+                <TurnCard
+                  key={turnNumber}
+                  {...buildTurnData(turnNumber)}
+                  choices={turnChoices}
+                  isDescriptionLoading={isDescriptionLoading && character.currentTurn === turnNumber}
+                  onSelectChoice={handleChoiceSelect}
+                />
+              );
+            })}
           </div>
 
           {/* Final Story Generation - only show on Turn 3 after story is generated */}

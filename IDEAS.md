@@ -41,6 +41,8 @@ This document captures a range of future directions for the AI Image Describer a
   - **Combat History**: Track all combat events and dice rolls for replay
   - **Experience System**: Award XP for successful combat and skill checks
   - **Level Progression**: Unlock new abilities and increase stats through experience
+- **Strict Per-Turn UI Gating**
+  - The UI only shows upload, generate story, and choices controls at the correct stage for the current turn, ensuring a clear, stepwise RPG flow and preventing user confusion.
 
 ---
 

@@ -97,6 +97,7 @@ jest.config.js           # Jest configuration
 - **Turn System:**
   - 3-turn limit, managed in Zustand
   - Reset Game button resets all state
+  - All per-turn controls (upload, generate story, choices) are strictly gated to only appear at the correct stage for the current turn.
 
 ## Testing Process
 - **Framework:** Jest + React Testing Library
@@ -123,6 +124,12 @@ jest.config.js           # Jest configuration
   - Resets all state and clears persisted storage
 - **Prompts:**
   - Dual prompt system (default/custom) for both image description and story generation
+- **Per-Turn Flow:**
+  - **Image Upload:** Only visible if no image has been uploaded for the current turn and no description is being generated or available.
+  - **Image Description:** Spinner and content appear in the TurnCard for the current turn. As soon as a description is available, the upload area disappears.
+  - **Generate Story:** Controls only appear after the image description is fully generated for the current turn, and disappear once the story is being generated or is available.
+  - **Choices:** Controls only appear after the story is available for the current turn, and disappear once choices are being generated or are available.
+  - This strict gating ensures a clear, stepwise RPG flow and prevents user confusion.
 
 ## Conventions & Best Practices
 - **TypeScript:**
