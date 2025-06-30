@@ -28,6 +28,7 @@ export interface ImageHistoryEntry {
 // Choice system interfaces
 export interface Choice {
   id: string;
+  type?: string;
   text: string;
   description?: string;
   statRequirements?: Partial<CharacterStats>;

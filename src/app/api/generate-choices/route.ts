@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { STORY_GENERATION_SYSTEM_PROMPT } from '@/lib/constants';
 import type { Character, Choice } from '@/lib/types/character';
+import JSON5 from 'json5';
 
 const WRITER_MODEL = 'gemma-the-writer-n-restless-quill-10b-uncensored@q2_k';  // Uncensored model for story generation
 
@@ -18,32 +19,39 @@ export async function POST(request: NextRequest) {
     // Build the choice generation prompt
     const choicePrompt = buildChoiceGenerationPrompt({ story, character, turn });
 
-    // For now, we'll use the same LM Studio endpoint as story generation
-    // In the future, this could be a different model or endpoint
+    // Log the prompt and request body for debugging
+    console.log('[LLM CHOICE PROMPT]', choicePrompt);
+
+    const lmRequestBody = {
+      model: WRITER_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: STORY_GENERATION_SYSTEM_PROMPT
+        },
+        {
+          role: 'user',
+          content: choicePrompt
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 1000,
+      stream: false
+    };
+
+    console.log('[LLM REQUEST BODY]', JSON.stringify(lmRequestBody, null, 2));
+
     const response = await fetch('http://localhost:1234/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: WRITER_MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: STORY_GENERATION_SYSTEM_PROMPT
-          },
-          {
-            role: 'user',
-            content: choicePrompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 1000,
-        stream: false
-      }),
+      body: JSON.stringify(lmRequestBody),
     });
 
     if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('[LLM ERROR RESPONSE]', response.status, errorBody);
       throw new Error(`LM Studio API error: ${response.status}`);
     }
 
@@ -57,9 +65,12 @@ export async function POST(request: NextRequest) {
     // Parse the choices from the LLM response
     const choices = parseChoicesFromResponse(choicesText);
 
+    // Validate choice count - ensure we have exactly 2-3 choices
+    const validatedChoices = validateChoiceCount(choices);
+
     return NextResponse.json({
       success: true,
-      choices
+      choices: validatedChoices
     });
 
   } catch (error) {
@@ -79,83 +90,181 @@ function buildChoiceGenerationPrompt({ story, character, turn }: {
   character: Character;
   turn: number;
 }): string {
+  // Only use the last paragraph of the story for brevity
+  const storyParagraphs = story.split(/\n+/).filter(Boolean);
+  const lastParagraph = storyParagraphs.length > 0 ? storyParagraphs[storyParagraphs.length - 1] : story;
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
-  
-  return `Based on the following story and character information, generate 2-3 meaningful choices that the player can make. Each choice should be tailored to the story content and character's abilities.
+  const healthString = `Health: ${character.health}`;
+  const inventoryString = character.inventory && character.inventory.length > 0
+    ? `Inventory: ${character.inventory.map(item => item.name).join(', ')}`
+    : '';
+  const traitsString = character.traits && character.traits.length > 0
+    ? character.traits.join(', ')
+    : '';
 
-**Story:**
-${story}
+  return `Given the following story and character info, generate 2 or 3 short, creative choices for the player.
 
-**Character Stats:** ${statsString}
-**Current Turn:** ${turn}
-**Character Traits:** ${character.traits.join(', ')}
+INSTRUCTIONS:
+1. Output exactly 2 or 3 choices, no more, no less.
+2. Each choice must be a JSON object in a JSON array.
+3. Do not output any text, markdown, or code blocks—only the JSON array.
+4. If you are unsure, output 3 choices.
+5. CRITICAL: You must output exactly 2 or 3 choices. Never output 1 choice or 4+ choices.
 
-**Instructions:**
-1. Generate 2-3 choices that are directly relevant to the story content
-2. Each choice should have different stat requirements that make sense for the action
-3. Include realistic consequences for each choice
-4. Make choices that test different character abilities (intelligence, creativity, perception, wisdom)
-5. Ensure choices are meaningful and will affect the story progression
+Each choice should have:
+- a type (combat, explore, dialogue, item, skill)
+- a short text (max 80 chars)
+- a description (max 200 chars)
+- stat requirements (1-20)
+- 2-3 consequences (max 80 chars each)
 
-**Format your response as a JSON array of choice objects:**
+Example output:
 [
-  {
-    "text": "Choice text (what the player will see)",
-    "description": "Detailed description of the choice",
-    "statRequirements": {"intelligence": 10, "creativity": 8},
-    "consequences": ["Positive outcome", "Potential risk"]
-  }
+  { "type": "...", "text": "...", "description": "...", "statRequirements": {"intelligence": 10}, "consequences": ["...", "..."] },
+  { "type": "...", "text": "...", "description": "...", "statRequirements": {"wisdom": 8}, "consequences": ["...", "..."] }
 ]
 
-**Requirements:**
-- Use the exact JSON format above
-- Include 2-3 choices
-- Make stat requirements realistic (1-20 range)
-- Include 2-3 consequences per choice
-- Ensure choices are diverse and meaningful
+Story:
+${lastParagraph}
+Stats: ${statsString}
+Health: ${character.health}
+${inventoryString ? inventoryString + '\n' : ''}${traitsString ? 'Traits: ' + traitsString + '\n' : ''}Turn: ${turn}`;
+}
 
-Generate the choices now:`;
+function aggressiveJsonFix(input: string): string {
+  let fixed = input;
+  // Add quotes around unquoted string values (after colon, not already quoted, not number/array/object)
+  // e.g. "description": Anya could choose ... => "description": "Anya could choose ..."
+  fixed = fixed.replace(/(:\s*)([A-Za-z_][^",\[\{\]\}\n]*)/g, (match, p1, p2) => {
+    // If value is true/false/null/number, don't quote
+    if (/^(true|false|null|\d+(\.\d+)?)/.test(p2.trim())) return match;
+    // If value is already quoted, don't quote
+    if (/^".*"$/.test(p2.trim())) return match;
+    return `${p1}"${p2.trim()}"`;
+  });
+  // Remove trailing commas before closing brackets/braces
+  fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+  // Attempt to close unclosed arrays/objects (very basic: add ] or } if missing at end)
+  const openBrackets = (fixed.match(/\[/g) || []).length;
+  const closeBrackets = (fixed.match(/\]/g) || []).length;
+  if (openBrackets > closeBrackets) {
+    fixed += ']'.repeat(openBrackets - closeBrackets);
+  }
+  const openBraces = (fixed.match(/\{/g) || []).length;
+  const closeBraces = (fixed.match(/\}/g) || []).length;
+  if (openBraces > closeBraces) {
+    fixed += '}'.repeat(openBraces - closeBraces);
+  }
+  return fixed;
 }
 
 function parseChoicesFromResponse(responseText: string): Choice[] {
+  const allowedStatKeys = ['intelligence', 'creativity', 'perception', 'wisdom'];
+  const statKeyMap: Record<string, string> = {
+    intelligence: 'intelligence', Intelligence: 'intelligence', INT: 'intelligence', int: 'intelligence',
+    creativity: 'creativity', Creativity: 'creativity', CRE: 'creativity', cre: 'creativity',
+    perception: 'perception', Perception: 'perception', PER: 'perception', per: 'perception',
+    wisdom: 'wisdom', Wisdom: 'wisdom', WIS: 'wisdom', wis: 'wisdom',
+  };
   try {
-    // Try to extract JSON from the response
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('No JSON array found in response');
+    // Remove markdown code block markers and trim whitespace
+    let cleaned = responseText.replace(/```json|```/gi, '').trim();
+    // Replace common HTML entities with their intended characters
+    cleaned = cleaned
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&');
+    // Aggressive pre-parse fix
+    let fixed = aggressiveJsonFix(cleaned);
+    // Try to extract JSON array from the response
+    let jsonMatch = fixed.match(/\[([\s\S]*?)\]/m);
+    let arrayText = jsonMatch ? jsonMatch[0] : '';
+    // Attempt to auto-close the array if needed
+    if (arrayText && !arrayText.trim().endsWith(']')) {
+      arrayText += ']';
     }
-
-    const choicesData = JSON.parse(jsonMatch[0]);
-    
+    let choicesData;
+    let parsedChoices = [];
+    try {
+      choicesData = JSON.parse(arrayText);
+    } catch (e1) {
+      try {
+        choicesData = JSON5.parse(arrayText);
+      } catch (e2) {
+        // If array parsing fails, try to extract and parse each object individually
+        const objectMatches = fixed.match(/\{[\s\S]*?\}/g);
+        if (objectMatches && objectMatches.length > 0) {
+          choicesData = objectMatches.map((objText) => {
+            // Aggressive fix for each object
+            const objClean = aggressiveJsonFix(objText.replace(/,\s*([}\]])/g, '$1'));
+            try {
+              return JSON5.parse(objClean);
+            } catch (e3) {
+              console.warn('[CHOICE OBJECT PARSE FAIL]', objClean, e3);
+              return null;
+            }
+          }).filter(Boolean);
+        } else {
+          throw new Error('No valid JSON objects found in response');
+        }
+      }
+    }
     if (!Array.isArray(choicesData)) {
       throw new Error('Response is not an array');
     }
-
     // Validate and transform each choice
-    return choicesData.map((choice, index) => ({
-      id: `choice-${Date.now()}-${index}`,
-      text: choice.text || `Choice ${index + 1}`,
-      description: choice.description || '',
-      statRequirements: choice.statRequirements || {},
-      consequences: Array.isArray(choice.consequences) ? choice.consequences : []
-    }));
-
+    parsedChoices = choicesData.map((choice, index) => {
+      // Normalize statRequirements keys
+      let normalizedStatRequirements: Record<string, number> = {};
+      if (choice.statRequirements && typeof choice.statRequirements === 'object') {
+        Object.entries(choice.statRequirements).forEach(([key, value]) => {
+          const canonicalKey = statKeyMap[key] || key.toLowerCase();
+          if (allowedStatKeys.includes(canonicalKey)) {
+            if (typeof value === 'number' && !isNaN(value)) {
+              normalizedStatRequirements[canonicalKey] = value;
+              if (key !== canonicalKey) {
+                console.log(`[STAT KEY REMAP] '${key}' -> '${canonicalKey}'`);
+              }
+            } else {
+              console.warn(`[STAT VALUE IGNORED] '${key}': value is not a valid number:`, value);
+            }
+          } else {
+            console.warn(`[STAT KEY IGNORED] '${key}' is not a recognized stat key.`);
+          }
+        });
+      }
+      return {
+        id: `choice-${Date.now()}-${index}`,
+        type: choice.type || 'other',
+        text: choice.text || `Choice ${index + 1}`,
+        description: choice.description || '',
+        statRequirements: normalizedStatRequirements,
+        consequences: Array.isArray(choice.consequences) ? choice.consequences : []
+      };
+    });
+    console.log('[LLM RAW CHOICE RESPONSE]', responseText);
+    console.log('[LLM CLEANED CHOICE RESPONSE]', cleaned);
+    console.log('[LLM FIXED CHOICE RESPONSE]', fixed);
+    console.log('[LLM CHOICES USED]', parsedChoices);
+    // TODO: In debug mode, save raw LLM output to a file for easier review.
+    return parsedChoices;
   } catch (error) {
     console.error('Error parsing choices from LLM response:', error);
     console.error('Raw response:', responseText);
-    
+    console.warn('[FALLBACK CHOICES USED]');
     // Fallback to default choices if parsing fails
     return [
       {
-        id: `choice-fallback-1`,
+        id: `choice-fallback-1-${Date.now()}`,
         text: 'Proceed with caution',
         description: 'Take a careful, measured approach',
         statRequirements: { wisdom: 8 },
         consequences: ['Safer approach', 'May miss opportunities']
       },
       {
-        id: `choice-fallback-2`,
+        id: `choice-fallback-2-${Date.now()}`,
         text: 'Act boldly',
         description: 'Take decisive action',
         statRequirements: { creativity: 10 },
@@ -163,4 +272,44 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
       }
     ];
   }
+}
+
+function validateChoiceCount(choices: Choice[]): Choice[] {
+  // If we have exactly 2-3 choices, return as is
+  if (choices.length >= 2 && choices.length <= 3) {
+    return choices;
+  }
+
+  // If we have too few choices, add fallback choices
+  if (choices.length < 2) {
+    console.warn(`[CHOICE COUNT WARNING] LLM returned ${choices.length} choices, adding fallback choices`);
+    const fallbackChoices: Choice[] = [
+      {
+        id: `choice-fallback-1-${Date.now()}`,
+        text: 'Proceed with caution',
+        description: 'Take a careful, measured approach to the situation',
+        statRequirements: { wisdom: 8 },
+        consequences: ['Safer approach', 'May miss opportunities']
+      },
+      {
+        id: `choice-fallback-2-${Date.now()}`,
+        text: 'Act boldly',
+        description: 'Take decisive action despite the risks',
+        statRequirements: { creativity: 10 },
+        consequences: ['May find rewards', 'Could be risky']
+      }
+    ];
+    
+    // Combine LLM choices with fallback choices, ensuring we have exactly 2
+    const combinedChoices = [...choices, ...fallbackChoices];
+    return combinedChoices.slice(0, 2);
+  }
+
+  // If we have too many choices, take the first 3
+  if (choices.length > 3) {
+    console.warn(`[CHOICE COUNT WARNING] LLM returned ${choices.length} choices, taking first 3`);
+    return choices.slice(0, 3);
+  }
+
+  return choices;
 } 

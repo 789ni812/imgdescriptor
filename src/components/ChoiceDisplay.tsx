@@ -6,14 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Choice, ChoiceOutcome } from '@/lib/types/character';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 interface ChoiceDisplayProps {
   choices?: Choice[];
   outcomes?: ChoiceOutcome[];
   className?: string;
+  isLoading?: boolean;
 }
 
-export function ChoiceDisplay({ choices = [], outcomes = [], className = '' }: ChoiceDisplayProps) {
+export function ChoiceDisplay({ choices = [], outcomes = [], className = '', isLoading = false }: ChoiceDisplayProps) {
   const { makeChoice } = useCharacterStore();
 
   const handleChoiceSelect = (choiceId: string) => {
@@ -37,6 +39,22 @@ export function ChoiceDisplay({ choices = [], outcomes = [], className = '' }: C
       </Badge>
     );
   };
+
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>Make a Choice</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <LoadingSpinner />
+            <span className="ml-2">Generating choices...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (choices.length === 0 && outcomes.length === 0) {
     return (
@@ -62,7 +80,8 @@ export function ChoiceDisplay({ choices = [], outcomes = [], className = '' }: C
           </CardHeader>
           <CardContent className="space-y-3">
             {choices.map((choice) => (
-              <div key={choice.id} className="border rounded-lg p-4 space-y-2">
+              <div key={choice.id || `${choice.text}-${choice.type || ''}-${choice.statRequirements ? Object.values(choice.statRequirements).join('-') : ''}-${Date.now()}`}
+                className="border rounded-lg p-4 space-y-2">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="font-semibold">{choice.text}</h4>

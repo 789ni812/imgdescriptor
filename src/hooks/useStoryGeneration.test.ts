@@ -199,6 +199,13 @@ describe('useStoryGeneration', () => {
   });
 
   describe('turn-based mock data selection', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     it('should return different mock stories based on current turn when mock mode is enabled and add to character history', async () => {
       const mockConfig = {
         MOCK_STORY: true,
@@ -219,14 +226,13 @@ describe('useStoryGeneration', () => {
       act(() => {
         result1.current.generateStory('A beautiful landscape');
       });
-
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
       await waitFor(() => {
         expect(result1.current.isStoryLoading).toBe(false);
       });
-
       expect(result1.current.story).toBe('Turn 1: The story begins in the ancient forest.');
-      
-      // Verify that the story was added to character history
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
         title: 'Story 1',
@@ -240,18 +246,16 @@ describe('useStoryGeneration', () => {
       mockAddStory.mockClear();
       const mockStore2 = { character: { ...defaultCharacter, currentTurn: 2 } };
       const { result: result2 } = renderHook(() => useStoryGeneration(mockConfig, mockStore2));
-
       act(() => {
         result2.current.generateStory('A beautiful landscape');
       });
-
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
       await waitFor(() => {
         expect(result2.current.isStoryLoading).toBe(false);
       });
-
       expect(result2.current.story).toBe('Turn 2: The adventure continues in the mysterious cave.');
-      
-      // Verify that the story was added to character history
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
         title: 'Story 2',
@@ -276,20 +280,17 @@ describe('useStoryGeneration', () => {
       };
       // Mock a turn that doesn't exist in turn-based data (turn 4)
       const mockStore = { character: { ...defaultCharacter, currentTurn: 4 } };
-
       const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
-
       act(() => {
         result.current.generateStory('A beautiful landscape');
       });
-
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
       await waitFor(() => {
         expect(result.current.isStoryLoading).toBe(false);
       });
-
       expect(result.current.story).toBe('Default mock story');
-      
-      // Verify that the story was added to character history
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
         title: 'Story 4',
@@ -552,6 +553,9 @@ describe('Choice Generation', () => {
   });
 
   it('should generate LLM-based choices after story generation', async () => {
+    // Reset fetch mock to start fresh
+    (fetch as jest.Mock).mockClear();
+    
     const mockConfig = {
       MOCK_STORY: false,
       MOCK_STORY_TEXT: 'Mock story',
@@ -633,7 +637,7 @@ describe('Choice Generation', () => {
       body: call[1]?.body ? JSON.parse(call[1].body) : undefined
     })));
 
-    // Verify choices were generated via LLM
+    // Verify choices were generated via LLM - expect exactly 2 calls (story + choices)
     expect(fetch).toHaveBeenCalledTimes(2);
     
     // Check that the second call was for choice generation
@@ -643,6 +647,100 @@ describe('Choice Generation', () => {
       story: 'The adventurer discovers ancient symbols in the cave.',
       character: mockStore.character,
       turn: 1
+    });
+
+    // Verify that exactly 2 choices were generated (within the 2-3 range)
+    expect(mockChoicesResponse.choices).toHaveLength(2);
+    expect(mockChoicesResponse.choices.length).toBeGreaterThanOrEqual(2);
+    expect(mockChoicesResponse.choices.length).toBeLessThanOrEqual(3);
+  });
+
+  it('should generate exactly 2-3 choices from LLM', async () => {
+    const mockConfig = {
+      MOCK_STORY: false,
+      MOCK_STORY_TEXT: 'Mock story',
+      TURN_BASED_MOCK_DATA: { stories: {} }
+    };
+    const mockStore = { 
+      character: { 
+        currentTurn: 1,
+        stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+        storyHistory: [],
+        health: 100,
+        heartrate: 70,
+        age: 25,
+        level: 1,
+        experience: 0,
+        persona: 'Adventurer',
+        traits: [],
+        inventory: [],
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: []
+      }
+    };
+
+    // Mock story generation
+    const mockStoryResponse = { success: true, story: 'A test story for choice generation.' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockStoryResponse,
+    });
+
+    // Mock choice generation with 3 choices
+    const mockChoicesResponse = { 
+      success: true, 
+      choices: [
+        {
+          id: 'choice-1',
+          text: 'First choice',
+          description: 'Description for first choice',
+          statRequirements: { intelligence: 8 },
+          consequences: ['Consequence 1', 'Consequence 2']
+        },
+        {
+          id: 'choice-2', 
+          text: 'Second choice',
+          description: 'Description for second choice',
+          statRequirements: { wisdom: 6 },
+          consequences: ['Consequence 1']
+        },
+        {
+          id: 'choice-3', 
+          text: 'Third choice',
+          description: 'Description for third choice',
+          statRequirements: { creativity: 10 },
+          consequences: ['Consequence 1', 'Consequence 2', 'Consequence 3']
+        }
+      ]
+    };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockChoicesResponse,
+    });
+
+    const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
+
+    act(() => {
+      result.current.generateStory('A test description');
+    });
+
+    await waitFor(() => {
+      expect(result.current.isStoryLoading).toBe(false);
+    });
+
+    // Verify that choices are within the 2-3 range
+    expect(mockChoicesResponse.choices.length).toBeGreaterThanOrEqual(2);
+    expect(mockChoicesResponse.choices.length).toBeLessThanOrEqual(3);
+    
+    // Verify each choice has required fields
+    mockChoicesResponse.choices.forEach(choice => {
+      expect(choice).toHaveProperty('id');
+      expect(choice).toHaveProperty('text');
+      expect(choice).toHaveProperty('description');
+      expect(choice).toHaveProperty('statRequirements');
+      expect(choice).toHaveProperty('consequences');
+      expect(Array.isArray(choice.consequences)).toBe(true);
     });
   });
 });

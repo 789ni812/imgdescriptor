@@ -29,7 +29,8 @@ export default function Home() {
   const { 
     isStoryLoading, 
     storyError, 
-    generateStory 
+    generateStory, 
+    isChoicesLoading 
   } = useStoryGeneration();
 
   const { 
@@ -281,7 +282,7 @@ export default function Home() {
             {character.currentChoices && (character.currentChoices.length > 0 || character.choiceHistory.length > 0) && (
               <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
                 <CardContent className="p-6">
-                  <ChoiceDisplay choices={character.currentChoices} outcomes={character.choiceHistory.slice(-3)} />
+                  <ChoiceDisplay choices={character.currentChoices} outcomes={character.choiceHistory.slice(-3)} isLoading={isChoicesLoading} />
                 </CardContent>
               </Card>
             )}

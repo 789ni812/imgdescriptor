@@ -35,18 +35,24 @@ export function buildFinalStoryPrompt(character: Character & { name?: string }) 
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
   const name = character.name || character.persona;
-  // Structure each turn's info
-  const turns = character.storyHistory.map((s, i) =>
-    `Turn ${i + 1}:
-Image Description: ${s.imageDescription}
-Story: ${s.text}`
-  ).join('\n\n');
+  // Structure each turn's info, including choice and outcome
+  const turns = character.storyHistory.map((s, i) => {
+    // Find the choice and outcome for this turn
+    const choiceOutcome = character.choiceHistory.find(c => c.turnNumber === s.turnNumber);
+    return [
+      `Turn ${i + 1}:`,
+      `Image Description: ${s.imageDescription}`,
+      `Story: ${s.text}`,
+      choiceOutcome ? `Choice: ${choiceOutcome.text}` : '',
+      choiceOutcome && choiceOutcome.outcome ? `Outcome: ${choiceOutcome.outcome}` : ''
+    ].filter(Boolean).join('\n');
+  }).join('\n\n');
 
   return [
     `Character: ${name}`,
     `Stats: ${statsString}`,
     turns,
-    `\nINSTRUCTIONS:\n1. Carefully read the descriptions and stories for each turn above.\n2. Briefly summarize the main event of each turn.\n3. Then, write a single, cohesive final story that weaves together the key events, characters, and settings from all three turns into an epic adventure.\n4. Make sure the final story references important details from each turn and feels like a natural conclusion to the adventure.\n\nFirst, provide the summaries for each turn. Then, write the final story below:`
+    `\nINSTRUCTIONS:\n1. Carefully read the descriptions, stories, choices, and outcomes for each turn above.\n2. Briefly summarize the main event of each turn, including the player's choices and their outcomes.\n3. Then, write a single, cohesive final story that weaves together the key events, choices, and consequences from all three turns into an epic adventure.\n4. Make sure the final story references important details, choices, and outcomes from each turn and feels like a natural conclusion to the adventure.\n\nFirst, provide the summaries for each turn. Then, write the final story below:`
   ].filter(Boolean).join('\n\n');
 }
 
@@ -120,6 +126,7 @@ export function useStoryGeneration(
   const [story, setStoryState] = useState<string | null>(null);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [isChoicesLoading, setIsChoicesLoading] = useState<boolean>(false);
   
   // Always call the hook unconditionally
   const storeFromHook = useCharacterStore();
@@ -145,6 +152,7 @@ export function useStoryGeneration(
     setIsStoryLoading(true);
     setStory(null);
     setStoryError(null);
+    setIsChoicesLoading(true);
 
     // Mock mode: instantly return mock story
     if (config.MOCK_STORY) {
@@ -177,6 +185,7 @@ export function useStoryGeneration(
           }
         });
         
+        setIsChoicesLoading(false);
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
       return;
@@ -214,16 +223,19 @@ export function useStoryGeneration(
         await generateLLMChoices(data.story, effectiveCharacter);
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the story.');
+        setIsChoicesLoading(false);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setStoryError(`An unexpected error occurred: ${errorMessage}`);
+      setIsChoicesLoading(false);
     } finally {
       setIsStoryLoading(false);
     }
   };
 
   const generateLLMChoices = async (story: string, character: Character) => {
+    setIsChoicesLoading(true);
     try {
       const response = await fetch('/api/generate-choices', {
         method: 'POST',
@@ -265,8 +277,10 @@ export function useStoryGeneration(
           storeFromHook.addChoice(choice);
         }
       });
+    } finally {
+      setIsChoicesLoading(false);
     }
   };
 
-  return { story, isStoryLoading, storyError, generateStory, setStory };
+  return { story, isStoryLoading, storyError, generateStory, setStory, isChoicesLoading };
 } 
