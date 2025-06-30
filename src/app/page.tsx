@@ -67,6 +67,12 @@ export default function Home() {
 
   const description = character.currentDescription ?? null;
 
+  // Per-turn state helpers
+  const currentTurn = character.currentTurn;
+  const imageEntry = character.imageHistory.find(img => img.turn === currentTurn + 1);
+  const storyEntry = character.storyHistory.find(story => story.turnNumber === currentTurn + 1);
+  const choiceOutcome = character.choiceHistory.find(outcome => outcome.turnNumber === currentTurn + 1);
+
   // Helper function to build turn data for TurnCard
   const buildTurnData = (turnNumber: number) => {
     const imageEntry = character.imageHistory.find(img => img.turn === turnNumber);
@@ -228,8 +234,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Upload Section - Only visible if no image is uploaded or at the start of a new turn */}
-          {(!imageUrl && !isTurnLimitReached) && (
+          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, and not at turn limit */}
+          {(!imageUrl && !isDescriptionLoading && !isTurnLimitReached) && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
@@ -254,8 +260,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Story Generation Controls - Only show when description is available */}
-          {description && !isDescriptionLoading && !descriptionError && (
+          {/* Generate Story Controls - Only show if image description exists for current turn, no story yet, and not generating story */}
+          {imageEntry && imageEntry.description && !storyEntry && !isStoryLoading && !descriptionError && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
@@ -281,6 +287,20 @@ export default function Home() {
                         {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
                       </Button>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Choices Controls - Only show if story exists for current turn, no choices yet, and not generating choices */}
+          {storyEntry && storyEntry.text && !choiceOutcome && !isChoicesLoading && (
+            <div className="mb-8">
+              <Card className="w-full max-w-md mx-auto">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white">Choices</h3>
+                    <div className="text-gray-300">Choices will appear here after story generation.</div>
                   </div>
                 </CardContent>
               </Card>
