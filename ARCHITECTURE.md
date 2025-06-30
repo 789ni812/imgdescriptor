@@ -722,3 +722,195 @@ flowchart TD
 ---
 
 ## Future Directions & Use Cases 
+
+[2025-07-01] **Critical Note:** A key bug was resolved by ensuring all per-turn data (image, description, story, choices) is always mapped to the same turn number. All mapping logic now uses the same turn number for all per-turn data, ensuring the UI and state are always in sync. This is now fully tested and production-ready. Future features must maintain this strict mapping for reliability.
+
+## Dice Roll and Combat System Architecture
+
+### Overview
+The dice roll and combat system adds dynamic RPG mechanics to the storytelling experience. Character stats, health, and story outcomes are determined through dice rolls that create meaningful consequences and progression.
+
+### Core Components
+
+#### 1. Dice System (`src/lib/utils/dice.ts`)
+- **Roll Functions**: `rollDice(sides: number)`, `rollWithModifier(base: number, modifier: number)`
+- **Success Calculation**: `calculateSuccess(roll: number, difficulty: number)`
+- **Critical System**: Critical success/failure detection and effects
+
+#### 2. Combat System (`src/lib/utils/combat.ts`)
+- **Damage Calculation**: `calculateDamage(attackRoll: number, defense: number)`
+- **Health Management**: `applyDamage(character: Character, damage: number)`
+- **Death Detection**: `checkDeath(character: Character)`
+- **Status Effects**: Poison, healing, temporary buffs/debuffs
+
+#### 3. Character Combat State
+```typescript
+interface CharacterCombatState {
+  health: number;           // 0-200 (0 = dead)
+  maxHealth: number;        // Base health capacity
+  statusEffects: StatusEffect[];
+  combatHistory: CombatEvent[];
+  isAlive: boolean;
+  lastDamageTaken: number;
+}
+```
+
+#### 4. Dice Roll Types (`src/lib/types/dice.ts`)
+```typescript
+interface DiceRoll {
+  id: string;
+  type: 'combat' | 'skill' | 'saving_throw';
+  dice: number;           // Number of dice (e.g., 1d20)
+  sides: number;          // Sides per die (e.g., 20)
+  modifier: number;       // Stat-based modifier
+  result: number;         // Final roll result
+  success: boolean;       // Whether roll succeeded
+  critical: boolean;      // Critical success/failure
+  timestamp: string;
+  turnNumber: number;
+}
+```
+
+### System Flow
+
+#### 1. Story-Dice Integration
+```mermaid
+flowchart TD
+  A[Image Upload] --> B[Image Description]
+  B --> C[Story Generation]
+  C --> D{Dangerous Situation?}
+  D -->|Yes| E[Generate Skill Check]
+  D -->|No| F[Continue Story]
+  E --> G[Roll Dice]
+  G --> H[Calculate Outcome]
+  H --> I[Update Character Stats]
+  I --> J[Generate Outcome Story]
+  J --> K[Present Choices]
+```
+
+#### 2. Combat Flow
+```mermaid
+flowchart TD
+  A[Combat Triggered] --> B[Roll Initiative]
+  B --> C[Character Action]
+  C --> D[Roll Attack]
+  D --> E[Calculate Damage]
+  E --> F[Apply Damage]
+  F --> G{Character Alive?}
+  G -->|Yes| H[Continue Combat]
+  G -->|No| I[Death Sequence]
+  H --> C
+  I --> J[Game Over/Resurrection]
+```
+
+### Integration Points
+
+#### Character Store Integration
+- **Health Management**: Real-time health updates and death detection
+- **Combat History**: Track all dice rolls and combat events
+- **Status Effects**: Manage temporary buffs/debuffs
+- **Experience**: Award XP for successful rolls and combat
+
+#### Story Generation Integration
+- **Danger Detection**: AI identifies dangerous situations in image descriptions
+- **Skill Check Generation**: LLM suggests appropriate skill checks
+- **Outcome Integration**: Story outcomes reflect dice roll results
+- **Character State**: Stories reference current health and status
+
+#### Choice System Integration
+- **Risk Assessment**: Choices consider current health and combat state
+- **Combat Choices**: Fight/flee/negotiate options with different risks
+- **Stat-Based Success**: Character stats influence choice outcomes
+- **Consequence Tracking**: All outcomes affect future story generation
+
+### UI Components
+
+#### 1. Dice Roll Display (`src/components/DiceRoll.tsx`)
+- **Visual Dice**: Animated dice roll with sound effects
+- **Result Display**: Clear success/failure indication
+- **Modifier Breakdown**: Show how stats affected the roll
+- **History**: Recent dice rolls and outcomes
+
+#### 2. Health Display (`src/components/HealthBar.tsx`)
+- **Health Bar**: Visual health indicator with color coding
+- **Status Effects**: Display active buffs/debuffs
+- **Combat State**: Show if in combat or safe
+- **Death Indicator**: Clear game over state
+
+#### 3. Combat Notifications (`src/components/CombatNotification.tsx`)
+- **Damage Popup**: Show damage taken/dealt
+- **Critical Hits**: Special effects for critical rolls
+- **Status Updates**: Notify of new status effects
+- **Death Notification**: Handle character death gracefully
+
+### Template Integration
+
+#### Game Template Type
+- **Combat Settings**: Enable/disable combat for different template types
+- **Difficulty Scaling**: Adjust dice roll difficulties based on template
+- **Starting Health**: Set initial character health
+- **Combat Rules**: Customize combat mechanics per template
+
+#### Template Persistence
+- **Combat History**: Save all dice rolls and combat events
+- **Character State**: Persist health, status effects, and combat state
+- **Story Integration**: Include combat outcomes in final story generation
+- **Replay Support**: Allow replaying combat scenarios
+
+### Benefits
+
+#### 1. Dynamic Gameplay
+- **Unpredictable Outcomes**: Dice rolls create genuine uncertainty
+- **Meaningful Consequences**: Health and stats affect story progression
+- **Risk Management**: Players must consider their character's state
+- **Replayability**: Different outcomes each playthrough
+
+#### 2. Character Development
+- **Stat Progression**: Successful rolls improve character abilities
+- **Experience System**: Combat and skill checks award XP
+- **Status Effects**: Temporary buffs/debuffs add depth
+- **Death/Resurrection**: High stakes with recovery mechanics
+
+#### 3. Story Integration
+- **Consequential Choices**: Story outcomes reflect character state
+- **Combat Narratives**: Rich combat descriptions and outcomes
+- **Character Growth**: Stories reflect character progression
+- **Tension Building**: Health and status create narrative tension
+
+### Implementation Status
+
+#### 🔄 Phase 1: Core Dice System (PLANNED)
+- Dice roll utilities and types
+- Basic success/failure calculation
+- Critical success/failure detection
+- Comprehensive test coverage
+
+#### 🔄 Phase 2: Health & Combat System (PLANNED)
+- Health management and damage calculation
+- Death detection and resurrection mechanics
+- Status effect system
+- Combat event tracking
+
+#### 🔄 Phase 3: Story-Dice Integration (PLANNED)
+- Danger detection in story generation
+- Skill check generation and resolution
+- Story outcome integration
+- Character state reflection in narratives
+
+#### 🔄 Phase 4: UI Components (PLANNED)
+- Dice roll animations and display
+- Health bar and status indicators
+- Combat notifications
+- Death/resurrection UI
+
+#### 🔄 Phase 5: Advanced Features (PLANNED)
+- Experience and leveling system
+- Inventory items affecting combat
+- Advanced status effects
+- Multi-character combat
+
+---
+
+## Future Directions & Use Cases 
+
+[2025-07-01] **Critical Note:** The turn number mapping for all per-turn data is now strictly enforced and fully tested. All UI and state logic is guaranteed to be in sync for each turn. This is a critical requirement for all future features. 

@@ -43,7 +43,7 @@ export default function Home() {
   } = useCharacterStore();
 
   // Derive current imageUrl from store
-  const currentImageEntry = character.imageHistory.find(img => img.turn === character.currentTurn + 1);
+  const currentImageEntry = character.imageHistory.find(img => img.turn === character.currentTurn);
   const imageUrl = currentImageEntry?.url || null;
 
   const [customStoryPrompt, setCustomStoryPrompt] = useState('Write a fantasy adventure story');
@@ -74,9 +74,9 @@ export default function Home() {
 
   // Helper function to build turn data for TurnCard
   const buildTurnData = (turnNumber: number) => {
-    const imageEntry = character.imageHistory.find(img => img.turn === turnNumber);
-    const storyEntry = character.storyHistory.find(story => story.turnNumber === turnNumber);
-    const choiceOutcome = character.choiceHistory.find(outcome => outcome.turnNumber === turnNumber);
+    const imageEntry = (character.imageHistory || []).find(img => img.turn === turnNumber);
+    const storyEntry = (character.storyHistory || []).find(story => story.turnNumber === turnNumber);
+    const choiceOutcome = (character.choiceHistory || []).find(outcome => outcome.turnNumber === turnNumber);
     
     // Calculate stat changes for this turn
     let statChanges: Partial<CharacterStats> = {};
@@ -106,17 +106,25 @@ export default function Home() {
       id: uuidv4(),
       url: image.url,
       description: `Uploaded image ${(character.imageHistory ? character.imageHistory.length : 0) + 1}`,
-      turn: character.currentTurn + 1, // incrementTurn is called after this
+      turn: character.currentTurn,
       uploadedAt: new Date().toISOString(),
     });
     analyzeImage(image.file, prompt);
 
-    // Only increment turn and add experience here
+    // Only add experience here
     addExperience(50);
-    incrementTurn();
+
+    // Debug: Log turn numbers after image upload
+    const latestImage = character.imageHistory[character.imageHistory.length - 1];
+    const latestStory = character.storyHistory[character.storyHistory.length - 1];
+    console.log('[DEBUG] After image upload:', {
+      currentTurn: character.currentTurn,
+      latestImageTurn: latestImage?.turn,
+      latestStoryTurn: latestStory?.turnNumber,
+    });
 
     // If this is the first analysis, set flag to initialize character after description is available
-    if (character.currentTurn === 0) {
+    if (character.currentTurn === 1) {
       setShouldInitCharacter(true);
     }
   };
@@ -147,7 +155,15 @@ export default function Home() {
 
   const handleChoiceSelect = (choiceId: string) => {
     makeChoice(choiceId);
-    // After making a choice, increment the turn to start the next one
+    // Debug: Log state after making a choice
+    setTimeout(() => {
+      console.log('[DEBUG] After choice:', {
+        imageHistory: character.imageHistory,
+        storyHistory: character.storyHistory,
+        choiceHistory: character.choiceHistory,
+        currentTurn: character.currentTurn,
+      });
+    }, 100);
     incrementTurn();
     // Optionally, reset any per-turn UI state if needed
   };
@@ -228,7 +244,7 @@ export default function Home() {
           </div>
           
           {/* Reset Game Button */}
-          {character.currentTurn > 0 && (
+          {character.currentTurn > 1 && (
             <div className="mb-4">
               <Button onClick={resetCharacter} variant="outline" size="sm">
                 Reset Game
@@ -309,18 +325,21 @@ export default function Home() {
             </div>
           )}
 
-          {/* Turn Cards - Display all completed turns */}
+          {/* Turn Cards - Display all completed turns (0-based, inclusive) */}
           <div className="space-y-6">
             {Array.from({ length: character.currentTurn }, (_, i) => i + 1).map(turnNumber => {
               // Get choices for this turn if available
               const turnChoices = (character.currentTurn === turnNumber) ? character.currentChoices : [];
+              const turnCardProps = {
+                ...buildTurnData(turnNumber),
+                choices: turnChoices,
+                isDescriptionLoading: isDescriptionLoading && character.currentTurn === turnNumber,
+                onSelectChoice: handleChoiceSelect,
+              };
               return (
                 <TurnCard
                   key={turnNumber}
-                  {...buildTurnData(turnNumber)}
-                  choices={turnChoices}
-                  isDescriptionLoading={isDescriptionLoading && character.currentTurn === turnNumber}
-                  onSelectChoice={handleChoiceSelect}
+                  {...turnCardProps}
                 />
               );
             })}

@@ -110,7 +110,7 @@ describe('CharacterStats', () => {
         experience: 0,
         level: 0,
         experienceToNext: 0,
-        currentTurn: 0,
+        currentTurn: 1,
       },
       resetCharacter: jest.fn(),
       updateCharacter: jest.fn(),
@@ -136,9 +136,9 @@ describe('CharacterStats', () => {
     expect(screen.getByText('Avg: 0.0')).toBeInTheDocument();
     expect(screen.getByText('Turn:')).toBeInTheDocument();
     
-    // Check that the turn value is 0 by looking for it in the turn section
+    // Check that the turn value is 1 by looking for it in the turn section
     const turnSection = screen.getByText('Turn:').closest('div');
-    expect(turnSection).toHaveTextContent('0');
+    expect(turnSection).toHaveTextContent('1');
   });
 
   it('should apply custom className when provided', () => {

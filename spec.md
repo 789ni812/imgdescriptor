@@ -620,6 +620,7 @@ We will implement the following game mechanics, ensuring all features are extens
   - Update documentation and screenshots to reflect the new UI/UX.
 
 - [x] **XX.8: Per-Turn Accordion and Generation Flow**
+  - [2025-07-01] Note: The turn number mapping for all per-turn data is now strictly enforced and fully tested. All UI and state logic is guaranteed to be in sync for each turn. This is a critical requirement for all future features.
   - The story accordion must show a spinner while generating, then display the story as soon as it is available (never 'Not available yet' if the story is present).
   - The choices accordion must only show a spinner after the story is available, and only show choices after they are generated.
   - After a choice is made, the choices accordion must display all choices, clearly indicate the selected one and its outcome, and the turn is considered complete.

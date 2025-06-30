@@ -54,7 +54,7 @@ describe('Home Page', () => {
     mockUseCharacterStore.mockReturnValue({
       character: {
         imageHistory: [],
-        currentTurn: 0,
+        currentTurn: 1,
         storyHistory: [],
         stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
       },
@@ -421,7 +421,7 @@ describe('Image Upload Area Visibility', () => {
     const mockCharacter = {
       ...createCharacter(),
       imageHistory: [],
-      currentTurn: 0,
+      currentTurn: 1,
     };
 
     mockUseCharacterStore.mockReturnValue({
@@ -447,7 +447,7 @@ describe('Image Upload Area Visibility', () => {
     const mockCharacter = {
       ...createCharacter(),
       imageHistory: [{ id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'story2', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' }],
-      currentTurn: 1,
+      currentTurn: 2,
       currentDescription: 'desc2',
     };
 
@@ -476,7 +476,7 @@ describe('Button Label', () => {
     const mockCharacter = {
       ...createCharacter(),
       imageHistory: [],
-      currentTurn: 0,
+      currentTurn: 1,
       currentDescription: null,
     };
 

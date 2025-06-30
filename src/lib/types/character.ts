@@ -66,7 +66,7 @@ export interface Character {
   imageHistory: ImageHistoryEntry[];
   choiceHistory: ChoiceOutcome[];
   currentChoices: Choice[];
-  currentTurn: number; // >= 0
+  currentTurn: number; // >= 1
   stats: CharacterStats; // RPG stats
 }
 
@@ -84,7 +84,7 @@ export function createCharacter(overrides: Partial<Character> = {}): Character {
     imageHistory: [],
     choiceHistory: [],
     currentChoices: [],
-    currentTurn: 0,
+    currentTurn: 1,
     stats: {
       intelligence: 10,
       creativity: 10,
@@ -109,8 +109,8 @@ export function validateCharacter(character: Character): { isValid: boolean; err
   if (character.level < 1) {
     errors.push('Level must be at least 1');
   }
-  if (character.currentTurn < 0) {
-    errors.push('Current turn must be at least 0');
+  if (character.currentTurn < 1) {
+    errors.push('Current turn must be at least 1');
   }
   
   // Validate stats

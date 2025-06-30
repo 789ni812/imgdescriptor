@@ -426,7 +426,7 @@ describe('Template Application System', () => {
     const result = applyTemplate(emptyTemplate);
     
     expect(result.success).toBe(true);
-    expect(result.gameState.currentTurn).toBe(0);
+    expect(result.gameState.currentTurn).toBe(1);
     expect(result.gameState.imageHistory).toEqual([]);
     expect(result.missingContent).toContain('turn-1-image');
     expect(result.missingContent).toContain('turn-2-image');

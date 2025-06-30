@@ -65,7 +65,7 @@ describe('Character Store Actions', () => {
       expect(character.persona).toBe('Adventurer');
       expect(character.traits).toEqual([]);
       expect(character.inventory).toEqual([]);
-      expect(character.currentTurn).toBe(0);
+      expect(character.currentTurn).toBe(1);
       expect(character.storyHistory).toEqual([]);
       expect(character.createdAt).toBeInstanceOf(Date);
       expect(character.updatedAt).toBeInstanceOf(Date);
@@ -103,7 +103,7 @@ describe('Character Store Actions', () => {
       expect(character.persona).toBe('Adventurer');
       expect(character.traits).toEqual([]);
       expect(character.inventory).toEqual([]);
-      expect(character.currentTurn).toBe(0);
+      expect(character.currentTurn).toBe(1);
       expect(character.storyHistory).toEqual([]);
       expect(character.createdAt).toBeInstanceOf(Date);
       expect(character.updatedAt).toBeInstanceOf(Date);

@@ -98,6 +98,7 @@ describe('useStoryGeneration', () => {
       story: 'A magical adventure begins...',
       imageUrl: '',
       createdAt: expect.any(Date),
+      turnNumber: 1,
     });
   });
 
@@ -240,6 +241,7 @@ describe('useStoryGeneration', () => {
         story: 'Turn 1: The story begins in the ancient forest.',
         imageUrl: '',
         createdAt: expect.any(Date),
+        turnNumber: 1,
       });
 
       // Test turn 2
@@ -263,6 +265,7 @@ describe('useStoryGeneration', () => {
         story: 'Turn 2: The adventure continues in the mysterious cave.',
         imageUrl: '',
         createdAt: expect.any(Date),
+        turnNumber: 2,
       });
     });
 
@@ -298,6 +301,7 @@ describe('useStoryGeneration', () => {
         story: 'Default mock story',
         imageUrl: '',
         createdAt: expect.any(Date),
+        turnNumber: 4,
       });
     });
   });

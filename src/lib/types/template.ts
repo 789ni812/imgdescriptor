@@ -245,7 +245,7 @@ export function applyTemplate(template: GameTemplate): TemplateApplicationResult
   // Determine current turn based on image history
   const currentTurn = template.images.length > 0 
     ? Math.max(...template.images.map(img => img.turn))
-    : 0;
+    : 1;
 
   // Create game state
   const gameState = {

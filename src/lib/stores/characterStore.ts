@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry } from '../types/character';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extended Character interface for the store with additional fields
@@ -14,16 +14,7 @@ export interface ExtendedCharacter extends Character {
   finalStory?: string;
   currentStory?: string | null;
   currentDescription?: string | null;
-}
-
-// Story interface for the store
-export interface Story {
-  id: string;
-  title: string;
-  description: string;
-  story: string;
-  imageUrl: string;
-  createdAt: Date;
+  currentTurn: number;
 }
 
 // Character store state interface
@@ -38,11 +29,11 @@ export interface CharacterState {
   updateStats: (stats: Partial<CharacterStats>) => void;
   getTotalStats: () => number;
   getAverageStats: () => number;
-  addStory: (story: Story) => void;
-  updateStory: (id: string, story: Partial<Story>) => void;
+  addStory: (story: StoryEntry) => void;
+  updateStory: (id: string, story: Partial<StoryEntry>) => void;
   removeStory: (id: string) => void;
-  getStory: (id: string) => Story | undefined;
-  getRecentStories: (limit?: number) => Story[];
+  getStory: (id: string) => StoryEntry | undefined;
+  getRecentStories: (limit?: number) => StoryEntry[];
   initializeCharacterFromDescription: (description: string) => void;
   incrementTurn: () => void;
   addImageToHistory: (image: ImageHistoryEntry) => void;
@@ -78,6 +69,7 @@ const createDefaultCharacter = (): ExtendedCharacter => {
     imageHistory: [],
     currentStory: null,
     currentDescription: null,
+    currentTurn: 1,
   };
 };
 
@@ -193,26 +185,20 @@ export const useCharacterStore = create<CharacterState>()(
         return (stats.intelligence + stats.creativity + stats.perception + stats.wisdom) / 4;
       },
 
-      addStory: (story: Story) => {
+      addStory: (story: StoryEntry) => {
         set((state) => ({
           character: {
             ...state.character,
             storyHistory: [
               ...state.character.storyHistory,
-              {
-                id: story.id,
-                text: story.story,
-                timestamp: story.createdAt.toISOString(),
-                turnNumber: state.character.currentTurn + 1,
-                imageDescription: story.description,
-              },
+              story,
             ],
             updatedAt: new Date(),
           },
         }));
       },
 
-      updateStory: (id: string, story: Partial<Story>) => {
+      updateStory: (id: string, story: Partial<StoryEntry>) => {
         set((state) => {
           const { character } = state;
           const storyIndex = character.storyHistory.findIndex(s => s.id === id);
@@ -222,8 +208,7 @@ export const useCharacterStore = create<CharacterState>()(
           const updatedStoryHistory = [...character.storyHistory];
           updatedStoryHistory[storyIndex] = {
             ...updatedStoryHistory[storyIndex],
-            text: story.story || updatedStoryHistory[storyIndex].text,
-            imageDescription: story.description || updatedStoryHistory[storyIndex].imageDescription,
+            ...story,
           };
           
           return {
@@ -248,35 +233,14 @@ export const useCharacterStore = create<CharacterState>()(
 
       getStory: (id: string) => {
         const { character } = get();
-        const storyEntry = character.storyHistory.find(s => s.id === id);
-        
-        if (!storyEntry) return undefined;
-        
-        return {
-          id: storyEntry.id,
-          title: `Story ${storyEntry.turnNumber}`,
-          description: storyEntry.imageDescription,
-          story: storyEntry.text,
-          imageUrl: '', // We don't store image URLs in the current schema
-          createdAt: new Date(storyEntry.timestamp),
-        };
+        return character.storyHistory.find(s => s.id === id);
       },
 
       getRecentStories: (limit?: number) => {
         const { character } = get();
         const sortedStories = [...character.storyHistory]
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        
-        const limitedStories = limit ? sortedStories.slice(0, limit) : sortedStories;
-        
-        return limitedStories.map(storyEntry => ({
-          id: storyEntry.id,
-          title: `Story ${storyEntry.turnNumber}`,
-          description: storyEntry.imageDescription,
-          story: storyEntry.text,
-          imageUrl: '', // We don't store image URLs in the current schema
-          createdAt: new Date(storyEntry.timestamp),
-        }));
+        return limit ? sortedStories.slice(0, limit) : sortedStories;
       },
 
       initializeCharacterFromDescription: (description: string) => {
@@ -421,11 +385,11 @@ export const useCharacterStore = create<CharacterState>()(
 
       incrementTurn: () => {
         set((state) => {
-          console.log('incrementTurn called, prev turn:', state.character.currentTurn);
+          const nextTurn = state.character.currentTurn + 1;
           return {
             character: {
               ...state.character,
-              currentTurn: state.character.currentTurn + 1,
+              currentTurn: nextTurn,
               updatedAt: new Date(),
             },
           };
@@ -436,7 +400,7 @@ export const useCharacterStore = create<CharacterState>()(
         set((state) => ({
           character: {
             ...state.character,
-            imageHistory: [...state.character.imageHistory, image],
+            imageHistory: [...state.character.imageHistory, { ...image, turn: state.character.currentTurn }],
             updatedAt: new Date(),
           },
         }));

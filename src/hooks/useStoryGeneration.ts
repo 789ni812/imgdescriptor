@@ -167,14 +167,14 @@ export function useStoryGeneration(
         
         // Add the story to character history
         if (storeFromHook.addStory) {
-          storeFromHook.addStory({
+          const entry: StoryEntry = {
             id: uuidv4(),
-            title: `Story ${effectiveCharacter.currentTurn}`,
-            description: description,
-            story: mockStory,
-            imageUrl: '',
-            createdAt: new Date(),
-          });
+            text: mockStory,
+            timestamp: new Date().toISOString(),
+            turnNumber: effectiveCharacter.currentTurn,
+            imageDescription: description,
+          };
+          storeFromHook.addStory(entry);
         }
         
         // Generate choices after story (using static generation for mock mode)
@@ -209,14 +209,14 @@ export function useStoryGeneration(
         
         // Add the story to character history
         if (storeFromHook.addStory) {
-          storeFromHook.addStory({
+          const entry: StoryEntry = {
             id: uuidv4(),
-            title: `Story ${effectiveCharacter.currentTurn}`,
-            description: description,
-            story: data.story,
-            imageUrl: '',
-            createdAt: new Date(),
-          });
+            text: data.story,
+            timestamp: new Date().toISOString(),
+            turnNumber: effectiveCharacter.currentTurn,
+            imageDescription: description,
+          };
+          storeFromHook.addStory(entry);
         }
         
         // Generate LLM-based choices after story
