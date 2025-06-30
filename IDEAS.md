@@ -68,4 +68,75 @@ This document captures a range of future directions for the AI Image Describer a
 ---
 
 **Note:**
+These ideas are not all implemented yet, but the codebase should remain open and extensible to support them in the future. Avoid hardcoding logic that would make these directions difficult to add later.
+
+## 3. Dungeon Master & Personality-Driven Storytelling
+
+> **Note:** The Dungeon Master system introduces personality-driven storytelling where an AI DM guides the narrative based on their unique characteristics, creating more personalized and dynamic experiences.
+
+### Core DM Concepts
+- **Personality-Driven Storytelling**: Each DM has unique traits that affect story tone, choice complexity, and narrative style
+- **Personality Quiz Integration**: Players take a quiz to determine their preferred DM personality type
+- **Dynamic Content Generation**: All stories, choices, and descriptions reflect the DM's personality and style
+- **Consistent Character Voice**: DM maintains their personality throughout the entire game session
+- **Adaptive Responses**: DM can adapt to player choices while staying true to their core personality
+
+### DM Personality Types
+- **The Mysterious Sage**: Enigmatic, philosophical, focuses on hidden meanings and ancient wisdom
+- **The Action Hero**: Dynamic, fast-paced, emphasizes combat and thrilling encounters
+- **The Humorous Bard**: Witty, entertaining, adds comedy and light-hearted moments
+- **The Strategic Tactician**: Logical, analytical, focuses on problem-solving and tactical choices
+- **The Empathetic Guide**: Caring, supportive, emphasizes character growth and emotional moments
+- **The Challenging Master**: Demanding, tests player skills, creates difficult but rewarding scenarios
+
+### DM Features & Mechanics
+- **Personality Traits**: Each DM has specific traits (e.g., mysterious, humorous, challenging) that affect all content
+- **Storytelling Style**: DM's preferred narrative approach (descriptive, action-oriented, mysterious, etc.)
+- **Decision-Making Patterns**: How the DM structures choices and consequences
+- **Communication Style**: Formal, casual, poetic, or technical language preferences
+- **Difficulty Scaling**: DM personality can affect game difficulty and challenge level
+- **Mood System**: DM's mood can change based on player actions, affecting story tone
+- **Learning System**: DM can learn from player preferences and adapt over multiple sessions
+
+### Personality Quiz System
+- **Interactive Assessment**: Multi-step quiz to determine player preferences
+- **Scoring Algorithm**: Maps quiz responses to optimal DM personality types
+- **Personality Matching**: Matches player preferences to predefined DM templates
+- **Customization Options**: Allows fine-tuning of selected DM personality
+- **Result Explanation**: Clear explanation of why a specific DM was chosen
+
+### Advanced DM Features
+- **DM Template Creation**: Players can create custom DM personalities
+- **DM Template Sharing**: Share and import DM templates between players
+- **DM Evolution**: DM personalities can evolve based on player interactions
+- **Multi-DM Sessions**: Switch between different DMs for variety
+- **DM Specialization**: DMs can specialize in specific genres or themes
+- **DM Collaboration**: Multiple DMs can work together for complex scenarios
+
+### Integration with Existing Systems
+- **Template System**: DM templates work alongside existing game templates
+- **Story Generation**: All story generation incorporates DM personality context
+- **Choice System**: Choices reflect DM's decision-making style and preferences
+- **Character Development**: DM personality affects character growth and progression
+- **Final Story Generation**: DM's voice and style influence the final narrative
+
+### Future DM Directions
+- **Voice Synthesis**: DM personality could include voice characteristics for audio narration
+- **Visual Representation**: Each DM could have a unique visual avatar or representation
+- **Emotional Intelligence**: DMs could respond to player emotions and reactions
+- **Cultural Adaptation**: DMs could adapt to different cultural storytelling traditions
+- **Genre Specialization**: DMs could specialize in specific genres (fantasy, sci-fi, mystery, etc.)
+- **Collaborative DMing**: Multiple DMs could work together for complex, multi-perspective stories
+
+### Benefits of DM System
+- **Enhanced Personalization**: Each player gets a unique storytelling experience
+- **Increased Replayability**: Same content feels different with different DMs
+- **Emotional Connection**: Players can form preferences for specific DM personalities
+- **Educational Value**: Different DM styles can teach different storytelling approaches
+- **Accessibility**: DM personalities can be tailored for different skill levels and preferences
+- **Creative Inspiration**: DM personalities can inspire new storytelling techniques
+
+---
+
+**Note:**
 These ideas are not all implemented yet, but the codebase should remain open and extensible to support them in the future. Avoid hardcoding logic that would make these directions difficult to add later. 

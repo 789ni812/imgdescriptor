@@ -535,189 +535,215 @@ This workflow should be followed for:
 
 **Use `DOCUMENTATION_REVIEW_TEMPLATE.md` for the detailed checklist and tier-specific guidance.**
 
-## Dice Roll and Combat System Architecture
+## Dungeon Master System Architecture
 
 ### Overview
-The dice roll and combat system adds dynamic RPG mechanics to the storytelling experience. Character stats, health, and story outcomes are determined through dice rolls that create meaningful consequences and progression.
+The Dungeon Master (DM) system introduces a personality-driven storytelling experience where an AI Dungeon Master guides the narrative based on their unique personality, style, and decision-making patterns. This system is integrated through a personality quiz that determines the DM's characteristics, creating a more personalized and dynamic gaming experience.
 
 ### Core Components
 
-#### 1. Dice System (`src/lib/utils/dice.ts`)
-- **Roll Functions**: `rollDice(sides: number)`, `rollWithModifier(base: number, modifier: number)`
-- **Success Calculation**: `calculateSuccess(roll: number, difficulty: number)`
-- **Critical System**: Critical success/failure detection and effects
-
-#### 2. Combat System (`src/lib/utils/combat.ts`)
-- **Damage Calculation**: `calculateDamage(attackRoll: number, defense: number)`
-- **Health Management**: `applyDamage(character: Character, damage: number)`
-- **Death Detection**: `checkDeath(character: Character)`
-- **Status Effects**: Poison, healing, temporary buffs/debuffs
-
-#### 3. Character Combat State
+#### 1. Dungeon Master Template Schema (`src/lib/types/dungeonMaster.ts`)
 ```typescript
-interface CharacterCombatState {
-  health: number;           // 0-200 (0 = dead)
-  maxHealth: number;        // Base health capacity
-  statusEffects: StatusEffect[];
-  combatHistory: CombatEvent[];
-  isAlive: boolean;
-  lastDamageTaken: number;
-}
-```
-
-#### 4. Dice Roll Types (`src/lib/types/dice.ts`)
-```typescript
-interface DiceRoll {
+interface DungeonMasterTemplate {
   id: string;
-  type: 'combat' | 'skill' | 'saving_throw';
-  dice: number;           // Number of dice (e.g., 1d20)
-  sides: number;          // Sides per die (e.g., 20)
-  modifier: number;       // Stat-based modifier
-  result: number;         // Final roll result
-  success: boolean;       // Whether roll succeeded
-  critical: boolean;      // Critical success/failure
-  timestamp: string;
-  turnNumber: number;
+  name: string;
+  version: string;
+  type: 'dungeon-master';
+  
+  // Personality Configuration
+  personality: {
+    traits: string[];           // e.g., ['mysterious', 'humorous', 'challenging']
+    storytellingStyle: string;  // e.g., 'descriptive', 'action-oriented', 'mysterious'
+    decisionMaking: string;     // e.g., 'logical', 'chaotic', 'balanced'
+    communicationStyle: string; // e.g., 'formal', 'casual', 'poetic'
+    difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  };
+  
+  // Quiz Configuration
+  quiz: {
+    questions: QuizQuestion[];
+    scoring: PersonalityScoring;
+    personalityTypes: PersonalityType[];
+  };
+  
+  // Story Generation Configuration
+  storyConfig: {
+    basePrompts: {
+      imageDescription: string;
+      storyGeneration: string;
+      choiceGeneration: string;
+      finalStory: string;
+    };
+    personalityModifiers: {
+      [trait: string]: string;  // How each trait modifies prompts
+    };
+    stylePreferences: {
+      descriptionLength: 'brief' | 'detailed' | 'epic';
+      storyTone: 'serious' | 'humorous' | 'mysterious' | 'action';
+      choiceComplexity: 'simple' | 'complex' | 'strategic';
+    };
+  };
+  
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+  author?: string;
+  tags: string[];
 }
 ```
+
+#### 2. Personality Quiz System (`src/components/PersonalityQuiz.tsx`)
+- **Interactive Quiz Interface**: Multi-step personality assessment
+- **Scoring Algorithm**: Maps quiz responses to DM personality types
+- **Personality Matching**: Matches user preferences to predefined DM templates
+- **Customization Options**: Allows fine-tuning of selected DM personality
+
+#### 3. DM Template Integration
+- **Template Store Extension**: DM templates stored alongside game templates
+- **Personality Injection**: DM personality integrated into all story generation
+- **Dynamic Prompting**: Story prompts modified based on DM traits and style
+- **Consistent Voice**: DM maintains consistent personality throughout the game
 
 ### System Flow
 
-#### 1. Story-Dice Integration
+#### 1. Personality Quiz Flow
 ```mermaid
 flowchart TD
-  A[Image Upload] --> B[Image Description]
-  B --> C[Story Generation]
-  C --> D{Dangerous Situation?}
-  D -->|Yes| E[Generate Skill Check]
-  D -->|No| F[Continue Story]
-  E --> G[Roll Dice]
-  G --> H[Calculate Outcome]
-  H --> I[Update Character Stats]
-  I --> J[Generate Outcome Story]
-  J --> K[Present Choices]
+  A[User Starts New Game] --> B[Personality Quiz]
+  B --> C[Quiz Questions]
+  C --> D[Scoring Algorithm]
+  D --> E[DM Personality Match]
+  E --> F[DM Template Selection]
+  F --> G[Customize DM (Optional)]
+  G --> H[Begin Turn-Based Gameplay]
 ```
 
-#### 2. Combat Flow
+#### 2. DM-Aware Story Generation
 ```mermaid
 flowchart TD
-  A[Combat Triggered] --> B[Roll Initiative]
-  B --> C[Character Action]
-  C --> D[Roll Attack]
-  D --> E[Calculate Damage]
-  E --> F[Apply Damage]
-  F --> G{Character Alive?}
-  G -->|Yes| H[Continue Combat]
-  G -->|No| I[Death Sequence]
-  H --> C
-  I --> J[Game Over/Resurrection]
+  A[Image Upload] --> B[DM Personality Context]
+  B --> C[Modified Image Description Prompt]
+  C --> D[DM-Style Description]
+  D --> E[DM-Aware Story Generation]
+  E --> F[Personality-Driven Story]
+  F --> G[DM-Style Choice Generation]
+  G --> H[Personality-Influenced Choices]
+```
+
+#### 3. DM Template Management
+```mermaid
+flowchart TD
+  A[DM Template Creation] --> B[Personality Configuration]
+  B --> C[Quiz Setup]
+  C --> D[Story Config]
+  D --> E[Template Validation]
+  E --> F[Save to Template Store]
+  F --> G[Available for Selection]
 ```
 
 ### Integration Points
 
-#### Character Store Integration
-- **Health Management**: Real-time health updates and death detection
-- **Combat History**: Track all dice rolls and combat events
-- **Status Effects**: Manage temporary buffs/debuffs
-- **Experience**: Award XP for successful rolls and combat
+#### Template System Integration
+- **Extended Template Types**: Support for both game and DM templates
+- **Template Relationships**: Game templates can reference specific DM templates
+- **Template Compatibility**: Version checking and migration for DM templates
+- **Template Sharing**: DM templates can be shared independently or with games
 
 #### Story Generation Integration
-- **Danger Detection**: AI identifies dangerous situations in image descriptions
-- **Skill Check Generation**: LLM suggests appropriate skill checks
-- **Outcome Integration**: Story outcomes reflect dice roll results
-- **Character State**: Stories reference current health and status
+- **Prompt Modification**: Base prompts modified by DM personality traits
+- **Style Injection**: DM communication style applied to all generated content
+- **Consistency Maintenance**: DM personality remains consistent across all turns
+- **Dynamic Adaptation**: DM can adapt to player choices while maintaining core personality
 
-#### Choice System Integration
-- **Risk Assessment**: Choices consider current health and combat state
-- **Combat Choices**: Fight/flee/negotiate options with different risks
-- **Stat-Based Success**: Character stats influence choice outcomes
-- **Consequence Tracking**: All outcomes affect future story generation
+#### Character Store Integration
+- **DM Reference**: Character store tracks active DM template
+- **Personality Context**: All story generation includes DM personality context
+- **Choice Influence**: DM personality affects choice generation and outcomes
+- **Session Persistence**: DM selection persists across game sessions
 
 ### UI Components
 
-#### 1. Dice Roll Display (`src/components/DiceRoll.tsx`)
-- **Visual Dice**: Animated dice roll with sound effects
-- **Result Display**: Clear success/failure indication
-- **Modifier Breakdown**: Show how stats affected the roll
-- **History**: Recent dice rolls and outcomes
+#### 1. Personality Quiz Interface (`src/components/PersonalityQuiz.tsx`)
+- **Multi-Step Quiz**: Progressive disclosure of personality questions
+- **Visual Feedback**: Progress indicators and personality previews
+- **Result Display**: Clear explanation of matched DM personality
+- **Customization Options**: Fine-tune DM personality before game start
 
-#### 2. Health Display (`src/components/HealthBar.tsx`)
-- **Health Bar**: Visual health indicator with color coding
-- **Status Effects**: Display active buffs/debuffs
-- **Combat State**: Show if in combat or safe
-- **Death Indicator**: Clear game over state
+#### 2. DM Template Manager (`src/components/DMTemplateManager.tsx`)
+- **DM Template Creation**: Interface for creating new DM personalities
+- **Personality Configuration**: Tools for setting traits, style, and preferences
+- **Quiz Builder**: Interface for creating personality assessment questions
+- **Template Preview**: Preview how DM personality affects story generation
 
-#### 3. Combat Notifications (`src/components/CombatNotification.tsx`)
-- **Damage Popup**: Show damage taken/dealt
-- **Critical Hits**: Special effects for critical rolls
-- **Status Updates**: Notify of new status effects
-- **Death Notification**: Handle character death gracefully
-
-### Template Integration
-
-#### Game Template Type
-- **Combat Settings**: Enable/disable combat for different template types
-- **Difficulty Scaling**: Adjust dice roll difficulties based on template
-- **Starting Health**: Set initial character health
-- **Combat Rules**: Customize combat mechanics per template
-
-#### Template Persistence
-- **Combat History**: Save all dice rolls and combat events
-- **Character State**: Persist health, status effects, and combat state
-- **Story Integration**: Include combat outcomes in final story generation
-- **Replay Support**: Allow replaying combat scenarios
+#### 3. DM Selection Interface (`src/components/DMSelector.tsx`)
+- **DM Gallery**: Browse available DM templates
+- **Personality Comparison**: Compare different DM personalities
+- **Quick Selection**: Rapid DM selection for experienced users
+- **Custom DM Creation**: Create custom DM personalities
 
 ### Benefits
 
-#### 1. Dynamic Gameplay
-- **Unpredictable Outcomes**: Dice rolls create genuine uncertainty
-- **Meaningful Consequences**: Health and stats affect story progression
-- **Risk Management**: Players must consider their character's state
-- **Replayability**: Different outcomes each playthrough
+#### 1. Personalized Experience
+- **Unique Storytelling**: Each DM provides a distinct narrative voice
+- **Player Preference Matching**: Quiz ensures DM matches player preferences
+- **Replayability**: Different DMs create different experiences with same content
+- **Emotional Connection**: Players can form preferences for specific DM personalities
 
-#### 2. Character Development
-- **Stat Progression**: Successful rolls improve character abilities
-- **Experience System**: Combat and skill checks award XP
-- **Status Effects**: Temporary buffs/debuffs add depth
-- **Death/Resurrection**: High stakes with recovery mechanics
+#### 2. Dynamic Content Generation
+- **Personality-Driven Stories**: Stories reflect DM's unique perspective
+- **Consistent Voice**: DM maintains personality throughout the game
+- **Adaptive Responses**: DM can adapt to player choices while staying in character
+- **Rich Characterization**: DM becomes a character in the story
 
-#### 3. Story Integration
-- **Consequential Choices**: Story outcomes reflect character state
-- **Combat Narratives**: Rich combat descriptions and outcomes
-- **Character Growth**: Stories reflect character progression
-- **Tension Building**: Health and status create narrative tension
+#### 3. Enhanced Game Mechanics
+- **Personality-Based Choices**: Choices reflect DM's decision-making style
+- **Difficulty Scaling**: DM personality can affect game difficulty
+- **Mood System**: DM mood can change based on player actions
+- **Learning System**: DM can learn from player preferences over time
 
 ### Implementation Status
 
-#### 🔄 Phase 1: Core Dice System (PLANNED)
-- Dice roll utilities and types
-- Basic success/failure calculation
-- Critical success/failure detection
+#### 🔄 Phase 1: Core DM System (PLANNED)
+- Dungeon Master template schema and validation
+- Personality quiz system and scoring algorithm
+- Basic DM template integration with existing system
 - Comprehensive test coverage
 
-#### 🔄 Phase 2: Health & Combat System (PLANNED)
-- Health management and damage calculation
-- Death detection and resurrection mechanics
-- Status effect system
-- Combat event tracking
+#### 🔄 Phase 2: DM-Aware Generation (PLANNED)
+- DM personality integration into story generation
+- Personality-driven choice generation
+- DM communication style implementation
+- Dynamic prompt modification system
 
-#### 🔄 Phase 3: Story-Dice Integration (PLANNED)
-- Danger detection in story generation
-- Skill check generation and resolution
-- Story outcome integration
-- Character state reflection in narratives
+#### 🔄 Phase 3: Advanced DM Features (PLANNED)
+- DM mood and personality evolution
+- Learning system for player preferences
+- Advanced personality customization
+- DM template sharing and collaboration
 
-#### 🔄 Phase 4: UI Components (PLANNED)
-- Dice roll animations and display
-- Health bar and status indicators
-- Combat notifications
-- Death/resurrection UI
+#### 🔄 Phase 4: UI Integration (PLANNED)
+- Personality quiz interface
+- DM template management UI
+- DM selection and customization interface
+- DM personality preview system
 
-#### 🔄 Phase 5: Advanced Features (PLANNED)
-- Experience and leveling system
-- Inventory items affecting combat
-- Advanced status effects
-- Multi-character combat
+### Technical Considerations
+
+#### Performance
+- **Template Caching**: DM templates cached for quick access
+- **Prompt Optimization**: Efficient prompt modification without performance impact
+- **Memory Management**: Proper cleanup of DM context and personality data
+
+#### Scalability
+- **Template Versioning**: Support for DM template evolution
+- **Compatibility**: Backward compatibility with existing game templates
+- **Extensibility**: Easy addition of new personality traits and styles
+
+#### User Experience
+- **Intuitive Quiz**: Simple, engaging personality assessment
+- **Clear Results**: Easy-to-understand DM personality matching
+- **Customization**: Flexible DM personality adjustment
+- **Consistency**: Reliable DM personality throughout the game
 
 ---
 
