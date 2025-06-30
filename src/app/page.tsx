@@ -43,12 +43,9 @@ export default function Home() {
     makeChoice,
   } = useCharacterStore();
 
-  const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
-    if (newUrl === null && _ !== null) {
-      URL.revokeObjectURL(_);
-    }
-    return newUrl;
-  }, null);
+  // Derive current imageUrl from store
+  const currentImageEntry = character.imageHistory.find(img => img.turn === character.currentTurn + 1);
+  const imageUrl = currentImageEntry?.url || null;
 
   const [customStoryPrompt, setCustomStoryPrompt] = useState('Write a fantasy adventure story');
 
@@ -99,7 +96,6 @@ export default function Home() {
   };
 
   const handleImageSelect = (image: { url: string; file: File }, prompt?: string) => {
-    setImageUrl(image.url);
     // Add to imageHistory in the store
     addImageToHistory({
       id: uuidv4(),
@@ -141,7 +137,6 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    setImageUrl(null);
     // No need to reset galleryUrls; imageHistory is session-only and will reset on reload
   };
 
@@ -212,6 +207,13 @@ export default function Home() {
           data-testid="main-content-container"
           className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
         >
+          {/* Turn Indicator */}
+          <div className="mb-8 flex justify-center">
+            <h1 className="text-4xl font-extrabold text-primary drop-shadow-lg" data-testid="turn-indicator">
+              {`Turn ${character.currentTurn}`}
+            </h1>
+          </div>
+
           {/* Template Manager */}
           <div className="mb-6">
             <TemplateManager />
@@ -226,31 +228,31 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Upload Section - Always visible */}
-          <div className="mb-8">
-            <Card className="w-full max-w-md mx-auto">
-              <CardContent className="p-6">
-                {imageUrl ? (
-                  <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
-                ) : (
+          {/* Image Upload Section - Only visible if no image is uploaded or at the start of a new turn */}
+          {(!imageUrl && !isTurnLimitReached) && (
+            <div className="mb-8">
+              <Card className="w-full max-w-md mx-auto">
+                <CardContent className="p-6">
                   <div className="space-y-4">
-                    {isTurnLimitReached && (
-                      <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-yellow-200 text-sm">
-                        <p className="font-medium">Turn limit reached!</p>
-                        <p className="text-xs text-yellow-300/80">
-                          You&apos;ve used all 3 turns. Your character has gained experience and stats from analyzing images.
-                        </p>
-                      </div>
-                    )}
                     <ImageUpload 
                       onImageSelect={handleImageSelect} 
                       disabled={isTurnLimitReached}
                     />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          {/* Image Preview Section - Only visible if image is uploaded and before story/choices are generated */}
+          {(imageUrl && !description && !isTurnLimitReached) && (
+            <div className="mb-8">
+              <Card className="w-full max-w-md mx-auto">
+                <CardContent className="p-6">
+                  <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Loading Spinner for Description */}
           {isDescriptionLoading && (

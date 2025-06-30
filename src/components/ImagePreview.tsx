@@ -43,9 +43,9 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
                 variant="destructive"
                 className="absolute top-2 right-2 z-10"
                 onClick={onRemove}
-                aria-label="Remove Image"
+                aria-label="Upload Image"
               >
-                Remove Image
+                Upload Image
               </Button>
             )}
           </>
