@@ -18,6 +18,7 @@ interface TurnCardProps {
   statChanges?: Partial<CharacterStats>;
   isCurrentTurn: boolean;
   onSelectChoice?: (choiceId: string) => void;
+  isDescriptionLoading: boolean;
 }
 
 const statLabels: Record<keyof CharacterStats, string> = {
@@ -41,6 +42,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
   statChanges = {},
   isCurrentTurn,
   onSelectChoice,
+  isDescriptionLoading,
 }) => {
   // Accordions expanded by default only for current turn
   const defaultOpen = isCurrentTurn ? ['desc', 'story', 'choices'] : [];
@@ -98,7 +100,14 @@ const TurnCard: React.FC<TurnCardProps> = ({
             Image Description
           </AccordionTrigger>
           <AccordionContent>
-            <div className="prose prose-sm max-w-none">{imageDescription}</div>
+            {isCurrentTurn && isDescriptionLoading ? (
+              <div className="flex items-center gap-2 text-gray-300 py-4">
+                <LoadingSpinner />
+                <span>Generating description...</span>
+              </div>
+            ) : (
+              <div className="prose prose-sm max-w-none">{imageDescription}</div>
+            )}
           </AccordionContent>
         </AccordionItem>
         {/* Story */}

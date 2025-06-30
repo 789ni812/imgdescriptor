@@ -43,7 +43,7 @@ describe('ImagePreview Component', () => {
 
   it('calls onRemove when the remove button is clicked', () => {
     render(<ImagePreview {...defaultProps} />);
-    const removeButton = screen.getByRole('button', { name: /remove image/i });
+    const removeButton = screen.getByRole('button', { name: /upload image/i });
     fireEvent.click(removeButton);
     expect(defaultProps.onRemove).toHaveBeenCalledTimes(1);
   });

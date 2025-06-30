@@ -254,34 +254,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Description Section with Spinner */}
-          {descriptionError && (
-            <div className="mb-8">
-              <Card className="w-full max-w-md mx-auto border-red-500">
-                <CardContent className="p-6">
-                  <span className="text-red-400 font-semibold">{descriptionError}</span>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-          {!descriptionError && (
-            <div className="mb-8">
-              <Card className="w-full max-w-4xl mx-auto">
-                <CardContent className="p-6">
-                  <h2 className="text-lg font-semibold mb-2">Image Description</h2>
-                  {isDescriptionLoading ? (
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <LoadingSpinner />
-                      <span>Generating description...</span>
-                    </div>
-                  ) : (
-                    <div className="prose prose-invert max-w-none whitespace-pre-line">{description}</div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           {/* Story Generation Controls - Only show when description is available */}
           {description && !isDescriptionLoading && !descriptionError && (
             <div className="mb-8">
@@ -321,6 +293,7 @@ export default function Home() {
               <TurnCard
                 key={turnNumber}
                 {...buildTurnData(turnNumber)}
+                isDescriptionLoading={isDescriptionLoading && character.currentTurn === turnNumber}
                 onSelectChoice={handleChoiceSelect}
               />
             ))}
