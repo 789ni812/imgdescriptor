@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Choice, ChoiceOutcome, CharacterStats } from '@/lib/types/character';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion';
 import { Badge } from './ui/badge';
@@ -44,6 +44,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
 }) => {
   // Accordions expanded by default only for current turn
   const defaultOpen = isCurrentTurn ? ['desc', 'story', 'choices'] : [];
+  const [openSections, setOpenSections] = useState<string[]>(defaultOpen);
 
   return (
     <section
@@ -90,10 +91,10 @@ const TurnCard: React.FC<TurnCardProps> = ({
         </div>
       )}
       {/* Accordions */}
-      <Accordion type="multiple" defaultValue={defaultOpen}>
+      <Accordion type="multiple" value={openSections} onValueChange={setOpenSections}>
         {/* Image Description */}
         <AccordionItem value="desc">
-          <AccordionTrigger aria-expanded={isCurrentTurn ? 'true' : 'false'}>
+          <AccordionTrigger aria-expanded={openSections.includes('desc') ? 'true' : 'false'}>
             Image Description
           </AccordionTrigger>
           <AccordionContent>
@@ -102,7 +103,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
         </AccordionItem>
         {/* Story */}
         <AccordionItem value="story">
-          <AccordionTrigger aria-expanded={isCurrentTurn ? 'true' : 'false'}>
+          <AccordionTrigger aria-expanded={openSections.includes('story') ? 'true' : 'false'}>
             Story
           </AccordionTrigger>
           <AccordionContent>
@@ -117,7 +118,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
         </AccordionItem>
         {/* Choices */}
         <AccordionItem value="choices">
-          <AccordionTrigger aria-expanded={isCurrentTurn ? 'true' : 'false'}>
+          <AccordionTrigger aria-expanded={openSections.includes('choices') ? 'true' : 'false'}>
             Choices
           </AccordionTrigger>
           <AccordionContent>
