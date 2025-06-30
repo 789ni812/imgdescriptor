@@ -67,11 +67,11 @@ export default function Home() {
 
   const description = character.currentDescription ?? null;
 
-  // Per-turn state helpers
-  const currentTurn = character.currentTurn;
-  const imageEntry = character.imageHistory.find(img => img.turn === currentTurn + 1);
-  const storyEntry = character.storyHistory.find(story => story.turnNumber === currentTurn + 1);
-  const choiceOutcome = character.choiceHistory.find(outcome => outcome.turnNumber === currentTurn + 1);
+  // Per-turn state helpers (use latest image entry for current turn)
+  const latestImageEntry = character.imageHistory[character.imageHistory.length - 1];
+  const latestTurn = latestImageEntry?.turn;
+  const storyEntry = latestTurn ? character.storyHistory.find(story => story.turnNumber === latestTurn) : undefined;
+  const choiceOutcome = latestTurn ? character.choiceHistory.find(outcome => outcome.turnNumber === latestTurn) : undefined;
 
   // Helper function to build turn data for TurnCard
   const buildTurnData = (turnNumber: number) => {
@@ -260,8 +260,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Generate Story Controls - Only show if image description exists for current turn, no story yet, and not generating story */}
-          {imageEntry && imageEntry.description && !storyEntry && !isStoryLoading && !descriptionError && (
+          {/* Generate Story Controls - Only show if latest image has description, not generating description, no story yet, and not generating story */}
+          {latestImageEntry && latestImageEntry.description && !isDescriptionLoading && !storyEntry && !isStoryLoading && !descriptionError && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
@@ -293,7 +293,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Choices Controls - Only show if story exists for current turn, no choices yet, and not generating choices */}
+          {/* Choices Controls - Only show if story exists for latest turn, no choices yet, and not generating choices */}
           {storyEntry && storyEntry.text && !choiceOutcome && !isChoicesLoading && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
