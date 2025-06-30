@@ -95,7 +95,6 @@ function buildChoiceGenerationPrompt({ story, character, turn }: {
   const lastParagraph = storyParagraphs.length > 0 ? storyParagraphs[storyParagraphs.length - 1] : story;
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
-  const healthString = `Health: ${character.health}`;
   const inventoryString = character.inventory && character.inventory.length > 0
     ? `Inventory: ${character.inventory.map(item => item.name).join(', ')}`
     : '';
@@ -177,9 +176,9 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&');
     // Aggressive pre-parse fix
-    let fixed = aggressiveJsonFix(cleaned);
+    const fixed = aggressiveJsonFix(cleaned);
     // Try to extract JSON array from the response
-    let jsonMatch = fixed.match(/\[([\s\S]*?)\]/m);
+    const jsonMatch = fixed.match(/\[([\s\S]*?)\]/m);
     let arrayText = jsonMatch ? jsonMatch[0] : '';
     // Attempt to auto-close the array if needed
     if (arrayText && !arrayText.trim().endsWith(']')) {
@@ -189,10 +188,10 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
     let parsedChoices = [];
     try {
       choicesData = JSON.parse(arrayText);
-    } catch (e1) {
+    } catch {
       try {
         choicesData = JSON5.parse(arrayText);
-      } catch (e2) {
+      } catch {
         // If array parsing fails, try to extract and parse each object individually
         const objectMatches = fixed.match(/\{[\s\S]*?\}/g);
         if (objectMatches && objectMatches.length > 0) {
@@ -217,7 +216,7 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
     // Validate and transform each choice
     parsedChoices = choicesData.map((choice, index) => {
       // Normalize statRequirements keys
-      let normalizedStatRequirements: Record<string, number> = {};
+      const normalizedStatRequirements: Record<string, number> = {};
       if (choice.statRequirements && typeof choice.statRequirements === 'object') {
         Object.entries(choice.statRequirements).forEach(([key, value]) => {
           const canonicalKey = statKeyMap[key] || key.toLowerCase();

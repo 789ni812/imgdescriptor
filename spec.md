@@ -470,3 +470,44 @@ We will implement the following game mechanics, ensuring all features are extens
 ### General Principle
 - All new features must check the template's `type` field and only activate if appropriate.
 - The codebase must remain extensible for future generation types.
+
+### Phase XX: Turn-Based Card UI Refactor
+**Objective:** Refactor the UI so that each turn is represented by a single, self-contained card, and only relevant components are visible at each stage.
+
+#### Tasks
+- [ ] **XX.1: Design TurnCard Component**
+  - Create a new `TurnCard` component that encapsulates all per-turn data:
+    - Image for the turn
+    - Image description (in an accordion section)
+    - Story (in an accordion section, with loader/spinner if generating)
+    - Choices (only for the current turn, in an accordion section, with loader if generating)
+    - Character stats snapshot for that turn (optional, if useful)
+    - User's selected choice and outcome (after selection)
+  - Ensure the card is visually distinct and clearly labeled with the turn number.
+
+- [ ] **XX.2: Remove Redundant Global Components**
+  - Remove or hide the global image description, story, and choice components from the main layout.
+  - Ensure all relevant info is only shown within the appropriate `TurnCard`.
+
+- [ ] **XX.3: Contextual Component Visibility**
+  - Only show the choices section for the current turn's card.
+  - After a choice is made, minimize (not remove) the accordion for that turn's choices, so the information is still accessible but not expanded by default.
+  - For previous turns, show only the summary (image, description, story, selected choice/outcome), with all accordions minimized except for the current turn.
+
+- [ ] **XX.4: Improved Loading Feedback**
+  - When generating a story or choices, show a loader/spinner only in the relevant card's section (not globally or in previous turns).
+  - Prevent old stories from being shown in the new turn's card while loading.
+
+- [ ] **XX.5: Final Story Card**
+  - After the last turn, show a single, dedicated card at the end:
+    - "Generate Final Story" button
+    - Final story output (with markdown rendering)
+    - Any relevant summary or stats
+
+- [ ] **XX.6: Responsive and Accessible Design**
+  - Ensure the new card-based layout is responsive and works well on all screen sizes.
+  - Ensure all interactive elements are accessible (keyboard, screen reader, etc.).
+
+- [ ] **XX.7: Update Tests and Documentation**
+  - Update or add tests for the new card-based UI and component visibility logic.
+  - Update documentation and screenshots to reflect the new UI/UX.

@@ -3,8 +3,6 @@
 import { useReducer, useEffect, useState, useRef } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
-import { DescriptionDisplay } from '@/components/DescriptionDisplay';
-import { StoryDisplay } from '@/components/StoryDisplay';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,12 +10,12 @@ import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
-import { GalleryCard } from '@/components/GalleryCard';
 import { v4 as uuidv4 } from 'uuid';
 import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
 import { TemplateManager } from '@/components/TemplateManager';
-import { ChoiceDisplay } from '@/components/ChoiceDisplay';
+import TurnCard from '@/components/TurnCard';
+import type { CharacterStats } from '@/lib/types/character';
 
 export default function Home() {
   const { 
@@ -42,6 +40,7 @@ export default function Home() {
     addImageToHistory,
     updateImageDescription,
     updateImageStory,
+    makeChoice,
   } = useCharacterStore();
 
   const [imageUrl, setImageUrl] = useReducer((_: string | null, newUrl: string | null) => {
@@ -70,6 +69,34 @@ export default function Home() {
   const story = character.currentStory;
 
   const description = character.currentDescription ?? null;
+
+  // Helper function to build turn data for TurnCard
+  const buildTurnData = (turnNumber: number) => {
+    const imageEntry = character.imageHistory.find(img => img.turn === turnNumber);
+    const storyEntry = character.storyHistory.find(story => story.turnNumber === turnNumber);
+    const choiceOutcome = character.choiceHistory.find(outcome => outcome.turnNumber === turnNumber);
+    
+    // Calculate stat changes for this turn
+    let statChanges: Partial<CharacterStats> = {};
+    if (choiceOutcome?.statChanges) {
+      statChanges = choiceOutcome.statChanges;
+    }
+
+    return {
+      turnNumber,
+      imageUrl: imageEntry?.url || '',
+      imageDescription: imageEntry?.description || '',
+      story: storyEntry?.text || '',
+      isStoryLoading: isStoryLoading && character.currentTurn === turnNumber,
+      choices: character.currentChoices,
+      isChoicesLoading: isChoicesLoading && character.currentTurn === turnNumber,
+      selectedChoiceId: choiceOutcome?.choiceId,
+      choiceOutcome,
+      characterStats: character.stats,
+      statChanges,
+      isCurrentTurn: character.currentTurn === turnNumber,
+    };
+  };
 
   const handleImageSelect = (image: { url: string; file: File }, prompt?: string) => {
     setImageUrl(image.url);
@@ -116,6 +143,10 @@ export default function Home() {
   const handleReset = () => {
     setImageUrl(null);
     // No need to reset galleryUrls; imageHistory is session-only and will reset on reload
+  };
+
+  const handleChoiceSelect = (choiceId: string) => {
+    makeChoice(choiceId);
   };
 
   const isTurnLimitReached = character.currentTurn >= 3;
@@ -185,6 +216,7 @@ export default function Home() {
           <div className="mb-6">
             <TemplateManager />
           </div>
+          
           {/* Reset Game Button */}
           {character.currentTurn > 0 && (
             <div className="mb-4">
@@ -193,9 +225,10 @@ export default function Home() {
               </Button>
             </div>
           )}
-          <div className="flex flex-wrap gap-6 justify-start">
-            {/* Image Upload/Preview Card */}
-            <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+
+          {/* Image Upload Section - Always visible */}
+          <div className="mb-8">
+            <Card className="w-full max-w-md mx-auto">
               <CardContent className="p-6">
                 {imageUrl ? (
                   <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
@@ -217,30 +250,25 @@ export default function Home() {
                 )}
               </CardContent>
             </Card>
+          </div>
 
-            {/* Loading Spinner Card */}
-            {isDescriptionLoading && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+          {/* Loading Spinner for Description */}
+          {isDescriptionLoading && (
+            <div className="mb-8">
+              <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
                   <div className="flex justify-center items-center h-full min-h-[80px]">
                     <LoadingSpinner />
                   </div>
                 </CardContent>
               </Card>
-            )}
+            </div>
+          )}
 
-            {/* Description Display Card */}
-            {!isDescriptionLoading && (description || descriptionError) && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-                <CardContent className="p-6">
-                  <DescriptionDisplay description={description} error={descriptionError} />
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Generate Story Card with Dual Prompt System */}
-            {description && !isDescriptionLoading && !descriptionError && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+          {/* Story Generation Controls - Only show when description is available */}
+          {description && !isDescriptionLoading && !descriptionError && (
+            <div className="mb-8">
+              <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-white">Generate Story</h3>
@@ -267,29 +295,24 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            </div>
+          )}
 
-            {/* Story Display Card */}
-            {(isStoryLoading || story || storyError) && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-                <CardContent className="p-6">
-                  <StoryDisplay story={story ?? null} isLoading={isStoryLoading} error={storyError} />
-                </CardContent>
-              </Card>
-            )}
+          {/* Turn Cards - Display all completed turns */}
+          <div className="space-y-6">
+            {Array.from({ length: character.currentTurn }, (_, i) => i + 1).map(turnNumber => (
+              <TurnCard
+                key={turnNumber}
+                {...buildTurnData(turnNumber)}
+                onSelectChoice={handleChoiceSelect}
+              />
+            ))}
+          </div>
 
-            {/* Choice Display Card */}
-            {character.currentChoices && (character.currentChoices.length > 0 || character.choiceHistory.length > 0) && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
-                <CardContent className="p-6">
-                  <ChoiceDisplay choices={character.currentChoices} outcomes={character.choiceHistory.slice(-3)} isLoading={isChoicesLoading} />
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Final Story Generation Button - only show on Turn 3 after story is generated */}
-            {character.currentTurn === 3 && story && !isStoryLoading && !storyError && !finalStory && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+          {/* Final Story Generation - only show on Turn 3 after story is generated */}
+          {character.currentTurn === 3 && story && !isStoryLoading && !storyError && !finalStory && (
+            <div className="mt-8">
+              <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-white">Complete Your Adventure</h3>
@@ -307,26 +330,35 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
-            )}
-            {/* Final Story Loading Indicator */}
-            {isFinalStoryLoading && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+            </div>
+          )}
+
+          {/* Final Story Loading Indicator */}
+          {isFinalStoryLoading && (
+            <div className="mt-8">
+              <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6 flex items-center justify-center">
                   <span className="text-primary text-lg font-semibold">Generating your final story...</span>
                 </CardContent>
               </Card>
-            )}
-            {/* Final Story Error */}
-            {finalStoryError && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px] border-red-500">
+            </div>
+          )}
+
+          {/* Final Story Error */}
+          {finalStoryError && (
+            <div className="mt-8">
+              <Card className="w-full max-w-md mx-auto border-red-500">
                 <CardContent className="p-6">
                   <span className="text-red-400 font-semibold">{finalStoryError}</span>
                 </CardContent>
               </Card>
-            )}
-            {/* Final Story Display */}
-            {finalStory && (
-              <Card className="w-full sm:w-auto min-w-[300px] max-w-[400px]">
+            </div>
+          )}
+
+          {/* Final Story Display */}
+          {finalStory && (
+            <div className="mt-8">
+              <Card className="w-full max-w-4xl mx-auto">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold mb-2" role="heading">Final Story</h2>
                   <div className="prose prose-invert max-w-none">
@@ -334,23 +366,8 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
-            )}
-          </div>
-          {/* Image Gallery - replaced with stacked GalleryCards */}
-          <div className="mt-8 space-y-6">
-            {[...character.imageHistory].slice().reverse().map((img) => (
-              <div key={img.id} className="w-full max-w-md mx-auto">
-                <div className="text-xs text-gray-400 mb-1">Turn {img.turn}</div>
-                <GalleryCard
-                  id={img.id}
-                  url={img.url}
-                  description={img.description}
-                  story={img.story || ''}
-                  turn={img.turn}
-                />
-              </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
