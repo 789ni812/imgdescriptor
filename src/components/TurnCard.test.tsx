@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import TurnCard from './TurnCard';
 
 const baseProps = {
@@ -69,5 +69,102 @@ describe('TurnCard', () => {
   it('is accessible and visually distinct', () => {
     render(<TurnCard {...baseProps} />);
     expect(screen.getByRole('region', { name: /Turn 2/i })).toBeInTheDocument();
+  });
+
+  it('shows spinner while story is loading, then displays story as soon as available', () => {
+    render(<TurnCard {...baseProps} isStoryLoading={true} story="" />);
+    expect(screen.getByTestId('story-loader')).toBeInTheDocument();
+    // When loading is done and story is present, should show story, not 'Not available yet'
+    render(<TurnCard {...baseProps} isStoryLoading={false} story="The generated story!" />);
+    // Open the story accordion
+    fireEvent.click(screen.getAllByText(/Story/)[0]);
+    const storyContent = screen.getAllByTestId('story-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(storyContent).toBeTruthy();
+    expect(within(storyContent!).getByText('The generated story!')).toBeInTheDocument();
+    expect(within(storyContent!).queryByText(/Not available yet/i)).not.toBeInTheDocument();
+  });
+
+  it('choices accordion only shows spinner after story is available, and only shows choices after they are generated', () => {
+    // If story is missing, choices should show 'Not available yet' even if loading
+    render(<TurnCard {...baseProps} story="" isChoicesLoading={true} choices={[]} />);
+    fireEvent.click(screen.getAllByText(/Choices/)[0]);
+    expect(screen.getAllByText(/Not available yet/i).length).toBeGreaterThan(0);
+    // If story is present and choices are loading, show spinner
+    render(<TurnCard {...baseProps} story="Story present" isChoicesLoading={true} choices={[]} />);
+    fireEvent.click(screen.getAllByText(/Choices/)[0]);
+    expect(screen.getByTestId('choices-loader')).toBeInTheDocument();
+    // If story and choices are present, show choices
+    render(<TurnCard {...baseProps} story="Story present" isChoicesLoading={false} choices={[{ id: 'c1', text: 'Choice 1' }]} />);
+    fireEvent.click(screen.getAllByText(/Choices/)[0]);
+    expect(screen.getByText((content) => content.includes('Choice 1'))).toBeInTheDocument();
+  });
+
+  it('after a choice is made, choices accordion displays all choices, highlights the selected one and its outcome', () => {
+    render(<TurnCard {...baseProps} selectedChoiceId="c1" choiceOutcome={{ id: 'o1', text: 'Choice 1', outcome: 'You succeed!' }} choices={[{ id: 'c1', text: 'Choice 1' }, { id: 'c2', text: 'Choice 2' }]} />);
+    // Ensure choices accordion is open
+    const choicesTrigger = screen.getAllByText(/Choices/)[0];
+    if (choicesTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(choicesTrigger);
+    }
+    const choicesContent = screen.getAllByTestId('choices-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(choicesContent).toBeTruthy();
+    expect(within(choicesContent!).getByText((content) => content.includes('Choice 1'))).toBeInTheDocument();
+    expect(within(choicesContent!).getByText((content) => content.includes('Choice 2'))).toBeInTheDocument();
+    expect(within(choicesContent!).getByText(/Selected/)).toBeInTheDocument();
+    expect(within(choicesContent!).getByText(/You succeed!/)).toBeInTheDocument();
+  });
+
+  it('after a turn is complete, next turn accordions are empty or show Not available yet', () => {
+    // Simulate a new turn with no content
+    render(<TurnCard {...baseProps} turnNumber={3} imageDescription="" story="" choices={[]} />);
+    // Image Description
+    const descTrigger = screen.getAllByText(/Image Description/)[0];
+    if (descTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(descTrigger);
+    }
+    const descContent = screen.getAllByTestId('desc-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(descContent).toBeTruthy();
+    expect(within(descContent!).getByText(/Not available yet/i)).toBeInTheDocument();
+    // Story
+    const storyTrigger = screen.getAllByText(/Story/)[0];
+    if (storyTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(storyTrigger);
+    }
+    const storyContent = screen.getAllByTestId('story-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(storyContent).toBeTruthy();
+    expect(within(storyContent!).getByText(/Not available yet/i)).toBeInTheDocument();
+    // Choices
+    const choicesTrigger = screen.getAllByText(/Choices/)[0];
+    if (choicesTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(choicesTrigger);
+    }
+    const choicesContent = screen.getAllByTestId('choices-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(choicesContent).toBeTruthy();
+    expect(within(choicesContent!).getByText(/Not available yet/i)).toBeInTheDocument();
+  });
+
+  it('accordions are always user-expandable/collapsible for all turns and sections', () => {
+    render(<TurnCard {...baseProps} isCurrentTurn={false} />);
+    // All accordions should be collapsed by default
+    expect(screen.getByText(/Image Description/).closest('[aria-expanded]')).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(screen.getByText(/Image Description/));
+    expect(screen.getByText(/Image Description/).closest('[aria-expanded]')).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(screen.getByText(/Image Description/));
+    expect(screen.getByText(/Image Description/).closest('[aria-expanded]')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('each section shows generated content, spinner if generating, or Not available yet if missing', () => {
+    // Description present
+    render(<TurnCard {...baseProps} imageDescription="Desc" isDescriptionLoading={false} />);
+    fireEvent.click(screen.getAllByText(/Image Description/)[0]);
+    expect(screen.getByText((content) => content.includes('Desc'))).toBeInTheDocument();
+    // Description loading
+    render(<TurnCard {...baseProps} imageDescription="" isDescriptionLoading={true} />);
+    fireEvent.click(screen.getAllByText(/Image Description/)[0]);
+    expect(screen.getByText(/Generating description/)).toBeInTheDocument();
+    // Description missing
+    render(<TurnCard {...baseProps} imageDescription="" isDescriptionLoading={false} />);
+    fireEvent.click(screen.getAllByText(/Image Description/)[0]);
+    expect(screen.getAllByText(/Not available yet/).length).toBeGreaterThan(0);
   });
 }); 

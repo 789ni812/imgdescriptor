@@ -110,6 +110,113 @@ jest.config.js           # Jest configuration
 - **Run tests:** `npm test` or `npm run test:watch`
 - **Build check:** `npm run build` (must pass before commit)
 
+## TDD Process and Best Practices
+
+### TDD Workflow for Each Feature
+1. **Write Failing Tests First**
+   - Create comprehensive test suite covering all requirements
+   - Ensure tests fail initially (red phase)
+   - Use descriptive test names that explain the expected behavior
+   - Test edge cases and error conditions
+
+2. **Implement Minimal Code**
+   - Write only the code necessary to make tests pass (green phase)
+   - Avoid over-engineering or implementing future features
+   - Focus on the current failing test only
+
+3. **Refactor and Improve**
+   - Clean up code while ensuring tests continue to pass
+   - Improve readability, performance, and maintainability
+   - Maintain strict TypeScript typing throughout
+
+4. **Quality Assurance**
+   - Run all relevant tests to ensure no regressions
+   - Verify production build succeeds (`npm run build`)
+   - Test in browser for visual verification (`npm run dev`)
+
+### Test Strategy Best Practices
+
+#### Element Selection
+- **Prefer `data-testid` attributes** for reliable element selection
+- Use `within()` queries to scope assertions to specific components
+- Implement `getAllByText()` with indexing for multiple instances
+- Use function matchers for text that may be split across elements
+
+#### Test Isolation
+- Each test should be independent and not rely on previous test state
+- Use fresh component instances for each test case
+- Reset any global state between tests
+- Avoid test interdependencies
+
+#### State Management Testing
+- Test component state changes and side effects
+- Verify proper prop passing and event handling
+- Test loading states, error states, and success states
+- Ensure accessibility attributes are properly set
+
+### Example TDD Implementation: Per-Turn Accordion Flow
+
+#### Step 1: Write Comprehensive Failing Tests
+```typescript
+it('shows spinner while story is loading, then displays story as soon as available', () => {
+  render(<TurnCard {...baseProps} isStoryLoading={true} story="" />);
+  expect(screen.getByTestId('story-loader')).toBeInTheDocument();
+  
+  render(<TurnCard {...baseProps} isStoryLoading={false} story="The generated story!" />);
+  const storyContent = screen.getAllByTestId('story-content').find(el => el.getAttribute('data-state') === 'open');
+  expect(within(storyContent!).getByText('The generated story!')).toBeInTheDocument();
+  expect(within(storyContent!).queryByText(/Not available yet/i)).not.toBeInTheDocument();
+});
+```
+
+#### Step 2: Implement Component Logic
+```typescript
+<AccordionContent data-testid="story-content">
+  {isStoryLoading ? (
+    <div data-testid="story-loader" className="flex items-center gap-2 py-4">
+      <LoadingSpinner /> <span>Generating story...</span>
+    </div>
+  ) : story ? (
+    <div className="prose prose-sm max-w-none">{story}</div>
+  ) : (
+    <div className="text-gray-400 italic">Not available yet</div>
+  )}
+</AccordionContent>
+```
+
+#### Step 3: Test Refinement
+- Handle multiple accordion instances with proper indexing
+- Ensure correct accordion state before querying content
+- Use robust selectors that work across different component states
+
+### Key Technical Decisions
+
+#### Component Architecture
+- Add new props to interfaces with strict typing
+- Maintain existing accessibility patterns
+- Preserve UI/UX consistency with existing components
+- Use conditional rendering for different states
+
+#### Error Handling
+- Implement graceful handling of component state changes
+- Provide clear error messages for test failures
+- Handle edge cases and unexpected states
+
+### Lessons Learned
+1. **Test Isolation**: Each test should be independent and not rely on previous test state
+2. **Element Selection**: Use specific selectors (`data-testid`) rather than generic text queries when possible
+3. **State Management**: Always verify the expected state before making assertions
+4. **Accessibility**: Maintain proper ARIA attributes throughout implementation
+5. **Type Safety**: Ensure all new props and interfaces are strictly typed
+
+### Future TDD Implementations
+This process can be applied to future features by:
+1. Writing comprehensive failing tests that cover all requirements
+2. Implementing minimal code to make tests pass
+3. Refining tests and code iteratively
+4. Ensuring full test coverage and build success
+5. Documenting the process for future reference
+
 ## UI/UX
 - **Layout:**
   - Responsive, stacked card layout (no grid)

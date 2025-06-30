@@ -23,6 +23,105 @@
 6. **Update `spec.md`** (mark the task as complete)
 7. **Commit All Changes** (code, tests, and spec.md) with a clear, conventional commit message
 
+## TDD Process Summary: Per-Turn Accordion and Generation Flow Implementation
+
+### Overview
+This section documents the complete TDD process used to implement the per-turn accordion and generation flow requirements for the TurnCard component. This serves as a reference for future TDD implementations.
+
+### Requirements Implemented
+1. **Story Accordion Behavior**
+   - Shows spinner while loading (`isStoryLoading: true`)
+   - Displays story content as soon as available (never shows "Not available yet" if story is present)
+   - Shows "Not available yet" only when story is missing and not loading
+
+2. **Choices Accordion Logic**
+   - Only shows spinner after story is available (`isChoicesLoading: true` + story present)
+   - If story is missing, always shows "Not available yet" (even if loading)
+   - Displays all choices when story and choices are present
+   - Highlights selected choice with "Selected" badge
+   - Shows choice outcome when a choice is made
+
+3. **Description Accordion**
+   - Shows spinner while loading (`isDescriptionLoading: true`)
+   - Displays description when available
+   - Shows "Not available yet" when missing and not loading
+
+4. **Accordion Interactivity**
+   - All accordions are always user-expandable/collapsible for all turns
+   - Previous turns have accordions collapsed by default
+   - Current turn has accordions expanded by default
+   - Proper accessibility attributes (`aria-expanded`, `data-state`)
+
+5. **Content State Management**
+   - Each section shows exactly one of:
+     - Generated content (when available)
+     - Spinner (when loading)
+     - "Not available yet" (when missing and not loading)
+
+### TDD Implementation Steps
+
+#### Step 1: Write Failing Tests
+- Created comprehensive test suite in `src/components/TurnCard.test.tsx`
+- Added 5 new test cases covering all requirements:
+  - `shows spinner while story is loading, then displays story as soon as available`
+  - `choices accordion only shows spinner after story is available, and only shows choices after they are generated`
+  - `after a choice is made, choices accordion displays all choices, highlights the selected one and its outcome`
+  - `after a turn is complete, next turn accordions are empty or show Not available yet`
+  - `each section shows generated content, spinner if generating, or Not available yet if missing`
+
+#### Step 2: Implement Code to Pass Tests
+- Updated `TurnCard.tsx` component logic:
+  - Added `data-testid` attributes to AccordionContent for reliable testing
+  - Updated choices logic to only show spinner when story is present
+  - Improved conditional rendering for all three sections
+  - Enhanced accessibility with proper ARIA attributes
+
+#### Step 3: Test Refinement
+- Fixed test queries to handle multiple accordion instances:
+  - Used `getAllByText()` and indexing for accordion triggers
+  - Used `within()` and `data-testid` selectors for content assertions
+  - Added logic to ensure correct accordion is open before querying content
+
+#### Step 4: Quality Assurance
+- **Test Results**: 13 passing tests for TurnCard component
+- **Full Suite**: 223/224 tests passing
+- **Build**: Production build successful
+- **Browser Preview**: Development server running at http://localhost:3000
+
+### Key Technical Decisions
+
+#### Test Strategy
+- Used `data-testid` attributes for reliable element selection
+- Implemented `within()` queries to scope assertions to specific accordion content
+- Added logic to check accordion state before querying content
+- Used function matchers for text that may be split across elements
+
+#### Component Architecture
+- Added `isDescriptionLoading` prop to TurnCard interface
+- Updated conditional rendering logic for all three accordion sections
+- Maintained existing accessibility patterns while adding new functionality
+- Preserved existing UI/UX patterns for consistency
+
+#### Error Handling
+- Robust test queries that handle multiple accordion instances
+- Graceful handling of accordion state changes
+- Clear error messages for test failures
+
+### Lessons Learned
+1. **Test Isolation**: Each test should be independent and not rely on previous test state
+2. **Element Selection**: Use specific selectors (`data-testid`) rather than generic text queries when possible
+3. **State Management**: Always verify the expected state before making assertions
+4. **Accessibility**: Maintain proper ARIA attributes throughout implementation
+5. **Type Safety**: Ensure all new props and interfaces are strictly typed
+
+### Future TDD Implementations
+This process can be applied to future features by:
+1. Writing comprehensive failing tests that cover all requirements
+2. Implementing minimal code to make tests pass
+3. Refining tests and code iteratively
+4. Ensuring full test coverage and build success
+5. Documenting the process for future reference
+
 ## Documentation Review Workflow
 
 **Before proposing or implementing new functionality, always review and update all relevant documentation:**
@@ -478,12 +577,15 @@ We will implement the following game mechanics, ensuring all features are extens
 - [ ] **XX.1: Design TurnCard Component**
   - Create a new `TurnCard` component that encapsulates all per-turn data:
     - Image for the turn
-    - Image description (in an accordion section)
-    - Story (in an accordion section, with loader/spinner if generating)
-    - Choices (only for the current turn, in an accordion section, with loader if generating)
+    - Image description (in an always-expandable/collapsible accordion section; shows content or 'Not available yet')
+    - Story (in an always-expandable/collapsible accordion section; shows content or 'Not available yet')
+    - Choices (in an always-expandable/collapsible accordion section; shows content or 'Not available yet')
+    - After a choice is made, show all choices and clearly indicate the selected one and its outcome.
     - Character stats snapshot for that turn (optional, if useful)
     - User's selected choice and outcome (after selection)
-  - Ensure the card is visually distinct and clearly labeled with the turn number.
+    - Accordions are always user-expandable/collapsible for all turns and sections.
+    - If content is missing, show 'Not available yet' in the section.
+    - Ensure the card is visually distinct and clearly labeled with the turn number.
 
 - [ ] **XX.2: Remove Redundant Global Components**
   - Remove or hide the global image description, story, and choice components from the main layout.
@@ -493,6 +595,11 @@ We will implement the following game mechanics, ensuring all features are extens
   - Only show the choices section for the current turn's card.
   - After a choice is made, minimize (not remove) the accordion for that turn's choices, so the information is still accessible but not expanded by default.
   - For previous turns, show only the summary (image, description, story, selected choice/outcome), with all accordions minimized except for the current turn.
+  - **Controls (upload, generate story, choices) only appear at the correct stage for the current turn.**
+  - **After a choice is made, the next turn begins and the image upload is shown for the new turn.**
+  - **Choices and outcomes remain visible after a choice is made.**
+  - **All accordions are always user-expandable/collapsible for all turns and sections.**
+  - **Each section shows either the generated content or a 'Not available yet' message if missing.**
 
 - [ ] **XX.4: Improved Loading Feedback**
   - When generating a story or choices, show a loader/spinner only in the relevant card's section (not globally or in previous turns).
@@ -511,3 +618,19 @@ We will implement the following game mechanics, ensuring all features are extens
 - [ ] **XX.7: Update Tests and Documentation**
   - Update or add tests for the new card-based UI and component visibility logic.
   - Update documentation and screenshots to reflect the new UI/UX.
+
+- [x] **XX.8: Per-Turn Accordion and Generation Flow**
+  - The story accordion must show a spinner while generating, then display the story as soon as it is available (never 'Not available yet' if the story is present).
+  - The choices accordion must only show a spinner after the story is available, and only show choices after they are generated.
+  - After a choice is made, the choices accordion must display all choices, clearly indicate the selected one and its outcome, and the turn is considered complete.
+  - After a turn is complete, the next turn's image upload is shown, and the new turn's accordions are empty (or 'Not available yet') until content is generated.
+  - All accordions are always user-expandable/collapsible for all turns and sections.
+  - Each section shows either the generated content, a spinner (if generating), or a 'Not available yet' message if missing.
+  - [x] **Task: Write failing Jest tests for each of the above requirements.**
+  - [x] **Task: Implement code to make each test pass, following TDD.**
+  - [x] **Task: Run all tests and ensure the build passes.**
+  - [x] **Task: Mark each item as complete in the spec.**
+  - **Completed 2025-01-27**
+  - **Commit:** `feat(turncard): implement per-turn accordion and generation flow with comprehensive TDD`
+  - **Test Coverage:** 13 passing tests for TurnCard component
+  - **Implementation Details:** See "TDD Process Summary" section above for complete documentation

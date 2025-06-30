@@ -1,10 +1,9 @@
 "use client";
 
-import { useReducer, useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ImagePreview } from '@/components/ImagePreview';
 import { Button } from '@/components/ui/Button';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
@@ -148,6 +147,9 @@ export default function Home() {
 
   const handleChoiceSelect = (choiceId: string) => {
     makeChoice(choiceId);
+    // After making a choice, increment the turn to start the next one
+    incrementTurn();
+    // Optionally, reset any per-turn UI state if needed
   };
 
   const isTurnLimitReached = character.currentTurn >= 3;

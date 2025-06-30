@@ -99,14 +99,16 @@ const TurnCard: React.FC<TurnCardProps> = ({
           <AccordionTrigger aria-expanded={openSections.includes('desc') ? 'true' : 'false'}>
             Image Description
           </AccordionTrigger>
-          <AccordionContent>
-            {isCurrentTurn && isDescriptionLoading ? (
+          <AccordionContent data-testid="desc-content">
+            {isDescriptionLoading ? (
               <div className="flex items-center gap-2 text-gray-300 py-4">
                 <LoadingSpinner />
                 <span>Generating description...</span>
               </div>
-            ) : (
+            ) : imageDescription ? (
               <div className="prose prose-sm max-w-none">{imageDescription}</div>
+            ) : (
+              <div className="text-gray-400 italic">Not available yet</div>
             )}
           </AccordionContent>
         </AccordionItem>
@@ -115,13 +117,15 @@ const TurnCard: React.FC<TurnCardProps> = ({
           <AccordionTrigger aria-expanded={openSections.includes('story') ? 'true' : 'false'}>
             Story
           </AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent data-testid="story-content">
             {isStoryLoading ? (
               <div data-testid="story-loader" className="flex items-center gap-2 py-4">
                 <LoadingSpinner /> <span>Generating story...</span>
               </div>
-            ) : (
+            ) : story ? (
               <div className="prose prose-sm max-w-none">{story}</div>
+            ) : (
+              <div className="text-gray-400 italic">Not available yet</div>
             )}
           </AccordionContent>
         </AccordionItem>
@@ -130,17 +134,24 @@ const TurnCard: React.FC<TurnCardProps> = ({
           <AccordionTrigger aria-expanded={openSections.includes('choices') ? 'true' : 'false'}>
             Choices
           </AccordionTrigger>
-          <AccordionContent>
-            {isChoicesLoading ? (
+          <AccordionContent data-testid="choices-content">
+            {/* Only show loader or choices if story is present; otherwise, show Not available yet */}
+            {!story ? (
+              <div className="text-gray-400 italic">Not available yet</div>
+            ) : isChoicesLoading ? (
               <div data-testid="choices-loader" className="flex items-center gap-2 py-4">
                 <LoadingSpinner /> <span>Generating choices...</span>
               </div>
-            ) : (
+            ) : choices && choices.length > 0 ? (
               <div className="space-y-3">
-                {isCurrentTurn && !selectedChoiceId ? (
-                  choices.map((choice) => (
-                    <div key={choice.id} className="border rounded p-2 flex flex-col gap-1">
-                      <div className="font-semibold">{choice.text}</div>
+                {choices.map((choice) => {
+                  const isSelected = selectedChoiceId === choice.id;
+                  return (
+                    <div key={choice.id} className={`border rounded p-2 flex flex-col gap-1 ${isSelected ? 'border-primary bg-primary/10' : ''}`}>
+                      <div className="font-semibold flex items-center">
+                        {choice.text}
+                        {isSelected && <span className="ml-2 px-2 py-0.5 rounded bg-primary text-white text-xs">Selected</span>}
+                      </div>
                       <div className="text-sm text-muted-foreground">{choice.description}</div>
                       {choice.statRequirements && (
                         <div className="flex gap-1 flex-wrap">
@@ -158,23 +169,28 @@ const TurnCard: React.FC<TurnCardProps> = ({
                           ))}
                         </ul>
                       )}
-                      <button
-                        className="mt-1 px-2 py-1 bg-primary text-primary-foreground rounded text-xs self-end"
-                        onClick={() => onSelectChoice && onSelectChoice(choice.id)}
-                        role="button"
-                        aria-label={`Choose ${choice.text}`}
-                      >
-                        Choose
-                      </button>
+                      {isCurrentTurn && !selectedChoiceId && (
+                        <button
+                          className="mt-1 px-2 py-1 bg-primary text-primary-foreground rounded text-xs self-end"
+                          onClick={() => onSelectChoice && onSelectChoice(choice.id)}
+                          role="button"
+                          aria-label={`Choose ${choice.text}`}
+                        >
+                          Choose
+                        </button>
+                      )}
+                      {/* Show outcome if this was the selected choice and outcome exists */}
+                      {isSelected && choiceOutcome && (
+                        <div className="mt-2 text-green-700 text-sm font-semibold">
+                          Outcome: {choiceOutcome.outcome}
+                        </div>
+                      )}
                     </div>
-                  ))
-                ) : (!isCurrentTurn && choiceOutcome) ? (
-                  <div className="border rounded p-2">
-                    <div className="font-semibold">{choiceOutcome.text}</div>
-                    <div className="text-sm text-muted-foreground">{choiceOutcome.outcome}</div>
-                  </div>
-                ) : null}
+                  );
+                })}
               </div>
+            ) : (
+              <div className="text-gray-400 italic">Not available yet</div>
             )}
           </AccordionContent>
         </AccordionItem>
