@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry } from '../types/character';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extended Character interface for the store with additional fields
@@ -15,6 +15,7 @@ export interface ExtendedCharacter extends Character {
   currentStory?: string | null;
   currentDescription?: string | null;
   currentTurn: number;
+  choicesHistory?: ChoicesHistoryEntry[];
 }
 
 // Character store state interface
@@ -44,6 +45,7 @@ export interface CharacterState {
   makeChoice: (choiceId: string) => void;
   addChoice: (choice: Choice) => void;
   clearCurrentChoices: () => void;
+  getChoicesForTurn: (turn: number) => Choice[];
 }
 
 // Calculate experience needed for next level
@@ -70,6 +72,7 @@ const createDefaultCharacter = (): ExtendedCharacter => {
     currentStory: null,
     currentDescription: null,
     currentTurn: 1,
+    choicesHistory: [],
   };
 };
 
@@ -385,6 +388,9 @@ export const useCharacterStore = create<CharacterState>()(
 
       incrementTurn: () => {
         set((state) => {
+          if (state.character.currentTurn >= 3) {
+            return state;
+          }
           const nextTurn = state.character.currentTurn + 1;
           return {
             character: {
@@ -508,13 +514,33 @@ export const useCharacterStore = create<CharacterState>()(
       },
 
       addChoice: (choice: Choice) => {
-        set((state) => ({
-          character: {
-            ...state.character,
-            currentChoices: [...state.character.currentChoices, choice],
-            updatedAt: new Date(),
-          },
-        }));
+        set((state) => {
+          const { character } = state;
+          const currentTurn = character.currentTurn;
+          // Add to currentChoices as before
+          const newCurrentChoices = [...(character.currentChoices || []), choice];
+          // Add to choicesHistory for this turn
+          let newChoicesHistory = character.choicesHistory ? [...character.choicesHistory] : [];
+          const idx = newChoicesHistory.findIndex(entry => entry.turn === currentTurn);
+          if (idx !== -1) {
+            // Update existing entry
+            newChoicesHistory[idx] = {
+              turn: currentTurn,
+              choices: [...newChoicesHistory[idx].choices, choice],
+            };
+          } else {
+            // Add new entry
+            newChoicesHistory.push({ turn: currentTurn, choices: [choice] });
+          }
+          return {
+            character: {
+              ...character,
+              currentChoices: newCurrentChoices,
+              choicesHistory: newChoicesHistory,
+              updatedAt: new Date(),
+            },
+          };
+        });
       },
 
       clearCurrentChoices: () => {
@@ -522,9 +548,17 @@ export const useCharacterStore = create<CharacterState>()(
           character: {
             ...state.character,
             currentChoices: [],
+            // Optionally clear choicesHistory for current turn if needed
             updatedAt: new Date(),
           },
         }));
+      },
+
+      getChoicesForTurn: (turn: number) => {
+        const { character } = get();
+        return (
+          character.choicesHistory?.find(entry => entry.turn === turn)?.choices || []
+        );
       },
     }),
     {

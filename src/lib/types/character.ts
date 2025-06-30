@@ -53,6 +53,12 @@ export interface CharacterStats {
   wisdom: number;       // 1-20
 }
 
+// Per-turn choices history
+export interface ChoicesHistoryEntry {
+  turn: number;
+  choices: Choice[];
+}
+
 export interface Character {
   health: number; // 0-200
   heartrate: number; // 40-180
@@ -68,6 +74,7 @@ export interface Character {
   currentChoices: Choice[];
   currentTurn: number; // >= 1
   stats: CharacterStats; // RPG stats
+  choicesHistory?: ChoicesHistoryEntry[];
 }
 
 export function createCharacter(overrides: Partial<Character> = {}): Character {

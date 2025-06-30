@@ -29,7 +29,7 @@ jest.mock('zustand/middleware', () => ({
 }));
 
 import { renderHook, act } from '@testing-library/react';
-import { useCharacterStore, Story } from './characterStore';
+import { useCharacterStore } from './characterStore';
 
 // (No mock for createCharacter)
 
@@ -229,11 +229,10 @@ describe('Character Store Actions', () => {
       act(() => {
         result.current.addStory({
           id: 'story-1',
-          title: 'The Mysterious Image',
-          description: 'A detailed description of the image',
-          story: 'Once upon a time...',
-          imageUrl: 'data:image/jpeg;base64,test',
-          createdAt: new Date(),
+          text: 'Once upon a time...',
+          imageDescription: 'A detailed description of the image',
+          turnNumber: 1,
+          timestamp: new Date().toISOString(),
         });
       });
       
@@ -251,11 +250,10 @@ describe('Character Store Actions', () => {
       const { result } = renderHook(() => useCharacterStore());
       const baseStory = {
         id: 'story-1',
-        title: 'The Mysterious Image',
-        description: 'A detailed description of the image',
-        story: 'Once upon a time...',
-        imageUrl: 'data:image/jpeg;base64,test',
-        createdAt: new Date(),
+        text: 'Once upon a time...',
+        imageDescription: 'A detailed description of the image',
+        turnNumber: 1,
+        timestamp: new Date().toISOString(),
       };
       
       // Add initial story
@@ -266,8 +264,8 @@ describe('Character Store Actions', () => {
       // Update the story
       act(() => {
         result.current.updateStory('story-1', {
-          story: 'Updated story content...',
-          description: 'A detailed description of the image',
+          text: 'Updated story content...',
+          imageDescription: 'A detailed description of the image',
         });
       });
       
@@ -285,11 +283,10 @@ describe('Character Store Actions', () => {
       const { result } = renderHook(() => useCharacterStore());
       const baseStory = {
         id: 'story-1',
-        title: 'The Mysterious Image',
-        description: 'A detailed description of the image',
-        story: 'Once upon a time...',
-        imageUrl: 'data:image/jpeg;base64,test',
-        createdAt: new Date(),
+        text: 'Once upon a time...',
+        imageDescription: 'A detailed description of the image',
+        turnNumber: 1,
+        timestamp: new Date().toISOString(),
       };
       
       // Add story
@@ -311,11 +308,10 @@ describe('Character Store Actions', () => {
       const { result } = renderHook(() => useCharacterStore());
       const baseStory = {
         id: 'story-1',
-        title: 'The Mysterious Image',
-        description: 'A detailed description of the image',
-        story: 'Once upon a time...',
-        imageUrl: 'data:image/jpeg;base64,test',
-        createdAt: new Date(),
+        text: 'Once upon a time...',
+        imageDescription: 'A detailed description of the image',
+        turnNumber: 1,
+        timestamp: new Date().toISOString(),
       };
       act(() => {
         result.current.addStory(baseStory);
@@ -323,11 +319,10 @@ describe('Character Store Actions', () => {
       const foundStory = result.current.getStory('story-1');
       expect(foundStory).toEqual(expect.objectContaining({
         id: 'story-1',
-        title: expect.any(String),
-        description: 'A detailed description of the image',
-        story: 'Once upon a time...',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'Once upon a time...',
+        imageDescription: 'A detailed description of the image',
+        turnNumber: 1,
+        timestamp: expect.any(String),
       }));
     });
 
@@ -342,19 +337,17 @@ describe('Character Store Actions', () => {
       const { result } = renderHook(() => useCharacterStore());
       const story1 = {
         id: 'story-1',
-        title: 'First Story',
-        description: 'First description',
-        story: 'First story content',
-        imageUrl: 'data:image/jpeg;base64,test1',
-        createdAt: new Date('2024-01-01'),
+        text: 'First story content',
+        imageDescription: 'First description',
+        turnNumber: 1,
+        timestamp: new Date('2024-01-01').toISOString(),
       };
       const story2 = {
         id: 'story-2',
-        title: 'Second Story',
-        description: 'Second description',
-        story: 'Second story content',
-        imageUrl: 'data:image/jpeg;base64,test2',
-        createdAt: new Date('2024-01-02'),
+        text: 'Second story content',
+        imageDescription: 'Second description',
+        turnNumber: 2,
+        timestamp: new Date('2024-01-02').toISOString(),
       };
       act(() => {
         result.current.addStory(story1);
@@ -364,19 +357,17 @@ describe('Character Store Actions', () => {
       expect(recentStories).toHaveLength(2);
       expect(recentStories[0]).toEqual(expect.objectContaining({
         id: 'story-2',
-        title: expect.any(String),
-        description: 'Second description',
-        story: 'Second story content',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'Second story content',
+        imageDescription: 'Second description',
+        turnNumber: 2,
+        timestamp: expect.any(String),
       }));
       expect(recentStories[1]).toEqual(expect.objectContaining({
         id: 'story-1',
-        title: expect.any(String),
-        description: 'First description',
-        story: 'First story content',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'First story content',
+        imageDescription: 'First description',
+        turnNumber: 1,
+        timestamp: expect.any(String),
       }));
     });
   });
@@ -547,13 +538,12 @@ describe('Character Store Actions', () => {
       const { result } = renderHook(() => useCharacterStore());
       
       // Add a story to simulate existing character
-      const story: Story = {
+      const story = {
         id: '1',
-        title: 'First Story',
-        description: 'Initial description',
-        story: 'Initial story',
-        imageUrl: 'test.jpg',
-        createdAt: new Date(),
+        text: 'Initial story',
+        imageDescription: 'Initial description',
+        turnNumber: 1,
+        timestamp: new Date().toISOString(),
       };
       result.current.addStory(story);
       
@@ -574,11 +564,10 @@ describe('Character Store Actions', () => {
       
       const testStory = {
         id: 'story-1',
-        title: 'Test Story',
-        description: 'A test image description',
-        story: 'Once upon a time, there was a brave knight.',
-        imageUrl: 'test-image.jpg',
-        createdAt: new Date('2025-01-27T10:00:00Z')
+        text: 'Once upon a time, there was a brave knight.',
+        imageDescription: 'A test image description',
+        turnNumber: 1,
+        timestamp: new Date('2025-01-27T10:00:00Z').toISOString(),
       };
 
       act(() => {
@@ -586,8 +575,8 @@ describe('Character Store Actions', () => {
       });
 
       expect(result.current.character.storyHistory).toHaveLength(1);
-      expect(result.current.character.storyHistory[0].text).toBe(testStory.story);
-      expect(result.current.character.storyHistory[0].imageDescription).toBe(testStory.description);
+      expect(result.current.character.storyHistory[0].text).toBe(testStory.text);
+      expect(result.current.character.storyHistory[0].imageDescription).toBe(testStory.imageDescription);
     });
 
     it('should retrieve stories by ID', () => {
@@ -595,11 +584,10 @@ describe('Character Store Actions', () => {
       
       const testStory = {
         id: 'story-1',
-        title: 'Test Story',
-        description: 'A test image description',
-        story: 'Once upon a time, there was a brave knight.',
-        imageUrl: 'test-image.jpg',
-        createdAt: new Date('2025-01-27T10:00:00Z')
+        text: 'Once upon a time, there was a brave knight.',
+        imageDescription: 'A test image description',
+        turnNumber: 1,
+        timestamp: new Date('2025-01-27T10:00:00Z').toISOString(),
       };
 
       act(() => {
@@ -608,8 +596,8 @@ describe('Character Store Actions', () => {
 
       const retrievedStory = result.current.getStory('story-1');
       expect(retrievedStory).toBeDefined();
-      expect(retrievedStory?.story).toBe(testStory.story);
-      expect(retrievedStory?.description).toBe(testStory.description);
+      expect(retrievedStory?.text).toBe(testStory.text);
+      expect(retrievedStory?.imageDescription).toBe(testStory.imageDescription);
     });
 
     it('should get recent stories with limit', () => {
@@ -618,27 +606,24 @@ describe('Character Store Actions', () => {
       const stories = [
         {
           id: 'story-1',
-          title: 'Story 1',
-          description: 'First story',
-          story: 'First story content',
-          imageUrl: 'image1.jpg',
-          createdAt: new Date('2025-01-27T10:00:00Z')
+          text: 'First story content',
+          imageDescription: 'First story',
+          turnNumber: 1,
+          timestamp: new Date('2025-01-27T10:00:00Z').toISOString(),
         },
         {
           id: 'story-2',
-          title: 'Story 2',
-          description: 'Second story',
-          story: 'Second story content',
-          imageUrl: 'image2.jpg',
-          createdAt: new Date('2025-01-27T10:05:00Z')
+          text: 'Second story content',
+          imageDescription: 'Second story',
+          turnNumber: 2,
+          timestamp: new Date('2025-01-27T10:05:00Z').toISOString(),
         },
         {
           id: 'story-3',
-          title: 'Story 3',
-          description: 'Third story',
-          story: 'Third story content',
-          imageUrl: 'image3.jpg',
-          createdAt: new Date('2025-01-27T10:10:00Z')
+          text: 'Third story content',
+          imageDescription: 'Third story',
+          turnNumber: 3,
+          timestamp: new Date('2025-01-27T10:10:00Z').toISOString(),
         }
       ];
 
@@ -649,8 +634,8 @@ describe('Character Store Actions', () => {
       const recentStories = result.current.getRecentStories(2);
       expect(recentStories).toHaveLength(2);
       // Should be ordered by most recent first
-      expect(recentStories[0].story).toBe('Third story content');
-      expect(recentStories[1].story).toBe('Second story content');
+      expect(recentStories[0].text).toBe('Third story content');
+      expect(recentStories[1].text).toBe('Second story content');
     });
 
     it('should update existing stories', () => {
@@ -658,11 +643,10 @@ describe('Character Store Actions', () => {
       
       const testStory = {
         id: 'story-1',
-        title: 'Test Story',
-        description: 'A test image description',
-        story: 'Once upon a time, there was a brave knight.',
-        imageUrl: 'test-image.jpg',
-        createdAt: new Date('2025-01-27T10:00:00Z')
+        text: 'Once upon a time, there was a brave knight.',
+        imageDescription: 'A test image description',
+        turnNumber: 1,
+        timestamp: new Date('2025-01-27T10:00:00Z').toISOString(),
       };
 
       act(() => {
@@ -671,14 +655,14 @@ describe('Character Store Actions', () => {
 
       act(() => {
         result.current.updateStory('story-1', {
-          story: 'Updated story content',
-          description: 'Updated description'
+          text: 'Updated story content',
+          imageDescription: 'Updated description',
         });
       });
 
       const updatedStory = result.current.getStory('story-1');
-      expect(updatedStory?.story).toBe('Updated story content');
-      expect(updatedStory?.description).toBe('Updated description');
+      expect(updatedStory?.text).toBe('Updated story content');
+      expect(updatedStory?.imageDescription).toBe('Updated description');
     });
 
     it('should remove stories from history', () => {
@@ -686,11 +670,10 @@ describe('Character Store Actions', () => {
       
       const testStory = {
         id: 'story-1',
-        title: 'Test Story',
-        description: 'A test image description',
-        story: 'Once upon a time, there was a brave knight.',
-        imageUrl: 'test-image.jpg',
-        createdAt: new Date('2025-01-27T10:00:00Z')
+        text: 'Once upon a time, there was a brave knight.',
+        imageDescription: 'A test image description',
+        turnNumber: 1,
+        timestamp: new Date('2025-01-27T10:00:00Z').toISOString(),
       };
 
       act(() => {

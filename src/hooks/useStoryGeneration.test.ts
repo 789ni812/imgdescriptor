@@ -93,12 +93,10 @@ describe('useStoryGeneration', () => {
     // Verify that the story was added to character history
     expect(mockAddStory).toHaveBeenCalledWith({
       id: expect.any(String),
-      title: 'Story 1',
-      description: 'A beautiful landscape',
-      story: 'A magical adventure begins...',
-      imageUrl: '',
-      createdAt: expect.any(Date),
+      text: 'A magical adventure begins...',
+      imageDescription: 'A beautiful landscape',
       turnNumber: 1,
+      timestamp: expect.any(String),
     });
   });
 
@@ -236,12 +234,10 @@ describe('useStoryGeneration', () => {
       expect(result1.current.story).toBe('Turn 1: The story begins in the ancient forest.');
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        title: 'Story 1',
-        description: 'A beautiful landscape',
-        story: 'Turn 1: The story begins in the ancient forest.',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'Turn 1: The story begins in the ancient forest.',
+        imageDescription: 'A beautiful landscape',
         turnNumber: 1,
+        timestamp: expect.any(String),
       });
 
       // Test turn 2
@@ -260,12 +256,10 @@ describe('useStoryGeneration', () => {
       expect(result2.current.story).toBe('Turn 2: The adventure continues in the mysterious cave.');
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        title: 'Story 2',
-        description: 'A beautiful landscape',
-        story: 'Turn 2: The adventure continues in the mysterious cave.',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'Turn 2: The adventure continues in the mysterious cave.',
+        imageDescription: 'A beautiful landscape',
         turnNumber: 2,
+        timestamp: expect.any(String),
       });
     });
 
@@ -296,12 +290,10 @@ describe('useStoryGeneration', () => {
       expect(result.current.story).toBe('Default mock story');
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        title: 'Story 4',
-        description: 'A beautiful landscape',
-        story: 'Default mock story',
-        imageUrl: '',
-        createdAt: expect.any(Date),
+        text: 'Default mock story',
+        imageDescription: 'A beautiful landscape',
         turnNumber: 4,
+        timestamp: expect.any(String),
       });
     });
   });

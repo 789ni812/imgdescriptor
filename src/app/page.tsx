@@ -42,9 +42,9 @@ export default function Home() {
     makeChoice,
   } = useCharacterStore();
 
-  // Derive current imageUrl from store
-  const currentImageEntry = character.imageHistory.find(img => img.turn === character.currentTurn);
-  const imageUrl = currentImageEntry?.url || null;
+  // Derive image for current turn
+  const imageForCurrentTurn = character.imageHistory.find(img => img.turn === character.currentTurn);
+  const imageUrl = imageForCurrentTurn?.url || null;
 
   const [customStoryPrompt, setCustomStoryPrompt] = useState('Write a fantasy adventure story');
 
@@ -168,7 +168,10 @@ export default function Home() {
     // Optionally, reset any per-turn UI state if needed
   };
 
-  const isTurnLimitReached = character.currentTurn >= 3;
+  // Only limit after all 3 turns have images
+  const allTurnsHaveImages = [1, 2, 3].every(turn => character.imageHistory.some(img => img.turn === turn));
+  const allTurnsHaveStories = [1, 2, 3].every(turn => character.storyHistory.some(story => story.turnNumber === turn));
+  const isTurnLimitReached = character.currentTurn > 3;
 
   // Save description to imageHistory when it changes
   useEffect(() => {
@@ -252,8 +255,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, no image description, and not at turn limit */}
-          {(!latestImageEntry && !isDescriptionLoading && !isTurnLimitReached) && (
+          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, and not past turn 3 */}
+          {(!imageForCurrentTurn && !isDescriptionLoading && character.currentTurn <= 3) && (
             <div className="mb-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">
@@ -325,11 +328,10 @@ export default function Home() {
             </div>
           )}
 
-          {/* Turn Cards - Display all completed turns (0-based, inclusive) */}
+          {/* Turn Cards - Only display up to 3 turns */}
           <div className="space-y-6">
-            {Array.from({ length: character.currentTurn }, (_, i) => i + 1).map(turnNumber => {
-              // Get choices for this turn if available
-              const turnChoices = (character.currentTurn === turnNumber) ? character.currentChoices : [];
+            {Array.from({ length: Math.min(character.currentTurn, 3) }, (_, i) => i + 1).map(turnNumber => {
+              const turnChoices = character.choicesHistory?.find(entry => entry.turn === turnNumber)?.choices || [];
               const turnCardProps = {
                 ...buildTurnData(turnNumber),
                 choices: turnChoices,
@@ -345,8 +347,13 @@ export default function Home() {
             })}
           </div>
 
-          {/* Final Story Generation - only show on Turn 3 after story is generated */}
-          {character.currentTurn === 3 && story && !isStoryLoading && !storyError && !finalStory && (
+          {/* Turns Over message if all turns are complete */}
+          {character.currentTurn > 3 && (
+            <div className="mt-8 text-center text-2xl font-bold text-green-400">Turns Over</div>
+          )}
+
+          {/* Final Story Generation - only show if all 3 turns have images and stories, and not already generated */}
+          {allTurnsHaveImages && allTurnsHaveStories && !finalStory && (
             <div className="mt-8">
               <Card className="w-full max-w-md mx-auto">
                 <CardContent className="p-6">

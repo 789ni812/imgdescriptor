@@ -114,11 +114,16 @@ describe('Home Page', () => {
 
 describe('Final Story Generation Button Visibility', () => {
   it('should show final story generation button on Turn 3 with story', () => {
-    // Arrange: Set up character on Turn 3 with story history
+    // Arrange: Set up character on Turn 3 with story
     const mockCharacter = {
       ...createCharacter(),
       currentTurn: 3,
       currentStory: 'Turn 3 story content', // This is required for the button to show
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'Turn 1 story content', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'Turn 2 story content', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'Turn 3 story content', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
       storyHistory: [
         {
           id: 'story-1',
@@ -133,6 +138,13 @@ describe('Final Story Generation Button Visibility', () => {
           timestamp: '2025-01-27T10:05:00Z',
           turnNumber: 2,
           imageDescription: 'Turn 2 description'
+        },
+        {
+          id: 'story-3',
+          text: 'Turn 3 story content',
+          timestamp: '2025-01-27T10:10:00Z',
+          turnNumber: 3,
+          imageDescription: 'Turn 3 description'
         }
       ]
     };
@@ -268,6 +280,11 @@ describe('Final Story Generation Button Visibility', () => {
       ...createCharacter(),
       currentTurn: 3,
       currentStory: 'Turn 3 story content', // This is required for the button to show
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'story1', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'story2', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'story3', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
       storyHistory: [
         {
           id: 'story-1',
@@ -282,6 +299,13 @@ describe('Final Story Generation Button Visibility', () => {
           timestamp: '2025-01-27T10:05:00Z',
           turnNumber: 2,
           imageDescription: 'Turn 2 description'
+        },
+        {
+          id: 'story-3',
+          text: 'Turn 3 story content',
+          timestamp: '2025-01-27T10:10:00Z',
+          turnNumber: 3,
+          imageDescription: 'Turn 3 description'
         }
       ]
     };
@@ -324,6 +348,11 @@ describe('Final Story Generation Flow', () => {
       ...createCharacter(),
       currentTurn: 3,
       currentStory: 'Turn 3 story', // This is required for the button to show
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'Desc 1', story: 'Turn 1 story', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'Desc 2', story: 'Turn 2 story', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'Desc 3', story: 'Turn 3 story', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
       storyHistory: [
         { id: 'story-1', text: 'Turn 1 story', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'Desc 1' },
         { id: 'story-2', text: 'Turn 2 story', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'Desc 2' },
@@ -382,7 +411,11 @@ describe('Template Import and Final Story Button', () => {
         { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'story2', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
         { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'story3', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
       ],
-      storyHistory: [],
+      storyHistory: [
+        { id: 'story-1', text: 'Turn 1 story content', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'desc1' },
+        { id: 'story-2', text: 'Turn 2 story content', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'desc2' },
+        { id: 'story-3', text: 'Turn 3 story content', timestamp: '2025-01-27T10:10:00Z', turnNumber: 3, imageDescription: 'desc3' },
+      ],
       stats: { intelligence: 15, creativity: 12, perception: 18, wisdom: 14 },
     };
 
