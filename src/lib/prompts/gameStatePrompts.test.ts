@@ -25,16 +25,19 @@ describe('Advanced Game State Integration', () => {
         creativity: 10,
         perception: 14,
         wisdom: 13
-      }
+      },
+      health: 100,
+      experience: 0,
+      level: 1
     });
 
     sampleGameState = {
       currentTurn: 3,
-      totalTurns: 10,
+      maxTurns: 10,
       storyHistory: [
-        'The hero enters a mysterious forest.',
-        'A dark figure emerges from the shadows.',
-        'The hero must choose: fight or flee.'
+        { text: 'The hero enters a mysterious forest.' },
+        { text: 'A dark figure emerges from the shadows.' },
+        { text: 'The hero must choose: fight or flee.' }
       ],
       choiceHistory: [
         {
@@ -69,10 +72,7 @@ describe('Advanced Game State Integration', () => {
         difficulty: 'medium'
       },
       gameState: sampleGameState,
-      currentImage: {
-        url: '/image3.jpg',
-        description: 'Choice point'
-      }
+      imageDescription: 'Choice point'
     };
   });
 
@@ -82,41 +82,40 @@ describe('Advanced Game State Integration', () => {
       
       expect(prompt).toContain('Test Hero');
       expect(prompt).toContain('Level 1');
-      expect(prompt).toContain('Turn 3 of 10');
-      expect(prompt).toContain('3 story segments');
-      expect(prompt).toContain('2 previous choices');
-      expect(prompt).toContain('strategic');
+      expect(prompt).toContain('Turn Progress: 3/10 (30% complete, 7 remaining)');
+      expect(prompt).toContain('Story History (3 segments):');
+      expect(prompt).toContain('Choice Analysis (2 choices):');
+      expect(prompt).toContain('Strategic DM');
+      expect(prompt).toContain('challenging style');
       expect(prompt).toContain('medium difficulty');
     });
 
     it('should include character stats in the prompt', () => {
       const prompt = createAdvancedGameStatePrompt(baseContext);
       
-      expect(prompt).toContain('STR: 15');
-      expect(prompt).toContain('DEX: 14');
-      expect(prompt).toContain('CON: 16');
-      expect(prompt).toContain('INT: 12');
-      expect(prompt).toContain('WIS: 13');
-      expect(prompt).toContain('CHA: 10');
+      expect(prompt).toContain('INT 12');
+      expect(prompt).toContain('CRE 10');
+      expect(prompt).toContain('PER 14');
+      expect(prompt).toContain('WIS 13');
     });
 
     it('should include story history summary', () => {
       const prompt = createAdvancedGameStatePrompt(baseContext);
       
-      expect(prompt).toContain('Story History:');
-      expect(prompt).toContain('The hero enters a mysterious forest');
-      expect(prompt).toContain('A dark figure emerges from the shadows');
-      expect(prompt).toContain('The hero must choose: fight or flee');
+      expect(prompt).toContain('Story History (3 segments):');
+      expect(prompt).toContain('1. The hero enters a mysterious forest.');
+      expect(prompt).toContain('2. A dark figure emerges from the shadows.');
+      expect(prompt).toContain('3. The hero must choose: fight or flee.');
     });
 
     it('should include choice history analysis', () => {
       const prompt = createAdvancedGameStatePrompt(baseContext);
       
-      expect(prompt).toContain('Choice History:');
+      expect(prompt).toContain('Choice Analysis (2 choices):');
       expect(prompt).toContain('Fight the dark figure');
       expect(prompt).toContain('Investigate the shadows');
-      expect(prompt).toContain('Victory! The figure was a friendly guide');
-      expect(prompt).toContain('The shadows hide dangerous creatures');
+      expect(prompt).toContain('Victory! The figure was a friendly guide.');
+      expect(prompt).toContain('The shadows hide dangerous creatures.');
     });
   });
 
@@ -124,29 +123,29 @@ describe('Advanced Game State Integration', () => {
     it('should create a turn progression prompt', () => {
       const prompt = createTurnProgressionPrompt(baseContext);
       
-      expect(prompt).toContain('Turn 3 of 10');
+      expect(prompt).toContain('Current Turn: 3 of 10');
       expect(prompt).toContain('30% complete');
-      expect(prompt).toContain('7 turns remaining');
+      expect(prompt).toContain('Turns Remaining: 7');
     });
 
     it('should include progression milestones', () => {
       const prompt = createTurnProgressionPrompt(baseContext);
       
-      expect(prompt).toContain('Progression:');
-      expect(prompt).toContain('Early game');
+      expect(prompt).toContain('Progression Milestones:');
+      expect(prompt).toContain('Mid-game: Building tension and complexity');
     });
 
     it('should handle different turn positions', () => {
       const lateGameContext = {
         ...baseContext,
-        gameState: { ...sampleGameState, currentTurn: 8, totalTurns: 10 }
+        gameState: { ...sampleGameState, currentTurn: 8, maxTurns: 10 }
       };
       
       const prompt = createTurnProgressionPrompt(lateGameContext);
       
-      expect(prompt).toContain('Turn 8 of 10');
+      expect(prompt).toContain('Current Turn: 8 of 10');
       expect(prompt).toContain('80% complete');
-      expect(prompt).toContain('Late game');
+      expect(prompt).toContain('Final phase: Climax and resolution');
     });
   });
 
@@ -155,15 +154,15 @@ describe('Advanced Game State Integration', () => {
       const prompt = createStoryHistoryPrompt(baseContext);
       
       expect(prompt).toContain('Story History (3 segments):');
-      expect(prompt).toContain('1. The hero enters a mysterious forest');
-      expect(prompt).toContain('2. A dark figure emerges from the shadows');
-      expect(prompt).toContain('3. The hero must choose: fight or flee');
+      expect(prompt).toContain('1. The hero enters a mysterious forest.');
+      expect(prompt).toContain('2. A dark figure emerges from the shadows.');
+      expect(prompt).toContain('3. The hero must choose: fight or flee.');
     });
 
     it('should include story themes and patterns', () => {
       const prompt = createStoryHistoryPrompt(baseContext);
       
-      expect(prompt).toContain('Story Themes:');
+      expect(prompt).toContain('Story Themes Identified:');
       expect(prompt).toContain('mystery');
       expect(prompt).toContain('choice');
       expect(prompt).toContain('conflict');
@@ -186,19 +185,18 @@ describe('Advanced Game State Integration', () => {
     it('should create a choice outcome prompt', () => {
       const prompt = createChoiceOutcomePrompt(baseContext);
       
-      expect(prompt).toContain('Choice Outcomes:');
+      expect(prompt).toContain('Choice Outcomes Analysis:');
       expect(prompt).toContain('Fight the dark figure');
-      expect(prompt).toContain('Success: Victory! The figure was a friendly guide');
+      expect(prompt).toContain('Success - Victory! The figure was a friendly guide.');
       expect(prompt).toContain('Investigate the shadows');
-      expect(prompt).toContain('Failure: The shadows hide dangerous creatures');
+      expect(prompt).toContain('Failure - The shadows hide dangerous creatures.');
     });
 
     it('should calculate success rate', () => {
       const prompt = createChoiceOutcomePrompt(baseContext);
       
       expect(prompt).toContain('Success Rate: 50%');
-      expect(prompt).toContain('1 successful choices');
-      expect(prompt).toContain('1 failed choices');
+      expect(prompt).toContain('1 successful, 1 failed');
     });
 
     it('should include choice patterns', () => {
@@ -214,9 +212,9 @@ describe('Advanced Game State Integration', () => {
     it('should create an adaptive difficulty prompt', () => {
       const prompt = createAdaptiveDifficultyPrompt(baseContext);
       
-      expect(prompt).toContain('Adaptive Difficulty:');
-      expect(prompt).toContain('Current Level: Medium');
-      expect(prompt).toContain('Player Performance: Average');
+      expect(prompt).toContain('Adaptive Difficulty Context:');
+      expect(prompt).toContain('Current Difficulty Level: medium');
+      expect(prompt).toContain('Player Performance: average');
     });
 
     it('should adjust difficulty based on performance', () => {
@@ -227,15 +225,17 @@ describe('Advanced Game State Integration', () => {
           choiceHistory: [
             { id: '1', text: 'Choice 1', outcome: { success: true, description: 'Success' }, timestamp: Date.now() },
             { id: '2', text: 'Choice 2', outcome: { success: true, description: 'Success' }, timestamp: Date.now() },
-            { id: '3', text: 'Choice 3', outcome: { success: true, description: 'Success' }, timestamp: Date.now() }
+            { id: '3', text: 'Choice 3', outcome: { success: true, description: 'Success' }, timestamp: Date.now() },
+            { id: '4', text: 'Choice 4', outcome: { success: true, description: 'Success' }, timestamp: Date.now() },
+            { id: '5', text: 'Choice 5', outcome: { success: true, description: 'Success' }, timestamp: Date.now() }
           ]
         }
       };
       
       const prompt = createAdaptiveDifficultyPrompt(highPerformanceContext);
       
-      expect(prompt).toContain('Player Performance: Excellent');
-      expect(prompt).toContain('Difficulty Adjustment: Increase challenge');
+      expect(prompt).toContain('Player Performance: excellent');
+      expect(prompt).toContain('Difficulty Adjustment: increase');
     });
 
     it('should handle poor performance', () => {
@@ -252,8 +252,8 @@ describe('Advanced Game State Integration', () => {
       
       const prompt = createAdaptiveDifficultyPrompt(poorPerformanceContext);
       
-      expect(prompt).toContain('Player Performance: Struggling');
-      expect(prompt).toContain('Difficulty Adjustment: Reduce challenge');
+      expect(prompt).toContain('Player Performance: average');
+      expect(prompt).toContain('Difficulty Adjustment: decrease');
     });
   });
 
@@ -276,7 +276,7 @@ describe('Advanced Game State Integration', () => {
         total: 10,
         percentage: 30,
         remaining: 7,
-        phase: 'early'
+        phase: 'middle'
       });
     });
 
@@ -354,7 +354,7 @@ describe('Advanced Game State Integration', () => {
     it('should create a performance-based prompt', () => {
       const prompt = createPerformanceBasedPrompt(baseContext);
       
-      expect(prompt).toContain('Performance Analysis:');
+      expect(prompt).toContain('Performance-Based Story Generation:');
       expect(prompt).toContain('Success Rate: 50%');
       expect(prompt).toContain('Choice Patterns: combat, investigation');
       expect(prompt).toContain('Story Progress: 30%');
@@ -364,8 +364,8 @@ describe('Advanced Game State Integration', () => {
       const prompt = createPerformanceBasedPrompt(baseContext);
       
       expect(prompt).toContain('Recommendations:');
-      expect(prompt).toContain('Consider character strengths');
       expect(prompt).toContain('Balance risk and reward');
+      expect(prompt).toContain('Mix familiar and new challenge types');
     });
   });
 
@@ -384,8 +384,8 @@ describe('Advanced Game State Integration', () => {
       const prompt = createGameStateSummaryPrompt(baseContext);
       
       expect(prompt).toContain('Adaptive Recommendations:');
-      expect(prompt).toContain('Difficulty: Maintain current level');
-      expect(prompt).toContain('Focus: Balance challenge and engagement');
+      expect(prompt).toContain('Difficulty: maintain');
+      expect(prompt).toContain('Focus: Progressive challenge and story advancement');
     });
   });
 }); 

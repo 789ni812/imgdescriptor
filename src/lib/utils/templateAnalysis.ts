@@ -100,7 +100,7 @@ export function analyzeTemplateCompleteness(template: PartialTemplate): Template
   const finalStory = template.finalStory;
   const maxTurns = template.config?.maxTurns || 3;
 
-  // Calculate progress
+  // Calculate progress - a turn is completed when it has image, story, and choice
   const completedTurns = Math.min(images.length, storyHistory.length, choiceHistory.length);
 
   // Determine completeness
