@@ -940,3 +940,272 @@ flowchart TD
 ## Future Directions & Use Cases 
 
 [2025-07-01] **Critical Note:** The turn number mapping for all per-turn data is now strictly enforced and fully tested. All UI and state logic is guaranteed to be in sync for each turn. This is a critical requirement for all future features. 
+
+## Dynamic Prompt System Architecture
+
+### Overview
+The dynamic prompt system creates reactive, character-driven storytelling by injecting game state, character stats, and player choices directly into AI prompts. This system makes every decision meaningful and creates a truly adaptive narrative experience.
+
+### Core Components
+
+#### 1. Dynamic Prompt Templates (`src/lib/prompts/dynamicPrompts.ts`)
+```typescript
+interface DynamicPromptTemplate {
+  id: string;
+  name: string;
+  type: 'image-description' | 'story-generation' | 'choice-generation' | 'final-story';
+  
+  // Base prompt with placeholders
+  basePrompt: string;
+  
+  // Placeholder definitions
+  placeholders: {
+    [key: string]: {
+      description: string;
+      required: boolean;
+      defaultValue?: string;
+      validation?: (value: any) => boolean;
+    };
+  };
+  
+  // Context requirements
+  requiredContext: string[];
+  
+  // Template metadata
+  version: string;
+  author?: string;
+  tags: string[];
+}
+```
+
+#### 2. Placeholder System
+```typescript
+interface PromptContext {
+  // Character state
+  character: {
+    stats: CharacterStats;
+    health: number;
+    experience: number;
+    level: number;
+    inventory: Item[];
+  };
+  
+  // Game state
+  game: {
+    currentTurn: number;
+    totalTurns: number;
+    storyHistory: StoryEntry[];
+    choiceHistory: ChoiceEntry[];
+    imageHistory: ImageEntry[];
+  };
+  
+  // DM context
+  dm: {
+    personality: PersonalityType;
+    mood: 'positive' | 'neutral' | 'negative';
+    style: string;
+  };
+  
+  // Current context
+  current: {
+    imageDescription: string;
+    previousStory?: string;
+    availableChoices?: Choice[];
+  };
+}
+```
+
+#### 3. Prompt Generation Engine
+```typescript
+class DynamicPromptEngine {
+  // Generate prompt with context
+  generatePrompt(template: DynamicPromptTemplate, context: PromptContext): string;
+  
+  // Replace placeholders with actual values
+  replacePlaceholders(prompt: string, context: PromptContext): string;
+  
+  // Validate prompt before generation
+  validatePrompt(template: DynamicPromptTemplate, context: PromptContext): boolean;
+  
+  // Cache generated prompts for performance
+  getCachedPrompt(key: string): string | null;
+}
+```
+
+### Placeholder System
+
+#### Available Placeholders
+- **Character Stats**: `{{CHAR_STATS}}`, `{{CHAR_HEALTH}}`, `{{CHAR_LEVEL}}`
+- **Game Progress**: `{{CURRENT_TURN}}`, `{{TOTAL_TURNS}}`, `{{STORY_HISTORY}}`
+- **DM Context**: `{{DM_PERSONALITY}}`, `{{DM_MOOD}}`, `{{DM_STYLE}}`
+- **Current Context**: `{{IMAGE_DESCRIPTION}}`, `{{PREVIOUS_STORY}}`
+- **Choice Context**: `{{AVAILABLE_CHOICES}}`, `{{CHOICE_HISTORY}}`
+- **Dynamic Elements**: `{{DIFFICULTY_MODIFIER}}`, `{{SUCCESS_CHANCE}}`
+
+#### Placeholder Examples
+```typescript
+// Character-responsive story generation
+const storyPrompt = `
+You are {{DM_PERSONALITY}}, a {{DM_STYLE}} Dungeon Master.
+
+Your player character has these stats:
+{{CHAR_STATS}}
+
+Current health: {{CHAR_HEALTH}}/{{CHAR_MAX_HEALTH}}
+Experience level: {{CHAR_LEVEL}}
+
+Based on this image: {{IMAGE_DESCRIPTION}}
+
+And considering the previous story: {{PREVIOUS_STORY}}
+
+Create a story that:
+- Challenges the character's {{WEAKEST_STAT}} ({{WEAKEST_STAT_VALUE}})
+- Rewards their {{STRONGEST_STAT}} ({{STRONGEST_STAT_VALUE}})
+- Reflects your {{DM_PERSONALITY}} style
+- Provides meaningful choices that impact character development
+
+Current turn: {{CURRENT_TURN}} of {{TOTAL_TURNS}}
+`;
+
+// Choice generation with consequences
+const choicePrompt = `
+Based on the story above and the character's current state:
+
+Health: {{CHAR_HEALTH}}/{{CHAR_MAX_HEALTH}}
+Previous choices: {{CHOICE_HISTORY}}
+
+Generate 3-4 choices that:
+- Consider the character's {{CHAR_STATS}}
+- Reflect the consequences of previous choices
+- Provide different risk/reward ratios
+- Align with the DM's {{DM_PERSONALITY}} style
+
+Each choice should have clear consequences for:
+- Character health and stats
+- Story progression
+- Future available options
+`;
+```
+
+### System Flow
+
+#### 1. Prompt Generation Flow
+```mermaid
+flowchart TD
+  A[Game State Change] --> B[Build Prompt Context]
+  B --> C[Select Prompt Template]
+  C --> D[Replace Placeholders]
+  D --> E[Validate Prompt]
+  E --> F[Generate AI Response]
+  F --> G[Update Game State]
+  G --> H[Cache Prompt]
+```
+
+#### 2. Character-Responsive Flow
+```mermaid
+flowchart TD
+  A[Character Action] --> B[Update Character Stats]
+  B --> C[Recalculate Difficulty]
+  C --> D[Generate Adaptive Story]
+  D --> E[Present Stat-Based Choices]
+  E --> F[Track Consequences]
+  F --> G[Update Character Development]
+```
+
+### Integration Points
+
+#### Character Store Integration
+- **Real-time Stats**: Character stats immediately affect prompt generation
+- **Progression Tracking**: Experience and level changes influence story difficulty
+- **Health Management**: Health status affects available choices and story tone
+- **Inventory Integration**: Items and equipment modify prompt context
+
+#### Story Generation Integration
+- **Adaptive Difficulty**: Story challenges scale with character capabilities
+- **Stat-Based Outcomes**: Story results reflect character strengths/weaknesses
+- **Progressive Complexity**: Later turns become more challenging
+- **Character Development**: Stories acknowledge character growth
+
+#### Choice System Integration
+- **Consequence Tracking**: All choices affect future prompt generation
+- **Risk Assessment**: Choices consider current character state
+- **Stat-Based Success**: Character stats influence choice outcomes
+- **Cumulative Effects**: Previous choices impact available options
+
+### Benefits
+
+#### 1. Reactive Storytelling
+- **Character-Driven**: Every story element reflects character state
+- **Choice Consequences**: Decisions have lasting impact on narrative
+- **Progressive Difficulty**: Challenges scale with character development
+- **Personalized Experience**: Each playthrough feels unique
+
+#### 2. Enhanced Engagement
+- **Meaningful Choices**: Every decision affects character development
+- **Stat Impact**: Character stats directly influence story outcomes
+- **Consequence Awareness**: Players see the results of their choices
+- **Replayability**: Different character builds create different experiences
+
+#### 3. DM Personality Integration
+- **Consistent Voice**: DM personality affects all generated content
+- **Adaptive Style**: DM can adapt to player choices while maintaining personality
+- **Mood System**: DM mood affects story tone and difficulty
+- **Learning System**: DM can learn from player preferences
+
+### Implementation Status
+
+#### 🔄 Phase 1: Core Architecture (PLANNED)
+- Dynamic prompt template system
+- Placeholder replacement engine
+- Context building utilities
+- Comprehensive test coverage
+
+#### �� Phase 2: Character Integration (PLANNED)
+- Character stat integration
+- Health and progression tracking
+- Stat-based difficulty scaling
+- Character development stories
+
+#### 🔄 Phase 3: Choice System Enhancement (PLANNED)
+- Consequence tracking system
+- Risk assessment integration
+- Cumulative choice effects
+- Stat-based choice outcomes
+
+#### 🔄 Phase 4: DM Integration (PLANNED)
+- DM personality injection
+- Mood system implementation
+- Adaptive DM responses
+- Personality-driven content
+
+#### 🔄 Phase 5: Advanced Features (PLANNED)
+- Performance optimization
+- Prompt caching system
+- Quality assurance tools
+- User customization interface
+
+### Technical Considerations
+
+#### Performance
+- **Prompt Caching**: Cache generated prompts for repeated use
+- **Efficient Replacement**: Optimize placeholder replacement for large templates
+- **Context Building**: Minimize context building overhead
+- **Memory Management**: Proper cleanup of prompt cache
+
+#### Scalability
+- **Template Versioning**: Support for prompt template evolution
+- **Context Extensibility**: Easy addition of new context elements
+- **Placeholder System**: Flexible placeholder definition and validation
+- **Template Sharing**: Share and import prompt templates
+
+#### User Experience
+- **Consistent Quality**: Maintain high-quality output across all prompts
+- **Predictable Behavior**: Clear relationship between context and output
+- **Customization**: Allow users to modify prompt templates
+- **Feedback System**: Collect user feedback on prompt quality
+
+---
+
+## Future Directions & Use Cases 
+
+[2025-07-01] **Critical Note:** The turn number mapping for all per-turn data is now strictly enforced and fully tested. All UI and state logic is guaranteed to be in sync for each turn. This is a critical requirement for all future features. 

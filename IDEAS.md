@@ -139,4 +139,63 @@ These ideas are not all implemented yet, but the codebase should remain open and
 ---
 
 **Note:**
+These ideas are not all implemented yet, but the codebase should remain open and extensible to support them in the future. Avoid hardcoding logic that would make these directions difficult to add later.
+
+## 4. Dynamic Prompt System & Reactive Storytelling
+
+> **Note:** The dynamic prompt system creates truly reactive storytelling by injecting character stats, game state, and player choices directly into AI prompts, making every decision meaningful and creating adaptive narratives.
+
+### Core Dynamic Prompt Concepts
+- **Character-Responsive Stories**: All story generation considers character stats, health, and progression
+- **Choice Consequence Tracking**: Every choice affects future prompt generation and available options
+- **Stat-Based Difficulty Scaling**: Story challenges adapt to character capabilities and development
+- **DM Personality Integration**: DM personality affects all generated content while maintaining consistency
+- **Progressive Complexity**: Later turns become more challenging as character develops
+- **Cumulative Narrative Impact**: Previous choices and outcomes influence all future content
+
+### Dynamic Prompt Features & Mechanics
+- **Placeholder System**: Comprehensive placeholder system for injecting dynamic content into prompts
+- **Context Building**: Real-time context building from character state, game progress, and DM personality
+- **Adaptive Difficulty**: Story challenges that scale with character level and capabilities
+- **Stat-Based Outcomes**: Story results that reflect character strengths and weaknesses
+- **Choice Consequence System**: All choices tracked and referenced in future prompt generation
+- **DM Mood System**: DM mood affects story tone, difficulty, and available choices
+- **Performance Optimization**: Prompt caching and efficient placeholder replacement
+- **Quality Assurance**: Prompt validation and quality monitoring systems
+
+### Advanced Dynamic Prompt Features
+- **Learning System**: Prompts adapt based on player preferences and play style
+- **Genre Adaptation**: Prompts adjust for different game genres and themes
+- **Cultural Sensitivity**: Prompts adapt to different cultural storytelling traditions
+- **Accessibility Features**: Prompts adjust for different skill levels and accessibility needs
+- **Multi-Player Support**: Prompts consider multiple characters and their interactions
+- **Real-time Adaptation**: Prompts adjust based on real-time player reactions and feedback
+
+### Dynamic Prompt Integration
+- **Character Development**: Prompts drive character growth and progression
+- **Story Continuity**: Prompts maintain narrative consistency across all turns
+- **Choice Impact**: Prompts reflect the consequences of all previous choices
+- **DM Evolution**: DM personality can evolve based on player interactions
+- **Template Compatibility**: Dynamic prompts work with all existing template types
+- **Performance Optimization**: Efficient prompt generation without impacting game performance
+
+### Future Dynamic Prompt Directions
+- **Voice Integration**: Dynamic prompts could include voice characteristics for audio narration
+- **Visual Adaptation**: Prompts could adapt based on visual elements in uploaded images
+- **Emotional Intelligence**: Prompts could respond to player emotions and reactions
+- **Collaborative Storytelling**: Multiple AI systems could work together for complex narratives
+- **Real-time Learning**: Prompts could learn and adapt during a single game session
+- **Cross-Session Memory**: Prompts could remember player preferences across multiple sessions
+
+### Benefits of Dynamic Prompt System
+- **Enhanced Immersion**: Stories feel truly responsive to player actions and character state
+- **Increased Replayability**: Same content feels different with different character builds
+- **Meaningful Progression**: Character development directly impacts story outcomes
+- **Personalized Experience**: Each player gets a unique narrative experience
+- **Educational Value**: Dynamic prompts can teach storytelling and character development
+- **Creative Inspiration**: Dynamic prompts can inspire new storytelling techniques
+
+---
+
+**Note:**
 These ideas are not all implemented yet, but the codebase should remain open and extensible to support them in the future. Avoid hardcoding logic that would make these directions difficult to add later. 

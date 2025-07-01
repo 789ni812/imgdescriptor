@@ -830,3 +830,60 @@ We will implement the following game mechanics, ensuring all features are extens
   - Create DM personality evolution over multiple sessions
   - Write tests for advanced DM features
   - **Commit:** `feat(dm): implement advanced DM features and personality evolution`
+
+### Phase 27: Dynamic Prompt System Enhancement (2025-01-27)
+**Objective:** Implement a comprehensive dynamic prompt system that makes character stats, choices, and game state impactful on story progression, creating more engaging and reactive storytelling experiences.
+
+#### Tasks
+- [x] **27.1: Dynamic Prompt Architecture**
+  - Create `src/lib/prompts/dynamicPrompts.ts` with comprehensive prompt templates
+  - Implement placeholder system for dynamic content injection
+  - Create utility functions for placeholder replacement
+  - Write comprehensive tests for prompt generation and validation
+  - Add default prompt templates for common scenarios
+- [x] **27.2: Character-Responsive Story Generation**
+  - Create `src/lib/prompts/characterResponsivePrompts.ts` with stat-based prompts
+  - Implement character stat analysis and difficulty calculation
+  - Add character development tracking and progression prompts
+  - Create utility functions for stat-based outcome generation
+  - Write comprehensive tests for character-responsive features
+- [x] **27.3: Choice Impact System**
+  - Create `src/lib/prompts/choiceImpactPrompts.ts` with choice analysis
+  - Implement choice history tracking and pattern recognition
+  - Add consequence prediction and outcome generation
+  - Create cumulative choice impact system
+  - Write comprehensive tests for choice impact features
+- [x] **27.4: DM Personality Integration**
+  - Create `src/lib/prompts/dmPersonalityPrompts.ts` with personality-based prompts
+  - Implement DM personality influence on story generation
+  - Add adaptive difficulty based on DM style
+  - Create personality-specific prompt variations
+  - Write comprehensive tests for DM personality features
+- [x] **27.5: Advanced Game State Integration**
+  - Create `src/lib/prompts/gameStatePrompts.ts` with comprehensive game state analysis
+  - Implement turn progressi
+
+### Phase 28: Prompt System Optimization and Testing
+**Objective:** Optimize the dynamic prompt system for performance, reliability, and user experience.
+
+#### Tasks
+- [ ] **28.1: Prompt Performance Optimization**
+  - Implement prompt caching and memoization
+  - Optimize placeholder replacement for large prompt templates
+  - Add prompt generation metrics and monitoring
+  - Write performance tests for prompt system
+  - **Commit:** `perf(prompts): optimize dynamic prompt system performance`
+
+- [ ] **28.2: Prompt Quality Assurance**
+  - Implement prompt validation and error handling
+  - Add prompt template versioning and compatibility
+  - Create prompt quality metrics and feedback system
+  - Write comprehensive tests for prompt quality
+  - **Commit:** `feat(prompts): implement prompt quality assurance and validation`
+
+- [ ] **28.3: User Customization Interface**
+  - Create prompt template editor for user customization
+  - Implement prompt preview and testing interface
+  - Add prompt sharing and import/export functionality
+  - Write tests for prompt customization interface
+  - **Commit:** `feat(ui): add prompt customization interface and template editor`

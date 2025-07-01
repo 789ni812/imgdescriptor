@@ -36,6 +36,16 @@
 - [ ] **Future Directions**: Update `IDEAS.md` with new use cases
 - [ ] **Workflow Updates**: Update `.cursor/rules/` if needed
 
+### Tier 3: Dynamic Prompt Systems
+- [ ] **Prompt Architecture Documentation**: Document all prompt templates, placeholders, and generation logic
+- [ ] **Context Integration**: Document how game state, character stats, and choices affect prompts
+- [ ] **Performance Considerations**: Document prompt caching, optimization, and memory management
+- [ ] **Quality Assurance**: Document prompt validation, testing, and quality monitoring
+- [ ] **User Customization**: Document prompt template editing and customization features
+- [ ] **Template Compatibility**: Ensure dynamic prompts work with all template types
+- [ ] **Testing Strategy**: Comprehensive test coverage for prompt generation and placeholder replacement
+- [ ] **User Experience**: Document how dynamic prompts enhance storytelling and player engagement
+
 ---
 
 ## 🚀 Quick Commands
