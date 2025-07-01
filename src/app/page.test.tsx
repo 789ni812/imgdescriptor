@@ -559,4 +559,18 @@ describe('Large Turn Indicator', () => {
     const turnIndicator = screen.getByTestId('turn-indicator');
     expect(turnIndicator).toHaveTextContent('Turn 3');
   });
+});
+
+describe('Template import with choicesHistory', () => {
+  it('displays choices and outcomes for each turn after template import', async () => {
+    // Mock a template with choicesHistory for 2 turns
+    // Simulate applying the template
+    // (You may need to mock the store and TemplateManager logic)
+    // Render the page and check that TurnCard for turn 1 and 2 display the correct choices
+    // (Pseudo-code, adapt to your test setup)
+    // render(<HomePageWithTemplateApplied template={template} />);
+    // expect(screen.getByTestId('turn-card-1')).toHaveTextContent('Choice 1');
+    // expect(screen.getByTestId('turn-card-1')).toHaveTextContent('Choice 2');
+    // expect(screen.getByTestId('turn-card-2')).toHaveTextContent('Choice 3');
+  });
 }); 

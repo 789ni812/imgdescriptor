@@ -6,6 +6,9 @@ import { useTemplateStore } from '@/lib/stores/templateStore';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { useDMStore } from '@/lib/stores/dmStore';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { DMConfigSection } from './DMConfigSection';
 
 interface EditFields {
   name: string;
@@ -55,6 +58,7 @@ export function TemplateManager() {
   } = useTemplateStore();
 
   const characterStore = useCharacterStore();
+  const dmStore = useDMStore();
   const [editing, setEditing] = useState(false);
   const [editFields, setEditFields] = useState<EditFields | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
@@ -125,9 +129,15 @@ export function TemplateManager() {
       };
       // Ensure unique name
       const uniqueName = getUniqueTemplateName(newName.trim(), templates);
+      // Get DM config
+      const dmContext = dmStore.getDMContext();
+      const dmConfig = {
+        personality: dmContext.personality,
+        freeformAnswers: dmContext.freeformAnswers,
+      };
       // Always generate a new UUID
       const template = {
-        ...createTemplateFromCurrentState(uniqueName, safeCharacterStore, defaultPrompts, defaultConfig),
+        ...createTemplateFromCurrentState(uniqueName, safeCharacterStore, defaultPrompts, defaultConfig, dmConfig),
         id: uuidv4(),
         name: uniqueName,
       };
@@ -148,11 +158,26 @@ export function TemplateManager() {
     setApplyResult(result);
 
     if (result.success && result.gameState) {
-      characterStore.updateCharacter({ ...result.gameState.character, currentTurn: result.gameState.currentTurn });
-      characterStore.updateCharacter({ imageHistory: [] });
-      result.gameState.imageHistory.forEach(image => {
-        characterStore.addImageToHistory(image);
+      // Sync storyHistory from imageHistory
+      const storyEntries = result.gameState.imageHistory
+        .filter(img => img.story && img.story.trim() !== '')
+        .map(img => ({
+          id: img.id,
+          text: img.story!,
+          timestamp: img.uploadedAt,
+          turnNumber: img.turn,
+          imageDescription: img.description,
+        }));
+      // Set imageHistory and storyHistory together
+      characterStore.updateCharacter({
+        ...result.gameState.character,
+        currentTurn: result.gameState.currentTurn,
+        imageHistory: result.gameState.imageHistory,
+        storyHistory: storyEntries,
+        choicesHistory: result.gameState.choicesHistory || [],
+        choiceHistory: selectedTemplate.choiceHistory || [],
       });
+      // Set final story if it exists
       if (result.gameState.finalStory) {
         characterStore.updateCharacter({ finalStory: result.gameState.finalStory });
       }
@@ -166,6 +191,13 @@ export function TemplateManager() {
         characterStore.updateCurrentDescription(lastImage.description);
       } else {
         characterStore.updateCurrentDescription(null);
+      }
+      // Restore DM config if present
+      if (selectedTemplate.dmConfig) {
+        dmStore.setSelectedPersonality(selectedTemplate.dmConfig.personality as import('@/lib/types/dungeonMaster').PersonalityType);
+        dmStore.setFreeformAnswers((selectedTemplate.dmConfig.freeformAnswers || {}) as Record<string, string>);
+      } else {
+        dmStore.resetDM();
       }
       toast.success('Template applied successfully!');
     } else {
@@ -223,135 +255,145 @@ export function TemplateManager() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-xl mx-auto">
-      <div className="flex gap-2 items-center mb-2">
-        <input
-          type="text"
-          placeholder="New template name"
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
-        />
-        <Button onClick={handleCreateTemplate} size="sm" variant="outline" data-testid="create-template-btn">
-          Save Current State
-        </Button>
-        <Button onClick={handleImportClick} variant="outline" size="sm" data-testid="import-template-btn">
-          Import Template
-        </Button>
-        <Button onClick={handleExportClick} variant="outline" size="sm" data-testid="export-template-btn">
-          Export Template
-        </Button>
-        <input
-          type="file"
-          accept="application/json"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleFileChange}
-          data-testid="template-file-input"
-        />
-      </div>
-      <div className="border rounded p-2 bg-muted">
-        <div className="font-semibold mb-2">Templates</div>
-        <ul className="space-y-1">
-          {templates.length === 0 && <li className="text-sm text-muted-foreground">No templates yet.</li>}
-          {templates.map(t => (
-            <li key={t.id} className={`flex items-center gap-2 p-1 rounded ${selectedTemplateId === t.id ? 'bg-accent' : ''}`}>
-              <span className="flex-1 cursor-pointer" onClick={() => selectTemplate(t.id)}>
-                {t.name}
-                {selectedTemplateId === t.id && <span className="ml-2 text-xs text-primary">(selected)</span>}
-              </span>
-              <Button size="sm" variant="ghost" onClick={() => selectTemplate(t.id)} disabled={selectedTemplateId === t.id}>Select</Button>
-              <Button size="sm" variant="destructive" onClick={() => deleteTemplate(t.id)}>Delete</Button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      {importError && <div className="text-red-600 text-sm" role="alert">{importError}</div>}
-      {selectedTemplate && (
-        <div className="border rounded p-2 mt-2 bg-muted">
-          <div className="font-semibold mb-1">Selected Template</div>
-          <div className="text-xs text-muted-foreground">ID: {selectedTemplate.id}</div>
-          {!editing ? (
-            <>
-              <div className="text-sm">Name: {selectedTemplate.name}</div>
-              <div className="text-sm">Created: {selectedTemplate.createdAt}</div>
-              <div className="text-sm">Updated: {selectedTemplate.updatedAt}</div>
-              <div className="text-sm">Images: {selectedTemplate.images.length}</div>
-              <div className="text-sm">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
-              <div className="flex gap-2 mt-2">
-                <Button onClick={startEditing} size="sm" variant="outline" data-testid="edit-template-btn">Edit</Button>
-                <Button 
-                  onClick={handleApplyTemplate} 
-                  variant="default" 
-                  size="sm" 
-                  data-testid="apply-template-btn"
-                  className="flex-1"
-                >
-                  Apply Template
+    <Accordion type="single" collapsible defaultValue="template-controls">
+      <AccordionItem value="template-controls">
+        <AccordionTrigger>Template & Dungeon Master Controls</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-6">
+            <DMConfigSection />
+            <div className="space-y-2">
+              <div className="flex gap-2 items-center mb-2">
+                <input
+                  type="text"
+                  placeholder="New template name"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  className="border rounded px-2 py-1 text-sm"
+                />
+                <Button onClick={handleCreateTemplate} size="sm" variant="outline" data-testid="create-template-btn">
+                  Save Current State
                 </Button>
+                <Button onClick={handleImportClick} variant="outline" size="sm" data-testid="import-template-btn">
+                  Import Template
+                </Button>
+                <Button onClick={handleExportClick} variant="outline" size="sm" data-testid="export-template-btn">
+                  Export Template
+                </Button>
+                <input
+                  type="file"
+                  accept="application/json"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  data-testid="template-file-input"
+                />
               </div>
-            </>
-          ) : (
-            <form className="space-y-2 mt-2">
-              <label className="block text-xs font-medium">Name
-                <input
-                  type="text"
-                  value={editFields ? editFields.name : ''}
-                  onChange={e => handleEditFieldChange('name', e.target.value)}
-                  className="border rounded px-2 py-1 text-sm w-full"
-                  data-testid="edit-template-name"
-                />
-              </label>
-              {editError && <div className="text-red-600 text-xs" role="alert">{editError}</div>}
-              <label className="block text-xs font-medium">Image Description Prompt
-                <input
-                  type="text"
-                  value={editFields ? editFields.prompts.imageDescription : ''}
-                  onChange={e => handleEditPromptChange('imageDescription', e.target.value)}
-                  className="border rounded px-2 py-1 text-sm w-full"
-                />
-              </label>
-              <label className="block text-xs font-medium">Max Turns
-                <input
-                  type="number"
-                  value={editFields ? editFields.config.maxTurns : ''}
-                  onChange={e => handleEditConfigChange('maxTurns', Number(e.target.value))}
-                  className="border rounded px-2 py-1 text-sm w-full"
-                  aria-label="Max Turns"
-                />
-              </label>
-              <div className="flex gap-2 mt-2">
-                <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" data-testid="save-template-btn">Save</Button>
-                <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline">Cancel</Button>
+              <div className="border rounded p-2 bg-muted">
+                <div className="font-semibold mb-2">Templates</div>
+                <ul className="space-y-1">
+                  {templates.length === 0 && <li className="text-sm text-muted-foreground">No templates yet.</li>}
+                  {templates.map(t => (
+                    <li key={t.id} className={`flex items-center gap-2 p-1 rounded ${selectedTemplateId === t.id ? 'bg-accent' : ''}`}>
+                      <span className="flex-1 cursor-pointer" onClick={() => selectTemplate(t.id)}>
+                        {t.name}
+                        {selectedTemplateId === t.id && <span className="ml-2 text-xs text-primary">(selected)</span>}
+                      </span>
+                      <Button size="sm" variant="ghost" onClick={() => selectTemplate(t.id)} disabled={selectedTemplateId === t.id}>Select</Button>
+                      <Button size="sm" variant="destructive" onClick={() => deleteTemplate(t.id)}>Delete</Button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </form>
-          )}
-          {applyResult && (
-            <div className={`mt-2 p-2 rounded text-sm ${applyResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {applyResult.success ? (
-                <div>
-                  <div className="font-semibold">Template applied successfully!</div>
-                  {applyResult.missingContent.length > 0 && (
-                    <div className="mt-1">
-                      <div className="font-medium">Missing content:</div>
-                      <ul className="list-disc list-inside">
-                        {applyResult.missingContent.map(content => (
-                          <li key={content}>{content}</li>
-                        ))}
-                      </ul>
+              {importError && <div className="text-red-600 text-sm" role="alert">{importError}</div>}
+              {selectedTemplate && (
+                <div className="border rounded p-2 mt-2 bg-muted">
+                  <div className="font-semibold mb-1">Selected Template</div>
+                  <div className="text-xs text-muted-foreground">ID: {selectedTemplate.id}</div>
+                  {!editing ? (
+                    <>
+                      <div className="text-sm">Name: {selectedTemplate.name}</div>
+                      <div className="text-sm">Created: {selectedTemplate.createdAt}</div>
+                      <div className="text-sm">Updated: {selectedTemplate.updatedAt}</div>
+                      <div className="text-sm">Images: {selectedTemplate.images.length}</div>
+                      <div className="text-sm">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
+                      <div className="flex gap-2 mt-2">
+                        <Button onClick={startEditing} size="sm" variant="outline" data-testid="edit-template-btn">Edit</Button>
+                        <Button 
+                          onClick={handleApplyTemplate} 
+                          variant="default" 
+                          size="sm" 
+                          data-testid="apply-template-btn"
+                          className="flex-1"
+                        >
+                          Apply Template
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <form className="space-y-2 mt-2">
+                      <label className="block text-xs font-medium">Name
+                        <input
+                          type="text"
+                          value={editFields ? editFields.name : ''}
+                          onChange={e => handleEditFieldChange('name', e.target.value)}
+                          className="border rounded px-2 py-1 text-sm w-full"
+                          data-testid="edit-template-name"
+                        />
+                      </label>
+                      {editError && <div className="text-red-600 text-xs" role="alert">{editError}</div>}
+                      <label className="block text-xs font-medium">Image Description Prompt
+                        <input
+                          type="text"
+                          value={editFields ? editFields.prompts.imageDescription : ''}
+                          onChange={e => handleEditPromptChange('imageDescription', e.target.value)}
+                          className="border rounded px-2 py-1 text-sm w-full"
+                        />
+                      </label>
+                      <label className="block text-xs font-medium">Max Turns
+                        <input
+                          type="number"
+                          value={editFields ? editFields.config.maxTurns : ''}
+                          onChange={e => handleEditConfigChange('maxTurns', Number(e.target.value))}
+                          className="border rounded px-2 py-1 text-sm w-full"
+                          aria-label="Max Turns"
+                        />
+                      </label>
+                      <div className="flex gap-2 mt-2">
+                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" data-testid="save-template-btn">Save</Button>
+                        <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline">Cancel</Button>
+                      </div>
+                    </form>
+                  )}
+                  {applyResult && (
+                    <div className={`mt-2 p-2 rounded text-sm ${applyResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {applyResult.success ? (
+                        <div>
+                          <div className="font-semibold">Template applied successfully!</div>
+                          {applyResult.missingContent.length > 0 && (
+                            <div className="mt-1">
+                              <div className="font-medium">Missing content:</div>
+                              <ul className="list-disc list-inside">
+                                {applyResult.missingContent.map(content => (
+                                  <li key={content}>{content}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="font-semibold">Failed to apply template:</div>
+                          <div>{applyResult.error}</div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              ) : (
-                <div>
-                  <div className="font-semibold">Failed to apply template:</div>
-                  <div>{applyResult.error}</div>
-                </div>
               )}
             </div>
-          )}
-        </div>
-      )}
-    </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 } 

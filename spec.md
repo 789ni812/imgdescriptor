@@ -599,7 +599,7 @@ We will implement the following game mechanics, ensuring all features are extens
   - **After a choice is made, the next turn begins and the image upload is shown for the new turn.**
   - **Choices and outcomes remain visible after a choice is made.**
   - **All accordions are always user-expandable/collapsible for all turns and sections.**
-  - **Each section shows either the generated content or a 'Not available yet' message if missing.**
+  - **Each section shows either the generated content, a spinner (if generating), or a 'Not available yet' message if missing.**
 
 - [ ] **XX.4: Improved Loading Feedback**
   - When generating a story or choices, show a loader/spinner only in the relevant card's section (not globally or in previous turns).
@@ -635,3 +635,24 @@ We will implement the following game mechanics, ensuring all features are extens
   - **Commit:** `feat(turncard): implement per-turn accordion and generation flow with comprehensive TDD`
   - **Test Coverage:** 13 passing tests for TurnCard component
   - **Implementation Details:** See "TDD Process Summary" section above for complete documentation
+
+### Phase XX: DM Config UI Integration
+**Objective:** Always show a DM Config section above the template controls, and place both the DM Config and template controls in their own accordion for clarity and organization.
+
+#### Tasks
+- [ ] Add a DM Config section (fields: DM Name, Style, Notes) that is always visible above the template controls.
+- [ ] Place both the DM Config section and the template controls (save, import, export, etc.) inside a single accordion component for better organization.
+- [ ] Ensure the DM Config section is strictly typed and updates the DM store in real time.
+- [ ] When saving a template, include the current DM config from the DM store.
+- [ ] When loading/applying a template, restore the DM config to the DM store and update the UI.
+- [ ] Add tests for DM Config UI, state sync, and template integration.
+- [ ] Update documentation and screenshots to reflect the new UI/UX.
+- [ ] Commit: `feat(dm): add always-visible DM Config section and accordion for template controls`
+
+## [2025-07-01] Change in Direction: Removal of DM Template Feature
+
+- The previously proposed DM template system (for saving/loading Dungeon Master personalities as separate templates) has been removed from the codebase and UI.
+- All DM config (name, style, notes) is now managed as part of the game session template's `dmConfig` field.
+- There is no longer a separate DM template manager or DM template type; all template and session management is focused on game sessions only.
+- This change was made to simplify the user experience, reduce code complexity, and ensure all state is managed in a single, unified template system.
+- All tests, documentation, and UI have been updated to reflect this new direction.

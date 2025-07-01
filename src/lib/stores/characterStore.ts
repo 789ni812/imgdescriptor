@@ -520,7 +520,7 @@ export const useCharacterStore = create<CharacterState>()(
           // Add to currentChoices as before
           const newCurrentChoices = [...(character.currentChoices || []), choice];
           // Add to choicesHistory for this turn
-          let newChoicesHistory = character.choicesHistory ? [...character.choicesHistory] : [];
+          const newChoicesHistory = character.choicesHistory ? [...character.choicesHistory] : [];
           const idx = newChoicesHistory.findIndex(entry => entry.turn === currentTurn);
           if (idx !== -1) {
             // Update existing entry

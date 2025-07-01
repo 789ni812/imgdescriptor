@@ -25,7 +25,6 @@ export default function Home() {
   
   const { 
     isStoryLoading, 
-    storyError, 
     generateStory, 
     isChoicesLoading 
   } = useStoryGeneration();

@@ -52,6 +52,16 @@ export interface GameTemplate {
   fontSize?: string;
   // Storage config
   folderLocation?: string;
+  // DM config (optional)
+  dmConfig?: {
+    personality?: unknown;
+    quizAnswers?: Record<string, string>;
+    [key: string]: unknown;
+  };
+  // Add choicesHistory to template
+  choicesHistory?: import('./character').ChoicesHistoryEntry[];
+  // Add choiceHistory to template
+  choiceHistory?: import('./character').ChoiceOutcome[];
 }
 
 export function importGameTemplate(template: GameTemplate) {
@@ -218,6 +228,7 @@ export interface TemplateApplicationResult {
     character: GameTemplate['character'];
     imageHistory: GameTemplate['images'];
     finalStory?: string;
+    choicesHistory: GameTemplate['choicesHistory'];
   };
   missingContent: string[];
   error?: string;
@@ -242,10 +253,17 @@ export function applyTemplate(template: GameTemplate): TemplateApplicationResult
     };
   }
 
-  // Determine current turn based on image history
-  const currentTurn = template.images.length > 0 
-    ? Math.max(...template.images.map(img => img.turn))
-    : 1;
+  // Determine next incomplete turn
+  const maxTurns = template.config.maxTurns;
+  let nextTurn = maxTurns + 1;
+  for (let turn = 1; turn <= maxTurns; turn++) {
+    const hasImage = template.images.some(img => img.turn === turn);
+    if (!hasImage) {
+      nextTurn = turn;
+      break;
+    }
+  }
+  const currentTurn = nextTurn;
 
   // Create game state
   const gameState = {
@@ -253,16 +271,14 @@ export function applyTemplate(template: GameTemplate): TemplateApplicationResult
     character: template.character,
     imageHistory: template.images,
     finalStory: template.finalStory,
+    choicesHistory: template.choicesHistory || [],
   };
 
   // Detect missing content
   const missingContent: string[] = [];
-  const maxTurns = template.config.maxTurns;
 
   // If we have a final story, consider the template complete
-  // (user might have chosen to end early or the game was designed for fewer turns)
   if (template.finalStory) {
-    // No missing content if final story exists
     return {
       success: true,
       gameState,
@@ -279,7 +295,6 @@ export function applyTemplate(template: GameTemplate): TemplateApplicationResult
   }
 
   // Check for missing final story if we have some images but no final story
-  // This covers both incomplete games and complete games without final story
   if (template.images.length > 0 && !template.finalStory) {
     missingContent.push('final-story');
   }
@@ -305,6 +320,7 @@ export function applyTemplateToStore(template: GameTemplate, characterStore: {
     currentTurn: number;
     imageHistory: GameTemplate['images'];
     finalStory?: string;
+    choicesHistory?: import('./character').ChoicesHistoryEntry[];
   }>) => void;
   addImageToHistory: (image: GameTemplate['images'][0]) => void;
 }): boolean {
@@ -320,6 +336,7 @@ export function applyTemplateToStore(template: GameTemplate, characterStore: {
   characterStore.updateCharacter({
     ...gameState.character,
     currentTurn: gameState.currentTurn,
+    choicesHistory: gameState.choicesHistory,
   });
 
   // Clear existing image history and add template images
@@ -353,10 +370,13 @@ export function createTemplateFromCurrentState(
       experience: number;
       imageHistory: GameTemplate['images'];
       finalStory?: string;
+      choicesHistory?: import('./character').ChoicesHistoryEntry[];
+      choiceHistory?: import('./character').ChoiceOutcome[];
     };
   },
   prompts: GameTemplate['prompts'],
-  config: GameTemplate['config']
+  config: GameTemplate['config'],
+  dmConfig?: GameTemplate['dmConfig']
 ): GameTemplate {
   const character = characterStore.character;
   
@@ -381,5 +401,8 @@ export function createTemplateFromCurrentState(
     prompts,
     config,
     finalStory: character.finalStory,
+    ...(dmConfig ? { dmConfig } : {}),
+    choicesHistory: character.choicesHistory || [],
+    choiceHistory: character.choiceHistory || [],
   };
 } 
