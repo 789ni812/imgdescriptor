@@ -1,5 +1,5 @@
-import { Character, CharacterStats, ChoiceOutcome, StoryEntry } from '../types/character';
 import { PromptContext } from './dynamicPrompts';
+import { StoryEntry, ChoiceOutcome } from '../types/character';
 
 // Game State Analysis Interface
 export interface GameStateAnalysis {
@@ -35,32 +35,32 @@ export function createAdvancedGameStatePrompt(context: PromptContext): string {
     throw new Error('Missing required context for advanced game state prompt');
   }
 
-  const { character, gameState, dmConfig, currentImage } = context;
+  const { character, gameState, dmConfig, imageDescription } = context;
   const analysis = analyzeGameState(context);
 
   return `Advanced Game State Prompt:
 
-Character: ${character.name} (Level ${character.level})
-Stats: STR ${character.stats.strength}, DEX ${character.stats.dexterity}, CON ${character.stats.constitution}, INT ${character.stats.intelligence}, WIS ${character.stats.wisdom}, CHA ${character.stats.charisma}
-Health: ${character.health}/${character.maxHealth}
+Character: ${character.persona} (Level ${character.level})
+Stats: INT ${character.stats.intelligence}, CRE ${character.stats.creativity}, PER ${character.stats.perception}, WIS ${character.stats.wisdom}
+Health: ${character.health}
 Experience: ${character.experience}
 
-Game Progress: Turn ${gameState.currentTurn} of ${gameState.totalTurns} (${analysis.turnProgress.percentage}% complete)
-DM Style: ${dmConfig.personality} personality, ${dmConfig.style} style, ${dmConfig.difficulty} difficulty
+Game Progress: Turn ${gameState.currentTurn} of ${gameState.maxTurns} (${analysis.turnProgress.percentage}% complete)
+DM Style: ${dmConfig.personality?.name || 'Unknown'} personality, ${dmConfig.style} style, ${dmConfig.difficulty} difficulty
 
-Story History (${gameState.storyHistory.length} segments):
-${gameState.storyHistory.map((story, index) => `${index + 1}. ${story}`).join('\n')}
+Story History (${(gameState.storyHistory ?? []).length} segments):
+${(gameState.storyHistory ?? []).map((story: StoryEntry, index: number) => `${index + 1}. ${story.text}`).join('\n')}
 
-Choice History (${gameState.choiceHistory.length} choices):
-${gameState.choiceHistory.map(choice => `- ${choice.text}: ${choice.outcome.success ? 'Success' : 'Failure'} - ${choice.outcome.description}`).join('\n')}
+Choice History (${(gameState.choiceHistory ?? []).length} choices):
+${(gameState.choiceHistory ?? []).map((choice: ChoiceOutcome) => `- ${choice.text}: ${choice.outcome ? 'Success' : 'Failure'} - ${choice.outcome}`).join('\n')}
 
-Current Image: ${currentImage?.description || 'No image'}
+Current Image: ${imageDescription || 'No image'}
 
 Performance Analysis:
 - Success Rate: ${analysis.choicePatterns.successRate}%
 - Story Themes: ${analysis.storyThemes.join(', ')}
 - Choice Patterns: ${analysis.choicePatterns.types.join(', ')}
-- Difficulty Recommendation: ${analysis.difficultyRecommendation.recommendation}
+- Difficulty Recommendation: ${analysis.difficultyRecommendation.recommendedLevel}
 
 Generate the next story segment that builds upon this rich context, considering the character's development, previous choices, and the overall narrative arc.`;
 }
@@ -71,9 +71,9 @@ export function createTurnProgressionPrompt(context: PromptContext): string {
     throw new Error('Missing game state for turn progression prompt');
   }
 
-  const { currentTurn, totalTurns } = context.gameState;
-  const percentage = Math.round((currentTurn / totalTurns) * 100);
-  const remaining = totalTurns - currentTurn;
+  const { currentTurn = 1, maxTurns = 3 } = context.gameState;
+  const percentage = Math.round((currentTurn / maxTurns) * 100);
+  const remaining = maxTurns - currentTurn;
 
   let phase = 'early';
   if (percentage >= 80) phase = 'final';
@@ -82,7 +82,7 @@ export function createTurnProgressionPrompt(context: PromptContext): string {
 
   return `Turn Progression Context:
 
-Current Turn: ${currentTurn} of ${totalTurns} (${percentage}% complete)
+Current Turn: ${currentTurn} of ${maxTurns} (${percentage}% complete)
 Turns Remaining: ${remaining}
 Game Phase: ${phase.charAt(0).toUpperCase() + phase.slice(1)} game
 
@@ -102,23 +102,23 @@ export function createStoryHistoryPrompt(context: PromptContext): string {
   }
 
   const { storyHistory } = context.gameState;
-  const themes = extractStoryThemes(storyHistory);
+  const themes = extractStoryThemes(storyHistory ?? []);
 
-  if (storyHistory.length === 0) {
+  if ((storyHistory ?? []).length === 0) {
     return `Story History (0 segments):
 This is the beginning of the adventure. No previous story context exists.
 
 Generate an opening story segment that establishes the setting, introduces the character, and sets up the initial conflict or challenge.`;
   }
 
-  return `Story History (${storyHistory.length} segments):
+  return `Story History (${(storyHistory ?? []).length} segments):
 
-${storyHistory.map((story, index) => `${index + 1}. ${story}`).join('\n')}
+${(storyHistory ?? []).map((story, index) => `${index + 1}. ${story.text}`).join('\n')}
 
 Story Themes Identified: ${themes.join(', ')}
 
 Narrative Patterns:
-- Story progression: ${storyHistory.length > 1 ? 'Building complexity' : 'Establishing foundation'}
+- Story progression: ${(storyHistory ?? []).length > 1 ? 'Building complexity' : 'Establishing foundation'}
 - Tone consistency: Maintain the established narrative voice
 - Character development: Continue character growth and challenges
 
@@ -132,22 +132,23 @@ export function createChoiceOutcomePrompt(context: PromptContext): string {
   }
 
   const { choiceHistory } = context.gameState;
-  const successCount = choiceHistory.filter(choice => choice.outcome.success).length;
-  const successRate = choiceHistory.length > 0 ? Math.round((successCount / choiceHistory.length) * 100) : 0;
-  const choiceTypes = extractChoiceTypes(choiceHistory);
+  const safeChoiceHistory = choiceHistory ?? [];
+  const successCount = safeChoiceHistory.filter(choice => choice.outcome.success).length;
+  const successRate = safeChoiceHistory.length > 0 ? Math.round((successCount / safeChoiceHistory.length) * 100) : 0;
+  const choiceTypes = extractChoiceTypes(safeChoiceHistory);
 
   return `Choice Outcomes Analysis:
 
-Total Choices: ${choiceHistory.length}
-Success Rate: ${successRate}% (${successCount} successful, ${choiceHistory.length - successCount} failed)
+Total Choices: ${safeChoiceHistory.length}
+Success Rate: ${successRate}% (${successCount} successful, ${safeChoiceHistory.length - successCount} failed)
 
 Choice History:
-${choiceHistory.map(choice => `- ${choice.text}: ${choice.outcome.success ? 'Success' : 'Failure'} - ${choice.outcome.description}`).join('\n')}
+${safeChoiceHistory.map(choice => `- ${choice.text}: ${choice.outcome.success ? 'Success' : 'Failure'} - ${choice.outcome.description}`).join('\n')}
 
 Choice Patterns:
 - Types: ${choiceTypes.join(', ')}
-- Recent trend: ${getRecentChoiceTrend(choiceHistory)}
-- Player style: ${analyzePlayerStyle(choiceHistory)}
+- Recent trend: ${getRecentChoiceTrend(safeChoiceHistory)}
+- Player style: ${analyzePlayerStyle(safeChoiceHistory)}
 
 Consider the player's choice patterns and success rate when generating new choices and outcomes. Balance challenge with player skill level.`;
 }
@@ -196,7 +197,7 @@ export function analyzeGameState(context: PromptContext): GameStateAnalysis {
   const successCount = choiceHistory.filter(choice => choice.outcome.success).length;
   const successRate = choiceHistory.length > 0 ? Math.round((successCount / choiceHistory.length) * 100) : 0;
   const choiceTypes = extractChoiceTypes(choiceHistory);
-  const storyThemes = extractStoryThemes(storyHistory);
+  const storyThemes = extractStoryThemes(storyHistory ?? []);
 
   const performance = calculatePerformanceLevel(successRate, choiceHistory);
   const difficulty = calculateAdaptiveDifficulty(context);
@@ -267,18 +268,17 @@ export function createPerformanceBasedPrompt(context: PromptContext): string {
   }
 
   const analysis = analyzeGameState(context);
-  const { performanceMetrics, choicePatterns } = analysis;
 
   return `Performance-Based Story Generation:
 
-Player Performance: ${performanceMetrics.overall.toUpperCase()}
-Success Rate: ${performanceMetrics.successRate}%
-Choice Patterns: ${choicePatterns.types.join(', ')}
+Player Performance: ${analysis.performanceMetrics.overall.toUpperCase()}
+Success Rate: ${analysis.performanceMetrics.successRate}%
+Choice Patterns: ${analysis.choicePatterns.types.join(', ')}
 Story Progress: ${analysis.turnProgress.percentage}%
 
 Performance Analysis:
-- Consistency: ${performanceMetrics.consistency}%
-- Recent trends: ${choicePatterns.recentTrends.join(', ')}
+- Consistency: ${analysis.performanceMetrics.consistency}%
+- Recent trends: ${analysis.choicePatterns.recentTrends.join(', ')}
 - Player style: ${analyzePlayerStyle(context.gameState.choiceHistory)}
 
 Recommendations:
@@ -298,6 +298,7 @@ export function createGameStateSummaryPrompt(context: PromptContext): string {
 
   return `Game State Summary:
 
+Character: ${character.persona} (Level ${character.level})
 Character: ${character.name} (Level ${character.level})
 Progress: Turn ${gameState.currentTurn} of ${gameState.totalTurns} (${analysis.turnProgress.percentage}%)
 Performance: ${analysis.choicePatterns.successRate}% success rate
@@ -319,9 +320,9 @@ Use this comprehensive game state to generate contextually appropriate and engag
 
 // Utility Functions
 
-function extractStoryThemes(storyHistory: string[]): string[] {
+function extractStoryThemes(storyHistory: StoryEntry[]): string[] {
   const themes: string[] = [];
-  const allText = storyHistory.join(' ').toLowerCase();
+  const allText = storyHistory.map(story => story.text).join(' ').toLowerCase();
 
   if (allText.includes('mystery') || allText.includes('mysterious') || allText.includes('unknown')) {
     themes.push('mystery');
@@ -432,7 +433,7 @@ function analyzePlayerStyle(choiceHistory: Choice[]): string {
 }
 
 function generatePerformanceRecommendations(analysis: GameStateAnalysis): string {
-  const { performanceMetrics, choicePatterns } = analysis;
+  const { performanceMetrics } = analysis;
   
   if (performanceMetrics.overall === 'excellent') {
     return '- Increase challenge complexity\n- Introduce multi-layered choices\n- Add consequences for previous decisions';
@@ -456,7 +457,7 @@ function generateFocusRecommendation(analysis: GameStateAnalysis): string {
 }
 
 function generatePacingRecommendation(analysis: GameStateAnalysis): string {
-  const { turnProgress, performanceMetrics } = analysis;
+  const { turnProgress } = analysis;
   
   if (turnProgress.phase === 'early') {
     return 'Establish setting and character';

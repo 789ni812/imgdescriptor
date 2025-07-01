@@ -10,7 +10,7 @@ import {
   createPerformanceBasedPrompt,
   createGameStateSummaryPrompt
 } from './gameStatePrompts';
-import { createCharacter, Character, Choice, ChoiceOutcome } from '../types/character';
+import { createCharacter } from '../types/character';
 import { PromptContext } from './dynamicPrompts';
 
 describe('Advanced Game State Integration', () => {
@@ -18,13 +18,14 @@ describe('Advanced Game State Integration', () => {
   let sampleGameState: any;
 
   beforeEach(() => {
-    const character = createCharacter('Test Hero', {
-      strength: 15,
-      dexterity: 14,
-      constitution: 16,
-      intelligence: 12,
-      wisdom: 13,
-      charisma: 10
+    const character = createCharacter({
+      persona: 'Test Hero',
+      stats: {
+        intelligence: 12,
+        creativity: 10,
+        perception: 14,
+        wisdom: 13
+      }
     });
 
     sampleGameState = {
@@ -59,7 +60,11 @@ describe('Advanced Game State Integration', () => {
     baseContext = {
       character,
       dmConfig: {
-        personality: 'strategic',
+        personality: {
+          name: 'Strategic DM',
+          style: 'strategic',
+          description: 'A strategic and analytical dungeon master'
+        },
         style: 'challenging',
         difficulty: 'medium'
       },

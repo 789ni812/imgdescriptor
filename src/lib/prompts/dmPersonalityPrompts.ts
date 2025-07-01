@@ -1,4 +1,3 @@
-import { Character, CharacterStats } from '../types/character';
 import { PersonalityType } from '../types/dungeonMaster';
 import { PromptContext } from './dynamicPrompts';
 
@@ -24,17 +23,16 @@ export interface PersonalityModifiers {
 
 // DM Personality Prompt Generation
 export function createDMPersonalityPrompt(context: PromptContext): string {
-  const { character, dm, current } = context;
-  const analysis = dm.personality ? analyzeDMPersonality(dm.personality) : null;
+  const { character, dmConfig, imageDescription, previousStory } = context;
 
-  let prompt = `You are ${dm.personality?.name || 'a Dungeon Master'}, ${dm.personality?.description || 'guiding an adventure'}.
+  const prompt = `You are ${dmConfig?.personality?.name || 'a Dungeon Master'}, ${dmConfig?.personality?.description || 'guiding an adventure'}.
 
 **DM Personality Context:**
-- **Style**: ${dm.style}
-- **Mood**: ${dm.mood}
-${analysis ? `- **Traits**: ${analysis.traits.join(', ')}
-- **Storytelling Style**: ${analysis.storytellingStyle}
-- **Communication Style**: ${analysis.communicationStyle}` : '- **Traits**: Balanced and neutral'}
+- **Style**: ${dmConfig?.style || 'narrative'}
+- **Difficulty**: ${dmConfig?.difficulty || 'medium'}
+${dmConfig?.personality ? `- **Traits**: ${analyzeDMPersonality(dmConfig.personality).traits.join(', ')}
+- **Storytelling Style**: ${analyzeDMPersonality(dmConfig.personality).storytellingStyle}
+- **Communication Style**: ${analyzeDMPersonality(dmConfig.personality).communicationStyle}` : '- **Traits**: Balanced and neutral'}
 
 **Character Context:**
 - **Stats**: INT ${character.stats.intelligence}, CRE ${character.stats.creativity}, PER ${character.stats.perception}, WIS ${character.stats.wisdom}
@@ -42,12 +40,11 @@ ${analysis ? `- **Traits**: ${analysis.traits.join(', ')}
 - **Health**: ${character.health}/200
 
 **Current Situation:**
-- **Image**: ${current.imageDescription}
-${current.previousStory ? `- **Previous Story**: ${current.previousStory}` : ''}
+- **Image**: ${imageDescription || 'No image provided'}
+${previousStory ? `- **Previous Story**: ${previousStory}` : ''}
 
 **Personality-Driven Requirements:**
-- Maintain your ${dm.style} style throughout the interaction
-- Reflect your ${dm.mood} mood in the narrative tone
+- Maintain your ${dmConfig?.style || 'narrative'} style throughout the interaction
 - Use your unique personality traits to shape the story
 - Provide choices that align with your storytelling approach
 - Create consequences that reflect your DM personality
@@ -59,35 +56,34 @@ The story and choices should feel like they're coming from a DM with your specif
 
 // Personality-Driven Story Generation
 export function createPersonalityDrivenStoryPrompt(context: PromptContext): string {
-  const { character, game, dm, current } = context;
-  const analysis = dm.personality ? analyzeDMPersonality(dm.personality) : null;
-  const modifiers = dm.personality ? generatePersonalityModifiers(dm.personality) : null;
+  const { character, gameState, dmConfig, imageDescription, previousStory } = context;
+  const modifiers = dmConfig?.personality ? generatePersonalityModifiers(dmConfig.personality) : null;
 
-  let prompt = `Create a personality-driven story that reflects your unique DM style.
+  const prompt = `Create a personality-driven story that reflects your unique DM style.
 
 **DM Personality:**
-- **Name**: ${dm.personality?.name || 'Default DM'}
-- **Style**: ${dm.style}
-- **Mood**: ${dm.mood}
-${analysis ? `- **Traits**: ${analysis.traits.join(', ')}
-- **Storytelling Approach**: ${analysis.storytellingStyle}
-- **Narrative Voice**: ${analysis.narrativeVoice}` : '- **Approach**: Balanced and neutral'}
+- **Name**: ${dmConfig?.personality?.name || 'Default DM'}
+- **Style**: ${dmConfig?.style || 'narrative'}
+- **Difficulty**: ${dmConfig?.difficulty || 'medium'}
+${dmConfig?.personality ? `- **Traits**: ${analyzeDMPersonality(dmConfig.personality).traits.join(', ')}
+- **Storytelling Approach**: ${analyzeDMPersonality(dmConfig.personality).storytellingStyle}
+- **Narrative Voice**: ${analyzeDMPersonality(dmConfig.personality).narrativeVoice}` : '- **Approach**: Balanced and neutral'}
 
 **Character Context:**
 - **Level**: ${character.level} (${character.experience} experience)
 - **Stats**: INT ${character.stats.intelligence}, CRE ${character.stats.creativity}, PER ${character.stats.perception}, WIS ${character.stats.wisdom}
 - **Health**: ${character.health}/200
-- **Current Turn**: ${game.currentTurn} of ${game.totalTurns}
+- **Current Turn**: ${gameState?.currentTurn || 1} of ${gameState?.maxTurns || 3}
 
 **Story Requirements:**
 - **Tone**: ${modifiers?.storyTone || 'balanced'}
 - **Communication**: ${modifiers?.communicationStyle || 'clear and direct'}
 - **Character Development**: Focus on personal growth and character arc
-- **Mood Influence**: ${dm.mood === 'positive' ? 'Optimistic and encouraging' : dm.mood === 'negative' ? 'Challenging and intense' : 'Balanced and objective'}
+- **Difficulty**: ${dmConfig?.difficulty || 'medium'} level challenge
 
 **Current Context:**
-- **Image**: ${current.imageDescription}
-${current.previousStory ? `- **Story Continuation**: Build upon ${current.previousStory}` : '- **New Adventure**: Begin a new chapter'}
+- **Image**: ${imageDescription || 'No image provided'}
+${previousStory ? `- **Story Continuation**: Build upon ${previousStory}` : '- **New Adventure**: Begin a new chapter'}
 
 Create a story that embodies your unique personality while advancing the character's journey.`;
 
@@ -96,10 +92,10 @@ Create a story that embodies your unique personality while advancing the charact
 
 // DM Mood System
 export function createDMMoodSystemPrompt(context: PromptContext): string {
-  const { dm } = context;
-  const mood = dm.mood;
+  const { dmConfig } = context;
+  const mood = dmConfig?.difficulty || 'medium';
 
-  let prompt = `Adjust your storytelling based on your current mood: ${mood}.
+  const prompt = `Adjust your storytelling based on your current mood: ${mood}.
 
 **Mood-Based Modifications:**
 ${mood === 'positive' ? 
@@ -131,16 +127,15 @@ Your mood should enhance the storytelling experience while maintaining your core
 
 // Personality Adaptation System
 export function createPersonalityAdaptationPrompt(context: PromptContext): string {
-  const { character, game, dm } = context;
-  const analysis = dm.personality ? analyzeDMPersonality(dm.personality) : null;
-  const choiceHistory = game.choiceHistory;
+  const { character, gameState, dmConfig } = context;
+  const choiceHistory = gameState?.choiceHistory || [];
 
-  let prompt = `Adapt your personality to the character's preferences and choices while maintaining your core identity.
+  const prompt = `Adapt your personality to the character's preferences and choices while maintaining your core identity.
 
 **DM Personality:**
-- **Core Traits**: ${analysis?.traits.join(', ') || 'Balanced'}
-- **Adaptation Style**: ${analysis?.storytellingStyle || 'Flexible'}
-- **Communication**: ${analysis?.communicationStyle || 'Clear'}
+- **Core Traits**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).traits.join(', ') : 'Balanced'}
+- **Adaptation Style**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).storytellingStyle : 'Flexible'}
+- **Communication**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).communicationStyle : 'Clear'}
 
 **Character Analysis:**
 - **Choice History**: ${choiceHistory.length} previous choices
@@ -168,7 +163,7 @@ Adapt your approach while staying true to who you are as a DM.`;
 // Analyze DM Personality
 export function analyzeDMPersonality(personality: PersonalityType): DMPersonalityAnalysis {
   const traits: string[] = [];
-  const description = personality.description.toLowerCase();
+  const description = personality.description?.toLowerCase() || '';
   const style = personality.style.toLowerCase();
 
   // Extract traits from description
@@ -254,7 +249,6 @@ export function analyzeDMPersonality(personality: PersonalityType): DMPersonalit
 
 // Generate Personality Modifiers
 export function generatePersonalityModifiers(personality: PersonalityType): PersonalityModifiers {
-  const analysis = analyzeDMPersonality(personality);
   const style = personality.style.toLowerCase();
 
   let storyTone = 'balanced';
@@ -305,14 +299,13 @@ export function generatePersonalityModifiers(personality: PersonalityType): Pers
 
 // Create DM Style Prompt
 export function createDMStylePrompt(context: PromptContext): string {
-  const { dm } = context;
-  const analysis = dm.personality ? analyzeDMPersonality(dm.personality) : null;
-  const modifiers = dm.personality ? generatePersonalityModifiers(dm.personality) : null;
+  const { dmConfig } = context;
+  const modifiers = dmConfig?.personality ? generatePersonalityModifiers(dmConfig.personality) : null;
 
-  let prompt = `Maintain your unique ${dm.style} style throughout the storytelling.
+  const prompt = `Maintain your unique ${dmConfig?.style || 'narrative'} style throughout the storytelling.
 
 **Style Characteristics:**
-- **Storytelling Approach**: ${analysis?.storytellingStyle || 'balanced'}
+- **Storytelling Approach**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).storytellingStyle : 'balanced'}
 - **Narrative Voice**: ${modifiers?.narrativeVoice || 'neutral'}
 - **Communication Style**: ${modifiers?.communicationStyle || 'clear'}
 - **Choice Presentation**: ${modifiers?.choiceStyle || 'standard'}
@@ -325,7 +318,7 @@ export function createDMStylePrompt(context: PromptContext): string {
 - **Choice Design**: Design choices that align with your storytelling approach
 
 **Style Application:**
-- Apply your ${dm.style} style to story descriptions
+- Apply your ${dmConfig?.style || 'narrative'} style to story descriptions
 - Use your style to shape choice consequences
 - Maintain style consistency across all interactions
 - Let your style enhance the overall experience
@@ -337,16 +330,15 @@ Your style should be evident in every aspect of the storytelling while serving t
 
 // Create Personality Consistency Prompt
 export function createPersonalityConsistencyPrompt(context: PromptContext): string {
-  const { character, game, dm } = context;
-  const analysis = dm.personality ? analyzeDMPersonality(dm.personality) : null;
-  const storyHistory = game.storyHistory;
+  const { gameState, dmConfig } = context;
+  const storyHistory = gameState?.storyHistory || [];
 
-  let prompt = `Maintain personality consistency throughout the character's journey.
+  const prompt = `Maintain personality consistency throughout the character's journey.
 
 **DM Personality:**
-- **Core Identity**: ${dm.personality?.name || 'Default DM'}
-- **Key Traits**: ${analysis?.traits.join(', ') || 'Balanced'}
-- **Narrative Voice**: ${analysis?.narrativeVoice || 'Neutral'}
+- **Core Identity**: ${dmConfig?.personality?.name || 'Default DM'}
+- **Key Traits**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).traits.join(', ') : 'Balanced'}
+- **Narrative Voice**: ${dmConfig?.personality ? analyzeDMPersonality(dmConfig.personality).narrativeVoice : 'Neutral'}
 
 **Consistency Requirements:**
 - **Character Voice**: Maintain your unique voice across all interactions

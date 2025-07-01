@@ -3,6 +3,7 @@ import type { Choice, ChoiceOutcome, CharacterStats } from '@/lib/types/characte
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion';
 import { Badge } from './ui/badge';
 import { LoadingSpinner } from './ui/LoadingSpinner';
+import Image from 'next/image';
 
 interface TurnCardProps {
   turnNumber: number;
@@ -85,9 +86,11 @@ const TurnCard: React.FC<TurnCardProps> = ({
       {/* Image */}
       {imageUrl && (
         <div className="mb-2">
-          <img
+          <Image
             src={imageUrl}
             alt={`Turn ${turnNumber} image`}
+            width={300}
+            height={200}
             className="rounded w-full max-w-xs mx-auto"
           />
         </div>

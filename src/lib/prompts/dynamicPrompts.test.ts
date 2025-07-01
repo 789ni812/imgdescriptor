@@ -7,7 +7,7 @@ import {
   validatePromptTemplate,
   createPromptContext
 } from './dynamicPrompts';
-import { createCharacter, Character, CharacterStats } from '../types/character';
+import { createCharacter } from '../types/character';
 import { PersonalityType } from '../types/dungeonMaster';
 
 describe('Dynamic Prompt System', () => {

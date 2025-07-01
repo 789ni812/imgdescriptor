@@ -9,7 +9,7 @@ import {
   createDMStylePrompt,
   createPersonalityConsistencyPrompt
 } from './dmPersonalityPrompts';
-import { createCharacter, Character } from '../types/character';
+
 import { PersonalityType } from '../types/dungeonMaster';
 import { PromptContext } from './dynamicPrompts';
 
@@ -22,9 +22,18 @@ describe('DM Personality Integration', () => {
       character: {
         stats: { intelligence: 12, creativity: 10, perception: 14, wisdom: 11 },
         health: 120,
+        heartrate: 70,
+        age: 18,
+        persona: 'Adventurer',
+        traits: [],
         experience: 50,
         level: 2,
-        inventory: []
+        inventory: [],
+        storyHistory: [],
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        currentTurn: 1
       },
       game: {
         currentTurn: 2,
@@ -57,12 +66,22 @@ describe('DM Personality Integration', () => {
   describe('createDMPersonalityPrompt', () => {
     it('should generate prompt that incorporates DM personality', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMPersonalityPrompt(context);
@@ -75,12 +94,22 @@ describe('DM Personality Integration', () => {
 
     it('should include DM mood in prompt generation', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'negative',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMPersonalityPrompt(context);
@@ -92,12 +121,22 @@ describe('DM Personality Integration', () => {
 
     it('should handle missing DM personality gracefully', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: null,
           mood: 'neutral',
           style: 'neutral'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMPersonalityPrompt(context);
@@ -109,12 +148,22 @@ describe('DM Personality Integration', () => {
 
     it('should include character context in DM personality prompt', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMPersonalityPrompt(context);
@@ -128,12 +177,22 @@ describe('DM Personality Integration', () => {
   describe('createPersonalityDrivenStoryPrompt', () => {
     it('should create story prompt that reflects DM personality', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityDrivenStoryPrompt(context);
@@ -146,12 +205,22 @@ describe('DM Personality Integration', () => {
 
     it('should adapt story tone based on DM mood', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'negative',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityDrivenStoryPrompt(context);
@@ -163,12 +232,22 @@ describe('DM Personality Integration', () => {
 
     it('should include character development in personality-driven stories', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityDrivenStoryPrompt(context);
@@ -182,12 +261,22 @@ describe('DM Personality Integration', () => {
   describe('createDMMoodSystemPrompt', () => {
     it('should create mood-based prompt modifications', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMMoodSystemPrompt(context);
@@ -199,12 +288,22 @@ describe('DM Personality Integration', () => {
 
     it('should handle negative mood appropriately', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'negative',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMMoodSystemPrompt(context);
@@ -216,12 +315,22 @@ describe('DM Personality Integration', () => {
 
     it('should provide neutral mood guidance', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'neutral',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMMoodSystemPrompt(context);
@@ -235,12 +344,22 @@ describe('DM Personality Integration', () => {
   describe('createPersonalityAdaptationPrompt', () => {
     it('should create prompt for personality adaptation', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityAdaptationPrompt(context);
@@ -252,9 +371,13 @@ describe('DM Personality Integration', () => {
 
     it('should consider character choices in adaptation', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
         game: {
-          ...baseContext.game,
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
           choiceHistory: [
             {
               id: '1',
@@ -265,13 +388,15 @@ describe('DM Personality Integration', () => {
               timestamp: '2025-01-27T10:00:00Z',
               turnNumber: 1
             }
-          ]
+          ],
+          imageHistory: []
         },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityAdaptationPrompt(context);
@@ -358,12 +483,22 @@ describe('DM Personality Integration', () => {
   describe('createDMStylePrompt', () => {
     it('should create style-specific prompt modifications', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMStylePrompt(context);
@@ -381,12 +516,22 @@ describe('DM Personality Integration', () => {
       };
 
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: actionDM,
           mood: 'positive',
           style: 'action-oriented'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createDMStylePrompt(context);
@@ -400,12 +545,22 @@ describe('DM Personality Integration', () => {
   describe('createPersonalityConsistencyPrompt', () => {
     it('should create prompt for maintaining personality consistency', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityConsistencyPrompt(context);
@@ -417,12 +572,22 @@ describe('DM Personality Integration', () => {
 
     it('should emphasize maintaining DM voice throughout', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
+        game: {
+          currentTurn: 2,
+          totalTurns: 3,
+          storyHistory: [
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
+        },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityConsistencyPrompt(context);
@@ -434,18 +599,22 @@ describe('DM Personality Integration', () => {
 
     it('should consider story progression in consistency', () => {
       const context: PromptContext = {
-        ...baseContext,
+        character: baseContext.character,
         game: {
-          ...baseContext.game,
+          currentTurn: 2,
+          totalTurns: 3,
           storyHistory: [
-            { id: '1', text: 'Previous mysterious story', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
-          ]
+            { id: '1', text: 'First adventure', timestamp: '2025-01-27', turnNumber: 1, imageDescription: 'Forest' }
+          ],
+          choiceHistory: [],
+          imageHistory: []
         },
         dm: {
           personality: sampleDMPersonality,
           mood: 'positive',
           style: 'mysterious'
-        }
+        },
+        current: baseContext.current
       };
 
       const prompt = createPersonalityConsistencyPrompt(context);
