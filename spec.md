@@ -267,10 +267,10 @@ reader.readAsDataURL(file);
 **Objective:** Implement React performance optimizations and fix code quality issues.
 
 #### Tasks
-- [ ] **XX.9.1: Fix Build Errors**
-  - Remove unused variable `storyError` in `page.tsx`
-  - Change `let` to `const` in `characterStore.ts`
-  - Replace `<img>` with Next.js `<Image />` component
+- [x] **XX.9.1: Fix Build Errors**
+  - ~~Remove unused variable `storyError` in `page.tsx`~~ (Variable is actively used for error handling)
+  - Change `let` to `const` in `characterStore.ts` (Fixed: converted `name` variable to `const` with ternary operator)
+  - ~~Replace `<img>` with Next.js `<Image />` component~~ (Already using Next.js Image component)
   - **Commit:** `fix(build): resolve linting errors and optimize image loading`
 
 - [ ] **XX.9.2: Add React Performance Optimizations**

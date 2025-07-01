@@ -287,10 +287,10 @@ export const useCharacterStore = create<CharacterState>()(
               const combinedHash = hash + timestamp;
               const adj = adjectives[Math.abs(combinedHash) % adjectives.length];
               const noun = nouns[Math.abs(combinedHash * 31) % nouns.length];
-              let name = `${adj} ${noun}`;
-              if (name.trim().toLowerCase() === 'adventurer') {
-                name = `${adj} ${noun} ${Math.floor(Math.random() * 1000)}`;
-              }
+              const baseName = `${adj} ${noun}`;
+              const name = baseName.trim().toLowerCase() === 'adventurer' 
+                ? `${adj} ${noun} ${Math.floor(Math.random() * 1000)}`
+                : baseName;
               return name;
             }
           };
