@@ -203,27 +203,37 @@ describe('TemplateManager', () => {
     mockUseDMStore.mockReturnValue(mockDMStore);
   });
 
+  const openAccordion = () => {
+    fireEvent.click(screen.getByText('Template & Dungeon Master Controls'));
+  };
+
   it('should render template manager with apply button', () => {
     render(<TemplateManager />);
-    
+    openAccordion();
     expect(screen.getByText('Templates')).toBeInTheDocument();
+    openAccordion();
     expect(screen.getByText('Test Adventure')).toBeInTheDocument();
+    openAccordion();
     expect(screen.getByTestId('apply-template-btn')).toBeInTheDocument();
+    openAccordion();
     expect(screen.getByText('Apply Template')).toBeInTheDocument();
   });
 
   it('should display template details including images and final story', () => {
     render(<TemplateManager />);
-    
+    openAccordion();
     expect(screen.getByText('Images: 2')).toBeInTheDocument();
+    openAccordion();
     expect(screen.getByText('Final Story: Yes')).toBeInTheDocument();
   });
 
   it('should apply template successfully when apply button is clicked', () => {
     render(<TemplateManager />);
-    
+    openAccordion();
     // First import a template
+    openAccordion();
     fireEvent.click(screen.getByText('Import Template'));
+    openAccordion();
     
     // Mock file input with a valid template
     const validTemplate = {
@@ -232,14 +242,17 @@ describe('TemplateManager', () => {
       name: 'Imported Template'
     };
     const file = new File([JSON.stringify(validTemplate)], 'test.json', { type: 'application/json' });
+    openAccordion();
     const input = screen.getByTestId('template-file-input');
     
     fireEvent.change(input, { target: { files: [file] } });
     
     // Wait for the template to be imported and selected
     // Then click the Apply Template button
+    openAccordion();
     const applyButton = screen.getByTestId('apply-template-btn');
     fireEvent.click(applyButton);
+    openAccordion();
     
     expect(mockCharacterStore.updateCharacter).toHaveBeenCalledWith(expect.objectContaining({
       ...mockTemplate.character,
@@ -267,15 +280,20 @@ describe('TemplateManager', () => {
     });
 
     render(<TemplateManager />);
-    
+    openAccordion();
     const applyButton = screen.getByTestId('apply-template-btn');
     fireEvent.click(applyButton);
-
+    openAccordion();
     await waitFor(() => {
+      openAccordion();
       expect(screen.getByText('Template applied successfully!')).toBeInTheDocument();
+      openAccordion();
       expect(screen.getByText('Missing content:')).toBeInTheDocument();
+      openAccordion();
       expect(screen.getByText('turn-2-image')).toBeInTheDocument();
+      openAccordion();
       expect(screen.getByText('turn-3-image')).toBeInTheDocument();
+      openAccordion();
       expect(screen.getByText('final-story')).toBeInTheDocument();
     });
   });
@@ -298,13 +316,14 @@ describe('TemplateManager', () => {
 
   it('should handle template creation', () => {
     render(<TemplateManager />);
-    
+    openAccordion();
     const nameInput = screen.getByPlaceholderText('New template name');
+    openAccordion();
     const createButton = screen.getByTestId('create-template-btn');
     
     fireEvent.change(nameInput, { target: { value: 'New Template' } });
     fireEvent.click(createButton);
-
+    openAccordion();
     expect(mockTemplateStore.addTemplate).toHaveBeenCalled();
   });
 
@@ -383,13 +402,14 @@ describe('TemplateManager', () => {
     mockUseCharacterStore.mockReturnValue(mockCharacterWithState);
 
     render(<TemplateManager />);
-    
+    openAccordion();
     const nameInput = screen.getByPlaceholderText('New template name');
+    openAccordion();
     const createButton = screen.getByTestId('create-template-btn');
     
     fireEvent.change(nameInput, { target: { value: 'Current Adventure' } });
     fireEvent.click(createButton);
-    
+    openAccordion();
     // Verify template was created with current game state
     expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -462,13 +482,14 @@ describe('TemplateManager', () => {
     mockUseCharacterStore.mockReturnValue(mockCharacterWithImagesNoStories);
 
     render(<TemplateManager />);
-    
+    openAccordion();
     const nameInput = screen.getByPlaceholderText('New template name');
+    openAccordion();
     const createButton = screen.getByTestId('create-template-btn');
     
     fireEvent.change(nameInput, { target: { value: 'No Stories Adventure' } });
     fireEvent.click(createButton);
-    
+    openAccordion();
     // Verify template was created with empty story string
     expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -488,62 +509,69 @@ describe('TemplateManager', () => {
     );
   });
 
-  it('should allow editing template name, prompts, and config from the UI', async () => {
+  it('should allow editing template name, prompts, and config from the UI', () => {
     render(<TemplateManager />);
-
-    // Select the template to edit
+    openAccordion();
+    openAccordion();
     fireEvent.click(screen.getByText('Test Adventure'));
-    // Click Edit to show the edit form
+    openAccordion();
     fireEvent.click(screen.getByTestId('edit-template-btn'));
 
     // Edit name
+    openAccordion();
     const nameInput = screen.getByDisplayValue('Test Adventure');
     fireEvent.change(nameInput, { target: { value: 'Epic Quest' } });
     expect(nameInput).toHaveValue('Epic Quest');
 
     // Edit a prompt
+    openAccordion();
     const promptInput = screen.getByDisplayValue('Describe this image in detail for an RPG adventure.');
     fireEvent.change(promptInput, { target: { value: 'Describe the scene for a fantasy RPG.' } });
     expect(promptInput).toHaveValue('Describe the scene for a fantasy RPG.');
 
     // Edit config
+    openAccordion();
     const maxTurnsInput = screen.getByLabelText('Max Turns');
     fireEvent.change(maxTurnsInput, { target: { value: 5 } });
     expect(maxTurnsInput).toHaveValue(5);
 
     // Save changes
+    openAccordion();
     const saveButton = screen.getByTestId('save-template-btn');
     fireEvent.click(saveButton);
+    openAccordion();
 
-    await waitFor(() => {
-      expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'Epic Quest',
-          prompts: expect.objectContaining({
-            imageDescription: 'Describe the scene for a fantasy RPG.'
-          }),
-          config: expect.objectContaining({ maxTurns: 5 })
-        })
-      );
-    });
+    expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Epic Quest',
+        prompts: expect.objectContaining({
+          imageDescription: 'Describe the scene for a fantasy RPG.'
+        }),
+        config: expect.objectContaining({ maxTurns: 5 })
+      })
+    );
   });
 
-  it('should show validation errors for missing required fields when saving a template', async () => {
+  it('should show validation errors for missing required fields when saving a template', () => {
     render(<TemplateManager />);
+    openAccordion();
+    openAccordion();
     fireEvent.click(screen.getByText('Test Adventure'));
+    openAccordion();
     fireEvent.click(screen.getByTestId('edit-template-btn'));
 
     // Clear the name field
+    openAccordion();
     const nameInput = screen.getByDisplayValue('Test Adventure');
     fireEvent.change(nameInput, { target: { value: '' } });
 
     // Try to save
+    openAccordion();
     const saveButton = screen.getByTestId('save-template-btn');
     fireEvent.click(saveButton);
+    openAccordion();
 
-    await waitFor(() => {
-      expect(screen.getByText('Template name is required')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Template name is required')).toBeInTheDocument();
   });
 
   it('should show an error if importing an invalid template (missing required fields)', async () => {
@@ -552,10 +580,14 @@ describe('TemplateManager', () => {
     (validateGameTemplate as jest.Mock).mockReturnValueOnce(false);
     
     render(<TemplateManager />);
+    openAccordion();
     fireEvent.click(screen.getByText('Import Template'));
+    openAccordion();
     const file = new File(['{"invalid":true}'], 'invalid.json', { type: 'application/json' });
+    openAccordion();
     const input = screen.getByTestId('template-file-input');
     fireEvent.change(input, { target: { files: [file] } });
+    openAccordion();
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith('Invalid template file.');
     });
@@ -564,9 +596,11 @@ describe('TemplateManager', () => {
   describe('Toast notifications', () => {
     it('shows a toast when exporting a template', async () => {
       render(<TemplateManager />);
+      openAccordion();
+      openAccordion();
       const exportBtn = screen.getByTestId('export-template-btn');
       fireEvent.click(exportBtn);
-      // Verify toast was called
+      openAccordion();
       expect(mockToast).toHaveBeenCalledWith('Template exported successfully!');
     });
   });

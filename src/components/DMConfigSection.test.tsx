@@ -6,7 +6,7 @@ describe('DMConfigSection', () => {
   it('renders as a SaaS card: white bg, rounded, shadow, blue heading, modern inputs, and GoodVsBadConfig', () => {
     render(<DMConfigSection />);
     const card = screen.getByRole('region', { name: /dungeon master config/i });
-    expect(card).toHaveClass('bg-white', 'rounded-xl', 'shadow-md', 'border', 'border-gray-200');
+    expect(card).toHaveClass('bg-card', 'dark:bg-slate-900', 'rounded-xl', 'shadow-md', 'border', 'border-gray-200', 'dark:border-gray-700');
     const heading = screen.getByRole('heading', { name: /dungeon master config/i });
     expect(heading).toHaveClass('text-primary', 'font-bold');
     // Only check DM config section's own inputs (not GoodVsBadConfig)

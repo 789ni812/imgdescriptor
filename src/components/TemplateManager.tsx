@@ -255,30 +255,26 @@ export function TemplateManager() {
   };
 
   return (
-    <Accordion type="single" collapsible defaultValue="template-controls">
-      <AccordionItem value="template-controls">
-        <AccordionTrigger>Template & Dungeon Master Controls</AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-6">
+    <Accordion type="single" collapsible defaultValue="template-controls" className="w-full max-w-3xl mx-auto rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-card dark:bg-slate-900">
+      <AccordionItem value="template-controls" className="rounded-xl bg-card dark:bg-slate-900 border-none shadow-md mb-4">
+        <AccordionTrigger className="px-6 py-4 text-lg font-semibold bg-muted dark:bg-slate-800 rounded-t-xl border-b border-gray-200 dark:border-gray-700 hover:bg-accent dark:hover:bg-blue-900/40 transition-colors">
+          Template & Dungeon Master Controls
+        </AccordionTrigger>
+        <AccordionContent className="px-0 pb-0 rounded-b-xl">
+          <div className="space-y-8 px-2 py-4">
             <DMConfigSection />
-            <div className="space-y-2">
-              <div className="flex gap-2 items-center mb-2">
+            <div className="space-y-4 mt-6">
+              <div className="flex flex-wrap gap-2 items-center mb-4">
                 <input
                   type="text"
                   placeholder="New template name"
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm"
+                  className="border rounded-lg px-3 py-2 text-sm bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400 mr-2 mb-2"
                 />
-                <Button onClick={handleCreateTemplate} size="sm" variant="outline" data-testid="create-template-btn">
-                  Save Current State
-                </Button>
-                <Button onClick={handleImportClick} variant="outline" size="sm" data-testid="import-template-btn">
-                  Import Template
-                </Button>
-                <Button onClick={handleExportClick} variant="outline" size="sm" data-testid="export-template-btn">
-                  Export Template
-                </Button>
+                <Button onClick={handleCreateTemplate} size="sm" variant="default" className="rounded-lg font-semibold shadow-md">Save Current State</Button>
+                <Button onClick={handleImportClick} variant="secondary" size="sm" className="rounded-lg font-semibold shadow-md">Import Template</Button>
+                <Button onClick={handleExportClick} variant="outline" size="sm" className="rounded-lg font-semibold shadow-md">Export Template</Button>
                 <input
                   type="file"
                   accept="application/json"
@@ -288,79 +284,79 @@ export function TemplateManager() {
                   data-testid="template-file-input"
                 />
               </div>
-              <div className="border rounded p-2 bg-muted">
-                <div className="font-semibold mb-2">Templates</div>
-                <ul className="space-y-1">
+              <div className="border rounded-lg p-4 bg-muted dark:bg-slate-900 mb-4">
+                <div className="font-semibold mb-3">Templates</div>
+                <ul className="space-y-2">
                   {templates.length === 0 && <li className="text-sm text-muted-foreground">No templates yet.</li>}
                   {templates.map(t => (
-                    <li key={t.id} className={`flex items-center gap-2 p-1 rounded ${selectedTemplateId === t.id ? 'bg-accent' : ''}`}>
+                    <li key={t.id} className={`flex items-center gap-2 p-2 rounded-lg ${selectedTemplateId === t.id ? 'bg-accent dark:bg-blue-900/40' : ''}`}>
                       <span className="flex-1 cursor-pointer" onClick={() => selectTemplate(t.id)}>
                         {t.name}
                         {selectedTemplateId === t.id && <span className="ml-2 text-xs text-primary">(selected)</span>}
                       </span>
-                      <Button size="sm" variant="ghost" onClick={() => selectTemplate(t.id)} disabled={selectedTemplateId === t.id}>Select</Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteTemplate(t.id)}>Delete</Button>
+                      <Button size="sm" variant="secondary" className="rounded-lg" onClick={() => selectTemplate(t.id)} disabled={selectedTemplateId === t.id}>Select</Button>
+                      <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => deleteTemplate(t.id)}>Delete</Button>
                     </li>
                   ))}
                 </ul>
               </div>
-              {importError && <div className="text-red-600 text-sm" role="alert">{importError}</div>}
+              {importError && <div className="text-red-600 text-sm mb-2" role="alert">{importError}</div>}
               {selectedTemplate && (
-                <div className="border rounded p-2 mt-2 bg-muted">
-                  <div className="font-semibold mb-1">Selected Template</div>
-                  <div className="text-xs text-muted-foreground">ID: {selectedTemplate.id}</div>
+                <div className="border rounded-lg p-4 mt-2 bg-muted dark:bg-slate-900">
+                  <div className="font-semibold mb-2">Selected Template</div>
+                  <div className="text-xs text-muted-foreground mb-2">ID: {selectedTemplate.id}</div>
                   {!editing ? (
                     <>
-                      <div className="text-sm">Name: {selectedTemplate.name}</div>
-                      <div className="text-sm">Created: {selectedTemplate.createdAt}</div>
-                      <div className="text-sm">Updated: {selectedTemplate.updatedAt}</div>
-                      <div className="text-sm">Images: {selectedTemplate.images.length}</div>
-                      <div className="text-sm">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
+                      <div className="text-sm mb-1">Name: {selectedTemplate.name}</div>
+                      <div className="text-sm mb-1">Created: {selectedTemplate.createdAt}</div>
+                      <div className="text-sm mb-1">Updated: {selectedTemplate.updatedAt}</div>
+                      <div className="text-sm mb-1">Images: {selectedTemplate.images.length}</div>
+                      <div className="text-sm mb-3">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
                       <div className="flex gap-2 mt-2">
-                        <Button onClick={startEditing} size="sm" variant="outline" data-testid="edit-template-btn">Edit</Button>
+                        <Button onClick={startEditing} size="sm" variant="outline" className="rounded-lg">Edit</Button>
                         <Button 
                           onClick={handleApplyTemplate} 
                           variant="default" 
                           size="sm" 
+                          className="flex-1 rounded-lg"
                           data-testid="apply-template-btn"
-                          className="flex-1"
                         >
                           Apply Template
                         </Button>
                       </div>
                     </>
                   ) : (
-                    <form className="space-y-2 mt-2">
-                      <label className="block text-xs font-medium">Name
+                    <form className="space-y-3 mt-2">
+                      <label className="block text-xs font-medium mb-1">Name
                         <input
                           type="text"
                           value={editFields ? editFields.name : ''}
                           onChange={e => handleEditFieldChange('name', e.target.value)}
-                          className="border rounded px-2 py-1 text-sm w-full"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                           data-testid="edit-template-name"
                         />
                       </label>
-                      {editError && <div className="text-red-600 text-xs" role="alert">{editError}</div>}
-                      <label className="block text-xs font-medium">Image Description Prompt
+                      {editError && <div className="text-red-600 text-xs mb-1" role="alert">{editError}</div>}
+                      <label className="block text-xs font-medium mb-1">Image Description Prompt
                         <input
                           type="text"
                           value={editFields ? editFields.prompts.imageDescription : ''}
                           onChange={e => handleEditPromptChange('imageDescription', e.target.value)}
-                          className="border rounded px-2 py-1 text-sm w-full"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                         />
                       </label>
-                      <label className="block text-xs font-medium">Max Turns
+                      <label className="block text-xs font-medium mb-1">Max Turns
                         <input
                           type="number"
                           value={editFields ? editFields.config.maxTurns : ''}
                           onChange={e => handleEditConfigChange('maxTurns', Number(e.target.value))}
-                          className="border rounded px-2 py-1 text-sm w-full"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                           aria-label="Max Turns"
                         />
                       </label>
                       <div className="flex gap-2 mt-2">
-                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" data-testid="save-template-btn">Save</Button>
-                        <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline">Cancel</Button>
+                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" className="rounded-lg">Save</Button>
+                        <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline" className="rounded-lg">Cancel</Button>
                       </div>
                     </form>
                   )}
