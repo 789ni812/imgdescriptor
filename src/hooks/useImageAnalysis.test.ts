@@ -37,7 +37,7 @@ describe('useImageAnalysis', () => {
 
     const { result } = renderHook(() => useImageAnalysis(mockConfig, mockStore));
 
-    expect(result.current.description).toBeNull();
+    expect(result.current.description).toBeUndefined();
     expect(result.current.isDescriptionLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(typeof result.current.analyzeImage).toBe('function');
@@ -168,7 +168,7 @@ describe('useImageAnalysis', () => {
     });
 
     expect(result.current.error).toBe('API Error');
-    expect(result.current.description).toBeNull();
+    expect(result.current.description).toBeUndefined();
   });
 
   it('should handle network errors during image analysis', async () => {
@@ -206,7 +206,7 @@ describe('useImageAnalysis', () => {
     });
 
     expect(result.current.error).toBe('An unexpected error occurred during image analysis.');
-    expect(result.current.description).toBeNull();
+    expect(result.current.description).toBeUndefined();
   });
 
   it('should use default prompt when no custom prompt is provided', async () => {

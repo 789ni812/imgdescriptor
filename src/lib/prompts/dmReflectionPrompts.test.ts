@@ -1,9 +1,9 @@
-// import { 
-//   buildDMReflectionPrompt, 
-//   parseDMReflectionResponse,
-//   validateReflectionContext,
-//   DMReflectionContext
-// } from './dmReflectionPrompts';
+import { 
+  buildDMReflectionPrompt, 
+  parseDMReflectionResponse,
+  validateReflectionContext,
+  DMReflectionContext
+} from './dmReflectionPrompts';
 import { Character, createCharacter } from '../types/character';
 import { Choice, ChoiceOutcome } from '../types/character';
 import { DungeonMasterTemplate } from '../types/dungeonMaster';
@@ -86,20 +86,20 @@ describe('DM Reflection Prompt System', () => {
           id: 'adapt-1',
           turnNumber: 1,
           timestamp: '2025-07-02T00:00:00Z',
-          reflection: 'Player showed good judgment',
+          reflection: 'Player showed good judgment by helping villagers',
           playerPerformance: {
-            alignmentChange: 5,
-            choiceQuality: 'good',
-            storyEngagement: 80,
-            difficultyRating: 5,
+            alignmentChange: 10,
+            choiceQuality: 'good' as const,
+            storyEngagement: 85,
+            difficultyRating: 6,
             responseTime: 30,
             choiceConsistency: 0.8
           },
           adaptations: {
             difficultyAdjustment: 2,
             narrativeDirection: 'increase mystery',
-            moodChange: 'positive',
-            personalityEvolution: ['more encouraging'],
+            moodChange: 'positive' as const,
+            personalityEvolution: ['more encouraging', 'prefers moral choices'],
             storyModifications: ['add more mystery elements']
           },
           impact: {

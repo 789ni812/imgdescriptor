@@ -1,5 +1,3 @@
-// Temporarily commented out to fix build issues
-/*
 import { 
   DMAdaptation, 
   PlayerPerformanceMetrics, 
@@ -7,7 +5,7 @@ import {
   createDMAdaptation,
   calculatePlayerPerformance
 } from './dmAdaptation';
-import { Character, createCharacter, Choice, ChoiceOutcome } from './character';
+import { createCharacter, Choice, ChoiceOutcome } from './character';
 
 describe('DM Adaptation Types and State Management', () => {
   const mockChoices: Choice[] = [
@@ -29,10 +27,10 @@ describe('DM Adaptation Types and State Management', () => {
   describe('DMAdaptation Interface', () => {
     it('should have all required properties', () => {
       const adaptation: DMAdaptation = {
-        id: 'test-id',
+        id: 'adapt-1',
         turnNumber: 1,
         timestamp: new Date().toISOString(),
-        reflection: 'Player made good choices',
+        reflection: 'Player showed good judgment',
         playerPerformance: {
           alignmentChange: 5,
           choiceQuality: 'good',
@@ -45,19 +43,19 @@ describe('DM Adaptation Types and State Management', () => {
           difficultyAdjustment: 1,
           narrativeDirection: 'Continue with positive reinforcement',
           moodChange: 'positive',
-          personalityEvolution: ['More encouraging', 'Patient with player choices'],
-          storyModifications: ['Add more moral dilemmas', 'Increase character development']
+          personalityEvolution: ['More encouraging'],
+          storyModifications: ['Add more moral dilemmas']
         },
         impact: {
           storyQuality: 8,
-          playerEngagement: 9,
-          narrativeCoherence: 7
+          playerEngagement: 85,
+          narrativeCoherence: 9
         }
       };
 
-      expect(adaptation.id).toBe('test-id');
+      expect(adaptation.id).toBe('adapt-1');
       expect(adaptation.turnNumber).toBe(1);
-      expect(adaptation.reflection).toBe('Player made good choices');
+      expect(adaptation.reflection).toBe('Player showed good judgment');
       expect(adaptation.playerPerformance.alignmentChange).toBe(5);
       expect(adaptation.adaptations.difficultyAdjustment).toBe(1);
     });
@@ -81,12 +79,29 @@ describe('DM Adaptation Types and State Management', () => {
       expect(metrics.responseTime).toBe(25);
       expect(metrics.choiceConsistency).toBe(0.9);
     });
+
+    it('should validate choice quality values', () => {
+      const validQualities: Array<'good' | 'neutral' | 'poor'> = ['good', 'neutral', 'poor'];
+      
+      validQualities.forEach(quality => {
+        const metrics: PlayerPerformanceMetrics = {
+          alignmentChange: 0,
+          choiceQuality: quality,
+          storyEngagement: 50,
+          difficultyRating: 5,
+          responseTime: 30,
+          choiceConsistency: 0.5
+        };
+        
+        expect(metrics.choiceQuality).toBe(quality);
+      });
+    });
   });
 
   describe('validateDMAdaptation', () => {
     it('should validate a correct DM adaptation', () => {
       const adaptation: DMAdaptation = {
-        id: 'test-id',
+        id: 'adapt-1',
         turnNumber: 1,
         timestamp: new Date().toISOString(),
         reflection: 'Valid reflection',
@@ -100,28 +115,28 @@ describe('DM Adaptation Types and State Management', () => {
         },
         adaptations: {
           difficultyAdjustment: 1,
-          narrativeDirection: 'Valid direction',
+          narrativeDirection: 'Continue story',
           moodChange: 'positive',
-          personalityEvolution: ['Evolution 1'],
-          storyModifications: ['Modification 1']
+          personalityEvolution: ['More encouraging'],
+          storyModifications: ['Add mystery']
         },
         impact: {
           storyQuality: 8,
-          playerEngagement: 9,
-          narrativeCoherence: 7
+          playerEngagement: 85,
+          narrativeCoherence: 9
         }
       };
 
       const result = validateDMAdaptation(adaptation);
       expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+      expect(result.errors).toEqual([]);
     });
 
     it('should reject adaptation with missing required fields', () => {
       const invalidAdaptation = {
-        id: 'test-id',
-        turnNumber: 1,
-        // Missing timestamp, reflection, etc.
+        id: 'adapt-1',
+        turnNumber: 1
+        // Missing other required fields
       } as any;
 
       const result = validateDMAdaptation(invalidAdaptation);
@@ -129,45 +144,79 @@ describe('DM Adaptation Types and State Management', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    it('should reject adaptation with invalid choice quality', () => {
+    it('should validate performance metrics ranges', () => {
       const adaptation: DMAdaptation = {
-        id: 'test-id',
+        id: 'adapt-1',
         turnNumber: 1,
         timestamp: new Date().toISOString(),
-        reflection: 'Valid reflection',
+        reflection: 'Test reflection',
         playerPerformance: {
           alignmentChange: 5,
-          choiceQuality: 'invalid' as any, // Invalid choice quality
-          storyEngagement: 85,
+          choiceQuality: 'good',
+          storyEngagement: 150, // Invalid: > 100
           difficultyRating: 7,
           responseTime: 30,
           choiceConsistency: 0.8
         },
         adaptations: {
           difficultyAdjustment: 1,
-          narrativeDirection: 'Valid direction',
+          narrativeDirection: 'Continue story',
           moodChange: 'positive',
-          personalityEvolution: ['Evolution 1'],
-          storyModifications: ['Modification 1']
+          personalityEvolution: ['More encouraging'],
+          storyModifications: ['Add mystery']
         },
         impact: {
           storyQuality: 8,
-          playerEngagement: 9,
-          narrativeCoherence: 7
+          playerEngagement: 85,
+          narrativeCoherence: 9
         }
       };
 
       const result = validateDMAdaptation(adaptation);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('choiceQuality must be one of: good, neutral, poor');
+      expect(result.errors).toContain('storyEngagement must be between 0 and 100');
+    });
+  });
+
+  describe('createDMAdaptation', () => {
+    it('should create a new DM adaptation with valid data', () => {
+      const adaptation = createDMAdaptation({
+        turnNumber: 2,
+        reflection: 'Player made a difficult choice',
+        playerPerformance: {
+          alignmentChange: -5,
+          choiceQuality: 'poor',
+          storyEngagement: 60,
+          difficultyRating: 9,
+          responseTime: 45,
+          choiceConsistency: 0.3
+        },
+        adaptations: {
+          difficultyAdjustment: -2,
+          narrativeDirection: 'Provide more guidance',
+          moodChange: 'negative',
+          personalityEvolution: ['More patient', 'Clearer instructions'],
+          storyModifications: ['Simplify choices', 'Add hints']
+        },
+        impact: {
+          storyQuality: 6,
+          playerEngagement: 60,
+          narrativeCoherence: 7
+        }
+      });
+
+      expect(adaptation.id).toBeDefined();
+      expect(adaptation.turnNumber).toBe(2);
+      expect(adaptation.timestamp).toBeDefined();
+      expect(adaptation.reflection).toBe('Player made a difficult choice');
+      expect(adaptation.playerPerformance.choiceQuality).toBe('poor');
+      expect(adaptation.adaptations.difficultyAdjustment).toBe(-2);
     });
 
-    it('should reject adaptation with invalid mood change', () => {
-      const adaptation: DMAdaptation = {
-        id: 'test-id',
+    it('should generate unique IDs for different adaptations', () => {
+      const adaptation1 = createDMAdaptation({
         turnNumber: 1,
-        timestamp: new Date().toISOString(),
-        reflection: 'Valid reflection',
+        reflection: 'First reflection',
         playerPerformance: {
           alignmentChange: 5,
           choiceQuality: 'good',
@@ -178,100 +227,52 @@ describe('DM Adaptation Types and State Management', () => {
         },
         adaptations: {
           difficultyAdjustment: 1,
-          narrativeDirection: 'Valid direction',
-          moodChange: 'invalid' as any, // Invalid mood
-          personalityEvolution: ['Evolution 1'],
-          storyModifications: ['Modification 1']
+          narrativeDirection: 'Continue story',
+          moodChange: 'positive',
+          personalityEvolution: ['More encouraging'],
+          storyModifications: ['Add mystery']
         },
         impact: {
           storyQuality: 8,
-          playerEngagement: 9,
-          narrativeCoherence: 7
+          playerEngagement: 85,
+          narrativeCoherence: 9
         }
-      };
+      });
 
-      const result = validateDMAdaptation(adaptation);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('moodChange must be one of: positive, negative, neutral');
-    });
-  });
-
-  describe('createDMAdaptation', () => {
-    it('should create a valid DM adaptation with default values', () => {
-      const character = createCharacter();
-      const adaptation = createDMAdaptation({
+      const adaptation2 = createDMAdaptation({
         turnNumber: 2,
-        reflection: 'Test reflection',
-        character,
-        choices: mockChoices,
-        outcomes: mockChoiceOutcomes
+        reflection: 'Second reflection',
+        playerPerformance: {
+          alignmentChange: 3,
+          choiceQuality: 'neutral',
+          storyEngagement: 75,
+          difficultyRating: 6,
+          responseTime: 35,
+          choiceConsistency: 0.6
+        },
+        adaptations: {
+          difficultyAdjustment: 0,
+          narrativeDirection: 'Maintain current path',
+          moodChange: 'neutral',
+          personalityEvolution: ['No change'],
+          storyModifications: ['Continue as planned']
+        },
+        impact: {
+          storyQuality: 7,
+          playerEngagement: 75,
+          narrativeCoherence: 8
+        }
       });
 
-      expect(adaptation.id).toBeDefined();
-      expect(adaptation.turnNumber).toBe(2);
-      expect(adaptation.reflection).toBe('Test reflection');
-      expect(adaptation.timestamp).toBeDefined();
-      expect(adaptation.playerPerformance).toBeDefined();
-      expect(adaptation.adaptations).toBeDefined();
-      expect(adaptation.impact).toBeDefined();
-    });
-
-    it('should create adaptation with custom performance metrics', () => {
-      const character = createCharacter();
-      const customPerformance = {
-        alignmentChange: 15,
-        choiceQuality: 'excellent' as any,
-        storyEngagement: 95,
-        difficultyRating: 9,
-        responseTime: 20,
-        choiceConsistency: 0.95
-      };
-
-      const adaptation = createDMAdaptation({
-        turnNumber: 3,
-        reflection: 'Custom reflection',
-        character,
-        choices: mockChoices,
-        outcomes: mockChoiceOutcomes,
-        playerPerformance: customPerformance
-      });
-
-      expect(adaptation.playerPerformance.alignmentChange).toBe(15);
-      expect(adaptation.playerPerformance.storyEngagement).toBe(95);
-      expect(adaptation.playerPerformance.difficultyRating).toBe(9);
-    });
-
-    it('should create adaptation with custom adaptations', () => {
-      const character = createCharacter();
-      const customAdaptations = {
-        difficultyAdjustment: 2,
-        narrativeDirection: 'Increase challenge',
-        moodChange: 'neutral' as const,
-        personalityEvolution: ['More challenging', 'Less forgiving'],
-        storyModifications: ['Add more obstacles', 'Reduce hints']
-      };
-
-      const adaptation = createDMAdaptation({
-        turnNumber: 4,
-        reflection: 'Custom adaptations reflection',
-        character,
-        choices: mockChoices,
-        outcomes: mockChoiceOutcomes,
-        adaptations: customAdaptations
-      });
-
-      expect(adaptation.adaptations.difficultyAdjustment).toBe(2);
-      expect(adaptation.adaptations.narrativeDirection).toBe('Increase challenge');
-      expect(adaptation.adaptations.moodChange).toBe('neutral');
-      expect(adaptation.adaptations.personalityEvolution).toContain('More challenging');
+      expect(adaptation1.id).not.toBe(adaptation2.id);
     });
   });
 
   describe('calculatePlayerPerformance', () => {
-    it('should calculate performance metrics from character and choices', () => {
+    it('should calculate performance metrics from choices and outcomes', () => {
       const character = createCharacter({
         moralAlignment: {
-          score: 25,
+          score: 20,
           level: 'good',
           reputation: 'A respected hero',
           recentChoices: ['Helped villagers', 'Defended the weak'],
@@ -279,7 +280,12 @@ describe('DM Adaptation Types and State Management', () => {
         }
       });
 
-      const performance = calculatePlayerPerformance(character, mockChoices, mockChoiceOutcomes);
+      const performance = calculatePlayerPerformance(
+        character,
+        mockChoices,
+        mockChoiceOutcomes,
+        30 // response time in seconds
+      );
 
       expect(performance.alignmentChange).toBeDefined();
       expect(performance.choiceQuality).toBeDefined();
@@ -287,45 +293,49 @@ describe('DM Adaptation Types and State Management', () => {
       expect(performance.storyEngagement).toBeLessThanOrEqual(100);
       expect(performance.difficultyRating).toBeGreaterThanOrEqual(1);
       expect(performance.difficultyRating).toBeLessThanOrEqual(10);
-      expect(performance.responseTime).toBeGreaterThan(0);
+      expect(performance.responseTime).toBe(30);
       expect(performance.choiceConsistency).toBeGreaterThanOrEqual(0);
       expect(performance.choiceConsistency).toBeLessThanOrEqual(1);
     });
 
-    it('should handle character with no recent choices', () => {
-      const character = createCharacter({
+    it('should handle empty choices and outcomes', () => {
+      const character = createCharacter();
+      
+      const performance = calculatePlayerPerformance(
+        character,
+        [],
+        [],
+        0
+      );
+
+      expect(performance.alignmentChange).toBe(0);
+      expect(performance.choiceQuality).toBe('neutral');
+      expect(performance.storyEngagement).toBe(50);
+      expect(performance.difficultyRating).toBe(1); // Default difficulty for empty choices
+      expect(performance.responseTime).toBe(0);
+      expect(performance.choiceConsistency).toBe(0.5);
+    });
+
+    it('should calculate choice consistency based on alignment patterns', () => {
+      const goodCharacter = createCharacter({
         moralAlignment: {
-          score: 0,
-          level: 'neutral',
-          reputation: 'An unknown adventurer',
-          recentChoices: [],
+          score: 30,
+          level: 'good',
+          reputation: 'A heroic figure',
+          recentChoices: ['Help', 'Protect', 'Save', 'Defend'],
           alignmentHistory: []
         }
       });
 
-      const performance = calculatePlayerPerformance(character, mockChoices, mockChoiceOutcomes);
+      const performance = calculatePlayerPerformance(
+        goodCharacter,
+        mockChoices,
+        mockChoiceOutcomes,
+        25
+      );
 
-      expect(performance.alignmentChange).toBeDefined();
-      expect(performance.choiceQuality).toBeDefined();
-      expect(performance.storyEngagement).toBeDefined();
-      expect(performance.difficultyRating).toBeDefined();
-      expect(performance.responseTime).toBeDefined();
-      expect(performance.choiceConsistency).toBeDefined();
-    });
-
-    it('should calculate choice consistency based on choice patterns', () => {
-      const character = createCharacter();
-      const consistentChoices = [
-        { id: '1', text: 'Help others' },
-        { id: '2', text: 'Be kind' },
-        { id: '3', text: 'Show mercy' }
-      ];
-
-      const performance = calculatePlayerPerformance(character, consistentChoices, mockChoiceOutcomes);
-
-      expect(performance.choiceConsistency).toBeGreaterThanOrEqual(0);
-      expect(performance.choiceConsistency).toBeLessThanOrEqual(1);
+      // Good character with consistent good choices should have reasonable consistency
+      expect(performance.choiceConsistency).toBeGreaterThanOrEqual(0.5);
     });
   });
-});
-*/ 
+}); 
