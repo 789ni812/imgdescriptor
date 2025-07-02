@@ -21,7 +21,7 @@ export function useImageAnalysis(
   configOverride?: ConfigDependencies,
   storeOverride?: StoreDependencies
 ) {
-  const [description, setDescription] = useState<string | null>(null);
+  const [description, setDescription] = useState<string | undefined>(undefined);
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -33,7 +33,7 @@ export function useImageAnalysis(
   const { character } = store;
 
   // Update both local state and global store
-  const setDescriptionGlobal = (desc: string | null) => {
+  const setDescriptionGlobal = (desc: string | undefined) => {
     setDescription(desc);
     if (storeFromHook.updateCurrentDescription) {
       storeFromHook.updateCurrentDescription(desc);
@@ -43,7 +43,7 @@ export function useImageAnalysis(
   const analyzeImage = (file: File, prompt?: string) => {
     setIsDescriptionLoading(true);
     setError(null);
-    setDescriptionGlobal(null);
+    setDescriptionGlobal(undefined);
 
     // Mock mode: instantly return mock description
     if (config.MOCK_IMAGE_DESCRIPTION) {
@@ -84,11 +84,11 @@ export function useImageAnalysis(
           setDescriptionGlobal(data.description);
           setError(null);
         } else {
-          setDescriptionGlobal(null);
+          setDescriptionGlobal(undefined);
           setError(data.error || 'Failed to analyze image');
         }
       } catch {
-        setDescriptionGlobal(null);
+        setDescriptionGlobal(undefined);
         setError('An unexpected error occurred during image analysis.');
       } finally {
         setIsDescriptionLoading(false);
@@ -96,7 +96,7 @@ export function useImageAnalysis(
     };
 
     reader.onerror = () => {
-      setDescriptionGlobal(null);
+      setDescriptionGlobal(undefined);
       setError('Failed to read the image file.');
       setIsDescriptionLoading(false);
     };

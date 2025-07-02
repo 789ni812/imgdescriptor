@@ -23,6 +23,14 @@ const defaultCharacter = createCharacter({
   currentTurn: 1,
   stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
   storyHistory: [],
+  moralAlignment: {
+    score: 0,
+    level: 'neutral' as const,
+    reputation: 'An unknown adventurer',
+    recentChoices: [],
+    alignmentHistory: [],
+  },
+  choicesHistory: [],
 });
 
 describe('useStoryGeneration', () => {
@@ -50,7 +58,7 @@ describe('useStoryGeneration', () => {
 
     const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
 
-    expect(result.current.story).toBeNull();
+    expect(result.current.story).toBeUndefined();
     expect(result.current.isStoryLoading).toBe(false);
     expect(result.current.storyError).toBeNull();
     expect(typeof result.current.generateStory).toBe('function');
@@ -132,7 +140,7 @@ describe('useStoryGeneration', () => {
     });
 
     expect(result.current.storyError).toBe('API Error');
-    expect(result.current.story).toBeNull();
+    expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
     expect(mockAddStory).not.toHaveBeenCalled();
@@ -165,7 +173,7 @@ describe('useStoryGeneration', () => {
     });
 
     expect(result.current.storyError).toContain('Network error');
-    expect(result.current.story).toBeNull();
+    expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
     expect(mockAddStory).not.toHaveBeenCalled();
@@ -192,7 +200,7 @@ describe('useStoryGeneration', () => {
     });
 
     expect(result.current.storyError).toBe('Cannot generate a story without a description.');
-    expect(result.current.story).toBeNull();
+    expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
     expect(mockAddStory).not.toHaveBeenCalled();
@@ -605,7 +613,15 @@ describe('Choice Generation', () => {
         inventory: [],
         imageHistory: [],
         choiceHistory: [],
-        currentChoices: []
+        currentChoices: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral' as const,
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
+        },
+        choicesHistory: [],
       }
     };
 
@@ -701,7 +717,15 @@ describe('Choice Generation', () => {
         inventory: [],
         imageHistory: [],
         choiceHistory: [],
-        currentChoices: []
+        currentChoices: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral' as const,
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
+        },
+        choicesHistory: [],
       }
     };
 

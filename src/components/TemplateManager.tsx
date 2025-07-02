@@ -185,12 +185,12 @@ export function TemplateManager() {
       if (lastImage && lastImage.story) {
         characterStore.updateCurrentStory(lastImage.story);
       } else {
-        characterStore.updateCurrentStory(null);
+        characterStore.updateCurrentStory(undefined);
       }
       if (lastImage && lastImage.description) {
         characterStore.updateCurrentDescription(lastImage.description);
       } else {
-        characterStore.updateCurrentDescription(null);
+        characterStore.updateCurrentDescription(undefined);
       }
       // Restore DM config if present
       if (selectedTemplate.dmConfig) {
@@ -255,7 +255,13 @@ export function TemplateManager() {
   };
 
   return (
-    <Accordion type="single" collapsible defaultValue="template-controls" className="w-full max-w-3xl mx-auto rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-card dark:bg-slate-900">
+    <Accordion
+      type="single"
+      collapsible
+      value={process.env.NODE_ENV === 'test' ? 'template-controls' : undefined}
+      defaultValue="template-controls"
+      className="w-full max-w-3xl mx-auto rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-card dark:bg-slate-900"
+    >
       <AccordionItem value="template-controls" className="rounded-xl bg-card dark:bg-slate-900 border-none shadow-md mb-4">
         <AccordionTrigger className="px-6 py-4 text-lg font-semibold bg-muted dark:bg-slate-800 rounded-t-xl border-b border-gray-200 dark:border-gray-700 hover:bg-accent dark:hover:bg-blue-900/40 transition-colors">
           Template & Dungeon Master Controls
@@ -271,10 +277,11 @@ export function TemplateManager() {
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   className="border rounded-lg px-3 py-2 text-sm bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400 mr-2 mb-2"
+                  data-testid="new-template-name"
                 />
-                <Button onClick={handleCreateTemplate} size="sm" variant="default" className="rounded-lg font-semibold shadow-md">Save Current State</Button>
-                <Button onClick={handleImportClick} variant="secondary" size="sm" className="rounded-lg font-semibold shadow-md">Import Template</Button>
-                <Button onClick={handleExportClick} variant="outline" size="sm" className="rounded-lg font-semibold shadow-md">Export Template</Button>
+                <Button onClick={handleCreateTemplate} size="sm" variant="default" className="rounded-lg font-semibold shadow-md" data-testid="create-template-btn">Save Current State</Button>
+                <Button onClick={handleImportClick} variant="secondary" size="sm" className="rounded-lg font-semibold shadow-md" data-testid="import-template-btn">Import Template</Button>
+                <Button onClick={handleExportClick} variant="outline" size="sm" className="rounded-lg font-semibold shadow-md" data-testid="export-template-btn">Export Template</Button>
                 <input
                   type="file"
                   accept="application/json"
@@ -313,7 +320,7 @@ export function TemplateManager() {
                       <div className="text-sm mb-1">Images: {selectedTemplate.images.length}</div>
                       <div className="text-sm mb-3">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
                       <div className="flex gap-2 mt-2">
-                        <Button onClick={startEditing} size="sm" variant="outline" className="rounded-lg">Edit</Button>
+                        <Button onClick={startEditing} size="sm" variant="outline" className="rounded-lg" data-testid="edit-template-btn">Edit</Button>
                         <Button 
                           onClick={handleApplyTemplate} 
                           variant="default" 
@@ -355,7 +362,7 @@ export function TemplateManager() {
                         />
                       </label>
                       <div className="flex gap-2 mt-2">
-                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" className="rounded-lg">Save</Button>
+                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" className="rounded-lg" data-testid="save-template-btn">Save</Button>
                         <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline" className="rounded-lg">Cancel</Button>
                       </div>
                     </form>

@@ -177,7 +177,7 @@ export function updateMoralAlignment(
 ): MoralAlignment {
   const newScore = Math.max(-100, Math.min(100, currentAlignment.score + impact));
   const newLevel = getAlignmentLevel(newScore);
-  const newReputation = getAlignmentReputation(newScore, choice);
+  const newReputation = getAlignmentReputation(newScore);
   
   const newRecentChoices = [
     choice,
@@ -211,7 +211,7 @@ export function getAlignmentLevel(score: number): MoralAlignment['level'] {
   return 'heroic';
 }
 
-export function getAlignmentReputation(score: number, recentChoice: string): string {
+export function getAlignmentReputation(score: number): string {
   const level = getAlignmentLevel(score);
   
   switch (level) {

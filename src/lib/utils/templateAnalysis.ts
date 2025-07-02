@@ -519,7 +519,15 @@ export function repairTemplate(template: PartialTemplate): TemplateRepairResult 
             storyHistory: [],
             choiceHistory: [],
             currentChoices: [],
-            inventory: []
+            inventory: [],
+            choicesHistory: [],
+            moralAlignment: {
+              score: 0,
+              level: 'neutral',
+              reputation: 'An unknown adventurer',
+              recentChoices: [],
+              alignmentHistory: []
+            }
           };
           break;
         case 'config':

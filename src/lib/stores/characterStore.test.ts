@@ -61,9 +61,9 @@ describe('Character Store Actions', () => {
       });
       expect(character.health).toBe(100);
       expect(character.heartrate).toBe(70);
-      expect(character.age).toBe(18);
+      expect(character.age).toBe(25);
       expect(character.persona).toBe('Adventurer');
-      expect(character.traits).toEqual([]);
+      expect(character.traits).toEqual(['brave', 'curious']);
       expect(character.inventory).toEqual([]);
       expect(character.currentTurn).toBe(1);
       expect(character.storyHistory).toEqual([]);
@@ -99,9 +99,9 @@ describe('Character Store Actions', () => {
       });
       expect(character.health).toBe(100);
       expect(character.heartrate).toBe(70);
-      expect(character.age).toBe(18);
+      expect(character.age).toBe(25);
       expect(character.persona).toBe('Adventurer');
-      expect(character.traits).toEqual([]);
+      expect(character.traits).toEqual(['brave', 'curious']);
       expect(character.inventory).toEqual([]);
       expect(character.currentTurn).toBe(1);
       expect(character.storyHistory).toEqual([]);

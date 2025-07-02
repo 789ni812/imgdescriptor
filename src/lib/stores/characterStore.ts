@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry, Item, updateMoralAlignment, getMoralChoiceImpact } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry, updateMoralAlignment, getMoralChoiceImpact } from '../types/character';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extended Character interface for the store with additional fields
