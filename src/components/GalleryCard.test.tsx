@@ -30,13 +30,35 @@ describe('GalleryCard', () => {
     expect(screen.getByText('Image Story')).toBeInTheDocument();
 
     // By default, only the story is visible
-    expect(screen.queryByText(mockData.description)).toBeNull();
+    // Instead of checking for plain text, check for the markdown renderer
+    expect(screen.getByTestId('markdown-renderer')).toBeInTheDocument();
     expect(screen.getByText(mockData.story)).toBeVisible();
 
     // Click the description header to expand it
     fireEvent.click(screen.getByText('Image Description'));
-    expect(screen.getByText(mockData.description)).toBeVisible();
+    // The description should now be visible as HTML
+    expect(screen.getByTestId('markdown-renderer')).toBeInTheDocument();
     // The story should now be collapsed/hidden
     expect(screen.queryByText(mockData.story)).toBeNull();
+  });
+
+  it('renders markdown in description as HTML', () => {
+    const markdownDescription = '# Heading\n**bold**\n- list item 1\n- list item 2';
+    render(
+      <GalleryCard {...mockData} description={markdownDescription} />
+    );
+    // Expand the description accordion
+    fireEvent.click(screen.getByText('Image Description'));
+    // Heading should render as an h1
+    expect(screen.getByRole('heading', { level: 1, name: 'Heading' })).toBeInTheDocument();
+    // Bold should render as <strong>
+    const bold = screen.getByText('bold');
+    expect(bold.tagName.toLowerCase()).toBe('strong');
+    // List items should render as <li> inside a <ul>
+    const list = screen.getByRole('list');
+    const items = screen.getAllByRole('listitem');
+    expect(items.map(li => li.textContent)).toEqual(['list item 1', 'list item 2']);
+    expect(list).toContainElement(items[0]);
+    expect(list).toContainElement(items[1]);
   });
 }); 

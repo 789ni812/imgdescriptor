@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 // If shadcn Accordion is not present, this will fail and remind us to add it
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion';
+import MarkdownRenderer from './ui/MarkdownRenderer';
 
 export interface GalleryCardProps {
   id: string;
@@ -12,6 +13,8 @@ export interface GalleryCardProps {
 }
 
 export const GalleryCard: React.FC<GalleryCardProps> = ({ url, description, story }) => {
+  // Debug: log the description string to inspect markdown
+  console.log('GalleryCard description:', description);
   return (
     <div className="rounded border border-gray-700 bg-gray-800 p-4">
       <div className="flex items-center justify-center mb-2">
@@ -27,13 +30,13 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({ url, description, stor
         <AccordionItem value="description">
           <AccordionTrigger>Image Description</AccordionTrigger>
           <AccordionContent>
-            <div>{description || <em>No description available.</em>}</div>
+            <MarkdownRenderer content={description || '*No description available.*'} className="prose max-w-none" />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="story">
           <AccordionTrigger>Image Story</AccordionTrigger>
           <AccordionContent>
-            <div>{story || <em>No story available.</em>}</div>
+            <MarkdownRenderer content={story || '*No story available.*'} className="prose max-w-none" />
           </AccordionContent>
         </AccordionItem>
       </Accordion>

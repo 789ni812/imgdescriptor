@@ -3,16 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { StoryDisplay } from './StoryDisplay';
 import { StoryDisplayProps } from '@/lib/types';
 
-// Mock MarkdownRenderer to test integration
-jest.mock('./ui/MarkdownRenderer', () => ({
-  __esModule: true,
-  default: ({ content, className }: { content: string; className?: string }) => (
-    <div data-testid="markdown-renderer" className={className}>
-      {content}
-    </div>
-  ),
-}));
-
 // Mock the LoadingSpinner to simplify testing
 jest.mock('./ui/LoadingSpinner', () => ({
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
@@ -44,10 +34,13 @@ describe('StoryDisplay', () => {
   it('should use MarkdownRenderer for story content', () => {
     const testStory = 'This is a **bold** story.';
     renderComponent({ story: testStory });
-    
     const markdownRenderer = screen.getByTestId('markdown-renderer');
     expect(markdownRenderer).toBeInTheDocument();
-    expect(markdownRenderer).toHaveTextContent(testStory);
+    // Check for the rendered bold element
+    const bold = screen.getByText('bold');
+    expect(bold.tagName.toLowerCase()).toBe('strong');
+    // Check the full text content (ignoring markdown syntax)
+    expect(markdownRenderer).toHaveTextContent('This is a bold story.');
   });
 
   it('should pass story content to MarkdownRenderer', () => {
@@ -116,5 +109,21 @@ The story continues with [more details](https://example.com).
     expect(screen.getByText(testError)).toBeInTheDocument();
     expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
     expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+  });
+
+  it('renders markdown as HTML elements (heading, bold, list)', () => {
+    const markdownStory = '# Heading\n**bold**\n- list item 1\n- list item 2';
+    renderComponent({ story: markdownStory });
+    // Heading should render as an h1
+    expect(screen.getByRole('heading', { level: 1, name: 'Heading' })).toBeInTheDocument();
+    // Bold should render as <strong>
+    const bold = screen.getByText('bold');
+    expect(bold.tagName.toLowerCase()).toBe('strong');
+    // List items should render as <li> inside a <ul>
+    const list = screen.getByRole('list');
+    const items = screen.getAllByRole('listitem');
+    expect(items.map(li => li.textContent)).toEqual(['list item 1', 'list item 2']);
+    expect(list).toContainElement(items[0]);
+    expect(list).toContainElement(items[1]);
   });
 }); 

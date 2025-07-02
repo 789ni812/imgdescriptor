@@ -22,16 +22,6 @@ jest.mock('./ui/LoadingSpinner', () => ({
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
 }));
 
-// Mock MarkdownRenderer to test integration
-jest.mock('./ui/MarkdownRenderer', () => ({
-  __esModule: true,
-  default: ({ content, className }: { content: string; className?: string }) => (
-    <div data-testid="markdown-renderer" className={className}>
-      {content}
-    </div>
-  ),
-}));
-
 const renderComponent = (props: Partial<DescriptionDisplayProps>) => {
   const defaultProps: DescriptionDisplayProps = {
     description: null,
@@ -74,60 +64,19 @@ describe('DescriptionDisplay', () => {
     expect(screen.queryByText(testDescription)).not.toBeInTheDocument();
   });
 
-  // New tests for markdown functionality
-  it('should use MarkdownRenderer for description content', () => {
-    const testDescription = 'This is a **bold** description.';
-    renderComponent({ description: testDescription });
-    
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toBeInTheDocument();
-    expect(markdownRenderer).toHaveTextContent(testDescription);
-  });
-
-  it('should pass description content to MarkdownRenderer', () => {
-    const testDescription = 'A description with *italic* text.';
-    renderComponent({ description: testDescription });
-    
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toHaveTextContent(testDescription);
-  });
-
-  it('should not use MarkdownRenderer when error is present', () => {
-    const testDescription = 'This is a **bold** description.';
-    const testError = 'This is a test error.';
-    renderComponent({ description: testDescription, error: testError });
-    
-    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
-    expect(screen.getByText(testError)).toBeInTheDocument();
-  });
-
-  it('should not use MarkdownRenderer for fallback message', () => {
-    renderComponent({});
-    
-    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
-    expect(screen.getByText('Description will appear here...')).toBeInTheDocument();
-  });
-
-  it('should handle markdown content with headings and lists', () => {
-    const markdownDescription = `
-# Image Analysis
-
-This image shows:
-- **Bold item**
-- *Italic item*
-- Regular item
-
-## Summary
-The analysis is complete.
-    `;
-    
+  it('renders markdown as HTML elements (heading, bold, list)', () => {
+    const markdownDescription = '# Heading\n**bold**\n- list item 1\n- list item 2';
     renderComponent({ description: markdownDescription });
-    
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toBeInTheDocument();
-    expect(markdownRenderer).toHaveTextContent('Image Analysis');
-    expect(markdownRenderer).toHaveTextContent('Bold item');
-    expect(markdownRenderer).toHaveTextContent('Italic item');
-    expect(markdownRenderer).toHaveTextContent('Summary');
+    // Heading should render as an h1
+    expect(screen.getByRole('heading', { level: 1, name: 'Heading' })).toBeInTheDocument();
+    // Bold should render as <strong>
+    const bold = screen.getByText('bold');
+    expect(bold.tagName.toLowerCase()).toBe('strong');
+    // List items should render as <li> inside a <ul>
+    const list = screen.getByRole('list');
+    const items = screen.getAllByRole('listitem');
+    expect(items.map(li => li.textContent)).toEqual(['list item 1', 'list item 2']);
+    expect(list).toContainElement(items[0]);
+    expect(list).toContainElement(items[1]);
   });
 }); 

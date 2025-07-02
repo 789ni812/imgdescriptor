@@ -4,6 +4,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './
 import { Badge } from './ui/badge';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 import Image from 'next/image';
+import MarkdownRenderer from './ui/MarkdownRenderer';
 
 interface TurnCardProps {
   turnNumber: number;
@@ -109,7 +110,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
                 <span>Generating description...</span>
               </div>
             ) : imageDescription ? (
-              <div className="prose prose-sm max-w-none">{imageDescription}</div>
+              <MarkdownRenderer content={imageDescription} />
             ) : (
               <div className="text-gray-400 italic">Not available yet</div>
             )}
@@ -126,7 +127,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
                 <LoadingSpinner /> <span>Generating story...</span>
               </div>
             ) : story ? (
-              <div className="prose prose-sm max-w-none">{story}</div>
+              <MarkdownRenderer content={story} />
             ) : (
               <div className="text-gray-400 italic">Not available yet</div>
             )}

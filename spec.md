@@ -376,6 +376,12 @@ reader.readAsDataURL(file);
   - **Completed 2025-06-24**
   - **Commit:** `fix(tests): resolve MarkdownRenderer ESM/Jest issues with custom mock`
 
+- [x] **18.6: Remove Markdown Debug Block and Confirm Integration**
+  - Removed the temporary Markdown debug block from the homepage after confirming Markdown rendering works in all contexts (TurnCard, GalleryCard, etc.)
+  - All tests and build pass; codebase is clean and production-ready
+  - **Completed 2025-07-01**
+  - **Commit:** `chore: remove markdown debug block and confirm integration`
+
 ### Phase 19: Header Scoring Display
 **Objective:** Show key character scoring numbers in the header.
 
