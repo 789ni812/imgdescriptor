@@ -1,6 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt } from './useStoryGeneration';
 import { createCharacter, type Character } from '@/lib/types/character';
+import { createGoodVsBadConfig } from '@/lib/types/goodVsBad';
 
 // Mock fetch
 (global as any).fetch = jest.fn();
@@ -451,6 +452,34 @@ describe('buildStoryPrompt', () => {
     expect(prompt).toContain('INT 10, CRE 10, PER 10, WIS 10');
     expect(prompt).not.toContain('Previous story:');
     expect(prompt).toContain(description);
+  });
+
+  it('should include GoodVsBad context when enabled', () => {
+    const character = createCharacter({
+      persona: 'Test Hero',
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+    });
+    const goodVsBadConfig = createGoodVsBadConfig({
+      isEnabled: true,
+      badProfilePicture: 'http://example.com/bad.jpg',
+      badDefinition: 'A cunning villain who opposes the hero at every turn.',
+      theme: 'hero-vs-villain',
+      userRole: 'hero',
+      badRole: 'villain',
+    });
+    // Simulate DM config with GoodVsBadConfig stored as JSON string
+    // For now, simulate what the prompt should look like
+    const description = 'A mysterious castle looms on the horizon.';
+    // This is where the real implementation will inject the context
+    const prompt = buildStoryPrompt({ character, description, customPrompt: undefined, goodVsBadConfig });
+    // Fails: GoodVsBad context is not present yet
+    expect(prompt).toContain('Good vs Bad Dynamic');
+    expect(prompt).toContain('Theme: hero-vs-villain');
+    expect(prompt).toContain('Hero: hero');
+    expect(prompt).toContain('Villain: villain');
+    expect(prompt).toContain('A cunning villain who opposes the hero at every turn.');
   });
 });
 

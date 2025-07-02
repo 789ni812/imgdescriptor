@@ -907,3 +907,114 @@ Users can select from predefined Dungeon Masters, each with a unique theme, conf
 
 ## Character Scoring System & Gamification
 The character scoring system is under review to better support gamification. We will assess whether current stats (Intelligence, Creativity, Perception, Wisdom) are sufficient, and consider adding/removing stats (e.g., Health, Luck, Morality). Stats will be used for skill checks, story branches, and determining success/failure. The game may introduce win/lose conditions or narrative endings based on stats.
+
+### Phase XX: State Management & Game Reset Improvements
+**Objective:** Ensure a true fresh start by clearing all local storage and in-memory state on game reset.
+
+#### Tasks
+- [ ] **XX.1: Clear Local Storage and State on Reset**
+  - When the user clicks the Reset Game button, clear all relevant local storage (e.g., character, DM, template, and session data) in addition to in-memory state.
+  - Ensure no stale data remains after reset; the app should behave as if freshly loaded.
+  - Add robust tests to verify all state and storage are cleared.
+  - **Commit:** `fix(reset): clear local storage and all state on game reset`
+
+## GoodVsBad Prompt Integration Implementation (2025-01-27)
+
+### Overview
+Successfully implemented the integration of GoodVsBadConfig into the LLM prompt context for story generation, following strict TDD principles.
+
+### Requirements Implemented
+1. **GoodVsBadConfig Injection into Prompt Context**
+   - Updated `buildStoryPrompt` function to accept optional `goodVsBadConfig` parameter
+   - When enabled, injects formatted GoodVsBad context block into the prompt
+   - Includes theme, user role, bad role, bad definition, and optional profile picture URL
+
+2. **DM Store Integration**
+   - Extracted GoodVsBadConfig from DM store's `freeformAnswers.goodVsBadConfig` (stored as JSON string)
+   - Integrated with main app's story generation flow
+   - Updated `useStoryGeneration` hook to accept and use GoodVsBadConfig
+
+3. **Prompt Context Enhancement**
+   - Added GoodVsBad context block to story generation prompts
+   - Context includes: "Good vs Bad Dynamic:", theme, hero/villain roles, villain definition
+   - Maintains backward compatibility when GoodVsBadConfig is disabled
+
+### TDD Implementation Steps
+
+#### Step 1: Write Failing Test
+- Added test in `src/hooks/useStoryGeneration.test.ts`:
+  - `should include GoodVsBad context when enabled`
+  - Created mock GoodVsBadConfig with enabled state
+  - Expected prompt to contain GoodVsBad context elements
+  - **Result**: Test failed as expected (GoodVsBad context not yet implemented)
+
+#### Step 2: Implement Code to Pass Test
+- Updated `buildStoryPrompt` function in `src/hooks/useStoryGeneration.ts`:
+  - Added optional `goodVsBadConfig` parameter with proper TypeScript typing
+  - Implemented conditional GoodVsBad context injection when enabled
+  - Formatted context block with theme, roles, definition, and profile picture
+  - Integrated context into existing prompt structure
+
+#### Step 3: Integration with Main App
+- Updated `src/app/page.tsx`:
+  - Imported GoodVsBadConfig types and utilities
+  - Extracted GoodVsBadConfig from DM store's freeformAnswers
+  - Passed GoodVsBadConfig to useStoryGeneration hook
+  - Maintained proper variable declaration order to avoid linter errors
+
+#### Step 4: Hook Interface Enhancement
+- Updated `useStoryGeneration` hook:
+  - Enhanced `StoreDependencies` interface to include optional `goodVsBadConfig`
+  - Updated `generateStory` function to pass GoodVsBadConfig to `buildStoryPrompt`
+  - Added safe property access to handle both character store and custom store overrides
+
+### Quality Assurance Results
+- **Test Results**: 19/19 tests passing in useStoryGeneration.test.ts
+- **Build Status**: TypeScript compilation successful (minor linter warnings in unrelated files)
+- **Integration**: GoodVsBadConfig properly extracted from DM store and injected into prompts
+- **Backward Compatibility**: Existing functionality unchanged when GoodVsBadConfig is disabled
+
+### Technical Implementation Details
+
+#### Prompt Context Format
+```typescript
+// When GoodVsBadConfig is enabled, the prompt includes:
+Good vs Bad Dynamic:
+Theme: hero-vs-villain
+Hero: hero
+Villain: villain
+Villain Definition: A cunning villain who opposes the hero at every turn.
+Villain Profile Picture: http://example.com/bad.jpg
+```
+
+#### Type Safety
+- All new parameters properly typed with TypeScript interfaces
+- Safe property access with `'goodVsBadConfig' in store` checks
+- Proper error handling for JSON parsing of stored config
+
+#### Integration Points
+- **DM Store**: `freeformAnswers.goodVsBadConfig` (JSON string)
+- **Main App**: Extracts and parses config, passes to story generation
+- **Story Generation Hook**: Accepts config and passes to prompt builder
+- **Prompt Builder**: Injects context when enabled
+
+### Future Enhancements
+1. **Final Story Integration**: Extend GoodVsBad context to final story generation
+2. **Choice Generation**: Inject GoodVsBad context into choice generation prompts
+3. **DM Personality Integration**: Combine GoodVsBad with existing DM personality system
+4. **Prompt Templates**: Create specialized prompt templates for different GoodVsBad themes
+
+### Lessons Learned
+1. **TDD Approach**: Writing failing test first ensured proper implementation
+2. **Type Safety**: Proper TypeScript interfaces prevented runtime errors
+3. **Integration Strategy**: Gradual integration through hook parameters maintained compatibility
+4. **Error Handling**: Safe JSON parsing and property access prevented crashes
+5. **Backward Compatibility**: Optional parameters ensured existing functionality unchanged
+
+### Commit Information
+- **Files Modified**: 
+  - `src/hooks/useStoryGeneration.ts` (prompt builder and hook interface)
+  - `src/hooks/useStoryGeneration.test.ts` (new test case)
+  - `src/app/page.tsx` (DM store integration)
+- **Test Coverage**: New test covers GoodVsBad context injection
+- **Build Status**: Successful compilation with minor unrelated linter warnings

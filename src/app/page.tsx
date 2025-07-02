@@ -9,6 +9,8 @@ import { useImageAnalysis } from '@/hooks/useImageAnalysis';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { CustomPromptInput } from '@/components/CustomPromptInput';
 import { useCharacterStore } from '@/lib/stores/characterStore';
+import { useDMStore } from '@/lib/stores/dmStore';
+import { createGoodVsBadConfig, GoodVsBadConfig } from '@/lib/types/goodVsBad';
 import { v4 as uuidv4 } from 'uuid';
 import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
@@ -24,12 +26,6 @@ export default function Home() {
   } = useImageAnalysis();
   
   const { 
-    isStoryLoading, 
-    generateStory, 
-    isChoicesLoading 
-  } = useStoryGeneration();
-
-  const { 
     character, 
     initializeCharacterFromDescription, 
     addExperience, 
@@ -40,6 +36,24 @@ export default function Home() {
     updateImageStory,
     makeChoice,
   } = useCharacterStore();
+
+  const { freeformAnswers } = useDMStore();
+
+  // Extract GoodVsBadConfig from DM store
+  let goodVsBadConfig: GoodVsBadConfig = createGoodVsBadConfig();
+  if (freeformAnswers.goodVsBadConfig) {
+    try {
+      goodVsBadConfig = JSON.parse(freeformAnswers.goodVsBadConfig);
+    } catch {
+      goodVsBadConfig = createGoodVsBadConfig();
+    }
+  }
+
+  const { 
+    isStoryLoading, 
+    generateStory, 
+    isChoicesLoading 
+  } = useStoryGeneration(undefined, { character, goodVsBadConfig });
 
   // Derive image for current turn
   const imageForCurrentTurn = character.imageHistory.find(img => img.turn === character.currentTurn);

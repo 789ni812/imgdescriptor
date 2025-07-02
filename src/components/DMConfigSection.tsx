@@ -1,5 +1,7 @@
 import React from 'react';
 import { useDMStore } from '@/lib/stores/dmStore';
+import GoodVsBadConfig from './GoodVsBadConfig';
+import { createGoodVsBadConfig, GoodVsBadConfig as GoodVsBadConfigType } from '@/lib/types/goodVsBad';
 
 export const DMConfigSection: React.FC = () => {
   const {
@@ -13,6 +15,23 @@ export const DMConfigSection: React.FC = () => {
   const name = selectedPersonality?.name || '';
   const style = selectedPersonality?.style || '';
   const notes = freeformAnswers.notes || '';
+
+  // Good vs Bad config state (stored as JSON in freeformAnswers for now)
+  let goodVsBadConfig: GoodVsBadConfigType = createGoodVsBadConfig();
+  if (freeformAnswers.goodVsBadConfig) {
+    try {
+      goodVsBadConfig = JSON.parse(freeformAnswers.goodVsBadConfig);
+    } catch {
+      goodVsBadConfig = createGoodVsBadConfig();
+    }
+  }
+
+  const handleGoodVsBadConfigChange = (config: GoodVsBadConfigType) => {
+    setFreeformAnswers({
+      ...freeformAnswers,
+      goodVsBadConfig: JSON.stringify(config),
+    });
+  };
 
   return (
     <div className="space-y-4 bg-zinc-900 p-4 rounded-lg border border-zinc-700">
@@ -58,6 +77,10 @@ export const DMConfigSection: React.FC = () => {
             onChange={e => setFreeformAnswers({ ...freeformAnswers, notes: e.target.value })}
           />
         </label>
+      </div>
+      {/* Good vs Bad (Yin/Yang) System */}
+      <div className="mt-6">
+        <GoodVsBadConfig config={goodVsBadConfig} onConfigChange={handleGoodVsBadConfigChange} />
       </div>
     </div>
   );

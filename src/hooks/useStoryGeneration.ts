@@ -5,10 +5,11 @@ import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Character, StoryEntry, Choice } from '@/lib/types/character';
 import { v4 as uuidv4 } from 'uuid';
 
-export function buildStoryPrompt({ character, description, customPrompt }: {
+export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig }: {
   character: Character,
   description: string,
-  customPrompt?: string
+  customPrompt?: string,
+  goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig
 }) {
   const turn = character.currentTurn;
   const stats = character.stats;
@@ -19,7 +20,21 @@ export function buildStoryPrompt({ character, description, customPrompt }: {
     .join('\n');
   const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
 
+  // Inject GoodVsBad context if enabled
+  let goodVsBadContext = '';
+  if (goodVsBadConfig && goodVsBadConfig.isEnabled) {
+    goodVsBadContext = [
+      'Good vs Bad Dynamic:',
+      `Theme: ${goodVsBadConfig.theme}`,
+      `Hero: ${goodVsBadConfig.userRole}`,
+      `Villain: ${goodVsBadConfig.badRole}`,
+      `Villain Definition: ${goodVsBadConfig.badDefinition}`,
+      goodVsBadConfig.badProfilePicture ? `Villain Profile Picture: ${goodVsBadConfig.badProfilePicture}` : ''
+    ].filter(Boolean).join('\n');
+  }
+
   const contextPrompt = [
+    goodVsBadContext,
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
     previousStoryContext,
@@ -67,6 +82,7 @@ interface ConfigDependencies {
 
 interface StoreDependencies {
   character: Character;
+  goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig;
 }
 
 // Function to generate choices based on story content
@@ -191,7 +207,12 @@ export function useStoryGeneration(
       return;
     }
 
-    const prompt = buildStoryPrompt({ character: effectiveCharacter, description, customPrompt });
+    const prompt = buildStoryPrompt({ 
+      character: effectiveCharacter, 
+      description, 
+      customPrompt,
+      goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined
+    });
 
     try {
       const response = await fetch('/api/generate-story', {
