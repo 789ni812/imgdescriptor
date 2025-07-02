@@ -34,12 +34,12 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
     setValidationError(null);
   };
 
-  const handleFieldChange = (field: keyof GoodVsBadConfigType, value: any) => {
+  const handleFieldChange = (field: keyof GoodVsBadConfigType, value: string | GoodVsBadTheme | null) => {
     const newConfig = { ...config, [field]: value };
     onConfigChange(newConfig);
     
     // Clear validation error when user starts typing
-    if (field === 'badDefinition' && value.trim()) {
+    if (field === 'badDefinition' && typeof value === 'string' && value.trim()) {
       setValidationError(null);
     }
   };
@@ -63,7 +63,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
       // Create a mock URL for the uploaded image
       const imageUrl = URL.createObjectURL(file);
       handleFieldChange('badProfilePicture', imageUrl);
-    } catch (error) {
+    } catch {
       setUploadError('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
@@ -75,7 +75,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-testid="good-vs-bad-config">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span>Good vs Bad System</span>
@@ -196,7 +196,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                       Upload Bad Profile Picture
                     </span>
                     <p className="text-sm text-gray-500 mt-1">
-                      Choose an image to represent the "bad" force
+                      Choose an image to represent the &quot;bad&quot; force
                     </p>
                   </div>
                 )}
@@ -209,7 +209,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
         {/* Bad Definition */}
         <div>
           <label htmlFor="badDefinition" className="block text-sm font-medium mb-2">
-            Define "Bad"
+            Define &quot;Bad&quot;
           </label>
           <textarea
             id="badDefinition"
@@ -219,7 +219,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
             disabled={!config.isEnabled}
             rows={3}
             className="w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
-            placeholder="Describe what the 'bad' force represents in your game..."
+            placeholder="Describe what the &apos;bad&apos; force represents in your game..."
           />
           {validationError && <ErrorMessage message={validationError} />}
         </div>
@@ -228,7 +228,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
         {config.isEnabled && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-800">
-              <strong>How this works:</strong> The Dungeon Master will use your "Bad" definition and profile picture 
+              <strong>How this works:</strong> The Dungeon Master will use your &quot;Bad&quot; definition and profile picture 
               to create a compelling antagonist or opposing force in your story. This adds depth and conflict to your adventure.
             </p>
           </div>

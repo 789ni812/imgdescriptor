@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss"
 
 const config = {
-  darkMode: "class",
+  darkMode: false,
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -19,44 +19,45 @@ const config = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#2563eb",
+          foreground: "#fff",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#f97316",
+          foreground: "#fff",
         },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+        background: {
+          DEFAULT: "#f8fafc",
+          gradient: "linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#fff",
+          foreground: "#1e293b",
+        },
+        border: "#e5e7eb",
+        input: "#e0e7ef",
+        ring: "#2563eb",
+        destructive: {
+          DEFAULT: "#f43f5e",
+          foreground: "#fff",
+        },
+        muted: {
+          DEFAULT: "#f1f5f9",
+          foreground: "#64748b",
+        },
+        popover: {
+          DEFAULT: "#fff",
+          foreground: "#1e293b",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "1rem",
+        md: "0.75rem",
+        sm: "0.5rem",
+      },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui"],
       },
       keyframes: {
         "accordion-down": {

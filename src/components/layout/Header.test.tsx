@@ -25,7 +25,7 @@ describe('Header Component', () => {
 
     const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
     expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toHaveClass('text-2xl', 'font-bold', 'text-blue-400');
+    expect(titleElement).toHaveClass('text-2xl', 'font-bold', 'text-primary', 'font-sans');
   });
 
   it('should have proper styling for a site header', () => {
@@ -33,7 +33,7 @@ describe('Header Component', () => {
     const headerElement = screen.getByTestId('header');
     
     // Check for container and layout classes
-    expect(headerElement).toHaveClass('w-full', 'bg-gray-800', 'shadow-md');
+    expect(headerElement).toHaveClass('w-full', 'bg-white', 'shadow-md', 'border-b', 'border-gray-200');
 
     // Check for inner container with padding
     const innerContainer = headerElement.querySelector('div');
@@ -42,5 +42,16 @@ describe('Header Component', () => {
     // Check for flex layout to align items
     const flexContainer = innerContainer?.querySelector('div');
     expect(flexContainer).toHaveClass('flex', 'items-center', 'justify-between', 'h-16');
+  });
+
+  it('renders with SaaS theme: white bg, blue text, Inter font, stat icons, and shadow', () => {
+    render(<Header />);
+    const headerElement = screen.getByTestId('header');
+    expect(headerElement).toHaveClass('bg-white', 'shadow-md');
+    const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
+    expect(titleElement).toHaveClass('text-primary', 'font-bold', 'font-sans');
+    // Stat icons (e.g., heart, dice) should be present
+    expect(screen.getByTestId('stat-icon-health')).toBeInTheDocument();
+    expect(screen.getByTestId('stat-icon-turn')).toBeInTheDocument();
   });
 }); 
