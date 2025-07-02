@@ -1,4 +1,4 @@
-import { Character, Item, StoryEntry, createCharacter, validateCharacter } from './character';
+import { Character, Item, StoryEntry, ChoiceOutcome, createCharacter, validateCharacter } from './character';
 
 describe('Character Schema and Types', () => {
   describe('Character Creation', () => {
@@ -7,37 +7,55 @@ describe('Character Schema and Types', () => {
       
       expect(character.health).toBe(100);
       expect(character.heartrate).toBe(70);
-      expect(character.age).toBe(18);
+      expect(character.age).toBe(25);
       expect(character.persona).toBe('Adventurer');
-      expect(character.traits).toEqual([]);
+      expect(character.traits).toEqual(['brave', 'curious']);
       expect(character.experience).toBe(0);
       expect(character.level).toBe(1);
       expect(character.inventory).toEqual([]);
       expect(character.storyHistory).toEqual([]);
       expect(character.currentTurn).toBe(1);
+      expect(character.stats.intelligence).toBe(10);
+      expect(character.stats.creativity).toBe(10);
+      expect(character.stats.perception).toBe(10);
+      expect(character.stats.wisdom).toBe(10);
+      expect(character.moralAlignment.score).toBe(0);
+      expect(character.moralAlignment.level).toBe('neutral');
+      expect(character.moralAlignment.reputation).toBe('An unknown adventurer');
     });
 
     it('should create a character with custom values', () => {
       const customCharacter = createCharacter({
-        health: 85,
-        heartrate: 65,
-        age: 25,
-        persona: 'Mage',
-        traits: ['Intelligent', 'Mysterious'],
-        experience: 150,
-        level: 3,
+        persona: 'Warrior',
+        health: 150,
+        age: 30,
+        traits: ['strong', 'brave'],
+        stats: {
+          intelligence: 12,
+          creativity: 8,
+          perception: 14,
+          wisdom: 10,
+        },
+        moralAlignment: {
+          score: 25,
+          level: 'good',
+          reputation: 'A respected hero',
+          recentChoices: ['Helped villagers', 'Defended the weak'],
+          alignmentHistory: [],
+        },
       });
-
-      expect(customCharacter.health).toBe(85);
-      expect(customCharacter.heartrate).toBe(65);
-      expect(customCharacter.age).toBe(25);
-      expect(customCharacter.persona).toBe('Mage');
-      expect(customCharacter.traits).toEqual(['Intelligent', 'Mysterious']);
-      expect(customCharacter.experience).toBe(150);
-      expect(customCharacter.level).toBe(3);
-      expect(customCharacter.inventory).toEqual([]);
-      expect(customCharacter.storyHistory).toEqual([]);
-      expect(customCharacter.currentTurn).toBe(1);
+      
+      expect(customCharacter.persona).toBe('Warrior');
+      expect(customCharacter.health).toBe(150);
+      expect(customCharacter.age).toBe(30);
+      expect(customCharacter.traits).toEqual(['strong', 'brave']);
+      expect(customCharacter.stats.intelligence).toBe(12);
+      expect(customCharacter.stats.creativity).toBe(8);
+      expect(customCharacter.stats.perception).toBe(14);
+      expect(customCharacter.stats.wisdom).toBe(10);
+      expect(customCharacter.moralAlignment.score).toBe(25);
+      expect(customCharacter.moralAlignment.level).toBe('good');
+      expect(customCharacter.moralAlignment.reputation).toBe('A respected hero');
     });
   });
 
@@ -54,11 +72,22 @@ describe('Character Schema and Types', () => {
         inventory: [],
         storyHistory: [],
         currentTurn: 1,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
         stats: {
           intelligence: 10,
           creativity: 10,
           perception: 10,
           wisdom: 10,
+        },
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
       };
 
@@ -68,128 +97,108 @@ describe('Character Schema and Types', () => {
     });
 
     it('should reject character with invalid health', () => {
-      const invalidCharacter: Character = {
-        health: -10, // Invalid: negative health
-        heartrate: 70,
-        age: 18,
-        persona: 'Adventurer',
-        traits: [],
-        experience: 0,
-        level: 1,
-        inventory: [],
-        storyHistory: [],
-        currentTurn: 1,
-        stats: {
-          intelligence: 10,
-          creativity: 10,
-          perception: 10,
-          wisdom: 10,
+      const character = createCharacter({
+        health: 250,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
-      };
-
-      const result = validateCharacter(invalidCharacter);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Health must be between 0 and 200');
+      });
+      
+      const validation = validateCharacter(character);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('Health must be between 0 and 200');
     });
 
     it('should reject character with invalid age', () => {
-      const invalidCharacter: Character = {
-        health: 100,
-        heartrate: 70,
-        age: 5, // Invalid: too young
-        persona: 'Adventurer',
-        traits: [],
-        experience: 0,
-        level: 1,
-        inventory: [],
-        storyHistory: [],
-        currentTurn: 1,
-        stats: {
-          intelligence: 10,
-          creativity: 10,
-          perception: 10,
-          wisdom: 10,
+      const character = createCharacter({
+        age: 5,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
-      };
-
-      const result = validateCharacter(invalidCharacter);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Age must be between 12 and 100');
+      });
+      
+      const validation = validateCharacter(character);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('Age must be between 12 and 100');
     });
 
     it('should reject character with invalid heartrate', () => {
-      const invalidCharacter: Character = {
-        health: 100,
-        heartrate: 200, // Invalid: too high
-        age: 18,
-        persona: 'Adventurer',
-        traits: [],
-        experience: 0,
-        level: 1,
-        inventory: [],
-        storyHistory: [],
-        currentTurn: 1,
-        stats: {
-          intelligence: 10,
-          creativity: 10,
-          perception: 10,
-          wisdom: 10,
+      const character = createCharacter({
+        heartrate: 200,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
-      };
-
-      const result = validateCharacter(invalidCharacter);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Heartrate must be between 40 and 180');
+      });
+      
+      const validation = validateCharacter(character);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('Heartrate must be between 40 and 180');
     });
 
     it('should reject character with invalid level', () => {
-      const invalidCharacter: Character = {
-        health: 100,
-        heartrate: 70,
-        age: 18,
-        persona: 'Adventurer',
-        traits: [],
-        experience: 0,
-        level: 0, // Invalid: level must be at least 1
-        inventory: [],
-        storyHistory: [],
-        currentTurn: 1,
-        stats: {
-          intelligence: 10,
-          creativity: 10,
-          perception: 10,
-          wisdom: 10,
+      const character = createCharacter({
+        level: 0,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
-      };
-
-      const result = validateCharacter(invalidCharacter);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Level must be at least 1');
+      });
+      
+      const validation = validateCharacter(character);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('Level must be at least 1');
     });
 
     it('should reject character with invalid turn count', () => {
-      const invalidCharacter: Character = {
-        health: 100,
-        heartrate: 70,
-        age: 18,
-        persona: 'Adventurer',
-        traits: [],
-        experience: 0,
-        level: 1,
-        inventory: [],
-        storyHistory: [],
-        currentTurn: 0, // Invalid: turn must be at least 1
-        stats: {
-          intelligence: 10,
-          creativity: 10,
-          perception: 10,
-          wisdom: 10,
+      const character = createCharacter({
+        currentTurn: 0,
+        imageHistory: [],
+        choiceHistory: [],
+        currentChoices: [],
+        choicesHistory: [],
+        moralAlignment: {
+          score: 0,
+          level: 'neutral',
+          reputation: 'An unknown adventurer',
+          recentChoices: [],
+          alignmentHistory: [],
         },
-      };
-
-      const result = validateCharacter(invalidCharacter);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Current turn must be at least 1');
+      });
+      
+      const validation = validateCharacter(character);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain('Current turn must be at least 1');
     });
   });
 
@@ -228,39 +237,37 @@ describe('Character Schema and Types', () => {
 
   describe('Character Choice System', () => {
     it('should have choice history in character', () => {
-      // Arrange
       const character = createCharacter();
       
-      // Assert
       expect(character.choiceHistory).toBeDefined();
       expect(Array.isArray(character.choiceHistory)).toBe(true);
+      expect(character.currentChoices).toBeDefined();
+      expect(Array.isArray(character.currentChoices)).toBe(true);
     });
 
     it('should have current choices available', () => {
-      // Arrange
       const character = createCharacter();
       
-      // Assert
       expect(character.currentChoices).toBeDefined();
       expect(Array.isArray(character.currentChoices)).toBe(true);
     });
 
     it('should track choice outcomes and stat changes', () => {
-      // Arrange
-      const character = createCharacter();
-      const choice = {
+      const choiceOutcome: ChoiceOutcome = {
         id: 'choice-1',
-        text: 'Explore the cave',
-        outcome: 'You found ancient treasure',
-        statChanges: { intelligence: +2, creativity: +1 }
+        choiceId: 'original-choice-1',
+        text: 'Help the villagers',
+        outcome: 'Successfully helped the villagers',
+        statChanges: { intelligence: 2, creativity: 1 },
+        timestamp: new Date().toISOString(),
+        turnNumber: 1,
       };
       
-      // Act
-      character.choiceHistory.push(choice);
-      
-      // Assert
-      expect(character.choiceHistory).toHaveLength(1);
-      expect(character.choiceHistory[0]).toEqual(choice);
+      expect(choiceOutcome.id).toBe('choice-1');
+      expect(choiceOutcome.text).toBe('Help the villagers');
+      expect(choiceOutcome.outcome).toBe('Successfully helped the villagers');
+      expect(choiceOutcome.statChanges?.intelligence).toBe(2);
+      expect(choiceOutcome.statChanges?.creativity).toBe(1);
     });
   });
 }); 

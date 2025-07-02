@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry } from '../types/character';
+import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry, Item, updateMoralAlignment, getMoralChoiceImpact } from '../types/character';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extended Character interface for the store with additional fields
@@ -12,10 +12,10 @@ export interface ExtendedCharacter extends Character {
   updatedAt: Date;
   imageHistory: ImageHistoryEntry[];
   finalStory?: string;
-  currentStory?: string | null;
-  currentDescription?: string | null;
+  currentStory?: string;
+  currentDescription?: string;
   currentTurn: number;
-  choicesHistory?: ChoicesHistoryEntry[];
+  choicesHistory: ChoicesHistoryEntry[];
 }
 
 // Character store state interface
@@ -40,8 +40,8 @@ export interface CharacterState {
   addImageToHistory: (image: ImageHistoryEntry) => void;
   updateImageDescription: (id: string, description: string) => void;
   updateImageStory: (id: string, story: string) => void;
-  updateCurrentStory: (story: string | null) => void;
-  updateCurrentDescription: (description: string | null) => void;
+  updateCurrentStory: (story: string | undefined) => void;
+  updateCurrentDescription: (description: string | undefined) => void;
   makeChoice: (choiceId: string) => void;
   addChoice: (choice: Choice) => void;
   clearCurrentChoices: () => void;
@@ -69,8 +69,8 @@ const createDefaultCharacter = (): ExtendedCharacter => {
     createdAt: new Date(),
     updatedAt: new Date(),
     imageHistory: [],
-    currentStory: null,
-    currentDescription: null,
+    currentStory: undefined,
+    currentDescription: undefined,
     currentTurn: 1,
     choicesHistory: [],
   };
@@ -436,7 +436,7 @@ export const useCharacterStore = create<CharacterState>()(
         }));
       },
 
-      updateCurrentStory: (story: string | null) => {
+      updateCurrentStory: (story: string | undefined) => {
         set((state) => ({
           character: {
             ...state.character,
@@ -446,7 +446,7 @@ export const useCharacterStore = create<CharacterState>()(
         }));
       },
 
-      updateCurrentDescription: (description: string | null) => {
+      updateCurrentDescription: (description: string | undefined) => {
         set((state) => ({
           character: {
             ...state.character,
@@ -465,12 +465,22 @@ export const useCharacterStore = create<CharacterState>()(
             return state; // No change if choice not found
           }
 
+          // Calculate moral impact of the choice
+          const moralImpact = getMoralChoiceImpact(choice);
+          
+          // Update moral alignment
+          const newMoralAlignment = updateMoralAlignment(
+            character.moralAlignment,
+            choice.text,
+            moralImpact
+          );
+
           // Generate outcome based on choice
           const outcome: ChoiceOutcome = {
             id: uuidv4(),
             choiceId: choice.id,
             text: choice.text,
-            outcome: `You chose to ${choice.text.toLowerCase()}. This decision shapes your journey.`,
+            outcome: `You chose to ${choice.text.toLowerCase()}. This decision shapes your journey and ${moralImpact > 0 ? 'improves' : moralImpact < 0 ? 'tarnishes' : 'maintains'} your reputation.`,
             statChanges: choice.statRequirements ? 
               Object.entries(choice.statRequirements).reduce((acc, [stat, required]) => {
                 const currentStat = character.stats[stat as keyof CharacterStats];
@@ -507,7 +517,7 @@ export const useCharacterStore = create<CharacterState>()(
               stats: newStats,
               choiceHistory: [...character.choiceHistory, outcome],
               currentChoices: remainingChoices,
-              updatedAt: new Date(),
+              moralAlignment: newMoralAlignment,
             },
           };
         });

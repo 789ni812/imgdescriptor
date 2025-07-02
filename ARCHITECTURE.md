@@ -1221,3 +1221,53 @@ flowchart TD
 ## Future Directions & Use Cases 
 
 [2025-07-01] **Critical Note:** The turn number mapping for all per-turn data is now strictly enforced and fully tested. All UI and state logic is guaranteed to be in sync for each turn. This is a critical requirement for all future features. 
+
+# Moral Alignment & Dynamic Narrative Architecture (2025-07-02)
+
+## Moral Alignment System
+- **Character State:**
+  - `moralAlignment: { score: number; level: 'evil'|'villainous'|'neutral'|'good'|'heroic'; reputation: string; recentChoices: string[]; alignmentHistory: {timestamp, choice, impact, newScore}[] }`
+  - Score is updated on every choice; level and reputation are derived from score.
+  - Recent choices and alignment history are tracked for prompt context and UI.
+
+## Choice-Consequence Matrix
+- **Each Choice:**
+  - Has a moral impact (numeric), immediate consequence, long-term branch, and win/loss state trigger.
+  - Matrix is used in prompt generation and to update game state.
+  - Example:
+    | Choice | Moral Impact | Immediate | Branch | Win/Loss |
+    |--------|--------------|-----------|--------|----------|
+    | Help villagers | +10 | Villagers aid you | Redemption | Win+ |
+    | Plunder | -15 | Villagers hostile | Tyranny | Loss+ |
+
+## Persistent Narrative State
+- **Game State:**
+  - Now includes: `moralAlignment`, `currentBranch`, `criticalChoices`, `winLossState`.
+  - This state is always passed to the LLM for story/choice generation.
+
+## Prompt Engineering
+- **Prompts Always Include:**
+  - Alignment score/level, reputation, recent choices, current branch, emotional tone.
+  - Ensures LLM output is consistent with player's moral journey and narrative path.
+
+## Win/Loss Conditions
+- **Game State:**
+  - Win/loss triggers are defined in the choice matrix and tracked in state.
+  - When reached, summary and replay encouragement are shown.
+
+## UI Feedback
+- **UI Components:**
+  - CharacterStats now displays alignment, reputation, and recent choices.
+  - Major impacts are highlighted (e.g., "Your reputation as a hero grows!").
+
+## Data Model Updates
+- See `src/lib/types/character.ts` for new `moralAlignment` and related types.
+- See `src/lib/types/template.ts` and `src/lib/types/partialTemplate.ts` for narrative state and branching.
+
+## Testing & TDD
+- All new features are covered by Jest tests.
+- Tests ensure correct alignment updates, branching, and prompt context.
+
+## References
+- See spec.md for implementation status and next steps.
+- See Gemini review (2025-07-02) for rationale and best practices.

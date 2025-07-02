@@ -33,8 +33,20 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     ].filter(Boolean).join('\n');
   }
 
+  // Add moral alignment context
+  const moralAlignmentContext = [
+    'Moral Alignment Context:',
+    `Alignment Level: ${character.moralAlignment.level}`,
+    `Moral Score: ${character.moralAlignment.score}`,
+    `Reputation: ${character.moralAlignment.reputation}`,
+    character.moralAlignment.recentChoices.length > 0 ? 
+      `Recent Moral Choices: ${character.moralAlignment.recentChoices.slice(0, 3).join(', ')}` : 
+      'No recent moral choices'
+  ].join('\n');
+
   const contextPrompt = [
     goodVsBadContext,
+    moralAlignmentContext,
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
     previousStoryContext,
@@ -139,7 +151,7 @@ export function useStoryGeneration(
   configOverride?: ConfigDependencies,
   storeOverride?: StoreDependencies
 ) {
-  const [story, setStoryState] = useState<string | null>(null);
+  const [story, setStoryState] = useState<string | undefined>(undefined);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
   const [isChoicesLoading, setIsChoicesLoading] = useState<boolean>(false);
@@ -152,7 +164,7 @@ export function useStoryGeneration(
   const effectiveCharacter = store.character;
 
   // Update both local state and global store
-  const setStory = useCallback((s: string | null) => {
+  const setStory = useCallback((s: string | undefined) => {
     setStoryState(s);
     if (storeFromHook.updateCurrentStory) {
       storeFromHook.updateCurrentStory(s);
@@ -166,7 +178,7 @@ export function useStoryGeneration(
     }
 
     setIsStoryLoading(true);
-    setStory(null);
+    setStory(undefined);
     setStoryError(null);
     setIsChoicesLoading(true);
 
