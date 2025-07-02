@@ -1271,3 +1271,373 @@ flowchart TD
 ## References
 - See spec.md for implementation status and next steps.
 - See Gemini review (2025-07-02) for rationale and best practices.
+
+# DM Reflection & Adaptation System Architecture (2025-07-02)
+
+## Overview
+The DM Reflection & Adaptation System creates a truly dynamic and responsive AI Dungeon Master that reflects on each turn and adapts the game scenario, mechanics, and narrative direction for subsequent turns. This system transforms the DM from a static narrator into an evolving character that learns from player behavior and adjusts the experience accordingly.
+
+## Core Components
+
+### 1. DM Reflection Engine (`src/lib/prompts/dmReflectionPrompts.ts`)
+```typescript
+interface DMReflectionContext {
+  // Current game state
+  character: Character;
+  currentTurn: number;
+  imageDescription: string;
+  generatedStory: string;
+  playerChoices: Choice[];
+  choiceOutcomes: ChoiceOutcome[];
+  
+  // DM personality and state
+  dmPersonality: DungeonMasterTemplate;
+  currentMood: 'positive' | 'negative' | 'neutral';
+  previousAdaptations: DMAdaptation[];
+  
+  // Player performance metrics
+  playerPerformance: {
+    alignmentChange: number;
+    choiceQuality: 'good' | 'neutral' | 'poor';
+    storyEngagement: number;
+    difficultyRating: number;
+  };
+}
+
+interface DMReflectionResponse {
+  reflection: string;
+  adaptations: {
+    difficultyAdjustment: number;
+    narrativeDirection: string;
+    moodChange: 'positive' | 'negative' | 'neutral';
+    personalityEvolution: string[];
+    storyModifications: string[];
+  };
+  playerAssessment: {
+    engagement: number;
+    understanding: number;
+    satisfaction: number;
+  };
+}
+```
+
+### 2. DM Adaptation State Management (`src/lib/types/dmAdaptation.ts`)
+```typescript
+interface DMAdaptation {
+  id: string;
+  turnNumber: number;
+  timestamp: string;
+  
+  // Reflection data
+  reflection: string;
+  playerPerformance: PlayerPerformanceMetrics;
+  
+  // Adaptation decisions
+  adaptations: {
+    difficultyAdjustment: number;        // -10 to +10 scale
+    narrativeDirection: string;          // e.g., "darken tone", "increase mystery"
+    moodChange: 'positive' | 'negative' | 'neutral';
+    personalityEvolution: string[];     // New traits or changes
+    storyModifications: string[];       // Specific story changes
+  };
+  
+  // Impact tracking
+  impact: {
+    storyQuality: number;
+    playerEngagement: number;
+    narrativeCoherence: number;
+  };
+}
+
+interface PlayerPerformanceMetrics {
+  alignmentChange: number;
+  choiceQuality: 'good' | 'neutral' | 'poor';
+  storyEngagement: number;              // 0-100 scale
+  difficultyRating: number;             // 1-10 scale
+  responseTime: number;                 // Average time to make choices
+  choiceConsistency: number;            // How consistent choices are
+}
+```
+
+### 3. DM Reflection API (`src/app/api/dm-reflection/route.ts`)
+```typescript
+// POST /api/dm-reflection
+interface DMReflectionRequest {
+  context: DMReflectionContext;
+  dmPersonality: DungeonMasterTemplate;
+  previousReflections: DMAdaptation[];
+}
+
+interface DMReflectionResponse {
+  success: boolean;
+  reflection: DMReflectionResponse;
+  error?: string;
+}
+```
+
+## System Flow
+
+### 1. DM Reflection Trigger Flow
+```mermaid
+flowchart TD
+  A[Turn Completion] --> B[Collect Turn Data]
+  B --> C[Build Reflection Context]
+  C --> D[Generate Reflection Prompt]
+  D --> E[Send to LLM]
+  E --> F[Parse Reflection Response]
+  F --> G[Update DM Adaptation State]
+  G --> H[Apply Adaptations]
+  H --> I[Prepare for Next Turn]
+```
+
+### 2. Adaptive Story Generation Flow
+```mermaid
+flowchart TD
+  A[Story Generation Request] --> B[Load DM Adaptations]
+  B --> C[Calculate Current Difficulty]
+  C --> D[Apply Narrative Direction]
+  D --> E[Modify Prompt with Adaptations]
+  E --> F[Generate Story]
+  F --> G[Apply Story Modifications]
+  G --> H[Return Adaptive Story]
+```
+
+### 3. DM Mood and Personality Evolution
+```mermaid
+flowchart TD
+  A[Player Action] --> B[Assess Impact on DM]
+  B --> C[Update DM Mood]
+  C --> D[Track Personality Changes]
+  D --> E[Adjust Difficulty]
+  E --> F[Modify Future Prompts]
+  F --> G[Update DM State]
+```
+
+## Integration Points
+
+### Character Store Integration
+```typescript
+// Extended character store with DM adaptations
+interface ExtendedCharacter extends Character {
+  dmAdaptations: DMAdaptation[];
+  currentDMMood: 'positive' | 'negative' | 'neutral';
+  dmPersonalityEvolution: string[];
+  difficultyModifier: number;
+}
+
+// Store actions for DM adaptations
+interface CharacterStore {
+  // ... existing actions ...
+  addDMAdaptation: (adaptation: DMAdaptation) => void;
+  updateDMMood: (mood: 'positive' | 'negative' | 'neutral') => void;
+  getCurrentDifficulty: () => number;
+  getDMAdaptationsForTurn: (turnNumber: number) => DMAdaptation[];
+}
+```
+
+### Story Generation Integration
+```typescript
+// Enhanced story generation with DM adaptations
+function buildAdaptiveStoryPrompt({
+  character,
+  description,
+  customPrompt,
+  goodVsBadConfig,
+  dmAdaptations
+}: {
+  character: Character;
+  description: string;
+  customPrompt?: string;
+  goodVsBadConfig?: GoodVsBadConfig;
+  dmAdaptations: DMAdaptation[];
+}) {
+  const basePrompt = buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig });
+  
+  // Apply DM adaptations
+  const difficultyModifier = calculateDifficultyModifier(dmAdaptations);
+  const narrativeDirection = getCurrentNarrativeDirection(dmAdaptations);
+  const moodContext = getDMMoodContext(character.currentDMMood);
+  
+  return `
+${basePrompt}
+
+DM ADAPTATIONS:
+Current Difficulty Modifier: ${difficultyModifier}
+Narrative Direction: ${narrativeDirection}
+DM Mood: ${moodContext}
+Recent Adaptations: ${formatRecentAdaptations(dmAdaptations)}
+
+Generate a story that:
+- Reflects the current difficulty level (${difficultyModifier > 0 ? 'increased' : 'decreased'} challenge)
+- Follows the narrative direction: ${narrativeDirection}
+- Matches the DM's current mood: ${moodContext}
+- Incorporates lessons learned from previous adaptations
+`;
+}
+```
+
+### Choice Generation Integration
+```typescript
+// Adaptive choice generation with DM context
+function buildAdaptiveChoicePrompt({
+  story,
+  character,
+  dmAdaptations
+}: {
+  story: string;
+  character: Character;
+  dmAdaptations: DMAdaptation[];
+}) {
+  const difficulty = getCurrentDifficulty(character, dmAdaptations);
+  const dmMood = character.currentDMMood;
+  const personalityTraits = getActivePersonalityTraits(character.dmPersonalityEvolution);
+  
+  return `
+Based on the story above and the DM's current state:
+
+DM CONTEXT:
+- Current Mood: ${dmMood}
+- Difficulty Level: ${difficulty}/10
+- Active Personality Traits: ${personalityTraits.join(', ')}
+
+Generate choices that:
+- Reflect the DM's current mood and personality
+- Provide appropriate challenge level (${difficulty}/10)
+- Consider the player's recent performance and alignment
+- Offer meaningful consequences that will affect future adaptations
+`;
+}
+```
+
+## UI Components
+
+### 1. DM Reflection Display (`src/components/DMReflection.tsx`)
+```typescript
+interface DMReflectionProps {
+  adaptation: DMAdaptation;
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+// Displays DM thoughts and adaptations after each turn
+```
+
+### 2. DM Mood Indicator (`src/components/DMMoodIndicator.tsx`)
+```typescript
+interface DMMoodIndicatorProps {
+  mood: 'positive' | 'negative' | 'neutral';
+  personalityTraits: string[];
+  difficultyModifier: number;
+}
+
+// Visual indicator of DM's current mood and personality
+```
+
+### 3. DM Adaptation History (`src/components/DMAdaptationHistory.tsx`)
+```typescript
+interface DMAdaptationHistoryProps {
+  adaptations: DMAdaptation[];
+  onSelectAdaptation: (adaptation: DMAdaptation) => void;
+}
+
+// History viewer for reviewing DM adaptations
+```
+
+## Performance Considerations
+
+### 1. Reflection Processing
+- **Caching:** Cache reflection responses for similar contexts
+- **Async Processing:** Process reflections in background to avoid blocking UI
+- **Batching:** Batch multiple adaptations for efficiency
+
+### 2. State Management
+- **Selective Updates:** Only update relevant parts of DM state
+- **Memory Management:** Limit adaptation history to prevent memory bloat
+- **Persistence:** Efficient storage and retrieval of adaptation data
+
+### 3. API Optimization
+- **Request Batching:** Combine multiple reflection requests
+- **Response Caching:** Cache common reflection patterns
+- **Error Recovery:** Graceful fallback when reflection fails
+
+## Benefits
+
+### 1. Dynamic Storytelling
+- **Adaptive Narratives:** Stories evolve based on player behavior
+- **Personalized Experience:** Each playthrough feels unique
+- **Engaging AI:** DM becomes a character that reacts and grows
+
+### 2. Balanced Gameplay
+- **Automatic Difficulty:** Adjusts challenge based on player performance
+- **Mood-Based Content:** Story tone reflects DM's current state
+- **Progressive Complexity:** Challenges scale with player development
+
+### 3. Enhanced Engagement
+- **Meaningful Consequences:** Player actions directly affect future content
+- **DM Personality:** Players can form preferences for specific DM styles
+- **Replayability:** Different play styles create different experiences
+
+## Implementation Status
+
+### 🔄 Phase 29.1: DM Reflection Prompt System (PLANNED)
+- Reflection prompt templates and context building
+- Comprehensive test coverage for prompt generation
+- Integration with existing prompt system
+
+### 🔄 Phase 29.2: DM Adaptation State Management (PLANNED)
+- DM adaptation types and interfaces
+- Character store integration for adaptation tracking
+- Persistence and state management
+
+### 🔄 Phase 29.3: DM Reflection API Integration (PLANNED)
+- API endpoint for reflection processing
+- LM Studio integration and response parsing
+- Error handling and fallback mechanisms
+
+### 🔄 Phase 29.4: Adaptive Story Generation (PLANNED)
+- Story generation with DM adaptation context
+- Difficulty scaling and narrative direction
+- Integration with existing story system
+
+### 🔄 Phase 29.5: DM Mood and Personality Evolution (PLANNED)
+- Mood system and personality tracking
+- Mood-based prompt modifications
+- Personality evolution algorithms
+
+### 🔄 Phase 29.6: Adaptive Choice Generation (PLANNED)
+- Choice generation with DM context
+- Difficulty-based choice scaling
+- DM personality influence on choices
+
+### 🔄 Phase 29.7: DM Reflection UI Components (PLANNED)
+- Reflection display and mood indicators
+- Adaptation history viewer
+- DM satisfaction feedback system
+
+### 🔄 Phase 29.8: Integration and Testing (PLANNED)
+- Complete system integration
+- Performance optimization
+- End-to-end testing
+
+## Technical Considerations
+
+### Scalability
+- **Template Versioning:** Support for DM adaptation evolution
+- **Performance Monitoring:** Track reflection processing times
+- **Memory Management:** Efficient adaptation data storage
+
+### Reliability
+- **Error Handling:** Graceful degradation when reflection fails
+- **Fallback Mechanisms:** Default adaptations when LLM unavailable
+- **Data Validation:** Ensure adaptation data integrity
+
+### User Experience
+- **Non-Intrusive:** Reflections don't interrupt gameplay flow
+- **Clear Feedback:** Players understand how their actions affect the DM
+- **Consistent Quality:** Maintain high-quality output across adaptations
+
+---
+
+## Future Directions & Use Cases 
+
+[2025-07-02] **Critical Note:** The DM Reflection & Adaptation System represents a significant advancement in AI-driven storytelling. This system will create truly dynamic and personalized gaming experiences where the AI Dungeon Master becomes an evolving character that learns from and adapts to player behavior. All future features must consider how they integrate with this adaptive system.

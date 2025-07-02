@@ -1018,3 +1018,289 @@ Villain Profile Picture: http://example.com/bad.jpg
   - `src/app/page.tsx` (DM store integration)
 - **Test Coverage**: New test covers GoodVsBad context injection
 - **Build Status**: Successful compilation with minor unrelated linter warnings
+
+# Game Evolution: Narrative Depth & Moral Alignment (2025-07-02)
+
+## Summary of Improvements (from Gemini Review)
+- **Moral Alignment System:**
+  - Numeric alignment score (-100 to +100) now tracked on the character.
+  - Alignment level (evil, villainous, neutral, good, heroic) and reputation string.
+  - All choices now update alignment; recent choices and history are tracked.
+- **Choice-Consequence Matrix:**
+  - Each choice is mapped to a moral impact, immediate consequence, long-term branch, and win/loss state trigger.
+  - Matrix is used to inform both prompt generation and game state.
+- **Persistent Narrative State:**
+  - Game state now includes alignment, current narrative branch, critical choices, and win/loss state.
+  - This state is always passed to the LLM for story/choice generation.
+- **Prompt Engineering:**
+  - Prompts now include alignment score/level, reputation, recent choices, current branch, and emotional tone.
+  - Ensures LLM output is consistent with player's moral journey and narrative path.
+- **Win/Loss Conditions:**
+  - Win/loss triggers are defined in the choice matrix and tracked in state.
+  - When reached, summary and replay encouragement are shown.
+- **UI Feedback:**
+  - CharacterStats now displays alignment, reputation, and recent choices.
+  - Major impacts are highlighted (e.g., "Your reputation as a hero grows!").
+
+## Implementation Status
+- ✅ **Moral Alignment System:** Fully implemented with character store integration
+- ✅ **Choice-Consequence Matrix:** Basic structure implemented, needs expansion
+- ✅ **Persistent Narrative State:** Character state updated, needs game state expansion
+- ✅ **Prompt Engineering:** Story generation updated to include moral alignment
+- ✅ **UI Feedback:** CharacterStats component updated to show alignment
+- 🔄 **Win/Loss Conditions:** Planned for next phase
+- 🔄 **DM Reflection System:** Planned for next phase
+
+## Next Steps
+1. **Complete Choice-Consequence Matrix:** Expand the matrix with more detailed consequences and branching
+2. **Implement Win/Loss Conditions:** Add game-ending scenarios based on alignment and choices
+3. **DM Reflection & Adaptation System:** Allow DM to reflect on each turn and adapt future scenarios
+4. **Enhanced UI Feedback:** Add more visual feedback for alignment changes and consequences
+
+### Phase 29: DM Reflection & Adaptation System (2025-07-02)
+**Objective:** Implement a system where the AI Dungeon Master reflects on each turn and adapts the game scenario, mechanics, and narrative direction for subsequent turns, creating a truly dynamic and responsive storytelling experience.
+
+#### TDD Implementation Plan for Phase 29
+
+##### Task 29.1: DM Reflection Prompt System
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/lib/prompts/dmReflectionPrompts.test.ts`
+   - Test `buildDMReflectionPrompt()` with mock context
+   - Test `parseDMReflectionResponse()` with mock LLM response
+   - Test `validateReflectionContext()` with valid/invalid contexts
+   - **Expected:** Tests fail (functions don't exist yet)
+
+2. **Implement Code:** Create `src/lib/prompts/dmReflectionPrompts.ts`
+   - Implement `buildDMReflectionPrompt()` function
+   - Implement `parseDMReflectionResponse()` function
+   - Implement `validateReflectionContext()` function
+   - **Expected:** Tests pass
+
+3. **Integration Test:** Test with real LM Studio client
+   - Mock LM Studio responses
+   - Test end-to-end reflection generation
+   - **Expected:** Full integration works
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/lib/prompts/dmReflectionPrompts.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.2: DM Adaptation State Management
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/lib/types/dmAdaptation.test.ts`
+   - Test `DMAdaptation` interface validation
+   - Test `PlayerPerformanceMetrics` calculation
+   - Test adaptation state persistence
+   - **Expected:** Tests fail (types don't exist yet)
+
+2. **Implement Code:** Create `src/lib/types/dmAdaptation.ts`
+   - Define `DMAdaptation` interface
+   - Define `PlayerPerformanceMetrics` interface
+   - Implement validation functions
+   - **Expected:** Tests pass
+
+3. **Store Integration Test:** Update `src/lib/stores/characterStore.test.ts`
+   - Test `addDMAdaptation()` action
+   - Test `updateDMMood()` action
+   - Test `getCurrentDifficulty()` selector
+   - **Expected:** Store tests pass
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/lib/types/dmAdaptation.test.ts`
+   - Run `npm test -- src/lib/stores/characterStore.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.3: DM Reflection API Integration
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/app/api/dm-reflection/route.test.ts`
+   - Test POST endpoint with valid request
+   - Test error handling with invalid request
+   - Test LM Studio integration
+   - **Expected:** Tests fail (API doesn't exist yet)
+
+2. **Implement Code:** Create `src/app/api/dm-reflection/route.ts`
+   - Implement POST handler
+   - Integrate with LM Studio client
+   - Add error handling and validation
+   - **Expected:** Tests pass
+
+3. **Integration Test:** Test with real client
+   - Test API with actual reflection requests
+   - Test error scenarios
+   - **Expected:** API works correctly
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/app/api/dm-reflection/route.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.4: Adaptive Story Generation
+**TDD Steps:**
+1. **Write Failing Test:** Update `src/hooks/useStoryGeneration.test.ts`
+   - Test `buildAdaptiveStoryPrompt()` with DM adaptations
+   - Test difficulty scaling integration
+   - Test narrative direction application
+   - **Expected:** Tests fail (adaptive functions don't exist yet)
+
+2. **Implement Code:** Update `src/hooks/useStoryGeneration.ts`
+   - Implement `buildAdaptiveStoryPrompt()` function
+   - Add difficulty scaling logic
+   - Add narrative direction integration
+   - **Expected:** Tests pass
+
+3. **Integration Test:** Test with real story generation
+   - Test adaptive prompts with mock adaptations
+   - Test difficulty scaling effects
+   - **Expected:** Adaptive story generation works
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/hooks/useStoryGeneration.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.5: DM Mood and Personality Evolution
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/lib/utils/dmMood.test.ts`
+   - Test mood calculation based on player actions
+   - Test personality evolution tracking
+   - Test mood-based prompt modifications
+   - **Expected:** Tests fail (mood system doesn't exist yet)
+
+2. **Implement Code:** Create `src/lib/utils/dmMood.ts`
+   - Implement mood calculation algorithms
+   - Implement personality evolution tracking
+   - Implement mood-based prompt modifications
+   - **Expected:** Tests pass
+
+3. **Store Integration Test:** Update character store tests
+   - Test mood updates in store
+   - Test personality evolution persistence
+   - **Expected:** Store integration works
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/lib/utils/dmMood.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.6: Adaptive Choice Generation
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/lib/prompts/adaptiveChoicePrompts.test.ts`
+   - Test `buildAdaptiveChoicePrompt()` with DM context
+   - Test choice difficulty scaling
+   - Test DM personality influence
+   - **Expected:** Tests fail (adaptive choice system doesn't exist yet)
+
+2. **Implement Code:** Create `src/lib/prompts/adaptiveChoicePrompts.ts`
+   - Implement `buildAdaptiveChoicePrompt()` function
+   - Add choice difficulty scaling
+   - Add DM personality influence
+   - **Expected:** Tests pass
+
+3. **Integration Test:** Test with choice generation API
+   - Test adaptive choices with mock DM context
+   - Test difficulty scaling effects
+   - **Expected:** Adaptive choice generation works
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/lib/prompts/adaptiveChoicePrompts.test.ts`
+   - Run `npm run build`
+   - **Expected:** All tests pass, build successful
+
+##### Task 29.7: DM Reflection UI Components
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/components/DMReflection.test.tsx`
+   - Test DM reflection display component
+   - Test mood indicator component
+   - Test adaptation history component
+   - **Expected:** Tests fail (components don't exist yet)
+
+2. **Implement Code:** Create UI components
+   - Implement `DMReflection.tsx`
+   - Implement `DMMoodIndicator.tsx`
+   - Implement `DMAdaptationHistory.tsx`
+   - **Expected:** Tests pass
+
+3. **Integration Test:** Test with real data
+   - Test components with mock adaptation data
+   - Test user interactions
+   - **Expected:** UI components work correctly
+
+4. **Quality Assurance:**
+   - Run `npm test -- src/components/DMReflection.test.tsx`
+   - Run `npm run build`
+   - Run `npm run dev` for browser preview
+   - **Expected:** All tests pass, UI looks good
+
+##### Task 29.8: Integration and Testing
+**TDD Steps:**
+1. **Write Failing Test:** Create `src/integration/dmReflection.test.ts`
+   - Test complete DM reflection flow
+   - Test adaptation persistence across turns
+   - Test performance with multiple adaptations
+   - **Expected:** Tests fail (integration doesn't exist yet)
+
+2. **Implement Code:** Integrate all components
+   - Connect reflection system to game flow
+   - Implement adaptation persistence
+   - Add performance optimizations
+   - **Expected:** Tests pass
+
+3. **End-to-End Test:** Test complete user journey
+   - Test full game flow with DM reflections
+   - Test adaptation effects on story/choices
+   - Test UI feedback and interactions
+   - **Expected:** Complete system works
+
+4. **Quality Assurance:**
+   - Run `npm test` (full test suite)
+   - Run `npm run build`
+   - Run `npm run dev` for browser preview
+   - **Expected:** All tests pass, system works perfectly
+
+#### Success Criteria for Each Task
+- ✅ **Tests Pass:** All Jest tests for the task pass
+- ✅ **Build Success:** TypeScript compilation successful
+- ✅ **Browser Preview:** Feature works correctly in development server
+- ✅ **Integration:** Task integrates properly with existing systems
+- ✅ **Documentation:** Code is properly documented and typed
+- ✅ **Performance:** No significant performance degradation
+- ✅ **Error Handling:** Robust error handling implemented
+
+#### Rollback Plan
+If any task fails or causes issues:
+1. **Immediate:** Revert to previous working commit
+2. **Investigation:** Identify root cause of failure
+3. **Fix:** Address issues and re-implement with additional testing
+4. **Validation:** Ensure fix doesn't break existing functionality
+
+#### Performance Monitoring
+- **Reflection Processing Time:** Target < 5 seconds per reflection
+- **Memory Usage:** Monitor adaptation data storage growth
+- **API Response Time:** Target < 3 seconds for reflection API
+- **UI Responsiveness:** No blocking during reflection processing
+
+#### Browser Preview Commands
+After each task completion:
+```bash
+# Check if localhost:3000 is running
+netstat -ano | findstr :3000
+
+# Stop dev server if running
+taskkill /F /PID <PID>
+
+# Start dev server
+npm run dev
+```
+
+#### Commit Strategy
+Each task should be committed with a clear, conventional commit message:
+- `feat(dm): implement DM reflection prompt system`
+- `feat(state): add DM adaptation state management`
+- `feat(api): add DM reflection API endpoint`
+- `feat(story): implement adaptive story generation with DM reflections`
+- `feat(dm): implement DM mood and personality evolution system`
+- `feat(choices): implement adaptive choice generation with DM context`
+- `feat(ui): add DM reflection and adaptation display components`
+- `feat(integration): complete DM reflection system integration`
