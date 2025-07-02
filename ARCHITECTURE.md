@@ -4,6 +4,18 @@
 
 **RPG AI Image Describer** is a Next.js application that transforms user-uploaded images into an interactive, turn-based storytelling game. Users select or import a template, upload images, and the app uses an LLM (via LM Studio) to generate detailed image descriptions and branching story segments. After each turn, the user is presented with choices (soon to be LLM-generated), and their decisions shape the narrative. All template data—including prompts and images—are stored in a portable, folder-based structure for easy sharing and extensibility. The system is designed for strict TDD, robust state management (Zustand), and future expansion into non-game use cases (e.g., marketing, education).
 
+## UI/UX & Rendering Logic: Turn Order
+The list of turns is rendered in reverse order (latest first) for improved usability. This is achieved by reversing the turns array before mapping over it in the UI.
+
+## Game Dynamics: Good vs Bad (Yin/Yang) System
+Dungeon Master config now includes a "Bad" profile picture and definition. These are stored in the template/session and passed to the LLM for prompt generation. The DM can use this info to create richer, more dynamic stories with a clear antagonist or opposing force.
+
+## Dungeon Master Template & Selection
+DM templates now include a profile picture and pre-formatted config. The DM selection UI allows users to browse and select a DM before starting a game. The selected DM's config and image are stored in the session/template and used throughout the game.
+
+## Character Scoring & Gamification
+Character stats are being evaluated for relevance and impact on gameplay. The system will support stat-based skill checks, branching, and possible win/lose conditions. All stat changes and their effects will be strictly typed and documented.
+
 ## Glossary
 
 | Term                | Definition                                                                                           |

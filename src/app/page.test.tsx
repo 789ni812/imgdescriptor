@@ -573,4 +573,111 @@ describe('Template import with choicesHistory', () => {
     // expect(screen.getByTestId('turn-card-1')).toHaveTextContent('Choice 2');
     // expect(screen.getByTestId('turn-card-2')).toHaveTextContent('Choice 3');
   });
+});
+
+describe('Turn Order', () => {
+  it('displays the latest turn at the top of the turn list', () => {
+    // Arrange: Set up character with 3 turns
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'Turn 1 story', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'Turn 2 story', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'Turn 3 story', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
+      storyHistory: [
+        { id: 'story-1', text: 'Turn 1 story', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'desc1' },
+        { id: 'story-2', text: 'Turn 2 story', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'desc2' },
+        { id: 'story-3', text: 'Turn 3 story', timestamp: '2025-01-27T10:10:00Z', turnNumber: 3, imageDescription: 'desc3' },
+      ]
+    };
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
+    });
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+    // Act: Render the page
+    render(<Home />);
+    // Find all TurnCard headers
+    const turnHeaders = screen.getAllByRole('heading', { name: /Turn \d/ });
+    // Assert: first header is Turn 3, last is Turn 1
+    expect(turnHeaders[0]).toHaveTextContent('Turn 3');
+    expect(turnHeaders[turnHeaders.length - 1]).toHaveTextContent('Turn 1');
+  });
+});
+
+describe('Reset Game', () => {
+  it('clears the final story and resets all game state for a clean start', async () => {
+    jest.useFakeTimers();
+    // Arrange: Set up character on Turn 3 with a final story
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 3,
+      imageHistory: [
+        { id: 'img-1', url: '/img1.jpg', description: 'desc1', story: 'Turn 1 story', turn: 1, uploadedAt: '2025-01-27T10:01:00Z' },
+        { id: 'img-2', url: '/img2.jpg', description: 'desc2', story: 'Turn 2 story', turn: 2, uploadedAt: '2025-01-27T10:02:00Z' },
+        { id: 'img-3', url: '/img3.jpg', description: 'desc3', story: 'Turn 3 story', turn: 3, uploadedAt: '2025-01-27T10:03:00Z' },
+      ],
+      storyHistory: [
+        { id: 'story-1', text: 'Turn 1 story', timestamp: '2025-01-27T10:00:00Z', turnNumber: 1, imageDescription: 'desc1' },
+        { id: 'story-2', text: 'Turn 2 story', timestamp: '2025-01-27T10:05:00Z', turnNumber: 2, imageDescription: 'desc2' },
+        { id: 'story-3', text: 'Turn 3 story', timestamp: '2025-01-27T10:10:00Z', turnNumber: 3, imageDescription: 'desc3' },
+      ]
+    };
+    mockUseCharacterStore.mockReturnValue({
+      character: mockCharacter,
+      initializeCharacterFromDescription: jest.fn(),
+      addExperience: jest.fn(),
+      incrementTurn: jest.fn(),
+      resetCharacter: jest.fn(),
+      addImageToHistory: jest.fn(),
+      updateImageDescription: jest.fn(),
+      updateImageStory: jest.fn(),
+      updateCurrentStory: jest.fn(),
+      updateCurrentDescription: jest.fn(),
+    });
+    mockUseStoryGeneration.mockReturnValue({
+      story: 'Turn 3 story',
+      isStoryLoading: false,
+      storyError: null,
+      generateStory: jest.fn(),
+    });
+    // Act: Render the page and simulate generating a final story
+    render(<Home />);
+    // Simulate final story being set (simulate user has generated it)
+    const finalStoryButton = screen.getByRole('button', { name: /generate final story/i });
+    fireEvent.click(finalStoryButton);
+    // Advance timers to trigger setTimeout in handleGenerateFinalStory
+    jest.runAllTimers();
+    // Wait for the final story to appear
+    await screen.findByTestId('final-story-markdown');
+    // Now click Reset Game
+    const resetButton = screen.getByRole('button', { name: /reset game/i });
+    // Mock resetCharacter to actually reset the character state
+    mockUseCharacterStore.mockReturnValueOnce({
+      ...mockUseCharacterStore(),
+      character: { ...createCharacter(), currentTurn: 1 },
+    });
+    await act(async () => {
+      fireEvent.click(resetButton);
+    });
+    // Assert: Final story should be gone, turn indicator should reset
+    expect(screen.queryByTestId('final-story-markdown')).not.toBeInTheDocument();
+    expect(screen.getByTestId('turn-indicator')).toHaveTextContent('Turn 1');
+    jest.useRealTimers();
+  });
 }); 

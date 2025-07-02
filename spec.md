@@ -895,3 +895,15 @@ We will implement the following game mechanics, ensuring all features are extens
   - Add prompt sharing and import/export functionality
   - Write tests for prompt customization interface
   - **Commit:** `feat(ui): add prompt customization interface and template editor`
+
+## UI/UX: Turn Order
+Turns are displayed in reverse chronological order, with the latest turn at the top. This ensures the most recent game events are always most visible to the user.
+
+## Game Dynamics: Good vs Bad (Yin/Yang) System
+The game supports a duality system (e.g., Good vs Bad, Pros/Cons, Yin/Yang). The user is always "Good." The user can upload a profile picture and provide a definition for "Bad" (the antagonist or opposing force). This information is used by the Dungeon Master to shape the narrative, introduce recurring villains, and create moral dilemmas.
+
+## Dungeon Master System: Pre-Formatted Config & Profile Picture
+Users can select from predefined Dungeon Masters, each with a unique theme, config, and profile picture. Selecting a DM sets the game's narrative style and visual identity. The DM's profile picture and description are shown in the UI.
+
+## Character Scoring System & Gamification
+The character scoring system is under review to better support gamification. We will assess whether current stats (Intelligence, Creativity, Perception, Wisdom) are sufficient, and consider adding/removing stats (e.g., Health, Luck, Morality). Stats will be used for skill checks, story branches, and determining success/failure. The game may introduce win/lose conditions or narrative endings based on stats.

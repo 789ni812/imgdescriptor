@@ -149,7 +149,11 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    // No need to reset galleryUrls; imageHistory is session-only and will reset on reload
+    resetCharacter();
+    setFinalStory(null);
+    setFinalStoryError(null);
+    setIsFinalStoryLoading(false);
+    // Optionally reset other local state if needed
   };
 
   const handleChoiceSelect = (choiceId: string) => {
@@ -248,7 +252,7 @@ export default function Home() {
           {/* Reset Game Button */}
           {character.currentTurn > 1 && (
             <div className="mb-4">
-              <Button onClick={resetCharacter} variant="outline" size="sm">
+              <Button onClick={handleReset} variant="outline" size="sm">
                 Reset Game
               </Button>
             </div>
@@ -329,7 +333,7 @@ export default function Home() {
 
           {/* Turn Cards - Only display up to 3 turns */}
           <div className="space-y-6">
-            {Array.from({ length: Math.min(character.currentTurn, 3) }, (_, i) => i + 1).map(turnNumber => {
+            {Array.from({ length: Math.min(character.currentTurn, 3) }, (_, i) => i + 1).reverse().map(turnNumber => {
               const turnChoices = character.choicesHistory?.find(entry => entry.turn === turnNumber)?.choices || [];
               const turnCardProps = {
                 ...buildTurnData(turnNumber),
