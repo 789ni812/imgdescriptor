@@ -10,6 +10,8 @@ import { POST } from './route';
 import { Character, createCharacter } from '@/lib/types/character';
 import { Choice, ChoiceOutcome } from '@/lib/types/character';
 import { DungeonMasterTemplate } from '@/lib/types/dungeonMaster';
+import { NextRequest } from 'next/server';
+
 
 // Mock the DM reflection prompts module
 jest.mock('@/lib/prompts/dmReflectionPrompts', () => ({
@@ -34,6 +36,11 @@ jest.mock('@/lib/prompts/dmReflectionPrompts', () => ({
 
 // Mock fetch for external API calls
 global.fetch = jest.fn();
+
+// Mock the LM Studio client
+jest.mock('../../../lib/lmstudio-client', () => ({
+  mockLMStudioClient: jest.fn(),
+}));
 
 describe('DM Reflection API Route', () => {
   const mockCharacter: Character = createCharacter({
@@ -71,8 +78,8 @@ describe('DM Reflection API Route', () => {
     notes: 'Prefers moral choices and character development'
   };
 
-  const createMockRequest = (body: any): Request => {
-    return new Request('http://localhost:3000/api/dm-reflection', {
+  const createMockRequest = (body: any): NextRequest => {
+    return new NextRequest('http://localhost:3000/api/dm-reflection', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -381,4 +388,6 @@ describe('DM Reflection API Route', () => {
       expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type');
     });
   });
+
+
 }); 
