@@ -18,6 +18,14 @@ import { TemplateManager } from '@/components/TemplateManager';
 import TurnCard from '@/components/TurnCard';
 import type { CharacterStats } from '@/lib/types/character';
 
+// Debug logging utility
+const DEBUG = process.env.NODE_ENV === 'development';
+const debugLog = (component: string, action: string, data?: unknown) => {
+  if (DEBUG) {
+    console.log(`[${component}] ${action}`, data || '');
+  }
+};
+
 export default function Home() {
   const { 
     isDescriptionLoading, 
@@ -114,6 +122,13 @@ export default function Home() {
   };
 
   const handleImageSelect = (image: { url: string; file: File }, prompt?: string) => {
+    debugLog('Home', 'Image selected', { 
+      fileName: image.file.name, 
+      size: image.file.size, 
+      currentTurn: character.currentTurn,
+      prompt 
+    });
+
     // Add to imageHistory in the store
     addImageToHistory({
       id: uuidv4(),
@@ -122,6 +137,12 @@ export default function Home() {
       turn: character.currentTurn,
       uploadedAt: new Date().toISOString(),
     });
+    
+    debugLog('Home', 'Image added to history', { 
+      imageHistoryLength: character.imageHistory.length,
+      currentTurn: character.currentTurn 
+    });
+
     analyzeImage(image.file, prompt);
 
     // Only add experience here
@@ -130,7 +151,7 @@ export default function Home() {
     // Debug: Log turn numbers after image upload
     const latestImage = character.imageHistory[character.imageHistory.length - 1];
     const latestStory = character.storyHistory[character.storyHistory.length - 1];
-    console.log('[DEBUG] After image upload:', {
+    debugLog('Home', 'After image upload', {
       currentTurn: character.currentTurn,
       latestImageTurn: latestImage?.turn,
       latestStoryTurn: latestStory?.turnNumber,
@@ -139,6 +160,7 @@ export default function Home() {
     // If this is the first analysis, set flag to initialize character after description is available
     if (character.currentTurn === 1) {
       setShouldInitCharacter(true);
+      debugLog('Home', 'Character initialization flag set');
     }
   };
 
@@ -171,18 +193,23 @@ export default function Home() {
   };
 
   const handleChoiceSelect = (choiceId: string) => {
+    debugLog('Home', 'Choice selected', { choiceId, currentTurn: character.currentTurn });
+    
     makeChoice(choiceId);
+    
     // Debug: Log state after making a choice
     setTimeout(() => {
-      console.log('[DEBUG] After choice:', {
+      debugLog('Home', 'After choice made', {
         imageHistory: character.imageHistory,
         storyHistory: character.storyHistory,
         choiceHistory: character.choiceHistory,
         currentTurn: character.currentTurn,
+        characterStats: character.stats,
       });
     }, 100);
+    
     incrementTurn();
-    // Optionally, reset any per-turn UI state if needed
+    debugLog('Home', 'Turn incremented', { newTurn: character.currentTurn + 1 });
   };
 
   // Only limit after all 3 turns have images

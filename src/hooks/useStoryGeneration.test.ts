@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt } from './useStoryGeneration';
+import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt, buildAdaptiveStoryPrompt } from './useStoryGeneration';
 import { createCharacter, type Character } from '@/lib/types/character';
 import { createGoodVsBadConfig } from '@/lib/types/goodVsBad';
 
@@ -791,5 +791,145 @@ describe('Choice Generation', () => {
       expect(choice).toHaveProperty('consequences');
       expect(Array.isArray(choice.consequences)).toBe(true);
     });
+  });
+
+  // Adaptive Story Generation Tests
+  it('should build adaptive story prompt with DM adaptations', () => {
+    const dmAdaptations = {
+      difficultyAdjustment: 0.2,
+      narrativeDirection: 'more challenging',
+      moodChange: 'positive' as const,
+      personalityEvolution: ['More encouraging'],
+      storyModifications: ['Add more moral dilemmas']
+    };
+
+    const prompt = buildAdaptiveStoryPrompt({
+      character: defaultCharacter,
+      description: 'A dark cave with ancient symbols',
+      dmAdaptations
+    });
+
+    expect(prompt).toContain('DM Adaptation Context:');
+    expect(prompt).toContain('Difficulty Adjustment: +0.2');
+    expect(prompt).toContain('Narrative Direction: more challenging');
+    expect(prompt).toContain('DM Mood: positive');
+    expect(prompt).toContain('Story Modifications: Add more moral dilemmas');
+  });
+
+  it('should apply difficulty scaling to story generation', () => {
+    const dmAdaptations = {
+      difficultyAdjustment: 0.3,
+      narrativeDirection: 'increasingly difficult',
+      moodChange: 'neutral' as const,
+      personalityEvolution: [],
+      storyModifications: ['Increase challenge level']
+    };
+
+    const character = createCharacter({
+      ...defaultCharacter,
+      stats: { intelligence: 8, creativity: 6, perception: 7, wisdom: 5 }
+    });
+
+    const prompt = buildAdaptiveStoryPrompt({
+      character,
+      description: 'A challenging puzzle room',
+      dmAdaptations
+    });
+
+    expect(prompt).toContain('Difficulty Adjustment: +0.3');
+    expect(prompt).toContain('Narrative Direction: increasingly difficult');
+    expect(prompt).toContain('Challenge Level: Elevated');
+  });
+
+  it('should integrate narrative direction into story prompts', () => {
+    const dmAdaptations = {
+      difficultyAdjustment: 0,
+      narrativeDirection: 'character development focus',
+      moodChange: 'positive' as const,
+      personalityEvolution: ['Emphasize character growth'],
+      storyModifications: ['Focus on moral choices']
+    };
+
+    const prompt = buildAdaptiveStoryPrompt({
+      character: defaultCharacter,
+      description: 'A peaceful village',
+      dmAdaptations
+    });
+
+    expect(prompt).toContain('Narrative Direction: character development focus');
+    expect(prompt).toContain('Story Modifications: Focus on moral choices');
+    expect(prompt).toContain('Emphasize character growth');
+  });
+
+  it('should handle adaptive story generation with mock data', async () => {
+    const mockConfig = {
+      MOCK_STORY: true,
+      MOCK_STORY_TEXT: 'Adaptive story with DM adaptations',
+      TURN_BASED_MOCK_DATA: {
+        stories: {
+          1: 'Turn 1: The story begins with DM adaptations.',
+          2: 'Turn 2: The adventure continues with increased difficulty.',
+          3: 'Turn 3: The journey reaches its climax with character development.'
+        }
+      }
+    };
+    const mockStore = { character: defaultCharacter };
+
+    const dmAdaptations = {
+      difficultyAdjustment: 0.1,
+      narrativeDirection: 'balanced challenge',
+      moodChange: 'positive' as const,
+      personalityEvolution: ['Balanced approach'],
+      storyModifications: ['Maintain engagement']
+    };
+
+    const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
+
+    act(() => {
+      result.current.generateAdaptiveStory('A mysterious forest', dmAdaptations);
+    });
+
+    expect(result.current.isStoryLoading).toBe(true);
+
+    await waitFor(() => {
+      expect(result.current.isStoryLoading).toBe(false);
+    });
+
+    expect(result.current.story).toBe('Turn 1: The story begins with DM adaptations.');
+    expect(result.current.storyError).toBeNull();
+  });
+
+  it('should handle adaptive story generation API errors', async () => {
+    const mockConfig = {
+      MOCK_STORY: false,
+      MOCK_STORY_TEXT: '',
+      TURN_BASED_MOCK_DATA: {
+        stories: {}
+      }
+    };
+    const mockStore = { character: defaultCharacter };
+
+    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Adaptive API error'));
+
+    const dmAdaptations = {
+      difficultyAdjustment: 0.1,
+      narrativeDirection: 'test direction',
+      moodChange: 'neutral' as const,
+      personalityEvolution: [],
+      storyModifications: []
+    };
+
+    const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
+
+    act(() => {
+      result.current.generateAdaptiveStory('A test scene', dmAdaptations);
+    });
+
+    await waitFor(() => {
+      expect(result.current.isStoryLoading).toBe(false);
+    });
+
+    expect(result.current.storyError).toContain('Adaptive API error');
+    expect(result.current.story).toBeUndefined();
   });
 });

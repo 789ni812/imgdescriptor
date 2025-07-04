@@ -4,6 +4,13 @@ import { Character } from '@/lib/types/character';
 import { Choice, ChoiceOutcome } from '@/lib/types/character';
 import { DungeonMasterTemplate } from '@/lib/types/dungeonMaster';
 import { DMAdaptation } from '@/lib/types/dmAdaptation';
+// Debug logging utility
+const DEBUG = process.env.NODE_ENV === 'development';
+const debugLog = (component: string, action: string, data?: unknown) => {
+  if (DEBUG) {
+    console.log(`[${component}] ${action}`, data || '');
+  }
+};
 
 // Request body interface
 interface DMReflectionRequest {
@@ -132,6 +139,8 @@ async function generateDMReflection(prompt: string): Promise<string> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  debugLog('dm-reflection', 'POST request received');
+  
   // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -145,7 +154,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     let body: DMReflectionRequest;
     try {
       body = await request.json();
+      debugLog('dm-reflection', 'Request body parsed successfully', { 
+        hasCharacter: !!body.character,
+        currentTurn: body.currentTurn,
+        hasStory: !!body.generatedStory
+      });
     } catch {
+      debugLog('dm-reflection', 'Failed to parse request body');
       return NextResponse.json(
         { success: false, error: 'Invalid request body' },
         { status: 400, headers }
@@ -154,7 +169,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Validate required fields
     const fieldValidation = validateRequiredFields(body as unknown as Record<string, unknown>);
+    debugLog('dm-reflection', 'Field validation completed', { 
+      isValid: fieldValidation.isValid,
+      missingFields: fieldValidation.missingFields 
+    });
+    
     if (!fieldValidation.isValid) {
+      debugLog('dm-reflection', 'Field validation failed', { missingFields: fieldValidation.missingFields });
       return NextResponse.json(
         { 
           success: false, 
@@ -192,9 +213,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Build reflection prompt
     const prompt = buildDMReflectionPrompt(reflectionContext);
+    debugLog('dm-reflection', 'Reflection prompt built', { promptLength: prompt.length });
 
     // Generate DM reflection using LLM
+    debugLog('dm-reflection', 'Calling LLM for reflection');
     const llmResponse = await generateDMReflection(prompt);
+    debugLog('dm-reflection', 'LLM response received', { responseLength: llmResponse.length });
 
     // Parse the response
     let parsedResponse;

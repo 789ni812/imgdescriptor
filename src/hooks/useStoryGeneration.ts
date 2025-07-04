@@ -3,7 +3,16 @@ import { DEFAULT_STORY_GENERATION_PROMPT } from '@/lib/constants';
 import { MOCK_STORY, MOCK_STORY_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Character, StoryEntry, Choice } from '@/lib/types/character';
+import type { DMAdaptation } from '@/lib/types/dmAdaptation';
 import { v4 as uuidv4 } from 'uuid';
+
+// Debug logging utility
+const DEBUG = process.env.NODE_ENV === 'development';
+const debugLog = (component: string, action: string, data?: unknown) => {
+  if (DEBUG) {
+    console.log(`[${component}] ${action}`, data || '');
+  }
+};
 
 export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig }: {
   character: Character,
@@ -47,6 +56,83 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
   const contextPrompt = [
     goodVsBadContext,
     moralAlignmentContext,
+    `Turn: ${turn}`,
+    `Stats: ${statsString}`,
+    previousStoryContext,
+    description
+  ].filter(Boolean).join('\n\n');
+
+  return customPrompt
+    ? `${customPrompt}\n\n${contextPrompt}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${contextPrompt}`;
+}
+
+export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
+  character: Character,
+  description: string,
+  customPrompt?: string,
+  goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig,
+  dmAdaptations?: DMAdaptation['adaptations']
+}) {
+  const turn = character.currentTurn;
+  const stats = character.stats;
+  const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
+  const previousStories = character.storyHistory
+    .filter((s: StoryEntry) => s.turnNumber < turn)
+    .map((s: StoryEntry) => s.text)
+    .join('\n');
+  const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
+
+  // Inject GoodVsBad context if enabled
+  let goodVsBadContext = '';
+  if (goodVsBadConfig && goodVsBadConfig.isEnabled) {
+    goodVsBadContext = [
+      'Good vs Bad Dynamic:',
+      `Theme: ${goodVsBadConfig.theme}`,
+      `Hero: ${goodVsBadConfig.userRole}`,
+      `Villain: ${goodVsBadConfig.badRole}`,
+      `Villain Definition: ${goodVsBadConfig.badDefinition}`,
+      goodVsBadConfig.badProfilePicture ? `Villain Profile Picture: ${goodVsBadConfig.badProfilePicture}` : ''
+    ].filter(Boolean).join('\n');
+  }
+
+  // Add moral alignment context
+  const moralAlignmentContext = [
+    'Moral Alignment Context:',
+    `Alignment Level: ${character.moralAlignment.level}`,
+    `Moral Score: ${character.moralAlignment.score}`,
+    `Reputation: ${character.moralAlignment.reputation}`,
+    character.moralAlignment.recentChoices.length > 0 ? 
+      `Recent Moral Choices: ${character.moralAlignment.recentChoices.slice(0, 3).join(', ')}` : 
+      'No recent moral choices'
+  ].join('\n');
+
+  // Add DM adaptation context if provided
+  let dmAdaptationContext = '';
+  if (dmAdaptations) {
+    const difficultySign = dmAdaptations.difficultyAdjustment >= 0 ? '+' : '';
+    const challengeLevel = dmAdaptations.difficultyAdjustment > 0.2 ? 'Elevated' : 
+                          dmAdaptations.difficultyAdjustment < -0.2 ? 'Reduced' : 'Standard';
+    
+    dmAdaptationContext = [
+      'DM Adaptation Context:',
+      `Difficulty Adjustment: ${difficultySign}${dmAdaptations.difficultyAdjustment}`,
+      `Narrative Direction: ${dmAdaptations.narrativeDirection}`,
+      `DM Mood: ${dmAdaptations.moodChange}`,
+      `Challenge Level: ${challengeLevel}`,
+      dmAdaptations.personalityEvolution.length > 0 ? 
+        `DM Evolution: ${dmAdaptations.personalityEvolution.join(', ')}` : 
+        'No personality changes',
+      dmAdaptations.storyModifications.length > 0 ? 
+        `Story Modifications: ${dmAdaptations.storyModifications.join(', ')}` : 
+        'No story modifications'
+    ].filter(Boolean).join('\n');
+  }
+
+  const contextPrompt = [
+    goodVsBadContext,
+    moralAlignmentContext,
+    dmAdaptationContext,
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
     previousStoryContext,
@@ -172,7 +258,15 @@ export function useStoryGeneration(
   }, [storeFromHook]);
 
   const generateStory = async (description: string, customPrompt?: string) => {
+    debugLog('useStoryGeneration', 'Starting story generation', { 
+      descriptionLength: description.length, 
+      customPrompt: !!customPrompt,
+      mockMode: config.MOCK_STORY,
+      currentTurn: effectiveCharacter.currentTurn 
+    });
+    
     if (!description) {
+      debugLog('useStoryGeneration', 'No description provided');
       setStoryError('Cannot generate a story without a description.');
       return;
     }
@@ -226,6 +320,122 @@ export function useStoryGeneration(
       goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined
     });
 
+    debugLog('useStoryGeneration', 'Story prompt built', { 
+      promptLength: prompt.length,
+      hasGoodVsBadConfig: 'goodVsBadConfig' in store 
+    });
+
+    try {
+      debugLog('useStoryGeneration', 'Sending story generation API request');
+      const response = await fetch('/api/generate-story', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description, prompt }),
+      });
+
+      debugLog('useStoryGeneration', 'Story API response received', { 
+        status: response.status, 
+        ok: response.ok 
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        debugLog('useStoryGeneration', 'Story generation successful', { 
+          storyLength: data.story?.length || 0 
+        });
+        
+        setStory(data.story);
+        
+        // Add the story to character history
+        if (storeFromHook.addStory) {
+          const entry: StoryEntry = {
+            id: uuidv4(),
+            text: data.story,
+            timestamp: new Date().toISOString(),
+            turnNumber: effectiveCharacter.currentTurn,
+            imageDescription: description,
+          };
+          storeFromHook.addStory(entry);
+          debugLog('useStoryGeneration', 'Story added to character history', { 
+            turnNumber: effectiveCharacter.currentTurn 
+          });
+        }
+        
+        // Generate LLM-based choices after story
+        await generateLLMChoices(data.story, effectiveCharacter);
+      } else {
+        debugLog('useStoryGeneration', 'Story generation failed', { error: data.error });
+        setStoryError(data.error || 'An unknown error occurred while generating the story.');
+        setIsChoicesLoading(false);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setStoryError(`An unexpected error occurred: ${errorMessage}`);
+      setIsChoicesLoading(false);
+    } finally {
+      setIsStoryLoading(false);
+    }
+  };
+
+  const generateAdaptiveStory = async (description: string, dmAdaptations: DMAdaptation['adaptations'], customPrompt?: string) => {
+    if (!description) {
+      setStoryError('Cannot generate a story without a description.');
+      return;
+    }
+
+    setIsStoryLoading(true);
+    setStory(undefined);
+    setStoryError(null);
+    setIsChoicesLoading(true);
+
+    // Mock mode: instantly return mock story
+    if (config.MOCK_STORY) {
+      setTimeout(() => {
+        // Try to get turn-based mock data first
+        const turnBasedStory = config.TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.stories];
+        
+        // Use turn-based data if available, otherwise fall back to default
+        const mockStory = turnBasedStory || config.MOCK_STORY_TEXT;
+        
+        setStory(mockStory);
+        
+        // Add the story to character history
+        if (storeFromHook.addStory) {
+          const entry: StoryEntry = {
+            id: uuidv4(),
+            text: mockStory,
+            timestamp: new Date().toISOString(),
+            turnNumber: effectiveCharacter.currentTurn,
+            imageDescription: description,
+          };
+          storeFromHook.addStory(entry);
+        }
+        
+        // Generate choices after story (using static generation for mock mode)
+        const choices = generateChoicesFromStory(mockStory);
+        choices.forEach(choice => {
+          if (storeFromHook.addChoice) {
+            storeFromHook.addChoice(choice);
+          }
+        });
+        
+        setIsChoicesLoading(false);
+        setIsStoryLoading(false);
+      }, 300); // Simulate a short delay
+      return;
+    }
+
+    const prompt = buildAdaptiveStoryPrompt({ 
+      character: effectiveCharacter, 
+      description, 
+      customPrompt,
+      goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined,
+      dmAdaptations
+    });
+
     try {
       const response = await fetch('/api/generate-story', {
         method: 'POST',
@@ -255,7 +465,7 @@ export function useStoryGeneration(
         // Generate LLM-based choices after story
         await generateLLMChoices(data.story, effectiveCharacter);
       } else {
-        setStoryError(data.error || 'An unknown error occurred while generating the story.');
+        setStoryError(data.error || 'An unknown error occurred while generating the adaptive story.');
         setIsChoicesLoading(false);
       }
     } catch (err) {
@@ -315,5 +525,5 @@ export function useStoryGeneration(
     }
   };
 
-  return { story, isStoryLoading, storyError, generateStory, setStory, isChoicesLoading };
+  return { story, isStoryLoading, storyError, generateStory, generateAdaptiveStory, setStory, isChoicesLoading };
 } 

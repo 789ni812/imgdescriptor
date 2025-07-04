@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 
+
+
 interface GameSessionManagerProps {
   className?: string;
 }
@@ -115,6 +117,10 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
     if (imageCount < 3) return { status: 'In Progress', color: 'bg-yellow-100 text-yellow-800' };
     return { status: 'Ready for Final Story', color: 'bg-blue-100 text-blue-800' };
   };
+
+
+
+
 
   return (
     <div className={`space-y-4 ${className}`}>
