@@ -226,8 +226,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       parsedResponse = parseDMReflectionResponse(llmResponse);
     } catch (error) {
       console.error('Error parsing DM reflection response:', error);
+      console.error('Raw LLM response:', llmResponse);
       return NextResponse.json(
-        { success: false, error: 'Failed to parse DM reflection response' },
+        { success: false, error: 'Failed to parse DM reflection response. The AI did not return the expected format. Please check the LLM output and prompt instructions.', rawResponse: llmResponse },
         { status: 500, headers }
       );
     }

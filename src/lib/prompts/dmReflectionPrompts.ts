@@ -166,7 +166,22 @@ export function parseDMReflectionResponse(response: string): DMReflectionRespons
 
   // Validate that we have the required fields
   if (!reflection || !narrativeDirection) {
-    throw new Error('Invalid reflection response format');
+    console.warn('parseDMReflectionResponse: Invalid reflection response format. Returning fallback.');
+    return {
+      reflection: reflection || 'The Dungeon Master is momentarily silent, reflecting on the events... (No valid reflection returned by AI)',
+      adaptations: {
+        difficultyAdjustment: 0,
+        narrativeDirection: narrativeDirection || 'Continue the story as best as possible.',
+        moodChange,
+        personalityEvolution,
+        storyModifications: []
+      },
+      playerAssessment: {
+        engagement: 0,
+        understanding: 0,
+        satisfaction: 0
+      }
+    };
   }
 
   return {
