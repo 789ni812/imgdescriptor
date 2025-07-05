@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from './ui/card';
 
 interface CustomPromptInputProps {
   onPromptChange: (prompt: string) => void;
@@ -29,22 +30,24 @@ export const CustomPromptInput: React.FC<CustomPromptInputProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <label htmlFor="custom-prompt" className="block text-sm font-medium text-gray-700">
-        Custom Prompt
-      </label>
-      <textarea
-        id="custom-prompt"
-        name="custom-prompt"
-        value={localValue}
-        onChange={handleChange}
-        disabled={disabled}
-        placeholder="Describe this image in detail."
-        className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-          disabled ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''
-        }`}
-        rows={3}
-      />
-    </div>
+    <Card>
+      <CardContent className="p-4 space-y-2">
+        <label htmlFor="custom-prompt" className="block text-sm font-medium text-card-foreground">
+          Custom Prompt
+        </label>
+        <textarea
+          id="custom-prompt"
+          name="custom-prompt"
+          value={localValue}
+          onChange={handleChange}
+          disabled={disabled}
+          placeholder="Describe this image in detail."
+          className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground border-border placeholder-muted-foreground ${
+            disabled ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
+          }`}
+          rows={3}
+        />
+      </CardContent>
+    </Card>
   );
 }; 

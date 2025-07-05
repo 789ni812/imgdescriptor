@@ -683,9 +683,10 @@ describe('TemplateManager', () => {
   });
 
   it('should propagate story length and summary changes to config/template state', async () => {
+    const mockUpdateTemplate = jest.fn();
     mockUseTemplateStore.mockReturnValue({
       ...mockTemplateStore,
-      updateTemplate: jest.fn(),
+      updateTemplate: mockUpdateTemplate,
     });
     render(<TemplateManager />);
     openAccordion();
@@ -702,7 +703,7 @@ describe('TemplateManager', () => {
     // Save
     fireEvent.click(screen.getByTestId('save-template-btn'));
     await waitFor(() => {
-      expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockUpdateTemplate).toHaveBeenCalledWith(expect.objectContaining({
         debugConfig: expect.objectContaining({
           storyLength: 'long',
           storyLengthCustom: 777,

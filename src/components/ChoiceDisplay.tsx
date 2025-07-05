@@ -24,9 +24,9 @@ export function ChoiceDisplay({ choices = [], outcomes = [], className = '', isL
 
   const renderStatChange = (stat: string, value: number) => {
     const sign = value > 0 ? '+' : '';
-    const color = value > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    const variant = value > 0 ? 'default' as const : 'destructive' as const;
     return (
-      <Badge key={stat} className={`${color} mr-2`}>
+      <Badge key={stat} variant={variant} className="mr-2">
         {stat} {sign}{value}
       </Badge>
     );

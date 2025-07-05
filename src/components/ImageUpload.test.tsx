@@ -56,7 +56,7 @@ describe('ImageUpload Component', () => {
     expect(icon).toBeInTheDocument();
 
     if (icon) {
-      expect(icon).toHaveClass('w-full', 'h-full', 'text-gray-400', 'heroicon-stroke-1');
+      expect(icon).toHaveClass('w-full', 'h-full', 'text-muted-foreground');
       const wrapper = icon.parentElement;
       expect(wrapper).toHaveStyle('width: 50px');
       expect(wrapper).toHaveStyle('height: 50px');

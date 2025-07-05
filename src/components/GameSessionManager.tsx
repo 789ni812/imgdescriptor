@@ -8,8 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 
-
-
 interface GameSessionManagerProps {
   className?: string;
 }
@@ -112,15 +110,11 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
     const imageCount = template.images.length;
     const hasFinalStory = !!template.finalStory;
     
-    if (hasFinalStory) return { status: 'Complete', color: 'bg-green-100 text-green-800' };
-    if (imageCount === 0) return { status: 'New', color: 'bg-zinc-800 text-gray-100' };
-    if (imageCount < 3) return { status: 'In Progress', color: 'bg-yellow-100 text-yellow-800' };
-    return { status: 'Ready for Final Story', color: 'bg-blue-100 text-blue-800' };
+    if (hasFinalStory) return { status: 'Complete', variant: 'default' as const };
+    if (imageCount === 0) return { status: 'New', variant: 'secondary' as const };
+    if (imageCount < 3) return { status: 'In Progress', variant: 'outline' as const };
+    return { status: 'Ready for Final Story', variant: 'default' as const };
   };
-
-
-
-
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -128,11 +122,11 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             <span>Game Session Manager</span>
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               <Button
                 onClick={() => setShowSaveForm(true)}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="default"
               >
                 Save Session
               </Button>
@@ -149,35 +143,37 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
         <CardContent>
           {/* Save Form */}
           {showSaveForm && (
-            <div className="mb-4 p-4 border rounded-lg bg-zinc-900">
-              <h4 className="font-semibold mb-2">Save Current Session</h4>
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  value={sessionName}
-                  onChange={(e) => setSessionName(e.target.value)}
-                  placeholder="Enter session name"
-                  className="w-full p-2 border rounded bg-zinc-800 text-white border-zinc-700 placeholder-gray-400"
-                />
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={handleSaveGameSession}
-                    disabled={!sessionName.trim()}
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Save Game Session
-                  </Button>
-                  <Button
-                    onClick={() => setShowSaveForm(false)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Cancel
-                  </Button>
+            <Card className="mb-4">
+              <CardContent className="p-4">
+                <h4 className="font-semibold mb-2 text-card-foreground">Save Current Session</h4>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={sessionName}
+                    onChange={(e) => setSessionName(e.target.value)}
+                    placeholder="Enter session name"
+                    className="w-full p-2 border rounded bg-background text-foreground border-border placeholder-muted-foreground"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleSaveGameSession}
+                      disabled={!sessionName.trim()}
+                      size="sm"
+                      variant="default"
+                    >
+                      Save Game Session
+                    </Button>
+                    <Button
+                      onClick={() => setShowSaveForm(false)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Load Options */}
@@ -185,42 +181,43 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
             <div className="space-y-4">
               {/* Game Sessions */}
               <div>
-                <h4 className="font-semibold mb-2">Game Sessions ({gameSessions.length})</h4>
+                <h4 className="font-semibold mb-2 text-card-foreground">Game Sessions ({gameSessions.length})</h4>
                 {gameSessions.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No saved game sessions</p>
+                  <p className="text-muted-foreground text-sm">No saved game sessions</p>
                 ) : (
                   <div className="space-y-2">
                     {gameSessions.map((template) => {
                       const status = getSessionStatus(template as GameTemplate);
                       return (
-                        <div
-                          key={template.id}
-                          className="flex justify-between items-center p-2 border rounded hover:bg-zinc-800"
-                        >
-                          <div>
-                            <div className="font-medium">{template.name}</div>
-                            <div className="text-sm text-gray-500">
-                              {formatDate(template.createdAt)} • {(template as GameTemplate).images.length} images
+                        <Card key={template.id} className="hover:bg-muted/50 transition-colors">
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <div className="font-medium text-card-foreground">{template.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {formatDate(template.createdAt)} • {(template as GameTemplate).images.length} images
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={status.variant}>{status.status}</Badge>
+                                <Button
+                                  onClick={() => handleLoadGameSession(template as GameTemplate)}
+                                  size="sm"
+                                  variant="outline"
+                                >
+                                  Load
+                                </Button>
+                                <Button
+                                  onClick={() => deleteTemplate(template.id)}
+                                  size="sm"
+                                  variant="destructive"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className={status.color}>{status.status}</Badge>
-                            <Button
-                              onClick={() => handleLoadGameSession(template as GameTemplate)}
-                              size="sm"
-                              variant="outline"
-                            >
-                              Load
-                            </Button>
-                            <Button
-                              onClick={() => deleteTemplate(template.id)}
-                              size="sm"
-                              variant="destructive"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
+                          </CardContent>
+                        </Card>
                       );
                     })}
                   </div>
@@ -230,17 +227,19 @@ const GameSessionManager: React.FC<GameSessionManagerProps> = ({ className }) =>
           )}
 
           {/* Current Session Info */}
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <h4 className="font-semibold mb-2">Current Session</h4>
-            <div className="text-sm space-y-1">
-              <div>Turn: {character.currentTurn}</div>
-              <div>Images: {character.imageHistory.length}</div>
-              <div>Character: {character.persona}</div>
-              {selectedPersonality && (
-                <div>DM Style: {selectedPersonality?.style}</div>
-              )}
-            </div>
-          </div>
+          <Card className="mt-4">
+            <CardContent className="p-4">
+              <h4 className="font-semibold mb-2 text-card-foreground">Current Session</h4>
+              <div className="text-sm space-y-1 text-muted-foreground">
+                <div>Turn: {character.currentTurn}</div>
+                <div>Images: {character.imageHistory.length}</div>
+                <div>Character: {character.persona}</div>
+                {selectedPersonality && (
+                  <div>DM Style: {selectedPersonality?.style}</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </div>

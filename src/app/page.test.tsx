@@ -78,7 +78,7 @@ describe('Home Page', () => {
   it('should render a main content container with correct layout classes', () => {
     render(<Home />);
     const container = screen.getByTestId('main-content-container');
-    expect(container).toHaveClass('max-w-7xl', 'mx-auto', 'p-4', 'sm:p-6', 'lg:p-8');
+    expect(container).toHaveClass('container', 'mx-auto', 'px-4', 'py-8');
   });
 
   it('should implement a vertical card layout with TurnCard components', () => {

@@ -33,11 +33,11 @@ describe('Header Component', () => {
     const headerElement = screen.getByTestId('header');
     
     // Check for container and layout classes
-    expect(headerElement).toHaveClass('w-full', 'bg-white', 'shadow-md', 'border-b', 'border-gray-200');
+    expect(headerElement).toHaveClass('w-full', 'bg-background', 'shadow-md', 'border-b', 'border-border');
 
     // Check for inner container with padding
     const innerContainer = headerElement.querySelector('div');
-    expect(innerContainer).toHaveClass('max-w-7xl', 'mx-auto', 'px-4', 'sm:px-6', 'lg:px-8');
+    expect(innerContainer).toHaveClass('container', 'mx-auto', 'px-4');
 
     // Check for flex layout to align items
     const flexContainer = innerContainer?.querySelector('div');
@@ -47,7 +47,7 @@ describe('Header Component', () => {
   it('renders with SaaS theme: white bg, blue text, Inter font, stat icons, and shadow', () => {
     render(<Header />);
     const headerElement = screen.getByTestId('header');
-    expect(headerElement).toHaveClass('bg-white', 'shadow-md');
+    expect(headerElement).toHaveClass('bg-background', 'shadow-md');
     const titleElement = screen.getByRole('heading', { name: /ai image describer/i });
     expect(titleElement).toHaveClass('text-primary', 'font-bold', 'font-sans');
     // Stat icons (e.g., heart, dice) should be present

@@ -6,8 +6,8 @@ describe('DMConfigSection', () => {
   it('renders as a SaaS card: white bg, rounded, shadow, blue heading, modern inputs, and GoodVsBadConfig', () => {
     render(<DMConfigSection />);
     const card = screen.getByRole('region', { name: /dungeon master config/i });
-    expect(card).toHaveClass('bg-card', 'dark:bg-slate-900', 'rounded-xl', 'shadow-md', 'border', 'border-gray-200', 'dark:border-gray-700');
-    const heading = screen.getByRole('heading', { name: /dungeon master config/i });
+    expect(card).toHaveClass('bg-card', 'text-card-foreground', 'rounded-xl', 'border', 'shadow-sm');
+    const heading = screen.getByText('Dungeon Master Config');
     expect(heading).toHaveClass('text-primary', 'font-bold');
     // Only check DM config section's own inputs (not GoodVsBadConfig)
     const dmInputs = screen.getAllByRole('textbox').filter(input => {
@@ -15,7 +15,7 @@ describe('DMConfigSection', () => {
       return ph !== 'e.g., good, light, hero' && ph !== 'e.g., bad, dark, villain' && ph !== "Describe what the 'bad' force represents in your game...";
     });
     dmInputs.forEach(input => {
-      expect(input).toHaveClass('bg-white', 'text-slate-800', 'border', 'border-gray-200', 'rounded-md');
+      expect(input).toHaveClass('bg-background', 'text-foreground', 'border', 'border-border', 'rounded-md');
     });
     // GoodVsBadConfig child present
     expect(screen.getByTestId('good-vs-bad-config')).toBeInTheDocument();

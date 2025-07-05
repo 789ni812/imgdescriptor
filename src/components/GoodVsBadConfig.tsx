@@ -85,9 +85,9 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
               id="enable-good-vs-bad"
               checked={config.isEnabled}
               onChange={(e) => handleToggleChange(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-ring focus:ring-2"
             />
-            <label htmlFor="enable-good-vs-bad" className="text-sm font-medium">
+            <label htmlFor="enable-good-vs-bad" className="text-sm font-medium text-card-foreground">
               Enable Good vs Bad Dynamic
             </label>
           </div>
@@ -96,7 +96,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
       <CardContent className="space-y-4">
         {/* Theme Selection */}
         <div>
-          <label htmlFor="theme" className="block text-sm font-medium mb-2">
+          <label htmlFor="theme" className="block text-sm font-medium mb-2 text-card-foreground">
             Theme
           </label>
           <select
@@ -104,7 +104,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
             value={config.theme}
             onChange={(e) => handleFieldChange('theme', e.target.value as GoodVsBadTheme)}
             disabled={!config.isEnabled}
-            className="w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full p-2 border rounded-md bg-background text-foreground border-border placeholder-muted-foreground disabled:bg-muted disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
           >
             {themes.map((theme) => (
               <option key={theme.value} value={theme.value}>
@@ -117,7 +117,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
         {/* Role Definitions */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="userRole" className="block text-sm font-medium mb-2">
+            <label htmlFor="userRole" className="block text-sm font-medium mb-2 text-card-foreground">
               Your Role
             </label>
             <input
@@ -126,12 +126,12 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
               value={config.userRole}
               onChange={(e) => handleFieldChange('userRole', e.target.value)}
               disabled={!config.isEnabled}
-              className="w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full p-2 border rounded-md bg-background text-foreground border-border placeholder-muted-foreground disabled:bg-muted disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
               placeholder="e.g., good, light, hero"
             />
           </div>
           <div>
-            <label htmlFor="badRole" className="block text-sm font-medium mb-2">
+            <label htmlFor="badRole" className="block text-sm font-medium mb-2 text-card-foreground">
               Bad Role
             </label>
             <input
@@ -140,7 +140,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
               value={config.badRole}
               onChange={(e) => handleFieldChange('badRole', e.target.value)}
               disabled={!config.isEnabled}
-              className="w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full p-2 border rounded-md bg-background text-foreground border-border placeholder-muted-foreground disabled:bg-muted disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
               placeholder="e.g., bad, dark, villain"
             />
           </div>
@@ -148,7 +148,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
 
         {/* Bad Profile Picture */}
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-sm font-medium mb-2 text-card-foreground">
             Bad Profile Picture
           </label>
           {config.badProfilePicture ? (
@@ -170,7 +170,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
               </Button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+            <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
               <input
                 type="file"
                 id="bad-profile-upload"
@@ -185,17 +185,17 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                   !config.isEnabled || isUploading ? 'cursor-not-allowed opacity-50' : ''
                 }`}
               >
-                                 {isUploading ? (
-                   <div className="flex items-center justify-center gap-2">
-                     <LoadingSpinner className="w-4 h-4" />
-                     <span>Uploading...</span>
-                   </div>
+                {isUploading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <LoadingSpinner className="w-4 h-4" />
+                    <span>Uploading...</span>
+                  </div>
                 ) : (
                   <div>
-                    <span className="text-blue-600 hover:text-blue-800">
+                    <span className="text-primary hover:text-primary/80">
                       Upload Bad Profile Picture
                     </span>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       Choose an image to represent the &quot;bad&quot; force
                     </p>
                   </div>
@@ -208,7 +208,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
 
         {/* Bad Definition */}
         <div>
-          <label htmlFor="badDefinition" className="block text-sm font-medium mb-2">
+          <label htmlFor="badDefinition" className="block text-sm font-medium mb-2 text-card-foreground">
             Define &quot;Bad&quot;
           </label>
           <textarea
@@ -218,7 +218,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
             onBlur={handleBadDefinitionBlur}
             disabled={!config.isEnabled}
             rows={3}
-            className="w-full p-2 border border-gray-300 rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full p-2 border rounded-md bg-background text-foreground border-border placeholder-muted-foreground disabled:bg-muted disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
             placeholder="Describe what the &apos;bad&apos; force represents in your game..."
           />
           {validationError && <ErrorMessage message={validationError} />}
@@ -226,8 +226,8 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
 
         {/* Help Text */}
         {config.isEnabled && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800">
+          <div className="bg-muted border border-border rounded-lg p-3">
+            <p className="text-sm text-muted-foreground">
               <strong>How this works:</strong> The Dungeon Master will use your &quot;Bad&quot; definition and profile picture 
               to create a compelling antagonist or opposing force in your story. This adds depth and conflict to your adventure.
             </p>

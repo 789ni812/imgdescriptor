@@ -21,7 +21,7 @@ describe('Footer Component', () => {
     const footerElement = screen.getByTestId('footer');
     
     // Check for container and layout classes
-    expect(footerElement).toHaveClass('w-full', 'bg-gray-800', 'shadow-md-top');
+    expect(footerElement).toHaveClass('w-full', 'bg-card', 'shadow-md-top');
 
     // Check for inner container with padding
     const innerContainer = footerElement.querySelector('div');
@@ -37,6 +37,6 @@ describe('Footer Component', () => {
     const footerElement = screen.getByTestId('footer');
     // Check for Tailwind border classes
     expect(footerElement.className).toMatch(/border-t(-[0-9]+)?/);
-    expect(footerElement.className).toMatch(/border-white/);
+    expect(footerElement.className).toMatch(/border-border/);
   });
 }); 

@@ -16,10 +16,10 @@ const CharacterStats: React.FC<CharacterStatsProps> = ({ className = '' }) => {
   return (
     <div 
       data-testid="character-stats" 
-      className={`flex items-center gap-4 text-sm text-gray-600 ${className}`}
+      className={`flex items-center gap-4 text-sm text-muted-foreground ${className}`}
     >
       {/* Character Name */}
-      <div className="font-semibold text-gray-800">
+      <div className="font-semibold text-foreground">
         {character.name || 'Adventurer'}
       </div>
 

@@ -11,7 +11,7 @@ export const DescriptionDisplay: React.FC<DescriptionDisplayProps> = ({ descript
           <CardTitle>Error</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-red-600" data-testid="error-message">{error}</p>
+          <p className="text-destructive" data-testid="error-message">{error}</p>
         </CardContent>
       </Card>
     );
@@ -24,9 +24,9 @@ export const DescriptionDisplay: React.FC<DescriptionDisplayProps> = ({ descript
       </CardHeader>
       <CardContent>
         {description ? (
-          <MarkdownRenderer content={description} className="text-gray-800 leading-relaxed" />
+          <MarkdownRenderer content={description} className="text-card-foreground leading-relaxed" />
         ) : (
-          <p className="text-gray-400">Description will appear here...</p>
+          <p className="text-muted-foreground">Description will appear here...</p>
         )}
       </CardContent>
     </Card>

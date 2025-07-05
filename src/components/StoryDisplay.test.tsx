@@ -22,7 +22,10 @@ const renderComponent = (props: RenderProps = {}) => {
 describe('StoryDisplay', () => {
   it('should render nothing when no data is provided', () => {
     const { container } = renderComponent();
-    expect(container.firstChild).toBeEmptyDOMElement();
+    // After migration, CardContent is always present, so check for empty content
+    const cardContent = container.querySelector('[data-slot="card-content"]') || container.querySelector('.p-6');
+    expect(cardContent).toBeTruthy();
+    expect(cardContent).toBeEmptyDOMElement();
   });
 
   it('should render the story when provided', () => {

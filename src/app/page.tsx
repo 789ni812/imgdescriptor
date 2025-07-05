@@ -286,12 +286,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <main>
-        <div 
-          data-testid="main-content-container"
-          className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
-        >
+        <section className="container mx-auto px-4 py-8" data-testid="main-content-container">
           {/* Turn Indicator */}
           <div className="mb-8 flex justify-center">
             <h1 className="text-4xl font-extrabold text-primary drop-shadow-lg" data-testid="turn-indicator">
@@ -303,7 +300,7 @@ export default function Home() {
           <div className="mb-6">
             <TemplateManager />
           </div>
-          
+
           {/* Reset Game Button */}
           {character.currentTurn > 1 && (
             <div className="mb-4">
@@ -313,81 +310,54 @@ export default function Home() {
             </div>
           )}
 
-          {/* Image Upload Section - Only visible if no image is uploaded for the current turn, not generating description, and not past turn 3 */}
+          {/* Image Upload Section */}
           {(!imageForCurrentTurn && !isDescriptionLoading && character.currentTurn <= 3) && (
-            <div className="mb-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <ImageUpload 
-                      onImageSelect={handleImageSelect} 
-                      disabled={isTurnLimitReached}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mb-8">
+              <CardContent className="p-6">
+                <ImageUpload onImageSelect={handleImageSelect} disabled={isTurnLimitReached} />
+              </CardContent>
+            </Card>
           )}
-          {/* Image Preview Section - Only visible if image is uploaded and before story/choices are generated */}
+
+          {/* Image Preview Section */}
           {(imageUrl && !description && !isTurnLimitReached) && (
-            <div className="mb-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mb-8">
+              <CardContent className="p-6">
+                <ImagePreview imageUrl={imageUrl} onRemove={handleReset} />
+              </CardContent>
+            </Card>
           )}
 
-          {/* Generate Story Controls - Only show if latest image has description, not generating description, no story yet, and not generating story */}
+          {/* Generate Story Controls */}
           {latestImageEntry && latestImageEntry.description && !isDescriptionLoading && !storyEntry && !isStoryLoading && !descriptionError && (
-            <div className="mb-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">Generate Story</h3>
-                    <CustomPromptInput 
-                      onPromptChange={setCustomStoryPrompt}
-                      value={customStoryPrompt}
-                    />
-                    <div className="flex space-x-4">
-                      <Button 
-                        onClick={handleGenerateStoryWithDefaultPrompt} 
-                        disabled={isStoryLoading}
-                        className="flex-1"
-                      >
-                        {isStoryLoading ? 'Generating...' : 'Default Prompt'}
-                      </Button>
-                      <Button 
-                        onClick={handleGenerateStoryWithCustomPrompt} 
-                        disabled={isStoryLoading}
-                        className="flex-1"
-                      >
-                        {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold">Generate Story</h3>
+                <CustomPromptInput onPromptChange={setCustomStoryPrompt} value={customStoryPrompt} />
+                <div className="flex space-x-4 mt-4">
+                  <Button onClick={handleGenerateStoryWithDefaultPrompt} disabled={isStoryLoading} className="flex-1">
+                    {isStoryLoading ? 'Generating...' : 'Default Prompt'}
+                  </Button>
+                  <Button onClick={handleGenerateStoryWithCustomPrompt} disabled={isStoryLoading} className="flex-1">
+                    {isStoryLoading ? 'Generating...' : 'Custom Prompt'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* Choices Controls - Only show if story exists for latest turn, no choices yet, and not generating choices */}
+          {/* Choices Controls */}
           {storyEntry && storyEntry.text && !choiceOutcome && !isChoicesLoading && (
-            <div className="mb-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">Choices</h3>
-                    <div className="text-gray-300">Choices will appear here after story generation.</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mb-8">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold">Choices</h3>
+                <div className="text-muted-foreground">Choices will appear here after story generation.</div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* Turn Cards - Only display up to 3 turns */}
-          <div className="space-y-6">
+          {/* Turn Cards */}
+          <section className="space-y-6">
             {Array.from({ length: Math.min(character.currentTurn, 3) }, (_, i) => i + 1).reverse().map(turnNumber => {
               const turnChoices = character.choicesHistory?.find(entry => entry.turn === turnNumber)?.choices || [];
               const turnCardProps = {
@@ -397,79 +367,61 @@ export default function Home() {
                 onSelectChoice: handleChoiceSelect,
               };
               return (
-                <TurnCard
-                  key={turnNumber}
-                  {...turnCardProps}
-                />
+                <TurnCard key={turnNumber} {...turnCardProps} />
               );
             })}
-          </div>
+          </section>
 
-          {/* Turns Over message if all turns are complete */}
+          {/* Turns Over message */}
           {character.currentTurn > 3 && (
             <div className="mt-8 text-center text-2xl font-bold text-green-400">Turns Over</div>
           )}
 
-          {/* Final Story Generation - only show if all 3 turns have images and stories, and not already generated */}
+          {/* Final Story Generation */}
           {allTurnsHaveImages && allTurnsHaveStories && !finalStory && (
-            <div className="mt-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">Complete Your Adventure</h3>
-                    <p className="text-sm text-gray-300">
-                      Generate a final cohesive story that ties together all three turns of your adventure.
-                    </p>
-                    <Button 
-                      onClick={handleGenerateFinalStory}
-                      className="w-full"
-                      size="lg"
-                      disabled={isFinalStoryLoading}
-                    >
-                      {isFinalStoryLoading ? 'Generating...' : 'Generate Final Story'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mt-8">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold">Complete Your Adventure</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Generate a final cohesive story that ties together all three turns of your adventure.
+                </p>
+                <Button onClick={handleGenerateFinalStory} className="w-full" size="lg" disabled={isFinalStoryLoading}>
+                  {isFinalStoryLoading ? 'Generating...' : 'Generate Final Story'}
+                </Button>
+              </CardContent>
+            </Card>
           )}
 
           {/* Final Story Loading Indicator */}
           {isFinalStoryLoading && (
-            <div className="mt-8">
-              <Card className="w-full max-w-md mx-auto">
-                <CardContent className="p-6 flex items-center justify-center">
-                  <span className="text-primary text-lg font-semibold">Generating your final story...</span>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mt-8">
+              <CardContent className="p-6 flex items-center justify-center">
+                <span className="text-primary text-lg font-semibold">Generating your final story...</span>
+              </CardContent>
+            </Card>
           )}
 
           {/* Final Story Error */}
           {finalStoryError && (
-            <div className="mt-8">
-              <Card className="w-full max-w-md mx-auto border-red-500">
-                <CardContent className="p-6">
-                  <span className="text-red-400 font-semibold">{finalStoryError}</span>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-md mx-auto mt-8 border-destructive">
+              <CardContent className="p-6">
+                <span className="text-destructive font-semibold">{finalStoryError}</span>
+              </CardContent>
+            </Card>
           )}
 
           {/* Final Story Display */}
           {finalStory && (
-            <div className="mt-8">
-              <Card className="w-full max-w-4xl mx-auto">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-2" role="heading">Final Story</h2>
-                  <div className="prose prose-invert max-w-none">
-                    <div data-testid="final-story-markdown">{finalStory}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="w-full max-w-4xl mx-auto mt-8">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold mb-2" role="heading">Final Story</h2>
+                <div className="prose prose-invert max-w-none">
+                  <div data-testid="final-story-markdown">{finalStory}</div>
+                </div>
+              </CardContent>
+            </Card>
           )}
-        </div>
+        </section>
       </main>
     </div>
   );

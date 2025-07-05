@@ -6,14 +6,14 @@ import { Badge } from '@/components/ui/badge';
 export const CharacterStats: React.FC = () => {
   const { character } = useCharacterStore();
 
-  const getAlignmentColor = (level: string) => {
+  const getAlignmentVariant = (level: string) => {
     switch (level) {
-      case 'evil': return 'bg-red-900 text-red-100';
-      case 'villainous': return 'bg-red-700 text-red-100';
-      case 'neutral': return 'bg-gray-600 text-gray-100';
-      case 'good': return 'bg-green-700 text-green-100';
-      case 'heroic': return 'bg-green-900 text-green-100';
-      default: return 'bg-gray-600 text-gray-100';
+      case 'evil': return 'destructive' as const;
+      case 'villainous': return 'destructive' as const;
+      case 'neutral': return 'secondary' as const;
+      case 'good': return 'default' as const;
+      case 'heroic': return 'default' as const;
+      default: return 'secondary' as const;
     }
   };
 
@@ -31,7 +31,7 @@ export const CharacterStats: React.FC = () => {
   const getScoreColor = (score: number) => {
     if (score >= 60) return 'text-green-500';
     if (score >= 20) return 'text-green-400';
-    if (score >= -20) return 'text-gray-400';
+    if (score >= -20) return 'text-muted-foreground';
     if (score >= -60) return 'text-red-400';
     return 'text-red-500';
   };
@@ -46,20 +46,20 @@ export const CharacterStats: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium">Intelligence</p>
-              <p className="text-2xl font-bold">{character.stats.intelligence}</p>
+              <p className="text-sm font-medium text-card-foreground">Intelligence</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.stats.intelligence}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Creativity</p>
-              <p className="text-2xl font-bold">{character.stats.creativity}</p>
+              <p className="text-sm font-medium text-card-foreground">Creativity</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.stats.creativity}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Perception</p>
-              <p className="text-2xl font-bold">{character.stats.perception}</p>
+              <p className="text-sm font-medium text-card-foreground">Perception</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.stats.perception}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Wisdom</p>
-              <p className="text-2xl font-bold">{character.stats.wisdom}</p>
+              <p className="text-sm font-medium text-card-foreground">Wisdom</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.stats.wisdom}</p>
             </div>
           </div>
         </CardContent>
@@ -73,11 +73,11 @@ export const CharacterStats: React.FC = () => {
         <CardContent className="space-y-4">
           {/* Alignment Level */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <span className="text-2xl">{getAlignmentIcon(character.moralAlignment.level)}</span>
               <div>
-                <p className="font-medium">Alignment</p>
-                <Badge className={getAlignmentColor(character.moralAlignment.level)}>
+                <p className="font-medium text-card-foreground">Alignment</p>
+                <Badge variant={getAlignmentVariant(character.moralAlignment.level)}>
                   {character.moralAlignment.level.charAt(0).toUpperCase() + character.moralAlignment.level.slice(1)}
                 </Badge>
               </div>
@@ -92,19 +92,19 @@ export const CharacterStats: React.FC = () => {
 
           {/* Reputation */}
           <div>
-            <p className="text-sm font-medium mb-1">Reputation</p>
+            <p className="text-sm font-medium mb-1 text-card-foreground">Reputation</p>
             <p className="text-sm text-muted-foreground">{character.moralAlignment.reputation}</p>
           </div>
 
           {/* Recent Choices */}
           {character.moralAlignment.recentChoices.length > 0 && (
             <div>
-              <p className="text-sm font-medium mb-2">Recent Choices</p>
+              <p className="text-sm font-medium mb-2 text-card-foreground">Recent Choices</p>
               <div className="space-y-1">
                 {character.moralAlignment.recentChoices.slice(0, 3).map((choice, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs">{choice}</span>
+                    <span className="text-xs text-muted-foreground">{choice}</span>
                   </div>
                 ))}
               </div>
@@ -113,10 +113,10 @@ export const CharacterStats: React.FC = () => {
 
           {/* Alignment Bar */}
           <div>
-            <p className="text-sm font-medium mb-2">Alignment Progress</p>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <p className="text-sm font-medium mb-2 text-card-foreground">Alignment Progress</p>
+            <div className="w-full bg-muted rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-red-500 via-gray-400 to-green-500 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-red-500 via-muted-foreground to-green-500 h-2 rounded-full transition-all duration-300"
                 style={{ 
                   width: `${Math.abs(character.moralAlignment.score)}%`,
                   marginLeft: character.moralAlignment.score < 0 ? 'auto' : '0',
@@ -141,20 +141,20 @@ export const CharacterStats: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium">Level</p>
-              <p className="text-2xl font-bold">{character.level}</p>
+              <p className="text-sm font-medium text-card-foreground">Level</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.level}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Experience</p>
-              <p className="text-2xl font-bold">{character.experience}</p>
+              <p className="text-sm font-medium text-card-foreground">Experience</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.experience}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Health</p>
-              <p className="text-2xl font-bold">{character.health}</p>
+              <p className="text-sm font-medium text-card-foreground">Health</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.health}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Age</p>
-              <p className="text-2xl font-bold">{character.age}</p>
+              <p className="text-sm font-medium text-card-foreground">Age</p>
+              <p className="text-2xl font-bold text-card-foreground">{character.age}</p>
             </div>
           </div>
         </CardContent>

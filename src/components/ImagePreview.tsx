@@ -8,7 +8,7 @@ import { Card, CardContent } from './ui/card';
 const PlaceholderIcon = () => (
   <svg
     data-testid="placeholder-icon"
-    className="w-12 h-12 mb-2 text-gray-300"
+    className="w-12 h-12 mb-2 text-muted-foreground"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.5"
@@ -50,7 +50,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <PlaceholderIcon />
             <p className="text-base font-medium">Upload an image to see preview</p>
           </div>
