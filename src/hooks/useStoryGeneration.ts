@@ -14,11 +14,12 @@ const debugLog = (component: string, action: string, data?: unknown) => {
   }
 };
 
-export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig }: {
+export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig, debugConfig }: {
   character: Character,
   description: string,
   customPrompt?: string,
-  goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig
+  goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig,
+  debugConfig?: import('@/lib/types/template').GameTemplate['debugConfig']
 }) {
   const turn = character.currentTurn;
   const stats = character.stats;
@@ -53,6 +54,19 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
       'No recent moral choices'
   ].join('\n');
 
+  // Add story length instruction if debugConfig is present
+  let storyLengthInstruction = '';
+  if (debugConfig) {
+    if (debugConfig.storyLengthCustom) {
+      storyLengthInstruction += `\n\n[DEBUG] Write a story segment of ${debugConfig.storyLengthCustom} tokens or words.`;
+    } else if (debugConfig.storyLength) {
+      storyLengthInstruction += `\n\n[DEBUG] Write a ${debugConfig.storyLength} story segment.`;
+    }
+    if (debugConfig.summaryEnabled) {
+      storyLengthInstruction += `\n\nAfter the story, provide a bullet list summary of all changes and the reasons for each change. Format: '- [change], Reason: [reason]'`;
+    }
+  }
+
   const contextPrompt = [
     goodVsBadContext,
     moralAlignmentContext,
@@ -63,8 +77,8 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
   ].filter(Boolean).join('\n\n');
 
   return customPrompt
-    ? `${customPrompt}\n\n${contextPrompt}`
-    : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${contextPrompt}`;
+    ? `${customPrompt}${storyLengthInstruction}\n\n${contextPrompt}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${contextPrompt}`;
 }
 
 export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
@@ -235,7 +249,8 @@ function generateChoicesFromStory(story: string): Choice[] {
 
 export function useStoryGeneration(
   configOverride?: ConfigDependencies,
-  storeOverride?: StoreDependencies
+  storeOverride?: StoreDependencies,
+  debugConfigOverride?: import('@/lib/types/template').GameTemplate['debugConfig']
 ) {
   const [story, setStoryState] = useState<string | undefined>(undefined);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
@@ -317,7 +332,8 @@ export function useStoryGeneration(
       character: effectiveCharacter, 
       description, 
       customPrompt,
-      goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined
+      goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined,
+      debugConfig: debugConfigOverride
     });
 
     debugLog('useStoryGeneration', 'Story prompt built', { 
@@ -332,7 +348,7 @@ export function useStoryGeneration(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ description, prompt }),
+        body: JSON.stringify({ description, prompt, debugConfig: debugConfigOverride }),
       });
 
       debugLog('useStoryGeneration', 'Story API response received', { 
@@ -363,9 +379,49 @@ export function useStoryGeneration(
             turnNumber: effectiveCharacter.currentTurn 
           });
         }
+
+        // --- DM Reflection Integration ---
+        let dmReflection = '';
+        try {
+          const dmReflectionRes = await fetch('/api/dm-reflection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              character: effectiveCharacter,
+              currentTurn: effectiveCharacter.currentTurn,
+              imageDescription: description,
+              generatedStory: data.story,
+              playerChoices: effectiveCharacter.choiceHistory || [],
+              choiceOutcomes: effectiveCharacter.choicesHistory || [],
+              dmPersonality: {
+                name: 'Default DM',
+                style: 'neutral',
+                personality: 'balanced',
+                description: 'A balanced dungeon master'
+              },
+              currentMood: 'neutral',
+              previousAdaptations: [],
+              playerPerformance: {
+                alignmentChange: 0,
+                choiceQuality: 'neutral',
+                storyEngagement: 0.5,
+                difficultyRating: 0.5
+              }
+            }),
+          });
+          if (dmReflectionRes.ok) {
+            const dmReflectionData = await dmReflectionRes.json();
+            if (dmReflectionData && dmReflectionData.reflection) {
+              dmReflection = dmReflectionData.reflection;
+            }
+          }
+        } catch (e) {
+          debugLog('useStoryGeneration', 'DM Reflection API failed', e);
+        }
+        // --- End DM Reflection Integration ---
         
-        // Generate LLM-based choices after story
-        await generateLLMChoices(data.story, effectiveCharacter);
+        // Generate LLM-based choices after story, passing DM Reflection
+        await generateLLMChoices(data.story, effectiveCharacter, dmReflection);
       } else {
         debugLog('useStoryGeneration', 'Story generation failed', { error: data.error });
         setStoryError(data.error || 'An unknown error occurred while generating the story.');
@@ -462,8 +518,48 @@ export function useStoryGeneration(
           storeFromHook.addStory(entry);
         }
         
-        // Generate LLM-based choices after story
-        await generateLLMChoices(data.story, effectiveCharacter);
+        // --- DM Reflection Integration ---
+        let dmReflection = '';
+        try {
+          const dmReflectionRes = await fetch('/api/dm-reflection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              character: effectiveCharacter,
+              currentTurn: effectiveCharacter.currentTurn,
+              imageDescription: description,
+              generatedStory: data.story,
+              playerChoices: effectiveCharacter.choiceHistory || [],
+              choiceOutcomes: effectiveCharacter.choicesHistory || [],
+              dmPersonality: {
+                name: 'Default DM',
+                style: 'neutral',
+                personality: 'balanced',
+                description: 'A balanced dungeon master'
+              },
+              currentMood: 'neutral',
+              previousAdaptations: dmAdaptations || [],
+              playerPerformance: {
+                alignmentChange: 0,
+                choiceQuality: 'neutral',
+                storyEngagement: 0.5,
+                difficultyRating: 0.5
+              }
+            }),
+          });
+          if (dmReflectionRes.ok) {
+            const dmReflectionData = await dmReflectionRes.json();
+            if (dmReflectionData && dmReflectionData.reflection) {
+              dmReflection = dmReflectionData.reflection;
+            }
+          }
+        } catch (e) {
+          debugLog('useStoryGeneration', 'DM Reflection API failed', e);
+        }
+        // --- End DM Reflection Integration ---
+        
+        // Generate LLM-based choices after story, passing DM Reflection
+        await generateLLMChoices(data.story, effectiveCharacter, dmReflection);
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the adaptive story.');
         setIsChoicesLoading(false);
@@ -477,49 +573,24 @@ export function useStoryGeneration(
     }
   };
 
-  const generateLLMChoices = async (story: string, character: Character) => {
-    setIsChoicesLoading(true);
+  const generateLLMChoices = async (story: string, character: Character, dmReflection?: string) => {
     try {
+      setIsChoicesLoading(true);
       const response = await fetch('/api/generate-choices', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          story,
-          character,
-          turn: character.currentTurn
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ story, character, turn: character.currentTurn, dmReflection }),
       });
-
       const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Add the generated choices to the character store
+      if (response.ok && data.success && Array.isArray(data.choices)) {
         data.choices.forEach((choice: Choice) => {
           if (storeFromHook.addChoice) {
             storeFromHook.addChoice(choice);
           }
         });
-      } else {
-        console.error('Failed to generate choices:', data.error);
-        // Fallback to static choices if LLM generation fails
-        const fallbackChoices = generateChoicesFromStory(story);
-        fallbackChoices.forEach(choice => {
-          if (storeFromHook.addChoice) {
-            storeFromHook.addChoice(choice);
-          }
-        });
       }
-    } catch (error) {
-      console.error('Error generating LLM choices:', error);
-      // Fallback to static choices if API call fails
-      const fallbackChoices = generateChoicesFromStory(story);
-      fallbackChoices.forEach(choice => {
-        if (storeFromHook.addChoice) {
-          storeFromHook.addChoice(choice);
-        }
-      });
+    } catch (e) {
+      debugLog('useStoryGeneration', 'Choice generation failed', e);
     } finally {
       setIsChoicesLoading(false);
     }

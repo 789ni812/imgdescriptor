@@ -1490,3 +1490,54 @@ The app is now ready for:
 5. **Educational Applications**: Learning tools and creative writing aids
 
 The DM Reflection & Adaptation System represents a significant milestone in AI-driven storytelling, creating truly personalized and adaptive gaming experiences. The app is now production-ready and provides an excellent foundation for future development and enhancement.
+
+## Phase XX: Migrate All UI to shadcn/ui Theme and Components (2025-07-XX)
+
+**Objective:**
+Ensure the entire application uses the official [shadcn/ui](https://ui.shadcn.com/) component library, theme, and color scheme for a consistent, modern, and accessible UI/UX.
+
+### References
+- [shadcn/ui Themes](https://ui.shadcn.com/themes)
+- [shadcn/ui Components Documentation](https://ui.shadcn.com/docs/components)
+
+### Migration Plan
+
+#### 1. Audit & Inventory
+- [ ] Audit all UI components and pages to identify any that do not use shadcn/ui components or theme (e.g., Button, Card, Accordion, Input, etc.).
+- [ ] List all non-shadcn components for replacement.
+
+#### 2. Theme Integration
+- [ ] Update the project to use the official shadcn/ui theme and color scheme as described at https://ui.shadcn.com/themes.
+- [ ] Integrate the theme globally (Tailwind config, globals.css, etc.).
+- [ ] Remove any legacy or custom theme variables.
+
+#### 3. Component Replacement
+- [ ] Replace all custom or legacy UI components (Button, Card, Accordion, etc.) with shadcn/ui equivalents throughout the codebase, ensuring consistent usage and props.
+- [ ] Update all component imports and usages to use shadcn/ui components and props.
+- [ ] Refactor any custom styles to use shadcn theme tokens and Tailwind classes.
+
+#### 4. Color Scheme & Styling
+- [ ] Update all color schemes, backgrounds, and text colors to use shadcn theme variables for both light and dark mode.
+- [ ] Remove any hardcoded or legacy color values.
+
+#### 5. Forms & Interactivity
+- [ ] Refactor all forms, inputs, and interactive elements to use shadcn/ui components and ensure accessibility and visual consistency.
+
+#### 6. Testing
+- [ ] Update all test files to use shadcn/ui component queries and props.
+- [ ] Refactor tests for new component structure and ensure all tests pass.
+
+#### 7. Documentation
+- [ ] Update this spec.md and all relevant documentation to reflect the migration to shadcn/ui, including:
+  - Checklist of all components/pages updated
+  - Theme integration steps
+  - Any customizations made
+
+### Success Criteria
+- All UI components use shadcn/ui equivalents
+- Theme and color scheme are consistent across the app (light/dark mode)
+- No legacy or custom UI components/styles remain
+- All tests and build pass
+- Documentation is up to date
+
+---

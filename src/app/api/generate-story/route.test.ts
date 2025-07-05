@@ -84,7 +84,19 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(500);
     expect(data.success).toBe(false);
     expect(data.error).toBe('LM Studio connection failed');
-    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined);
+    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined, expect.objectContaining({
+      storyLength: 'medium',
+      choiceCount: 3,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      aiResponseTuning: expect.objectContaining({
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0,
+      }),
+    }));
   });
 
   it('should return 200 with story when generation succeeds', async () => {
@@ -106,7 +118,19 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.story).toBe(mockStory);
-    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined);
+    expect(mockGenerateStory).toHaveBeenCalledWith('A beautiful landscape', undefined, expect.objectContaining({
+      storyLength: 'medium',
+      choiceCount: 3,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      aiResponseTuning: expect.objectContaining({
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0,
+      }),
+    }));
   });
 
   it('should handle JSON parsing errors', async () => {
@@ -184,6 +208,18 @@ describe('/api/generate-story', () => {
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
     expect(data.story).toBe(mockStory);
-    expect(mockGenerateStory).toHaveBeenCalledWith(longDescription, undefined);
+    expect(mockGenerateStory).toHaveBeenCalledWith(longDescription, undefined, expect.objectContaining({
+      storyLength: 'medium',
+      choiceCount: 3,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      aiResponseTuning: expect.objectContaining({
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0,
+      }),
+    }));
   });
 }); 

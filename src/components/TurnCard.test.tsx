@@ -19,6 +19,7 @@ const baseProps = {
   statChanges: { intelligence: 1, perception: -1 },
   isCurrentTurn: true,
   onSelectChoice: jest.fn(),
+  isDescriptionLoading: false,
 };
 
 describe('TurnCard', () => {
@@ -42,7 +43,8 @@ describe('TurnCard', () => {
 
   it('shows loader when story is loading', () => {
     render(<TurnCard {...baseProps} isStoryLoading={true} />);
-    expect(screen.getByTestId('story-loader')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-spinner-svg')).toBeInTheDocument();
+    expect(screen.getByText('Generating story...')).toBeInTheDocument();
   });
 
   it('shows loader when choices are loading', () => {
@@ -51,7 +53,7 @@ describe('TurnCard', () => {
   });
 
   it('only allows choice selection for current turn', () => {
-    render(<TurnCard {...baseProps} isCurrentTurn={false} selectedChoiceId="c1" choiceOutcome={{ id: 'o1', text: 'Knock on the gate', outcome: 'The gate creaks open...' }} />);
+    render(<TurnCard {...baseProps} isCurrentTurn={false} selectedChoiceId="c1" choiceOutcome={{ id: 'o1', text: 'Knock on the gate', outcome: 'The gate creaks open...', choiceId: 'c1', timestamp: '2024-01-01T00:00:00Z', turnNumber: 2 }} />);
     // Expand the choices accordion
     fireEvent.click(screen.getByText(/Choices/));
     expect(screen.queryByRole('button', { name: /choose/i })).not.toBeInTheDocument();
@@ -73,7 +75,8 @@ describe('TurnCard', () => {
 
   it('shows spinner while story is loading, then displays story as soon as available', () => {
     render(<TurnCard {...baseProps} isStoryLoading={true} story="" />);
-    expect(screen.getByTestId('story-loader')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-spinner-svg')).toBeInTheDocument();
+    expect(screen.getByText('Generating story...')).toBeInTheDocument();
     // When loading is done and story is present, should show story, not 'Not available yet'
     render(<TurnCard {...baseProps} isStoryLoading={false} story="The generated story!" />);
     // Open the story accordion
@@ -88,7 +91,7 @@ describe('TurnCard', () => {
     // If story is missing, choices should show 'Not available yet' even if loading
     render(<TurnCard {...baseProps} story="" isChoicesLoading={true} choices={[]} />);
     fireEvent.click(screen.getAllByText(/Choices/)[0]);
-    expect(screen.getAllByText(/Not available yet/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Not available yet/i)).toBeInTheDocument();
     // If story is present and choices are loading, show spinner
     render(<TurnCard {...baseProps} story="Story present" isChoicesLoading={true} choices={[]} />);
     fireEvent.click(screen.getAllByText(/Choices/)[0]);
@@ -100,7 +103,7 @@ describe('TurnCard', () => {
   });
 
   it('after a choice is made, choices accordion displays all choices, highlights the selected one and its outcome', () => {
-    render(<TurnCard {...baseProps} selectedChoiceId="c1" choiceOutcome={{ id: 'o1', text: 'Choice 1', outcome: 'You succeed!' }} choices={[{ id: 'c1', text: 'Choice 1' }, { id: 'c2', text: 'Choice 2' }]} />);
+    render(<TurnCard {...baseProps} selectedChoiceId="c1" choiceOutcome={{ id: 'o1', text: 'Choice 1', outcome: 'You succeed!', choiceId: 'c1', timestamp: '2024-01-01T00:00:00Z', turnNumber: 2 }} choices={[{ id: 'c1', text: 'Choice 1' }, { id: 'c2', text: 'Choice 2' }]} />);
     // Ensure choices accordion is open
     const choicesTrigger = screen.getAllByText(/Choices/)[0];
     if (choicesTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
@@ -125,14 +128,14 @@ describe('TurnCard', () => {
     const descContent = screen.getAllByTestId('desc-content').find(el => el.getAttribute('data-state') === 'open');
     expect(descContent).toBeTruthy();
     expect(within(descContent!).getByText(/Not available yet/i)).toBeInTheDocument();
-    // Story
+    // Story - when no story, StoryDisplay shows empty card container
     const storyTrigger = screen.getAllByText(/Story/)[0];
     if (storyTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
       fireEvent.click(storyTrigger);
     }
     const storyContent = screen.getAllByTestId('story-content').find(el => el.getAttribute('data-state') === 'open');
     expect(storyContent).toBeTruthy();
-    expect(within(storyContent!).getByText(/Not available yet/i)).toBeInTheDocument();
+    expect(within(storyContent!).getByTestId('card-container')).toBeInTheDocument();
     // Choices
     const choicesTrigger = screen.getAllByText(/Choices/)[0];
     if (choicesTrigger.closest('button')?.getAttribute('aria-expanded') !== 'true') {
@@ -166,5 +169,16 @@ describe('TurnCard', () => {
     render(<TurnCard {...baseProps} imageDescription="" isDescriptionLoading={false} />);
     fireEvent.click(screen.getAllByText(/Image Description/)[0]);
     expect(screen.getAllByText(/Not available yet/).length).toBeGreaterThan(0);
+  });
+
+  it('renders summary if provided', () => {
+    const summary = '- Health from 50 to 20, Reason: "the character found out they had won the lottery and jumped up and banged their head on the ceiling, they are lying on the ground"';
+    render(<TurnCard {...baseProps} summary={summary} />);
+    // Open the story accordion
+    fireEvent.click(screen.getAllByText(/Story/)[0]);
+    const storyContent = screen.getAllByTestId('story-content').find(el => el.getAttribute('data-state') === 'open');
+    expect(storyContent).toBeTruthy();
+    expect(within(storyContent!).getByText('Summary of Changes')).toBeInTheDocument();
+    expect(within(storyContent!).getByText(/Health from 50 to 20/)).toBeInTheDocument();
   });
 }); 

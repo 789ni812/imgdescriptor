@@ -14,6 +14,7 @@ interface EditFields {
   name: string;
   prompts: GameTemplate['prompts'];
   config: GameTemplate['config'];
+  debugConfig: GameTemplate['debugConfig'];
 }
 
 const defaultPrompts: GameTemplateType['prompts'] = {
@@ -44,6 +45,42 @@ function getUniqueTemplateName(baseName: string, templates: GameTemplate[]): str
   return newName;
 }
 
+// When initializing editFields or debugConfig, ensure summaryEnabled and storyLengthCustom are present
+const getDefaultDebugConfig = (existing?: Partial<GameTemplate['debugConfig']>): GameTemplate['debugConfig'] => ({
+  storyLength: existing?.storyLength ?? 'medium',
+  storyLengthCustom: existing?.storyLengthCustom ?? undefined,
+  choiceCount: existing?.choiceCount ?? 2,
+  enableVerboseLogging: existing?.enableVerboseLogging ?? false,
+  summaryEnabled: existing?.summaryEnabled ?? false,
+  performanceMetrics: existing?.performanceMetrics ?? {
+    enabled: false,
+    trackStoryGeneration: true,
+    trackChoiceGeneration: true,
+    trackImageAnalysis: true,
+    trackDMReflection: true
+  },
+  aiResponseTuning: existing?.aiResponseTuning ?? {
+    temperature: 0.85,
+    maxTokens: 2048,
+    topP: 0.9,
+    frequencyPenalty: 0.0,
+    presencePenalty: 0.0
+  },
+  userExperience: existing?.userExperience ?? {
+    storyPacing: 'medium',
+    choiceComplexity: 'moderate',
+    narrativeDepth: 'medium',
+    characterDevelopment: 'medium',
+    moralComplexity: 'medium'
+  },
+  testing: existing?.testing ?? {
+    enableMockMode: false,
+    mockResponseDelay: 300,
+    enableStressTesting: false,
+    maxConcurrentRequests: 5
+  }
+});
+
 export function TemplateManager() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newName, setNewName] = useState('');
@@ -53,6 +90,7 @@ export function TemplateManager() {
     selectedTemplateId,
     selectedTemplate,
     addTemplate,
+    updateTemplate,
     deleteTemplate,
     selectTemplate,
   } = useTemplateStore();
@@ -211,6 +249,7 @@ export function TemplateManager() {
       name: selectedTemplate.name,
       prompts: { ...selectedTemplate.prompts },
       config: { ...selectedTemplate.config },
+      debugConfig: getDefaultDebugConfig(selectedTemplate.debugConfig),
     });
     setEditing(true);
   };
@@ -228,6 +267,32 @@ export function TemplateManager() {
     setEditFields(prev => prev ? { ...prev, config: { ...prev.config, [field]: value } } : prev);
   };
 
+  const handleEditDebugConfigChange = (field: keyof GameTemplate['debugConfig'], value: string | number | boolean | undefined) => {
+    setEditFields(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        debugConfig: getDefaultDebugConfig({ ...prev.debugConfig, [field]: value }),
+      };
+    });
+  };
+
+  const handleEditAITuningChange = (field: keyof GameTemplate['debugConfig']['aiResponseTuning'], value: number) => {
+    setEditFields(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        debugConfig: {
+          ...prev.debugConfig,
+          aiResponseTuning: {
+            ...prev.debugConfig?.aiResponseTuning,
+            [field]: value,
+          },
+        },
+      };
+    });
+  };
+
   const handleSaveEdit = () => {
     setEditError(null);
     if (!selectedTemplate || !editFields) return;
@@ -242,14 +307,26 @@ export function TemplateManager() {
     const uniqueName = getUniqueTemplateName(baseName, otherTemplates);
     // If the name is changed to a duplicate, assign a new UUID
     const isNameChanged = uniqueName !== selectedTemplate.name;
-    addTemplate({
+    // If the name is changed to a duplicate, assign a new UUID, otherwise keep the same ID
+    const newId = isNameChanged ? uuidv4() : selectedTemplate.id;
+    // Create the updated template
+    const updatedTemplate = {
       ...selectedTemplate,
-      id: isNameChanged ? uuidv4() : selectedTemplate.id,
+      id: newId,
       name: uniqueName,
       prompts: editFields.prompts,
       config: editFields.config,
+      debugConfig: getDefaultDebugConfig(editFields.debugConfig),
       updatedAt: new Date().toISOString(),
-    });
+    };
+    // If the ID changed, we need to add a new template and delete the old one
+    if (isNameChanged) {
+      addTemplate(updatedTemplate);
+      deleteTemplate(selectedTemplate.id);
+    } else {
+      // If the ID is the same, just update the existing template
+      updateTemplate(updatedTemplate);
+    }
     setEditing(false);
     toast.success('Template edited and saved!');
   };
@@ -279,9 +356,9 @@ export function TemplateManager() {
                   className="border rounded-lg px-3 py-2 text-sm bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400 mr-2 mb-2"
                   data-testid="new-template-name"
                 />
-                <Button onClick={handleCreateTemplate} size="sm" variant="default" className="rounded-lg font-semibold shadow-md" data-testid="create-template-btn">Save Current State</Button>
-                <Button onClick={handleImportClick} variant="secondary" size="sm" className="rounded-lg font-semibold shadow-md" data-testid="import-template-btn">Import Template</Button>
-                <Button onClick={handleExportClick} variant="outline" size="sm" className="rounded-lg font-semibold shadow-md" data-testid="export-template-btn">Export Template</Button>
+                <Button onClick={handleCreateTemplate} size="sm" variant="default" className="rounded-lg font-semibold shadow-md text-white" data-testid="create-template-btn">Save Current State</Button>
+                <Button onClick={handleImportClick} variant="secondary" size="sm" className="rounded-lg font-semibold shadow-md text-slate-900 dark:text-slate-100" data-testid="import-template-btn">Import Template</Button>
+                <Button onClick={handleExportClick} variant="outline" size="sm" className="rounded-lg font-semibold shadow-md text-slate-900 dark:text-slate-100" data-testid="export-template-btn">Export Template</Button>
                 <input
                   type="file"
                   accept="application/json"
@@ -291,13 +368,13 @@ export function TemplateManager() {
                   data-testid="template-file-input"
                 />
               </div>
-              <div className="border rounded-lg p-4 bg-muted dark:bg-slate-900 mb-4">
-                <div className="font-semibold mb-3">Templates</div>
+              <div className="border rounded-lg p-4 bg-white dark:bg-slate-800 mb-4">
+                <div className="font-bold text-lg mb-3 text-slate-900 dark:text-slate-100">Templates</div>
                 <ul className="space-y-2">
-                  {templates.length === 0 && <li className="text-sm text-muted-foreground">No templates yet.</li>}
+                  {templates.length === 0 && <li className="text-sm text-slate-800 dark:text-slate-200">No templates yet.</li>}
                   {templates.map(t => (
-                    <li key={t.id} className={`flex items-center gap-2 p-2 rounded-lg ${selectedTemplateId === t.id ? 'bg-accent dark:bg-blue-900/40' : ''}`}>
-                      <span className="flex-1 cursor-pointer" onClick={() => selectTemplate(t.id)}>
+                    <li key={t.id} className={`flex items-center gap-2 p-2 rounded-lg ${selectedTemplateId === t.id ? 'bg-accent dark:bg-blue-900/40' : ''}` + ' text-slate-900 dark:text-slate-100'}>
+                      <span className="flex-1 cursor-pointer font-semibold" onClick={() => selectTemplate(t.id)}>
                         {t.name}
                         {selectedTemplateId === t.id && <span className="ml-2 text-xs text-primary">(selected)</span>}
                       </span>
@@ -309,23 +386,23 @@ export function TemplateManager() {
               </div>
               {importError && <div className="text-red-600 text-sm mb-2" role="alert">{importError}</div>}
               {selectedTemplate && (
-                <div className="border rounded-lg p-4 mt-2 bg-muted dark:bg-slate-900">
-                  <div className="font-semibold mb-2">Selected Template</div>
-                  <div className="text-xs text-muted-foreground mb-2">ID: {selectedTemplate.id}</div>
+                <div className="border rounded-lg p-4 mt-2 bg-white dark:bg-slate-800">
+                  <div className="font-bold text-lg mb-2 text-slate-900 dark:text-slate-100">Selected Template</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-2">ID: {selectedTemplate.id}</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-2">Name: {selectedTemplate.name}</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-2">Created: {selectedTemplate.createdAt}</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-2">Updated: {selectedTemplate.updatedAt}</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-2">Images: {selectedTemplate.images.length}</div>
+                  <div className="text-xs text-slate-800 dark:text-slate-200 mb-3">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
                   {!editing ? (
                     <>
-                      <div className="text-sm mb-1">Name: {selectedTemplate.name}</div>
-                      <div className="text-sm mb-1">Created: {selectedTemplate.createdAt}</div>
-                      <div className="text-sm mb-1">Updated: {selectedTemplate.updatedAt}</div>
-                      <div className="text-sm mb-1">Images: {selectedTemplate.images.length}</div>
-                      <div className="text-sm mb-3">Final Story: {selectedTemplate.finalStory ? 'Yes' : 'No'}</div>
                       <div className="flex gap-2 mt-2">
-                        <Button onClick={startEditing} size="sm" variant="outline" className="rounded-lg" data-testid="edit-template-btn">Edit</Button>
+                        <Button onClick={startEditing} size="sm" variant="outline" className="rounded-lg font-semibold shadow-md text-slate-900 dark:text-slate-100" data-testid="edit-template-btn">Edit</Button>
                         <Button 
                           onClick={handleApplyTemplate} 
                           variant="default" 
                           size="sm" 
-                          className="flex-1 rounded-lg"
+                          className="flex-1 rounded-lg font-semibold shadow-md text-white"
                           data-testid="apply-template-btn"
                         >
                           Apply Template
@@ -334,36 +411,145 @@ export function TemplateManager() {
                     </>
                   ) : (
                     <form className="space-y-3 mt-2">
-                      <label className="block text-xs font-medium mb-1">Name
+                      <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Name
                         <input
                           type="text"
-                          value={editFields ? editFields.name : ''}
+                          value={editFields!.name}
                           onChange={e => handleEditFieldChange('name', e.target.value)}
-                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                           data-testid="edit-template-name"
                         />
                       </label>
                       {editError && <div className="text-red-600 text-xs mb-1" role="alert">{editError}</div>}
-                      <label className="block text-xs font-medium mb-1">Image Description Prompt
+                      <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Image Description Prompt
                         <input
                           type="text"
-                          value={editFields ? editFields.prompts.imageDescription : ''}
+                          value={editFields!.prompts.imageDescription}
                           onChange={e => handleEditPromptChange('imageDescription', e.target.value)}
-                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                         />
                       </label>
-                      <label className="block text-xs font-medium mb-1">Max Turns
+                      <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Max Turns
                         <input
                           type="number"
-                          value={editFields ? editFields.config.maxTurns : ''}
+                          value={editFields!.config.maxTurns}
                           onChange={e => handleEditConfigChange('maxTurns', Number(e.target.value))}
-                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-800 placeholder-gray-400 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
-                          aria-label="Max Turns"
+                          className="border rounded-lg px-3 py-2 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-gray-700 dark:placeholder-gray-400"
                         />
                       </label>
+                      <div className="border rounded-lg p-3 bg-slate-100 dark:bg-slate-900 mt-4">
+                        <div className="font-bold text-lg mb-2 text-slate-900 dark:text-slate-100">Debug / Dev Settings</div>
+                        <label htmlFor="story-length-select" className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Story Length
+                          <select
+                            id="story-length-select"
+                            value={editFields!.debugConfig.storyLength}
+                            onChange={e => handleEditDebugConfigChange('storyLength', e.target.value)}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          >
+                            <option value="short">Short</option>
+                            <option value="medium">Medium</option>
+                            <option value="long">Long</option>
+                            <option value="epic">Epic</option>
+                          </select>
+                        </label>
+                        <label htmlFor="custom-story-length-input" className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Custom Story Length
+                          <input
+                            id="custom-story-length-input"
+                            type="number"
+                            min="1"
+                            value={editFields!.debugConfig.storyLengthCustom ?? ''}
+                            onChange={e => handleEditDebugConfigChange('storyLengthCustom', e.target.value ? Number(e.target.value) : undefined)}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="flex items-center gap-2 mt-2">
+                          <input
+                            type="checkbox"
+                            checked={!!editFields!.debugConfig.summaryEnabled}
+                            onChange={e => handleEditDebugConfigChange('summaryEnabled', e.target.checked)}
+                            className="form-checkbox h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-xs text-slate-900 dark:text-slate-100 font-medium">Summary</span>
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Choice Count
+                          <select
+                            value={editFields!.debugConfig.choiceCount}
+                            onChange={e => handleEditDebugConfigChange('choiceCount', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          >
+                            <option value={2}>2</option>
+                            <option value={3}>3</option>
+                            <option value={4}>4</option>
+                            <option value={5}>5</option>
+                          </select>
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">AI Temperature
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="2"
+                            value={editFields!.debugConfig.aiResponseTuning?.temperature}
+                            onChange={e => handleEditAITuningChange('temperature', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Max Tokens
+                          <input
+                            type="number"
+                            min="512"
+                            max="4096"
+                            value={editFields!.debugConfig.aiResponseTuning?.maxTokens}
+                            onChange={e => handleEditAITuningChange('maxTokens', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Top P
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                            value={editFields!.debugConfig.aiResponseTuning?.topP}
+                            onChange={e => handleEditAITuningChange('topP', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Frequency Penalty
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="-2"
+                            max="2"
+                            value={editFields!.debugConfig.aiResponseTuning?.frequencyPenalty}
+                            onChange={e => handleEditAITuningChange('frequencyPenalty', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="block text-xs font-medium mb-1 text-slate-900 dark:text-slate-100">Presence Penalty
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="-2"
+                            max="2"
+                            value={editFields!.debugConfig.aiResponseTuning?.presencePenalty}
+                            onChange={e => handleEditAITuningChange('presencePenalty', Number(e.target.value))}
+                            className="border rounded-lg px-2 py-1 text-sm w-full bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                          />
+                        </label>
+                        <label className="flex items-center gap-2 mt-2">
+                          <input
+                            type="checkbox"
+                            checked={!!editFields!.debugConfig.enableVerboseLogging}
+                            onChange={e => handleEditDebugConfigChange('enableVerboseLogging', e.target.checked)}
+                            className="form-checkbox h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-xs text-slate-900 dark:text-slate-100 font-medium">Enable Verbose Debug Logging</span>
+                        </label>
+                      </div>
                       <div className="flex gap-2 mt-2">
-                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" className="rounded-lg" data-testid="save-template-btn">Save</Button>
-                        <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline" className="rounded-lg">Cancel</Button>
+                        <Button type="button" onClick={handleSaveEdit} size="sm" variant="default" className="rounded-lg font-semibold shadow-md text-white" data-testid="save-template-btn">Save</Button>
+                        <Button type="button" onClick={() => setEditing(false)} size="sm" variant="outline" className="rounded-lg font-semibold shadow-md text-slate-900 dark:text-slate-100">Cancel</Button>
                       </div>
                     </form>
                   )}

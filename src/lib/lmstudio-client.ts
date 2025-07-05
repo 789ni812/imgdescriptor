@@ -5,6 +5,7 @@ import {
   IMAGE_ANALYSIS_SYSTEM_PROMPT,
   STORY_GENERATION_SYSTEM_PROMPT
 } from './constants';
+import type { GameTemplate } from '@/lib/types/template';
 
 const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
@@ -76,12 +77,27 @@ export const analyzeImage = async (
 
 export const generateStory = async (
   description: string,
-  prompt?: string
+  prompt?: string,
+  debugConfig?: GameTemplate['debugConfig']
 ): Promise<StoryResult> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), STORY_TIMEOUT_MS);
 
   const userPrompt = prompt ? `${prompt}\n\n${description}` : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${description}`;
+
+  // Use debugConfig for AI tuning if provided
+  const aiTuning: GameTemplate['debugConfig']['aiResponseTuning'] = debugConfig?.aiResponseTuning ?? {
+    temperature: 0.85,
+    maxTokens: 2048,
+    topP: 0.9,
+    frequencyPenalty: 0.0,
+    presencePenalty: 0.0,
+  };
+  const temperature = aiTuning.temperature;
+  const max_tokens = aiTuning.maxTokens;
+  const top_p = aiTuning.topP;
+  const frequency_penalty = aiTuning.frequencyPenalty;
+  const presence_penalty = aiTuning.presencePenalty;
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -101,8 +117,11 @@ export const generateStory = async (
             content: userPrompt,
           },
         ],
-        temperature: 0.85,
-        max_tokens: 2048,
+        temperature,
+        max_tokens,
+        top_p,
+        frequency_penalty,
+        presence_penalty,
       }),
       signal: controller.signal,
     });

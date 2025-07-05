@@ -105,11 +105,25 @@ export default function Home() {
       statChanges = choiceOutcome.statChanges;
     }
 
+    // Extract summary from story if present
+    let storyText = storyEntry?.text || '';
+    let summary: string | null = null;
+    if (storyText) {
+      // Look for a heading or bullet list after the main story
+      const summaryMatch = storyText.match(/(?:\n|\r|^)\s*(Summary of Changes|Summary|\- )/i);
+      if (summaryMatch) {
+        const idx = summaryMatch.index || 0;
+        summary = storyText.slice(idx).trim();
+        storyText = storyText.slice(0, idx).trim();
+      }
+    }
+
     return {
       turnNumber,
       imageUrl: imageEntry?.url || '',
       imageDescription: imageEntry?.description || '',
-      story: storyEntry?.text || '',
+      story: storyText,
+      summary,
       isStoryLoading: isStoryLoading && character.currentTurn === turnNumber,
       choices: character.currentChoices,
       isChoicesLoading: isChoicesLoading && character.currentTurn === turnNumber,

@@ -199,7 +199,7 @@ export function validateReflectionContext(context: DMReflectionContext): { isVal
   if (!context.generatedStory) {
     errors.push('generatedStory is required');
   }
-  if (!context.playerChoices || context.playerChoices.length === 0) {
+  if (!context.playerChoices) {
     errors.push('playerChoices is required');
   }
   if (!context.choiceOutcomes) {

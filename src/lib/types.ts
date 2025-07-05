@@ -43,6 +43,7 @@ export interface StoryDisplayProps {
   story: string | null;
   isLoading: boolean;
   error: string | null;
+  summary?: string | null;
 }
 
 // File Upload Types

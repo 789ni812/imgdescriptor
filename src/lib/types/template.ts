@@ -45,6 +45,50 @@ export interface GameTemplate {
     theme: string;
     language: string;
   };
+  // Debug configuration for fine-tuning user experience
+  debugConfig: {
+    // Story generation settings
+    storyLength: 'short' | 'medium' | 'long' | 'epic';
+    storyLengthCustom?: number; // Optional: custom token/word count
+    choiceCount: 2 | 3 | 4 | 5;
+    enableVerboseLogging: boolean;
+    summaryEnabled: boolean; // New: enable summary bullet list
+    
+    // Performance monitoring
+    performanceMetrics: {
+      enabled: boolean;
+      trackStoryGeneration: boolean;
+      trackChoiceGeneration: boolean;
+      trackImageAnalysis: boolean;
+      trackDMReflection: boolean;
+    };
+    
+    // AI response tuning
+    aiResponseTuning: {
+      temperature: number; // 0.0 to 2.0
+      maxTokens: number; // 512 to 4096
+      topP: number; // 0.0 to 1.0
+      frequencyPenalty: number; // -2.0 to 2.0
+      presencePenalty: number; // -2.0 to 2.0
+    };
+    
+    // User experience fine-tuning
+    userExperience: {
+      storyPacing: 'slow' | 'medium' | 'fast';
+      choiceComplexity: 'simple' | 'moderate' | 'complex';
+      narrativeDepth: 'light' | 'medium' | 'deep';
+      characterDevelopment: 'low' | 'medium' | 'high';
+      moralComplexity: 'simple' | 'medium' | 'complex';
+    };
+    
+    // Testing and development
+    testing: {
+      enableMockMode: boolean;
+      mockResponseDelay: number; // milliseconds
+      enableStressTesting: boolean;
+      maxConcurrentRequests: number;
+    };
+  };
   // Final story (optional, if already generated)
   finalStory?: string;
   // UI/UX config
@@ -81,32 +125,44 @@ export function importGameTemplate(template: GameTemplate) {
 export function validateGameTemplate(template: GameTemplate): boolean {
   // Check required fields
   if (!template.id || !template.name || !template.version || !template.createdAt || !template.updatedAt) {
+    console.log('Validation failed: missing required fields');
     return false;
   }
 
   // Check type field
   const validTypes = ['game', 'comics', 'business', 'education', 'marketing'] as const;
   if (!validTypes.includes(template.type)) {
+    console.log('Validation failed: invalid type field', template.type);
     return false;
   }
 
   // Check character validation
   if (!validateCharacter(template.character)) {
+    console.log('Validation failed: invalid character');
     return false;
   }
 
   // Check prompts validation
   if (!validatePrompts(template.prompts)) {
+    console.log('Validation failed: invalid prompts');
     return false;
   }
 
   // Check config validation
   if (!validateConfig(template.config)) {
+    console.log('Validation failed: invalid config');
+    return false;
+  }
+
+  // Check debug config validation
+  if (!validateDebugConfig(template.debugConfig)) {
+    console.log('Validation failed: invalid debug config');
     return false;
   }
 
   // Check images validation
   if (!Array.isArray(template.images) || !template.images.every(validateImage)) {
+    console.log('Validation failed: invalid images');
     return false;
   }
 
@@ -144,6 +200,105 @@ function validatePrompts(prompts: GameTemplate['prompts']): boolean {
 function validateConfig(config: GameTemplate['config']): boolean {
   return !!(config.maxTurns > 0 && typeof config.enableMarkdown === 'boolean' && 
            typeof config.autoSave === 'boolean' && config.theme && config.language);
+}
+
+function validateDebugConfig(debugConfig: GameTemplate['debugConfig']): boolean {
+  // If debugConfig is undefined, use default values
+  if (!debugConfig) {
+    console.log('Debug config is undefined, using default validation');
+    return true; // We'll provide defaults in the template creation
+  }
+  
+  // Validate story length
+  const validStoryLengths = ['short', 'medium', 'long', 'epic'] as const;
+  if (!validStoryLengths.includes(debugConfig.storyLength)) {
+    console.log('Debug config validation failed: invalid story length', debugConfig.storyLength);
+    return false;
+  }
+  
+  // Validate storyLengthCustom if present
+  if (debugConfig.storyLengthCustom !== undefined && (typeof debugConfig.storyLengthCustom !== 'number' || debugConfig.storyLengthCustom <= 0)) {
+    console.log('Debug config validation failed: invalid storyLengthCustom', debugConfig.storyLengthCustom);
+    return false;
+  }
+  
+  // Validate summaryEnabled
+  if (typeof debugConfig.summaryEnabled !== 'boolean') {
+    console.log('Debug config validation failed: summaryEnabled must be boolean', debugConfig.summaryEnabled);
+    return false;
+  }
+  
+  // Validate choice count
+  const validChoiceCounts = [2, 3, 4, 5] as const;
+  if (!validChoiceCounts.includes(debugConfig.choiceCount)) {
+    console.log('Debug config validation failed: invalid choice count', debugConfig.choiceCount);
+    return false;
+  }
+  
+  // Validate AI response tuning
+  const tuning = debugConfig.aiResponseTuning;
+  if (tuning.temperature < 0.0 || tuning.temperature >= 2.0) {
+    console.log('Debug config validation failed: invalid temperature', tuning.temperature);
+    return false;
+  }
+  if (tuning.maxTokens < 512 || tuning.maxTokens > 4096) {
+    console.log('Debug config validation failed: invalid maxTokens', tuning.maxTokens);
+    return false;
+  }
+  if (tuning.topP < 0.0 || tuning.topP > 1.0) {
+    console.log('Debug config validation failed: invalid topP', tuning.topP);
+    return false;
+  }
+  if (tuning.frequencyPenalty < -2.0 || tuning.frequencyPenalty > 2.0) {
+    console.log('Debug config validation failed: invalid frequencyPenalty', tuning.frequencyPenalty);
+    return false;
+  }
+  if (tuning.presencePenalty < -2.0 || tuning.presencePenalty > 2.0) {
+    console.log('Debug config validation failed: invalid presencePenalty', tuning.presencePenalty);
+    return false;
+  }
+  
+  // Validate user experience settings
+  const ux = debugConfig.userExperience;
+  const validPacing: readonly ('slow' | 'medium' | 'fast')[] = ['slow', 'medium', 'fast'];
+  const validComplexity: readonly ('simple' | 'moderate' | 'complex')[] = ['simple', 'moderate', 'complex'];
+  const validMoralComplexity: readonly ('simple' | 'medium' | 'complex')[] = ['simple', 'medium', 'complex'];
+  const validDepth: readonly ('light' | 'medium' | 'deep')[] = ['light', 'medium', 'deep'];
+  const validDevelopment: readonly ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
+  
+  if (!validPacing.includes(ux.storyPacing)) {
+    console.log('Debug config validation failed: invalid storyPacing', ux.storyPacing);
+    return false;
+  }
+  if (!validComplexity.includes(ux.choiceComplexity)) {
+    console.log('Debug config validation failed: invalid choiceComplexity', ux.choiceComplexity);
+    return false;
+  }
+  if (!validDepth.includes(ux.narrativeDepth)) {
+    console.log('Debug config validation failed: invalid narrativeDepth', ux.narrativeDepth);
+    return false;
+  }
+  if (!validDevelopment.includes(ux.characterDevelopment)) {
+    console.log('Debug config validation failed: invalid characterDevelopment', ux.characterDevelopment);
+    return false;
+  }
+  if (!validMoralComplexity.includes(ux.moralComplexity)) {
+    console.log('Debug config validation failed: invalid moralComplexity', ux.moralComplexity);
+    return false;
+  }
+  
+  // Validate testing settings
+  const testing = debugConfig.testing;
+  if (testing.mockResponseDelay < 0 || testing.mockResponseDelay > 10000) {
+    console.log('Debug config validation failed: invalid mockResponseDelay', testing.mockResponseDelay);
+    return false;
+  }
+  if (testing.maxConcurrentRequests < 1 || testing.maxConcurrentRequests > 20) {
+    console.log('Debug config validation failed: invalid maxConcurrentRequests', testing.maxConcurrentRequests);
+    return false;
+  }
+  
+  return true;
 }
 
 function validateImage(image: GameTemplate['images'][0]): boolean {
@@ -199,6 +354,40 @@ export function createDefaultTemplate(name: string): GameTemplate {
       autoSave: true,
       theme: 'default',
       language: 'en',
+    },
+    debugConfig: {
+      storyLength: 'medium',
+      storyLengthCustom: undefined,
+      choiceCount: 3,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      performanceMetrics: {
+        enabled: false,
+        trackStoryGeneration: true,
+        trackChoiceGeneration: true,
+        trackImageAnalysis: true,
+        trackDMReflection: true
+      },
+      aiResponseTuning: {
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0
+      },
+      userExperience: {
+        storyPacing: 'medium',
+        choiceComplexity: 'moderate',
+        narrativeDepth: 'medium',
+        characterDevelopment: 'medium',
+        moralComplexity: 'medium'
+      },
+      testing: {
+        enableMockMode: false,
+        mockResponseDelay: 300,
+        enableStressTesting: false,
+        maxConcurrentRequests: 5
+      }
     },
   };
 }
@@ -404,5 +593,39 @@ export function createTemplateFromCurrentState(
     ...(dmConfig ? { dmConfig } : {}),
     choicesHistory: character.choicesHistory || [],
     choiceHistory: character.choiceHistory || [],
+    debugConfig: {
+      storyLength: 'medium',
+      storyLengthCustom: undefined,
+      choiceCount: 3,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      performanceMetrics: {
+        enabled: false,
+        trackStoryGeneration: true,
+        trackChoiceGeneration: true,
+        trackImageAnalysis: true,
+        trackDMReflection: true
+      },
+      aiResponseTuning: {
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0
+      },
+      userExperience: {
+        storyPacing: 'medium',
+        choiceComplexity: 'moderate',
+        narrativeDepth: 'medium',
+        characterDevelopment: 'medium',
+        moralComplexity: 'medium'
+      },
+      testing: {
+        enableMockMode: false,
+        mockResponseDelay: 300,
+        enableStressTesting: false,
+        maxConcurrentRequests: 5
+      }
+    },
   };
 } 

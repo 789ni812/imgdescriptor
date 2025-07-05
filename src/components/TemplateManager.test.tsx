@@ -153,6 +153,39 @@ describe('TemplateManager', () => {
       personality: null,
       freeformAnswers: {},
     },
+    debugConfig: {
+      storyLength: 'medium',
+      choiceCount: 2,
+      enableVerboseLogging: false,
+      summaryEnabled: false,
+      performanceMetrics: {
+        enabled: false,
+        trackStoryGeneration: true,
+        trackChoiceGeneration: true,
+        trackImageAnalysis: true,
+        trackDMReflection: true
+      },
+      aiResponseTuning: {
+        temperature: 0.85,
+        maxTokens: 2048,
+        topP: 0.9,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0
+      },
+      userExperience: {
+        storyPacing: 'medium',
+        choiceComplexity: 'moderate',
+        narrativeDepth: 'medium',
+        characterDevelopment: 'medium',
+        moralComplexity: 'medium'
+      },
+      testing: {
+        enableMockMode: false,
+        mockResponseDelay: 300,
+        enableStressTesting: false,
+        maxConcurrentRequests: 5
+      }
+    }
   };
 
   const mockCharacterStore = {
@@ -181,6 +214,7 @@ describe('TemplateManager', () => {
     addTemplate: jest.fn(),
     deleteTemplate: jest.fn(),
     selectTemplate: jest.fn(),
+    updateTemplate: jest.fn(),
   };
 
   const mockDMStore = {
@@ -602,6 +636,79 @@ describe('TemplateManager', () => {
       fireEvent.click(exportBtn);
       openAccordion();
       expect(mockToast).toHaveBeenCalledWith('Template exported successfully!');
+    });
+  });
+
+  it('renders story length dropdown, custom input, and summary toggle, and updates local state on change', async () => {
+    mockUseTemplateStore.mockReturnValue({
+      ...mockTemplateStore,
+      updateTemplate: jest.fn(),
+    });
+    mockUseCharacterStore.mockReturnValue(mockCharacterStore);
+    mockUseDMStore.mockReturnValue(mockDMStore);
+
+    render(<TemplateManager />);
+    
+    // Navigate to edit form
+    openAccordion();
+    openAccordion();
+    fireEvent.click(screen.getByText('Test Adventure'));
+    openAccordion();
+    fireEvent.click(screen.getByTestId('edit-template-btn'));
+
+    // Story Length Dropdown
+    const storyLengthDropdown = screen.getAllByLabelText('Story Length')[0];
+    expect(storyLengthDropdown.tagName).toBe('SELECT');
+    expect(screen.getByRole('option', { name: /Short/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /Medium/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /Long/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /Epic/i })).toBeInTheDocument();
+
+    // Change story length dropdown
+    fireEvent.change(storyLengthDropdown, { target: { value: 'long' } });
+    expect(storyLengthDropdown).toHaveValue('long');
+
+    // Custom Numeric Input
+    const customStoryLengthInput = screen.getAllByLabelText('Custom Story Length')[0];
+    expect(customStoryLengthInput.tagName).toBe('INPUT');
+    fireEvent.change(customStoryLengthInput, { target: { value: '500' } });
+    expect(customStoryLengthInput).toHaveValue(500);
+
+    // Summary Toggle
+    const summaryCheckbox = screen.getByLabelText(/Summary/i);
+    expect(summaryCheckbox.tagName).toBe('INPUT');
+    expect(summaryCheckbox).toHaveAttribute('type', 'checkbox');
+    fireEvent.click(summaryCheckbox);
+    expect(summaryCheckbox).toBeChecked();
+  });
+
+  it('should propagate story length and summary changes to config/template state', async () => {
+    mockUseTemplateStore.mockReturnValue({
+      ...mockTemplateStore,
+      updateTemplate: jest.fn(),
+    });
+    render(<TemplateManager />);
+    openAccordion();
+    // Edit template
+    fireEvent.click(screen.getByTestId('edit-template-btn'));
+    // Change story length dropdown
+    const storyLengthDropdown2 = screen.getAllByLabelText('Story Length')[0];
+    fireEvent.change(storyLengthDropdown2, { target: { value: 'long' } });
+    // Change custom story length
+    const customStoryLengthInput2 = screen.getAllByLabelText('Custom Story Length')[0];
+    fireEvent.change(customStoryLengthInput2, { target: { value: '777' } });
+    // Toggle summary
+    fireEvent.click(screen.getByLabelText(/Summary/i));
+    // Save
+    fireEvent.click(screen.getByTestId('save-template-btn'));
+    await waitFor(() => {
+      expect(mockTemplateStore.addTemplate).toHaveBeenCalledWith(expect.objectContaining({
+        debugConfig: expect.objectContaining({
+          storyLength: 'long',
+          storyLengthCustom: 777,
+          summaryEnabled: true,
+        })
+      }));
     });
   });
 }); 

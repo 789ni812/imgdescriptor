@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 import Image from 'next/image';
 import MarkdownRenderer from './ui/MarkdownRenderer';
+import { StoryDisplay } from './StoryDisplay';
 
 interface TurnCardProps {
   turnNumber: number;
@@ -21,6 +22,7 @@ interface TurnCardProps {
   isCurrentTurn: boolean;
   onSelectChoice?: (choiceId: string) => void;
   isDescriptionLoading: boolean;
+  summary?: string | null;
 }
 
 const statLabels: Record<keyof CharacterStats, string> = {
@@ -45,6 +47,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
   isCurrentTurn,
   onSelectChoice,
   isDescriptionLoading,
+  summary,
 }) => {
   // Accordions expanded by default only for current turn
   const defaultOpen = isCurrentTurn ? ['desc', 'story', 'choices'] : [];
@@ -122,15 +125,7 @@ const TurnCard: React.FC<TurnCardProps> = ({
             Story
           </AccordionTrigger>
           <AccordionContent data-testid="story-content">
-            {isStoryLoading ? (
-              <div data-testid="story-loader" className="flex items-center gap-2 py-4">
-                <LoadingSpinner /> <span>Generating story...</span>
-              </div>
-            ) : story ? (
-              <MarkdownRenderer content={story} />
-            ) : (
-              <div className="text-gray-400 italic">Not available yet</div>
-            )}
+            <StoryDisplay story={story} isLoading={isStoryLoading} error={null} summary={summary} />
           </AccordionContent>
         </AccordionItem>
         {/* Choices */}

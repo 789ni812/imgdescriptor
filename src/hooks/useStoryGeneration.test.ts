@@ -407,6 +407,58 @@ describe('useStoryGeneration', () => {
 });
 
 describe('buildStoryPrompt', () => {
+  const baseCharacter = { ...defaultCharacter, currentTurn: 2, storyHistory: [] };
+  const baseDescription = 'A mysterious cave.';
+
+  it('includes storyLengthCustom instruction if set', () => {
+    const prompt = buildStoryPrompt({
+      character: baseCharacter,
+      description: baseDescription,
+      debugConfig: { storyLengthCustom: 123, storyLength: 'medium', summaryEnabled: false } as any,
+    });
+    expect(prompt).toMatch(/Write a story segment of 123 tokens or words/);
+    expect(prompt).not.toMatch(/bullet list summary/);
+  });
+
+  it('includes summary instruction if summaryEnabled is true', () => {
+    const prompt = buildStoryPrompt({
+      character: baseCharacter,
+      description: baseDescription,
+      debugConfig: { storyLength: 'medium', summaryEnabled: true } as any,
+    });
+    expect(prompt).toMatch(/provide a bullet list summary of all changes and the reasons for each change/);
+  });
+
+  it('includes both instructions if both are set', () => {
+    const prompt = buildStoryPrompt({
+      character: baseCharacter,
+      description: baseDescription,
+      debugConfig: { storyLengthCustom: 456, storyLength: 'long', summaryEnabled: true } as any,
+    });
+    expect(prompt).toMatch(/Write a story segment of 456 tokens or words/);
+    expect(prompt).toMatch(/provide a bullet list summary of all changes and the reasons for each change/);
+  });
+
+  it('includes only storyLength if only storyLength is set', () => {
+    const prompt = buildStoryPrompt({
+      character: baseCharacter,
+      description: baseDescription,
+      debugConfig: { storyLength: 'epic', summaryEnabled: false } as any,
+    });
+    expect(prompt).toMatch(/Write a epic story segment/);
+    expect(prompt).not.toMatch(/bullet list summary/);
+  });
+
+  it('includes neither instruction if neither is set', () => {
+    const prompt = buildStoryPrompt({
+      character: baseCharacter,
+      description: baseDescription,
+      debugConfig: {} as any,
+    });
+    expect(prompt).not.toMatch(/Write a/);
+    expect(prompt).not.toMatch(/bullet list summary/);
+  });
+
   it('should build prompt with character stats and turn information', () => {
     const character = createCharacter({
       currentTurn: 2,
@@ -678,16 +730,17 @@ describe('Choice Generation', () => {
       body: call[1]?.body ? JSON.parse(call[1].body) : undefined
     })));
 
-    // Verify choices were generated via LLM - expect exactly 2 calls (story + choices)
-    expect(fetch).toHaveBeenCalledTimes(2);
+    // Verify choices were generated via LLM - expect exactly 3 calls (story + DM reflection + choices)
+    expect(fetch).toHaveBeenCalledTimes(3);
     
-    // Check that the second call was for choice generation
-    const choiceCall = (fetch as jest.Mock).mock.calls[1];
+    // Check that the third call was for choice generation
+    const choiceCall = (fetch as jest.Mock).mock.calls[2];
     expect(choiceCall[0]).toBe('/api/generate-choices');
     expect(JSON.parse(choiceCall[1].body)).toEqual({
       story: 'The adventurer discovers ancient symbols in the cave.',
       character: mockStore.character,
-      turn: 1
+      turn: 1,
+      dmReflection: ''
     });
 
     // Verify that exactly 2 choices were generated (within the 2-3 range)
@@ -931,5 +984,75 @@ describe('Choice Generation', () => {
 
     expect(result.current.storyError).toContain('Adaptive API error');
     expect(result.current.story).toBeUndefined();
+  });
+
+  it('should call DM Reflection after story generation and include its output in choice generation', async () => {
+    // Arrange
+    // Reset fetch mock to ensure clean state
+    (fetch as jest.Mock).mockClear();
+    
+    const mockCharacter = {
+      ...createCharacter(),
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+      choiceHistory: [],
+      currentChoices: [],
+    };
+    const mockConfig = {
+      MOCK_STORY: false,
+      MOCK_STORY_TEXT: 'Mock story',
+      TURN_BASED_MOCK_DATA: { stories: {} }
+    };
+    const mockStore = { character: mockCharacter };
+
+    // Mock fetch for story generation
+    const mockStoryResponse = { success: true, story: 'The adventurer discovers ancient symbols in the cave.' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockStoryResponse,
+    });
+
+    // Mock fetch for DM Reflection
+    const mockDMReflection = { success: true, reflection: 'DM says: The story should be more challenging.' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockDMReflection,
+    });
+
+    // Mock fetch for choice generation
+    const mockChoicesResponse = {
+      success: true,
+      choices: [
+        {
+          id: 'choice-1',
+          text: 'Study the symbols carefully',
+          description: 'Use your intelligence to decipher the ancient markings',
+          statRequirements: { intelligence: 10 },
+          consequences: ['May unlock hidden knowledge', 'Could trigger a trap']
+        }
+      ]
+    };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockChoicesResponse,
+    });
+
+    const { result } = renderHook(() => useStoryGeneration(mockConfig, mockStore));
+    const description = 'A dark cave with ancient symbols';
+
+    // Act
+    await act(async () => {
+      await result.current.generateStory(description);
+    });
+
+    // Assert
+    // There should be three fetch calls: story, DM reflection, choices
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect((fetch as jest.Mock).mock.calls[1][0]).toBe('/api/dm-reflection');
+    expect((fetch as jest.Mock).mock.calls[2][0]).toBe('/api/generate-choices');
+    // The body of the choices call should include the DM reflection output
+    const choicesCallBody = JSON.parse((fetch as jest.Mock).mock.calls[2][1].body);
+    expect(choicesCallBody.dmReflection).toBe('DM says: The story should be more challenging.');
   });
 });
