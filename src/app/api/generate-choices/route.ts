@@ -68,9 +68,17 @@ export async function POST(request: NextRequest) {
     // Validate choice count - ensure we have exactly 2-3 choices
     const validatedChoices = validateChoiceCount(choices);
 
+    // Add the raw LLM response and fallback warning (if any) to the API response for debugging
+    let fallbackUsed = false;
+    if (validatedChoices.some(choice => choice.id.startsWith('choice-fallback'))) {
+      fallbackUsed = true;
+    }
+
     return NextResponse.json({
       success: true,
-      choices: validatedChoices
+      choices: validatedChoices,
+      rawLLMResponse: choicesText,
+      fallbackUsed
     });
 
   } catch (error) {
@@ -246,13 +254,22 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
           }
         });
       }
+      // Robustly parse consequences as an array of trimmed strings
+      let consequences: string[] = [];
+      if (Array.isArray(choice.consequences)) {
+        consequences = choice.consequences.map((c: any) => typeof c === 'string' ? c.trim() : String(c));
+      } else if (typeof choice.consequences === 'string') {
+        consequences = [choice.consequences.trim()];
+      } else {
+        consequences = [];
+      }
       return {
         id: `choice-${Date.now()}-${index}`,
         type: choice.type || 'other',
         text: choice.text || `Choice ${index + 1}`,
         description: choice.description || '',
         statRequirements: normalizedStatRequirements,
-        consequences: Array.isArray(choice.consequences) ? choice.consequences : []
+        consequences
       };
     });
     console.log('[LLM CHOICES USED]', parsedChoices);

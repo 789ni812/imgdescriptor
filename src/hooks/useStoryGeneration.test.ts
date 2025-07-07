@@ -585,6 +585,48 @@ describe('buildStoryPrompt', () => {
     expect(prompt).toContain('Villain: villain');
     expect(prompt).toContain('A cunning villain who opposes the hero at every turn.');
   });
+
+  it('should format JSON image description into readable text', () => {
+    const character = createCharacter({
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+    });
+
+    const jsonDescription = JSON.stringify({
+      setting: "A dimly lit chamber, possibly a throne room or observatory. The walls are dark stone, and a single shaft of light illuminates Darth Vader from the side.",
+      objects: ["darth vader", "helmet", "lightsaber hilt", "dark stone walls", "shadows"],
+      characters: ["darth vader"],
+      mood: "Menacing, powerful, and oppressive. A sense of dread and impending doom.",
+      hooks: ["A faint mechanical hum emanates from Vader.", "The air feels cold and heavy."]
+    });
+
+    const prompt = buildStoryPrompt({ character, description: jsonDescription });
+
+    // Should contain the formatted description
+    expect(prompt).toContain('**Setting:** A dimly lit chamber');
+    expect(prompt).toContain('**Objects:** darth vader, helmet, lightsaber hilt, dark stone walls, shadows');
+    expect(prompt).toContain('**Characters:** darth vader');
+    expect(prompt).toContain('**Mood & Atmosphere:** Menacing, powerful, and oppressive');
+    expect(prompt).toContain('**Narrative Hooks:** A faint mechanical hum emanates from Vader., The air feels cold and heavy.');
+    expect(prompt).toContain('**IMAGE DESCRIPTION:**');
+  });
+
+  it('should handle non-JSON description gracefully', () => {
+    const character = createCharacter({
+      currentTurn: 1,
+      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
+      storyHistory: [],
+    });
+
+    const plainDescription = "A simple text description";
+
+    const prompt = buildStoryPrompt({ character, description: plainDescription });
+
+    // Should use the description as-is
+    expect(prompt).toContain('**IMAGE DESCRIPTION:**');
+    expect(prompt).toContain(plainDescription);
+  });
 });
 
 describe('Final Story Prompt Builder', () => {

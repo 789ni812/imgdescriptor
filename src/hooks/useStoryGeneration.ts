@@ -16,9 +16,19 @@ const debugLog = (component: string, action: string, data?: unknown) => {
   }
 };
 
+// Helper to format image description as readable text
+function formatImageDescription(desc: any): string {
+  if (!desc) return '';
+  return `**Setting:** ${desc.setting || ''}
+**Objects:** ${Array.isArray(desc.objects) ? desc.objects.join(', ') : desc.objects || ''}
+**Characters:** ${Array.isArray(desc.characters) ? desc.characters.join(', ') : desc.characters || ''}
+**Mood & Atmosphere:** ${desc.mood || ''}
+**Narrative Hooks:** ${Array.isArray(desc.hooks) ? desc.hooks.join(', ') : desc.hooks || ''}`;
+}
+
 export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig, debugConfig }: {
   character: Character,
-  description: string,
+  description: string | object,
   customPrompt?: string,
   goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig,
   debugConfig?: import('@/lib/types/template').GameTemplate['debugConfig']
@@ -31,6 +41,21 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     .map((s: StoryEntry) => s.text)
     .join('\n');
   const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
+
+  // Robustly format the image description
+  let formattedDescription = '';
+  if (typeof description === 'string') {
+    try {
+      const imageDesc = JSON.parse(description);
+      formattedDescription = formatImageDescription(imageDesc);
+    } catch {
+      formattedDescription = description;
+    }
+  } else if (typeof description === 'object' && description !== null) {
+    formattedDescription = formatImageDescription(description);
+  } else {
+    formattedDescription = String(description);
+  }
 
   // Inject GoodVsBad context if enabled
   let goodVsBadContext = '';
@@ -75,7 +100,7 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
     previousStoryContext,
-    description
+    `**IMAGE DESCRIPTION:**\n${formattedDescription}`
   ].filter(Boolean).join('\n\n');
 
   return customPrompt
@@ -85,7 +110,7 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
 
 export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
   character: Character,
-  description: string,
+  description: string | object,
   customPrompt?: string,
   goodVsBadConfig?: import('@/lib/types/goodVsBad').GoodVsBadConfig,
   dmAdaptations?: DMAdaptation['adaptations']
@@ -98,6 +123,21 @@ export function buildAdaptiveStoryPrompt({ character, description, customPrompt,
     .map((s: StoryEntry) => s.text)
     .join('\n');
   const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
+
+  // Robustly format the image description
+  let formattedDescription = '';
+  if (typeof description === 'string') {
+    try {
+      const imageDesc = JSON.parse(description);
+      formattedDescription = formatImageDescription(imageDesc);
+    } catch {
+      formattedDescription = description;
+    }
+  } else if (typeof description === 'object' && description !== null) {
+    formattedDescription = formatImageDescription(description);
+  } else {
+    formattedDescription = String(description);
+  }
 
   // Inject GoodVsBad context if enabled
   let goodVsBadContext = '';
@@ -152,7 +192,7 @@ export function buildAdaptiveStoryPrompt({ character, description, customPrompt,
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
     previousStoryContext,
-    description
+    `**IMAGE DESCRIPTION:**\n${formattedDescription}`
   ].filter(Boolean).join('\n\n');
 
   return customPrompt
@@ -362,6 +402,9 @@ export function useStoryGeneration(
       goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined,
       debugConfig: debugConfigOverride
     });
+
+    // DEBUG: Log the full prompt being sent to the LLM
+    console.log('[StoryGeneration] Full prompt sent to LLM:', prompt);
 
     debugLog('useStoryGeneration', 'Story prompt built', { 
       promptLength: prompt.length,

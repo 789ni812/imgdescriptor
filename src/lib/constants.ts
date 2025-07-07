@@ -18,7 +18,12 @@ Example output:
   "hooks": ["A distant howl echoes through the fog.", "A faint light flickers in a tower window."]
 }`;
 
-export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive story scene based on the image description. This is part of a larger RPG adventure where player choices matter.
+export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive story scene that DIRECTLY incorporates the image description provided. This is part of a larger RPG adventure where player choices matter.
+
+**CRITICAL REQUIREMENT:**
+- **MUST USE IMAGE ELEMENTS**: Your story MUST directly reference the setting, objects, characters, mood, and narrative hooks from the image description
+- **VISUAL ACCURACY**: The story should accurately reflect what is visually depicted in the image
+- **CONTEXT INTEGRATION**: Weave the image elements naturally into the narrative
 
 **Story Requirements:**
 - **Character-Driven**: Reflect the player character's moral alignment, traits, and current situation

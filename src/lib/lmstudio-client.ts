@@ -101,7 +101,7 @@ export const generateStory = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), STORY_TIMEOUT_MS);
 
-  const userPrompt = prompt ? `${prompt}\n\n${description}` : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${description}`;
+  const userPrompt = prompt ? prompt : `${DEFAULT_STORY_GENERATION_PROMPT}\n\n${description}`;
 
   // Use debugConfig for AI tuning if provided
   const aiTuning: GameTemplate['debugConfig']['aiResponseTuning'] = debugConfig?.aiResponseTuning ?? {
