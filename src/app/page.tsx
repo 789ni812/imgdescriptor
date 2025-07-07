@@ -16,6 +16,7 @@ import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
 import { TemplateManager } from '@/components/TemplateManager';
 import TurnCard from '@/components/TurnCard';
+import { InterfaceToggle } from '@/components/InterfaceToggle';
 import type { CharacterStats, StoryDescription, ImageDescription } from '@/lib/types';
 
 // Debug logging utility
@@ -27,6 +28,7 @@ const debugLog = (component: string, action: string, data?: unknown) => {
 };
 
 export default function Home() {
+  const [currentInterface, setCurrentInterface] = useState<'original' | 'gamebook'>('original');
   const { 
     isDescriptionLoading, 
     error: descriptionError, 
@@ -323,8 +325,19 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
     }
   };
 
+  // Redirect to gamebook interface if selected
+  if (currentInterface === 'gamebook') {
+    // Use router navigation to avoid circular dependency
+    window.location.href = '/gamebook';
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <InterfaceToggle 
+        currentInterface={currentInterface}
+        onToggle={setCurrentInterface}
+      />
       <main>
         <section className="container mx-auto px-4 py-8" data-testid="main-content-container">
           {/* Turn Indicator */}
