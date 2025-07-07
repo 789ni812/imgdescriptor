@@ -17,13 +17,13 @@ const debugLog = (component: string, action: string, data?: unknown) => {
 };
 
 // Helper to format image description as readable text
-function formatImageDescription(desc: any): string {
+function formatImageDescription(desc: Record<string, unknown>): string {
   if (!desc) return '';
-  return `**Setting:** ${desc.setting || ''}
-**Objects:** ${Array.isArray(desc.objects) ? desc.objects.join(', ') : desc.objects || ''}
-**Characters:** ${Array.isArray(desc.characters) ? desc.characters.join(', ') : desc.characters || ''}
-**Mood & Atmosphere:** ${desc.mood || ''}
-**Narrative Hooks:** ${Array.isArray(desc.hooks) ? desc.hooks.join(', ') : desc.hooks || ''}`;
+  return `**Setting:** ${typeof desc.setting === 'string' ? desc.setting : ''}
+**Objects:** ${Array.isArray(desc.objects) ? desc.objects.join(', ') : typeof desc.objects === 'string' ? desc.objects : ''}
+**Characters:** ${Array.isArray(desc.characters) ? desc.characters.join(', ') : typeof desc.characters === 'string' ? desc.characters : ''}
+**Mood & Atmosphere:** ${typeof desc.mood === 'string' ? desc.mood : ''}
+**Narrative Hooks:** ${Array.isArray(desc.hooks) ? desc.hooks.join(', ') : typeof desc.hooks === 'string' ? desc.hooks : ''}`;
 }
 
 export function buildStoryPrompt({ character, description, customPrompt, goodVsBadConfig, debugConfig }: {
@@ -40,19 +40,18 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     .filter((s: StoryEntry) => s.turnNumber < turn)
     .map((s: StoryEntry) => s.text)
     .join('\n');
-  const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
 
   // Robustly format the image description
   let formattedDescription = '';
   if (typeof description === 'string') {
     try {
       const imageDesc = JSON.parse(description);
-      formattedDescription = formatImageDescription(imageDesc);
+      formattedDescription = formatImageDescription(imageDesc as Record<string, unknown>);
     } catch {
       formattedDescription = description;
     }
   } else if (typeof description === 'object' && description !== null) {
-    formattedDescription = formatImageDescription(description);
+    formattedDescription = formatImageDescription(description as Record<string, unknown>);
   } else {
     formattedDescription = String(description);
   }
@@ -115,15 +114,6 @@ Write the next story segment in the style of Ian Livingstone's Forest of Doom.
 - End with a clear dilemma or choice for the player.
 `;
 
-  const contextPrompt = [
-    goodVsBadContext,
-    moralAlignmentContext,
-    `Turn: ${turn}`,
-    `Stats: ${statsString}`,
-    previousStoryContext,
-    `**IMAGE DESCRIPTION:**\n${formattedDescription}`
-  ].filter(Boolean).join('\n\n');
-
   return customPrompt
     ? `${customPrompt}${storyLengthInstruction}\n\n${gamebookInstruction}`
     : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${gamebookInstruction}`;
@@ -139,23 +129,18 @@ export function buildAdaptiveStoryPrompt({ character, description, customPrompt,
   const turn = character.currentTurn;
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
-  const previousStories = character.storyHistory
-    .filter((s: StoryEntry) => s.turnNumber < turn)
-    .map((s: StoryEntry) => s.text)
-    .join('\n');
-  const previousStoryContext = previousStories ? `Previous story: ${previousStories}` : '';
 
   // Robustly format the image description
   let formattedDescription = '';
   if (typeof description === 'string') {
     try {
       const imageDesc = JSON.parse(description);
-      formattedDescription = formatImageDescription(imageDesc);
+      formattedDescription = formatImageDescription(imageDesc as Record<string, unknown>);
     } catch {
       formattedDescription = description;
     }
   } else if (typeof description === 'object' && description !== null) {
-    formattedDescription = formatImageDescription(description);
+    formattedDescription = formatImageDescription(description as Record<string, unknown>);
   } else {
     formattedDescription = String(description);
   }
@@ -212,7 +197,6 @@ export function buildAdaptiveStoryPrompt({ character, description, customPrompt,
     dmAdaptationContext,
     `Turn: ${turn}`,
     `Stats: ${statsString}`,
-    previousStoryContext,
     `**IMAGE DESCRIPTION:**\n${formattedDescription}`
   ].filter(Boolean).join('\n\n');
 

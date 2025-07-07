@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { GamebookImageUpload } from '@/components/GamebookImageUpload';
 import { GamebookPage as GamebookPageComponent } from '@/components/GamebookPage';
 import { MinimalHUD } from '@/components/MinimalHUD';
@@ -176,25 +176,17 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
     addExperience(50);
   };
 
-  const handleGenerateStory = async () => {
+  const handleGenerateStory = useCallback(async () => {
     if (!description) return;
-    
     try {
       await generateStory(description);
     } catch (error) {
       console.error('Error generating story:', error);
     }
-  };
-
-  const [dmOutcome, setDMOutcome] = useState(null);
-  const [isDMOutcomeLoading, setIsDMOutcomeLoading] = useState(false);
-  const [dmOutcomeError, setDMOutcomeError] = useState<string | null>(null);
+  }, [description, generateStory]);
 
   const handleChoiceSelect = async (choiceId: string) => {
     debugLog('Gamebook', 'Choice selected', { choiceId, currentTurn: character.currentTurn });
-    setIsDMOutcomeLoading(true);
-    setDMOutcome(null);
-    setDMOutcomeError(null);
     try {
       const selectedChoice = character.currentChoices.find(c => c.id === choiceId);
       const previousStory = character.storyHistory.length > 0 ? character.storyHistory[character.storyHistory.length - 1].text : '';
@@ -205,8 +197,6 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
       });
       if (!response.ok) throw new Error('Failed to get DM outcome');
       const data = await response.json();
-      setDMOutcome(data);
-      // Apply stat changes (if any)
       if (data.statChanges) {
         Object.entries(data.statChanges).forEach(([stat, change]) => {
           if (typeof change === 'number') updateStat(stat as keyof typeof character.stats, character.stats[stat as keyof typeof character.stats] + change);
@@ -219,9 +209,7 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
         // Optionally set a game over state here
       }
     } catch (err) {
-      setDMOutcomeError('Failed to get DM outcome.');
-    } finally {
-      setIsDMOutcomeLoading(false);
+      console.error('Failed to get DM outcome:', err);
     }
   };
 

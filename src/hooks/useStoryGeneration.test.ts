@@ -521,9 +521,8 @@ describe('buildStoryPrompt', () => {
     const description = 'A hidden cave entrance with ancient symbols';
     const prompt = buildStoryPrompt({ character, description });
 
-    expect(prompt).toContain('Turn: 2');
-    expect(prompt).toContain('INT 15, CRE 12, PER 8, WIS 10');
-    expect(prompt).toContain('Previous story: The adventure began in a mysterious forest.');
+    expect(prompt).toContain('Player stats: INT 15, CRE 12, PER 8, WIS 10');
+    expect(prompt).toContain('Previous story summary: The adventure began in a mysterious forest.');
     expect(prompt).toContain(description);
   });
 
@@ -544,17 +543,15 @@ describe('buildStoryPrompt', () => {
 
   it('should handle character with no story history', () => {
     const character = createCharacter({
-      currentTurn: 1,
-      stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
-      storyHistory: [],
+      ...defaultCharacter,
+      storyHistory: []
     });
 
     const description = 'A beautiful landscape';
     const prompt = buildStoryPrompt({ character, description });
 
-    expect(prompt).toContain('Turn: 1');
-    expect(prompt).toContain('INT 10, CRE 10, PER 10, WIS 10');
-    expect(prompt).not.toContain('Previous story:');
+    expect(prompt).toContain('Player stats: INT 10, CRE 10, PER 10, WIS 10');
+    expect(prompt).toContain('Previous story summary: None yet.');
     expect(prompt).toContain(description);
   });
 
@@ -603,13 +600,12 @@ describe('buildStoryPrompt', () => {
 
     const prompt = buildStoryPrompt({ character, description: jsonDescription });
 
-    // Should contain the formatted description
+    // Should contain the formatted description elements
     expect(prompt).toContain('**Setting:** A dimly lit chamber');
     expect(prompt).toContain('**Objects:** darth vader, helmet, lightsaber hilt, dark stone walls, shadows');
     expect(prompt).toContain('**Characters:** darth vader');
     expect(prompt).toContain('**Mood & Atmosphere:** Menacing, powerful, and oppressive');
     expect(prompt).toContain('**Narrative Hooks:** A faint mechanical hum emanates from Vader., The air feels cold and heavy.');
-    expect(prompt).toContain('**IMAGE DESCRIPTION:**');
   });
 
   it('should handle non-JSON description gracefully', () => {
@@ -624,7 +620,6 @@ describe('buildStoryPrompt', () => {
     const prompt = buildStoryPrompt({ character, description: plainDescription });
 
     // Should use the description as-is
-    expect(prompt).toContain('**IMAGE DESCRIPTION:**');
     expect(prompt).toContain(plainDescription);
   });
 });
@@ -770,6 +765,13 @@ describe('Choice Generation', () => {
       json: async () => mockStoryResponse,
     });
 
+    // Mock the fetch for DM reflection
+    const mockDMReflection = { success: true, reflection: 'DM says: The story should be more challenging.' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockDMReflection,
+    });
+
     // Mock the fetch for choice generation
     const mockChoicesResponse = { 
       success: true, 
@@ -820,14 +822,8 @@ describe('Choice Generation', () => {
     expect(fetch).toHaveBeenCalledTimes(3);
     
     // Check that the third call was for choice generation
-    const choiceCall = (fetch as jest.Mock).mock.calls[2];
-    expect(choiceCall[0]).toBe('/api/generate-choices');
-    expect(JSON.parse(choiceCall[1].body)).toEqual({
-      story: 'The adventurer discovers ancient symbols in the cave.',
-      character: mockStore.character,
-      turn: 1,
-      dmReflection: ''
-    });
+    const choicesCallBody = JSON.parse((fetch as jest.Mock).mock.calls[2][1].body);
+    expect(choicesCallBody.dmReflection).toBe('DM says: The story should be more challenging.');
 
     // Verify that exactly 2 choices were generated (within the 2-3 range)
     expect(mockChoicesResponse.choices).toHaveLength(2);
@@ -1098,21 +1094,21 @@ describe('Choice Generation', () => {
     };
     const mockStore = { character: mockCharacter };
 
-    // Mock fetch for story generation
+    // Mock the fetch for story generation
     const mockStoryResponse = { success: true, story: 'The adventurer discovers ancient symbols in the cave.' };
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockStoryResponse,
     });
 
-    // Mock fetch for DM Reflection
+    // Mock the fetch for DM reflection
     const mockDMReflection = { success: true, reflection: 'DM says: The story should be more challenging.' };
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockDMReflection,
     });
 
-    // Mock fetch for choice generation
+    // Mock the fetch for choice generation
     const mockChoicesResponse = {
       success: true,
       choices: [

@@ -257,7 +257,7 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
       // Robustly parse consequences as an array of trimmed strings
       let consequences: string[] = [];
       if (Array.isArray(choice.consequences)) {
-        consequences = choice.consequences.map((c: any) => typeof c === 'string' ? c.trim() : String(c));
+        consequences = choice.consequences.map((c: unknown) => typeof c === 'string' ? c.trim() : String(c));
       } else if (typeof choice.consequences === 'string') {
         consequences = [choice.consequences.trim()];
       } else {

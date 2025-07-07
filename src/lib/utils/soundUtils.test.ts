@@ -1,18 +1,10 @@
-import { 
-  playGenerationSound, 
-  preloadSounds, 
-  cleanupSounds, 
-  testSound,
-  DEFAULT_SOUND_CONFIG,
-  type SoundConfig 
-} from './soundUtils';
+import { type SoundConfig } from './soundUtils';
 
 // Patch the Audio mock so every new Audio(url) returns the same instance for a given URL
 const audioMockCache: Record<string, any> = {};
 const getAudioInstance = (url: string) => audioMockCache[url];
 
 beforeAll(() => {
-  // @ts-ignore
   global.Audio = jest.fn().mockImplementation((src: string) => {
     if (!audioMockCache[src]) {
       let _volume = 0;

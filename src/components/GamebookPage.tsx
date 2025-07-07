@@ -199,7 +199,14 @@ export const GamebookPage: React.FC<GamebookPageProps> = ({
       </div>
 
       {/* Choices Section */}
-      {!(isDead || (typeof storyError === 'string' && storyError.includes('Game Over'))) && story && choices && choices.length > 0 && !choiceOutcome && (
+      {isChoicesLoading ? (
+        <div className="text-center py-12">
+          <LoadingSpinner />
+          <p className="text-amber-600 dark:text-amber-400 mt-4 font-serif">
+            Preparing your choices...
+          </p>
+        </div>
+      ) : !(isDead || (typeof storyError === 'string' && storyError.includes('Game Over'))) && story && choices && choices.length > 0 && !choiceOutcome && (
         <div className="mt-8">
           <div className="space-y-4">
             <h3 className="font-serif text-xl text-amber-800 dark:text-amber-200 text-center mb-6">

@@ -8,11 +8,10 @@ export interface DMOutcomeResult {
 
 interface DMOutcomeInput {
   character: Character;
-  previousStory: string;
   selectedChoice: Choice;
 }
 
-export function getDMOutcome({ character, previousStory, selectedChoice }: DMOutcomeInput): DMOutcomeResult {
+export function getDMOutcome({ character, selectedChoice }: DMOutcomeInput): DMOutcomeResult {
   // Placeholder logic for TDD: always return a fixed outcome
   // (Will be replaced with LLM prompt and real stat logic)
   const statChanges = { intelligence: 1 };

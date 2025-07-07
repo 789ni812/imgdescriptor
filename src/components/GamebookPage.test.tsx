@@ -49,6 +49,13 @@ const mockChoices: Choice[] = [
   }
 ];
 
+const mockStats = {
+  intelligence: 10,
+  creativity: 10,
+  perception: 10,
+  wisdom: 10,
+};
+
 const defaultProps = {
   turnNumber: 1,
   imageUrl: '/test-image.jpg',
@@ -60,6 +67,7 @@ const defaultProps = {
   onSelectChoice: jest.fn(),
   isDescriptionLoading: false,
   isCurrentTurn: true,
+  stats: mockStats,
 };
 
 describe('GamebookPage', () => {
