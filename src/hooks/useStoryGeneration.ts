@@ -6,6 +6,7 @@ import type { Character, StoryEntry, Choice } from '@/lib/types/character';
 import type { DMAdaptation } from '@/lib/types/dmAdaptation';
 import { v4 as uuidv4 } from 'uuid';
 import type { StoryDescription } from '@/lib/types';
+import { playGenerationSound } from '@/lib/utils/soundUtils';
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -349,6 +350,7 @@ export function useStoryGeneration(
         });
         setIsChoicesLoading(false);
         setIsStoryLoading(false);
+        playGenerationSound(); // Play after mock story+choices
       }, 300); // Simulate a short delay
       return;
     }
@@ -438,6 +440,7 @@ export function useStoryGeneration(
             const dmReflectionData = await dmReflectionRes.json();
             if (dmReflectionData && dmReflectionData.reflection) {
               dmReflection = dmReflectionData.reflection;
+              playGenerationSound(); // Play after DM reflection
             }
           }
         } catch (e) {
@@ -509,6 +512,7 @@ export function useStoryGeneration(
         });
         setIsChoicesLoading(false);
         setIsStoryLoading(false);
+        playGenerationSound(); // Play after mock story+choices
       }, 300); // Simulate a short delay
       return;
     }
@@ -580,6 +584,7 @@ export function useStoryGeneration(
             const dmReflectionData = await dmReflectionRes.json();
             if (dmReflectionData && dmReflectionData.reflection) {
               dmReflection = dmReflectionData.reflection;
+              playGenerationSound(); // Play after DM reflection
             }
           }
         } catch (e) {
@@ -617,6 +622,7 @@ export function useStoryGeneration(
             storeFromHook.addChoice(choice);
           }
         });
+        playGenerationSound(); // Play after LLM choices
       }
     } catch (e) {
       debugLog('useStoryGeneration', 'Choice generation failed', e);

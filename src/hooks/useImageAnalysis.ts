@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { MOCK_IMAGE_DESCRIPTION, MOCK_IMAGE_DESCRIPTION_TEXT, TURN_BASED_MOCK_DATA } from '@/lib/config';
 import { useCharacterStore } from '@/lib/stores/characterStore';
+import { playGenerationSound } from '@/lib/utils/soundUtils';
 
 // Types for dependency injection
 interface ConfigDependencies {
@@ -116,6 +117,9 @@ export function useImageAnalysis(
           });
           setDescriptionGlobal(data.description);
           setError(null);
+          playGenerationSound().catch(error => {
+            console.warn('Failed to play image analysis sound:', error);
+          });
         } else {
           debugLog('useImageAnalysis', 'API returned error', { error: data.error });
           setDescriptionGlobal(undefined);

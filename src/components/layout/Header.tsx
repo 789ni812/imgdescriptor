@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import CharacterStatsClientOnly from './CharacterStats';
+import HeaderSoundControls from './HeaderSoundControls';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { Heart, Dice5 } from 'lucide-react';
 
@@ -36,12 +37,15 @@ export function Header() {
               <CharacterStatsClientOnly className="text-muted-foreground" />
             </div>
           )}
-          <div className="text-sm text-muted-foreground ml-4">
-            {hasCharacter ? (
-              <span>Lv.{character.level}  XP {character.experience}</span>
-            ) : (
-              <span>Upload an image and let our AI describe it for you.</span>
-            )}
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              {hasCharacter ? (
+                <span>Lv.{character.level}  XP {character.experience}</span>
+              ) : (
+                <span>Upload an image and let our AI describe it for you.</span>
+              )}
+            </div>
+            <HeaderSoundControls />
           </div>
         </div>
       </div>
