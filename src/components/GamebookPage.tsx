@@ -4,7 +4,7 @@ import { Button } from './ui/Button';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 
 import type { StoryDescription, ImageDescription } from '@/lib/types';
-import type { Choice } from '@/lib/types/character';
+import type { Choice, ChoiceOutcome } from '@/lib/types/character';
 
 interface GamebookPageProps {
   turnNumber: number;
@@ -17,6 +17,10 @@ interface GamebookPageProps {
   onSelectChoice?: (choiceId: string) => void;
   isDescriptionLoading: boolean;
   isCurrentTurn: boolean;
+  choiceOutcome?: ChoiceOutcome;
+  stats: import('@/lib/types/character').CharacterStats;
+  isDead?: boolean;
+  storyError?: string;
 }
 
 export const GamebookPage: React.FC<GamebookPageProps> = ({
@@ -30,11 +34,37 @@ export const GamebookPage: React.FC<GamebookPageProps> = ({
   onSelectChoice,
   isDescriptionLoading,
   isCurrentTurn,
+  choiceOutcome,
+  stats,
+  isDead,
+  storyError,
 }) => {
   // Only render if this is the current turn or has content
   if (!isCurrentTurn && !story && !imageDescription) {
     return null;
   }
+
+  // Helper to render stats
+  const renderStats = () => (
+    <div className="flex flex-wrap gap-4 justify-center mb-2 mt-2">
+      {Object.entries(stats).map(([stat, value]) => (
+        <div key={stat} className="px-3 py-1 rounded bg-amber-200 text-amber-900 font-semibold text-sm shadow">
+          {stat.charAt(0).toUpperCase() + stat.slice(1)}: {value}
+        </div>
+      ))}
+    </div>
+  );
+
+  // Helper to render stat changes
+  const renderStatChanges = (statChanges: Partial<import('@/lib/types/character').CharacterStats>) => (
+    <div className="flex flex-wrap gap-2 justify-center mt-1">
+      {Object.entries(statChanges).map(([stat, value]) => (
+        <span key={stat} className={`px-2 py-1 rounded text-xs font-bold ${value > 0 ? 'bg-green-200 text-green-800' : value < 0 ? 'bg-red-200 text-red-800' : 'bg-amber-100 text-amber-900'}`}>
+          {stat.charAt(0).toUpperCase() + stat.slice(1)} {value > 0 ? '+' : ''}{value}
+        </span>
+      ))}
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto bg-gradient-to-b from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 rounded-lg shadow-lg border border-amber-200 dark:border-amber-800 p-8 mb-8">
@@ -49,6 +79,29 @@ export const GamebookPage: React.FC<GamebookPageProps> = ({
           </div>
         )}
       </div>
+
+      {/* Game Over Message */}
+      {(isDead || (typeof storyError === 'string' && storyError.includes('Game Over'))) && (
+        <div className="text-center mb-4">
+          <div className="bg-red-700 text-white font-bold text-2xl rounded p-6 shadow-lg border-4 border-red-900">
+            Game Over
+          </div>
+          <div className="mt-2 text-lg text-red-900 dark:text-red-200 font-serif">
+            Your character has died. The adventure ends here.
+          </div>
+        </div>
+      )}
+
+      {/* Choice Outcome and Stats */}
+      {choiceOutcome && (
+        <div className="mb-4 text-center">
+          <div className="font-semibold text-amber-800 dark:text-amber-200 mb-1">Your Choice:</div>
+          <div className="italic text-amber-700 dark:text-amber-300 mb-1">{choiceOutcome.text}</div>
+          {choiceOutcome.statChanges && renderStatChanges(choiceOutcome.statChanges)}
+        </div>
+      )}
+      {/* Always show stats */}
+      {renderStats()}
 
       {/* Image and Description Section */}
       {imageUrl && (
@@ -146,48 +199,39 @@ export const GamebookPage: React.FC<GamebookPageProps> = ({
       </div>
 
       {/* Choices Section */}
-      {story && (
+      {!(isDead || (typeof storyError === 'string' && storyError.includes('Game Over'))) && story && choices && choices.length > 0 && !choiceOutcome && (
         <div className="mt-8">
-          {isChoicesLoading ? (
-            <div className="text-center py-8">
-              <LoadingSpinner />
-              <p className="text-amber-600 dark:text-amber-400 mt-4 font-serif">
-                Preparing your choices...
-              </p>
-            </div>
-          ) : choices && choices.length > 0 ? (
-            <div className="space-y-4">
-              <h3 className="font-serif text-xl text-amber-800 dark:text-amber-200 text-center mb-6">
-                What will you do?
-              </h3>
-              <div className="grid gap-4 max-w-2xl mx-auto">
-                {choices.map((choice, index) => (
-                  <Button
-                    key={choice.id}
-                    onClick={() => onSelectChoice?.(choice.id)}
-                    className="w-full p-6 text-left bg-white dark:bg-amber-900/50 border-2 border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/70 transition-all duration-200"
-                    variant="ghost"
-                  >
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-amber-200 dark:bg-amber-800 rounded-full flex items-center justify-center text-amber-800 dark:text-amber-200 font-bold">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-serif text-lg text-amber-800 dark:text-amber-200 mb-2">
-                          {choice.text}
-                        </div>
-                        {choice.description && (
-                          <div className="text-amber-600 dark:text-amber-400 text-sm">
-                            {choice.description}
-                          </div>
-                        )}
-                      </div>
+          <div className="space-y-4">
+            <h3 className="font-serif text-xl text-amber-800 dark:text-amber-200 text-center mb-6">
+              What will you do?
+            </h3>
+            <div className="grid gap-4 max-w-2xl mx-auto">
+              {choices.map((choice, index) => (
+                <Button
+                  key={choice.id}
+                  onClick={() => onSelectChoice?.(choice.id)}
+                  className="w-full p-6 text-left bg-white dark:bg-amber-900/50 border-2 border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/70 transition-all duration-200"
+                  variant="ghost"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-8 h-8 bg-amber-200 dark:bg-amber-800 rounded-full flex items-center justify-center text-amber-800 dark:text-amber-200 font-bold">
+                      {index + 1}
                     </div>
-                  </Button>
-                ))}
-              </div>
+                    <div className="flex-1">
+                      <div className="font-serif text-lg text-amber-800 dark:text-amber-200 mb-2">
+                        {choice.text}
+                      </div>
+                      {choice.description && (
+                        <div className="text-amber-600 dark:text-amber-400 text-sm">
+                          {choice.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Button>
+              ))}
             </div>
-          ) : null}
+          </div>
         </div>
       )}
     </div>

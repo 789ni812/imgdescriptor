@@ -94,6 +94,27 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     }
   }
 
+  // --- STRONG GAMEBOOK-STYLE INSTRUCTION BLOCK ---
+  const gamebookInstruction = `
+You are the Dungeon Master for a classic gamebook adventure.
+Write the next story segment in the style of Ian Livingstone's Forest of Doom.
+
+**Context:**
+- Previous story summary: ${previousStories || 'None yet.'}
+- Player stats: ${statsString}
+- DM context: ${goodVsBadContext}\n${moralAlignmentContext}
+- Current image description: ${formattedDescription}
+
+**Instructions:**
+- The new story must be set in the scene described by the image.
+- You MUST reference the following image details in the first paragraph: setting, objects, mood, hooks. If you do not, the story will be rejected.
+- Reference the image's setting, objects, mood, and hooks.
+- Make explicit, gamebook-style decisions and consequences.
+- Adjust the player's health/stats if appropriate.
+- If the player's health reaches zero, narrate their demise.
+- End with a clear dilemma or choice for the player.
+`;
+
   const contextPrompt = [
     goodVsBadContext,
     moralAlignmentContext,
@@ -104,8 +125,8 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
   ].filter(Boolean).join('\n\n');
 
   return customPrompt
-    ? `${customPrompt}${storyLengthInstruction}\n\n${contextPrompt}`
-    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${contextPrompt}`;
+    ? `${customPrompt}${storyLengthInstruction}\n\n${gamebookInstruction}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${gamebookInstruction}`;
 }
 
 export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
@@ -433,7 +454,24 @@ export function useStoryGeneration(
           story: data.story 
         });
         
+        // --- IMAGE REFERENCE CHECK ---
+        let imageReferenceWarning = '';
+        try {
+          const imageDesc = typeof description === 'string' ? JSON.parse(description) : description;
+          const storyText = JSON.stringify(data.story).toLowerCase();
+          const hasSetting = imageDesc.setting && storyText.includes(imageDesc.setting.toLowerCase());
+          const hasObject = imageDesc.objects && imageDesc.objects.some((obj: string) => storyText.includes(obj.toLowerCase()));
+          const hasMood = imageDesc.mood && storyText.includes(imageDesc.mood.toLowerCase());
+          const hasHook = imageDesc.hooks && imageDesc.hooks.some((hook: string) => storyText.includes(hook.toLowerCase()));
+          if (!hasSetting && !hasObject && !hasMood && !hasHook) {
+            imageReferenceWarning = 'The story does not reference the image description. Please retry or regenerate.';
+          }
+        } catch {}
+        // --- END IMAGE REFERENCE CHECK ---
         setStory(data.story);
+        if (imageReferenceWarning) {
+          setStoryError(imageReferenceWarning);
+        }
         
         // Add the story to character history
         if (storeFromHook.addStory) {
@@ -490,6 +528,15 @@ export function useStoryGeneration(
           debugLog('useStoryGeneration', 'DM Reflection API failed', e);
         }
         // --- End DM Reflection Integration ---
+        
+        // --- GAME OVER CHECK ---
+        const isDead = effectiveCharacter.stats.wisdom <= 0; // You can change to health or another stat if needed
+        if (isDead) {
+          setStoryError('Game Over: Your character has died.');
+          setIsChoicesLoading(false);
+          return;
+        }
+        // --- END GAME OVER CHECK ---
         
         // Generate LLM-based choices after story, passing DM Reflection
         await generateLLMChoices(data.story, effectiveCharacter, dmReflection);
@@ -634,6 +681,15 @@ export function useStoryGeneration(
           debugLog('useStoryGeneration', 'DM Reflection API failed', e);
         }
         // --- End DM Reflection Integration ---
+        
+        // --- GAME OVER CHECK ---
+        const isDead = effectiveCharacter.stats.wisdom <= 0; // You can change to health or another stat if needed
+        if (isDead) {
+          setStoryError('Game Over: Your character has died.');
+          setIsChoicesLoading(false);
+          return;
+        }
+        // --- END GAME OVER CHECK ---
         
         // Generate LLM-based choices after story, passing DM Reflection
         await generateLLMChoices(data.story, effectiveCharacter, dmReflection);

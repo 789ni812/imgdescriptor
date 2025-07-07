@@ -889,3 +889,33 @@ We will implement the following game mechanics, ensuring all features are extens
   - Add prompt sharing and import/export functionality
   - Write tests for prompt customization interface
   - **Commit:** `
+
+## Dungeon Master Agency & Gamebook Tone (2025-06-23)
+
+- The AI Dungeon Master (DM) is responsible for:
+  - Actively adjusting the player's health and stats based on narrative events, choices, and remaining turns.
+  - Making explicit, gamebook-style decisions and consequences, including the possibility of player death or stat-based outcomes.
+  - Maintaining a consistent narrative tone inspired by classic gamebooks (e.g., Ian Livingstone's Forest of Doom). The DM's narration should be immersive, direct, and filled with tension and consequence.
+  - Using prompt engineering to ensure the LLM always writes in this style. Example: 'Write the next story segment in the style of Ian Livingstone's Forest of Doom, with clear consequences and a sense of peril.'
+
+### Choices Recap UI
+- Each turn card must display all choices generated for that turn, with the user's selected choice clearly highlighted (e.g., border, background, or icon).
+- The recap should appear below the story for best narrative flow.
+
+### API Endpoints
+
+- `/api/analyze-image` - Image analysis and description generation
+- `/api/generate-story` - Story generation with character context
+- `/api/generate-choices` - Choice generation with consequences
+- `/api/dm-reflection` - DM reflection and adaptation
+- `/api/dm-outcome` - **NEW:** After a user selects a choice, this endpoint sends the current game state, previous story, and selected choice to the Dungeon Master (LLM). The DM narrates the outcome, updates stats, and determines if the game continues or ends (game over).
+- `/api/upload-image` - Image upload and storage
+
+#### Gamebook Turn Flow
+1. User uploads image
+2. AI generates image description
+3. AI generates story segment
+4. AI generates choices
+5. User selects a choice
+6. **NEW:** DM narrates outcome, updates stats, and determines if game continues or ends (via `/api/dm-outcome`)
+7. If not game over, next turn begins (repeat)

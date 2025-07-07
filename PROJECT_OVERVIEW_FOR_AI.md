@@ -20,6 +20,7 @@ ration**: LM Studio SDK for local LLM processing
 ### 1. **Turn-Based Storytelling System**
 - 3-turn limit with dynamic turn management
 - Each turn: image upload → AI description → story generation → player choices
+- **After a user selects a choice, the DM narrates the outcome, updates stats, and determines if the game continues or ends (game over) via `/api/dm-outcome`.**
 - Story continuation across turns with full context preservation
 - Per-turn accordion UI with loading states and content management
 
@@ -30,25 +31,37 @@ ration**: LM Studio SDK for local LLM processing
 - **Mood & Personality Evolution**: DM personality changes based on player actions
 - **Adaptive Narratives**: Story direction changes based on player behavior
 
-### 3. **Character Development System**
+### 3. **Dungeon Master Agency & Gamebook Tone (2025-06-23)**
+
+- The AI Dungeon Master (DM) is responsible for:
+  - Actively adjusting the player's health and stats based on narrative events, choices, and remaining turns.
+  - Making explicit, gamebook-style decisions and consequences, including the possibility of player death or stat-based outcomes.
+  - Maintaining a consistent narrative tone inspired by classic gamebooks (e.g., Ian Livingstone's Forest of Doom). The DM's narration should be immersive, direct, and filled with tension and consequence.
+  - Using prompt engineering to ensure the LLM always writes in this style. Example: 'Write the next story segment in the style of Ian Livingstone's Forest of Doom, with clear consequences and a sense of peril.'
+
+### Choices Recap UI
+- Each turn card must display all choices generated for that turn, with the user's selected choice clearly highlighted (e.g., border, background, or icon).
+- The recap should appear below the story for best narrative flow.
+
+### 4. **Character Development System**
 - **Comprehensive Stats**: Intelligence, Creativity, Perception, Wisdom, Health
 - **Moral Alignment**: Numeric alignment score (-100 to +100) with reputation tracking
 - **Character Progression**: Stats evolve based on choices and story outcomes
 - **Choice-Consequence Matrix**: Each choice affects character development
 
-### 4. **Template Management System**
+### 5. **Template Management System**
 - **Portable Templates**: Save/load complete game sessions with full state
 - **Template Types**: Support for different use cases (game, comics, business, etc.)
 - **Import/Export**: Share templates with images and prompts
 - **Template Editing**: Full CRUD operations with validation
 
-### 5. **Good vs Bad Framework**
+### 6. **Good vs Bad Framework**
 - **Moral Duality**: Configurable themes (hero-vs-villain, yin-yang, etc.)
 - **Customizable Roles**: Define hero and villain characteristics
 - **Profile Pictures**: Visual representation of good/bad entities
 - **Narrative Integration**: Moral choices affect story direction
 
-### 6. **Advanced UI/UX Features**
+### 7. **Advanced UI/UX Features**
 - **Responsive Design**: Modern, accessible interface with shadcn/ui components
 - **Real-time Feedback**: Loading states, progress indicators, toast notifications
 - **Visual Storytelling**: Image gallery with accordion-based content display
@@ -160,6 +173,7 @@ src/
 - `/api/generate-story` - Story generation with character context
 - `/api/generate-choices` - Choice generation with consequences
 - `/api/dm-reflection` - DM reflection and adaptation
+- `/api/dm-outcome` - **NEW:** After a user selects a choice, this endpoint sends the current game state, previous story, and selected choice to the Dungeon Master (LLM). The DM narrates the outcome, updates stats, and determines if the game continues or ends (game over).
 - `/api/upload-image` - Image upload and storage
 
 ## Environment Configuration

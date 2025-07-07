@@ -37,6 +37,8 @@ export default function GamebookApp() {
     resetCharacter,
     addImageToHistory,
     makeChoice,
+    incrementTurn,
+    updateStat,
   } = useCharacterStore();
 
   const { freeformAnswers } = useDMStore();
@@ -105,14 +107,16 @@ ${story.cues}
 ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
   };
 
-  // Helper function to build turn data for GamebookPage
+  // Helper function to build turn data for GamebookPageComponent
   const buildTurnData = (turnNumber: number) => {
     const imageEntry = (character.imageHistory || []).find(img => img.turn === turnNumber);
     const storyEntry = (character.storyHistory || []).find(story => story.turnNumber === turnNumber);
-    
+    // Only get choices for this turn
+    const turnChoices = character.choicesHistory?.find(entry => entry.turn === turnNumber)?.choices || [];
+    // Get the outcome for this turn (the user's chosen choice and stat changes)
+    const choiceOutcome = character.choiceHistory?.find(outcome => outcome.turnNumber === turnNumber);
     // Parse structured story
     const storyObj = parseStoryDescription(storyEntry?.text);
-
     // Parse structured image description
     let imageDescObj: ImageDescription | null = null;
     if (imageEntry?.description) {
@@ -126,17 +130,23 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
         imageDescObj = imageEntry.description;
       }
     }
-
+    // Stats after this turn
+    const stats = choiceOutcome ? { ...character.stats } : { ...character.stats };
+    // Check for 'death' (e.g., wisdom <= 0)
+    const isDead = stats.wisdom <= 0;
     return {
       turnNumber,
       imageUrl: imageEntry?.url || '',
       imageDescription: imageDescObj,
       story: storyObj,
       isStoryLoading: isStoryLoading && character.currentTurn === turnNumber,
-      choices: character.currentChoices,
+      choices: turnChoices,
       isChoicesLoading: isChoicesLoading && character.currentTurn === turnNumber,
       isDescriptionLoading: isDescriptionLoading && character.currentTurn === turnNumber,
       isCurrentTurn: character.currentTurn === turnNumber,
+      choiceOutcome,
+      stats,
+      isDead,
     };
   };
 
@@ -176,17 +186,43 @@ ${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
     }
   };
 
-  const handleChoiceSelect = (choiceId: string) => {
+  const [dmOutcome, setDMOutcome] = useState(null);
+  const [isDMOutcomeLoading, setIsDMOutcomeLoading] = useState(false);
+  const [dmOutcomeError, setDMOutcomeError] = useState<string | null>(null);
+
+  const handleChoiceSelect = async (choiceId: string) => {
     debugLog('Gamebook', 'Choice selected', { choiceId, currentTurn: character.currentTurn });
-    
-    makeChoice(choiceId);
-    
-    // Auto-generate story for next turn if available
-    setTimeout(() => {
-      if (character.currentDescription && character.currentTurn <= 3) {
-        handleGenerateStory();
+    setIsDMOutcomeLoading(true);
+    setDMOutcome(null);
+    setDMOutcomeError(null);
+    try {
+      const selectedChoice = character.currentChoices.find(c => c.id === choiceId);
+      const previousStory = character.storyHistory.length > 0 ? character.storyHistory[character.storyHistory.length - 1].text : '';
+      const response = await fetch('/api/dm-outcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ character, previousStory, selectedChoice }),
+      });
+      if (!response.ok) throw new Error('Failed to get DM outcome');
+      const data = await response.json();
+      setDMOutcome(data);
+      // Apply stat changes (if any)
+      if (data.statChanges) {
+        Object.entries(data.statChanges).forEach(([stat, change]) => {
+          if (typeof change === 'number') updateStat(stat as keyof typeof character.stats, character.stats[stat as keyof typeof character.stats] + change);
+        });
       }
-    }, 1000);
+      if (!data.gameOver) {
+        makeChoice(choiceId);
+        incrementTurn();
+      } else {
+        // Optionally set a game over state here
+      }
+    } catch (err) {
+      setDMOutcomeError('Failed to get DM outcome.');
+    } finally {
+      setIsDMOutcomeLoading(false);
+    }
   };
 
   const handleReset = () => {

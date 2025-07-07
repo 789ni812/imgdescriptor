@@ -46,7 +46,8 @@ export function buildDMEnhancedChoicePrompt(
     personalityModifiers,
     freeformContext,
     `Story: ${story}`,
-    'Each choice should reflect the story context and player preferences. Make choices impactful and varied.'
+    'Each choice should reflect the story context and player preferences. Make choices impactful and varied.',
+    'Each choice MUST reference the current scene and the player\'s recent actions or stats.'
   ].filter(Boolean).join('\n\n');
 }
 
