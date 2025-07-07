@@ -418,4 +418,61 @@ describe('Component', () => {
 
 This AI Image Describer RPG project represents a sophisticated implementation of AI-driven storytelling with comprehensive game mechanics, advanced UI/UX, and robust technical architecture. The project follows strict development practices including TDD, type safety, and performance optimization, making it a solid foundation for future enhancements and extensions.
 
-The combination of local AI processing, dynamic storytelling, and modular architecture creates a unique and powerful platform for interactive narrative experiences, with the potential for significant expansion into educational, creative, and entertainment applications. 
+The combination of local AI processing, dynamic storytelling, and modular architecture creates a unique and powerful platform for interactive narrative experiences, with the potential for significant expansion into educational, creative, and entertainment applications.
+
+# Project Overview: Narrative Consistency & Gameplay Improvements
+
+## Narrative Consistency & Gameplay Flow
+
+To ensure a more engaging and coherent RPG experience, the following improvements have been made:
+
+### 1. Story Continuity
+- Every story prompt now includes a summary of previous chapters, key choices, and consequences.
+- This ensures the LLM builds on past events and maintains a logical narrative arc.
+
+### 2. Villain & Player Context
+- Prompts always include detailed villain state, motivations, and recent actions.
+- The player's role as hero is explicitly stated, with current stats and recent choices.
+
+### 3. Choice & Consequence Clarity
+- Choices are output as strict JSON with clear types, descriptions, stat requirements, and consequences.
+- After each choice, the impact on stats and story is summarized for the player.
+
+### 4. Scene Setting & Imagery
+- The first paragraph of every story must reference the current image's setting, objects, mood, and hooks.
+
+### 5. Gamebook Structure & Tone
+- Prompts enforce a structure: scene description, conflict, choices, consequences, stat changes.
+- Formatting (bold/italic) is used for key moments and dialogue.
+
+### 6. Testing & Iteration
+- Jest tests ensure prompt structure, output parsing, and narrative continuity.
+- Manual playtesting is recommended to catch edge cases and improve flow.
+
+## Example Prompt Structure
+
+```
+You are an expert RPG storyteller. Output ONLY a valid JSON object with these keys: sceneTitle, summary, dilemmas, cues, consequences.
+
+CONTEXT:
+- Previous Chapters: [summary]
+- Player: [name, stats, recent choices]
+- Villain: [name, motivations, last action, state]
+- Current Image: [description]
+
+INSTRUCTIONS:
+- First paragraph must reference the image's setting, objects, mood, and hooks.
+- Build on previous story events and choices.
+- Present a clear dilemma.
+- Output 2-3 choices, each with stat requirements and consequences.
+- Show how the villain's actions influence the scene.
+- Update player stats as needed.
+- Use bold for names and key moments, italics for dialogue/thoughts.
+
+If you cannot create a valid JSON object, output: {}
+```
+
+## Implementation Notes
+- See `src/hooks/useStoryGeneration.ts` and `src/lib/prompts/gameStatePrompts.ts` for prompt-building logic.
+- See `src/lib/constants.ts` for strict prompt instructions and output format.
+- See Jest tests for coverage of prompt structure and output validation. 

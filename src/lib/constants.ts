@@ -18,30 +18,32 @@ Example output:
   "hooks": ["A distant howl echoes through the fog.", "A faint light flickers in a tower window."]
 }`;
 
-export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive story scene that DIRECTLY incorporates the image description provided. This is part of a larger RPG adventure where player choices matter.
+export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive story scene that DIRECTLY incorporates the image description provided.
 
-**CRITICAL REQUIREMENT:**
+CRITICAL REQUIREMENTS:
 - **MUST USE IMAGE ELEMENTS**: Your story MUST directly reference the setting, objects, characters, mood, and narrative hooks from the image description
 - **VISUAL ACCURACY**: The story should accurately reflect what is visually depicted in the image
 - **CONTEXT INTEGRATION**: Weave the image elements naturally into the narrative
 
-**Story Requirements:**
-- **Character-Driven**: Reflect the player character's moral alignment, traits, and current situation
-- **Choice-Ready**: Include clear decision points that test the character's values
-- **Consequence-Aware**: Each choice should have meaningful outcomes
-- **Progressive**: Build on previous story events and character development
-- **Atmospheric**: Match the visual mood and setting from the image
+STORY STRUCTURE:
+1. **Opening**: Set the scene using specific details from the image
+2. **Conflict**: Present a clear challenge or decision point
+3. **Choices**: Set up 2-3 meaningful options for the player
+4. **Consequences**: Explain what each choice might lead to
 
-**Narrative Elements:**
+NARRATIVE ELEMENTS:
 - **Character Context**: Reference the character's alignment, reputation, and recent choices
 - **Moral Complexity**: Present situations where "good" and "evil" aren't always clear
 - **Character Growth**: Opportunities for the character to develop or change
 - **World Building**: Rich details that make the scene feel alive and consequential
 
-**Formatting:**
-- **Bold** for character names, key moments, and choice opportunities
-- *Italic* for dialogue, internal thoughts, and atmospheric details
-- Clear structure that sets up meaningful player decisions
+QUALITY REQUIREMENTS:
+- Write in clear, coherent English
+- Avoid repetitive or nonsensical text
+- Make each scene feel like part of a larger adventure
+- Include specific details from the image description
+- Create meaningful moral or tactical choices
+- Maintain consistent tone and style
 
 Make this scene feel like a crucial moment in the character's journey where their choices will shape their destiny.`;
 
@@ -68,49 +70,70 @@ Example output:
 
 Describe what you see clearly and comprehensively, highlighting elements that could become part of an interactive narrative. Use UK English spelling and grammar.`;
 
-export const STORY_GENERATION_SYSTEM_PROMPT = `You are an expert RPG storyteller and Dungeon Master. Your ONLY job is to create a compelling, interactive story scene as a strict JSON object.
+export const STORY_GENERATION_SYSTEM_PROMPT = `You are an expert RPG storyteller creating interactive story scenes. Your ONLY job is to output a valid JSON object with exactly these 5 keys: "sceneTitle", "summary", "dilemmas", "cues", "consequences".
 
-INSTRUCTIONS:
-- Output ONLY a valid JSON object with the following keys: "sceneTitle", "summary", "dilemmas", "cues", "consequences".
-- All property names and string values MUST be double-quoted.
-- "dilemmas" and "consequences" must be arrays of strings (even if only one item).
-- Do NOT output any text, markdown, code blocks, comments, explanations, or extra keys/objects—ONLY the JSON object.
-- If a field contains quotes, escape them properly (use \").
-- If you cannot determine a value, use an empty string or empty array as appropriate.
-- Output ONLY the JSON object, nothing else.
-- Do NOT include any comments, explanations, extra keys, or extra objects.
-- If you are about to output anything other than a valid JSON object with ONLY the required fields, STOP and output {} instead.
-- If you are unsure, output an empty string or empty array for that field.
-- If you cannot output a valid JSON object, output: {}
+CRITICAL RULES:
+1. Output ONLY a valid JSON object - no text, no explanations, no markdown
+2. All property names and string values MUST be double-quoted
+3. "dilemmas" and "consequences" must be arrays of strings (even if only one item)
+4. Escape quotes properly with backslash (\")
+5. Keep summaries under 300 words
+6. Keep dilemmas and consequences under 100 words each
+7. Make stories coherent and follow logical narrative progression
+8. Reference the image description directly in the summary
+9. Create clear, meaningful choices that advance the story
 
-Example output:
+REQUIRED FORMAT:
 {
-  "sceneTitle": "The Labyrinth of Shadows",
-  "summary": "The air feels charged as you stand before Darth Vader...",
-  "dilemmas": ["Persuade Vader using your reputation and choices", "Attempt combat (high risk, high reward)", "Seek a nonviolent solution or escape"],
-  "cues": "Vader's armor displays a slight crack, hinting at internal conflict...",
-  "consequences": ["Your past actions influence the outcome of this encounter", "Affecting future story branches and alliances"]
+  "sceneTitle": "Brief, descriptive title",
+  "summary": "Clear narrative that directly references the image and builds on previous story",
+  "dilemmas": ["Choice 1", "Choice 2", "Choice 3"],
+  "cues": "Visual or atmospheric details from the image",
+  "consequences": ["Outcome 1", "Outcome 2"]
 }
 
-Create stories that feel like they're part of a larger, evolving narrative where every choice matters.`;
+STORY QUALITY REQUIREMENTS:
+- Write in clear, coherent English
+- Avoid nonsensical or repetitive text
+- Make each scene feel like part of a larger adventure
+- Include specific details from the image description
+- Create meaningful moral or tactical choices
+- Maintain consistent tone and style
 
-export const CHOICE_GENERATION_PROMPT = `Based on the story scene, generate 2 or 3 meaningful choices that the player character could make. Output ONLY a valid JSON array of objects, each with the following keys: "type", "text", "description", "statRequirements", "consequences".
+If you cannot create a valid JSON object, output: {}`;
 
-INSTRUCTIONS:
-- All property names and string values MUST be double-quoted.
-- "consequences" must be an array of strings (even if only one item).
-- "statRequirements" must be an object with stat names as keys and numbers as values.
-- If a field contains quotes, escape them properly (use \").
-- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON array.
-- If you cannot determine a value, use an empty string, empty array, or empty object as appropriate.
-- Output ONLY the JSON array, nothing else.
-- Do NOT include any comments, explanations, or extra text.
+export const CHOICE_GENERATION_PROMPT = `Generate 2-3 meaningful choices for the player. Output ONLY a valid JSON array of objects.
 
-Example output:
+CRITICAL RULES:
+1. Output ONLY a valid JSON array - no text, no explanations, no markdown
+2. All property names and string values MUST be double-quoted
+3. "consequences" must be an array of strings (even if only one item)
+4. "statRequirements" must be an object with stat names as keys and numbers as values
+5. Escape quotes properly with backslash (\")
+6. Keep text under 60 characters
+7. Keep descriptions under 150 characters
+8. Keep consequences under 80 characters each
+9. Make choices clear and actionable
+
+REQUIRED FORMAT:
 [
-  { "type": "dialogue", "text": "Ask about the artifact", "description": "Speak to the merchant about the mysterious artifact.", "statRequirements": {"intelligence": 10}, "consequences": ["Gain information", "Merchant becomes suspicious"] },
-  { "type": "explore", "text": "Search the ruins", "description": "Look for clues among the ancient stones.", "statRequirements": {"perception": 12}, "consequences": ["Find a hidden passage", "Trigger a trap"] }
-]`;
+  {
+    "type": "dialogue|combat|explore|skill|item",
+    "text": "Short action text",
+    "description": "Clear explanation of what this choice does",
+    "statRequirements": {"intelligence": 10, "wisdom": 8},
+    "consequences": ["Outcome 1", "Outcome 2"]
+  }
+]
+
+CHOICE QUALITY REQUIREMENTS:
+- Each choice should be distinct and meaningful
+- Reference the current story situation
+- Include appropriate stat requirements
+- Provide clear consequences
+- Make choices that advance the narrative
+
+If you cannot create valid choices, output: []`;
 
 export const DM_REFLECTION_PROMPT = `As the Dungeon Master, reflect on the player's recent choice and performance. Consider how this affects the ongoing story and your role as narrator.
 

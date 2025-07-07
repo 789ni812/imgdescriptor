@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           content: choicePrompt
         }
       ],
-      temperature: 0.8,
+      temperature: 0.7, // Reduced for more consistent output
       max_tokens: 1000,
       stream: false
     };
@@ -59,38 +59,176 @@ export async function POST(request: NextRequest) {
     const choicesText = data.choices[0]?.message?.content;
 
     if (!choicesText) {
-      throw new Error('No content received from LM Studio');
+      console.error('[LLM NO CONTENT] No content in response');
+      throw new Error('No content in LLM response');
     }
 
-    // Parse the choices from the LLM response
-    const choices = parseChoicesFromResponse(choicesText);
+    console.log('[LLM FIXED CHOICE RESPONSE]', choicesText);
 
-    // Validate choice count - ensure we have exactly 2-3 choices
-    const validatedChoices = validateChoiceCount(choices);
+    // Enhanced choice parsing with multiple fallback strategies
+    let choicesData;
+    let parseMethod = 'initial';
 
-    // Add the raw LLM response and fallback warning (if any) to the API response for debugging
-    let fallbackUsed = false;
-    if (validatedChoices.some(choice => choice.id.startsWith('choice-fallback'))) {
-      fallbackUsed = true;
+    try {
+      // Method 1: Direct JSON parse
+      choicesData = JSON.parse(choicesText);
+      parseMethod = 'direct';
+    } catch (e1) {
+      console.warn('[CHOICE ARRAY JSON PARSE FAIL]', choicesText, e1);
+      
+      try {
+        // Method 2: JSON5 parse
+        choicesData = JSON5.parse(choicesText);
+        parseMethod = 'json5';
+      } catch (e2) {
+        console.warn('[CHOICE ARRAY JSON5 PARSE FAIL]', choicesText, e2);
+        
+        try {
+          // Method 3: Extract array with regex
+          const arrayMatch = choicesText.match(/\[[\s\S]*\]/);
+          if (arrayMatch) {
+            const arrayText = arrayMatch[0];
+            choicesData = JSON.parse(arrayText);
+            parseMethod = 'regex_extract';
+          } else {
+            throw new Error('No array found');
+          }
+        } catch (e3) {
+          console.warn('[CHOICE ARRAY REGEX PARSE FAIL]', e3);
+          
+          try {
+            // Method 4: Manual extraction
+            choicesData = extractChoicesManually(choicesText);
+            parseMethod = 'manual_extraction';
+          } catch (e4) {
+            console.error('[CHOICE ARRAY MANUAL PARSE FAIL]', e4);
+            
+            // Final fallback: Return default choices
+            console.warn('Using fallback choices due to parsing failure');
+            return NextResponse.json({
+              success: true,
+              choices: createFallbackChoices(story, character)
+            });
+          }
+        }
+      }
     }
+
+    // Validate and process choices
+    if (!Array.isArray(choicesData)) {
+      console.warn('[CHOICE VALIDATION FAIL] Not an array, using fallback');
+      return NextResponse.json({
+        success: true,
+        choices: createFallbackChoices(story, character)
+      });
+    }
+
+    // Process and validate each choice
+    const processedChoices = choicesData
+      .filter(choice => choice && typeof choice === 'object')
+      .map((choice, index) => {
+        // Normalize stat requirements
+        const statRequirements = choice.statRequirements || {};
+        const normalizedStats: Record<string, number> = {};
+        
+        Object.entries(statRequirements).forEach(([key, value]) => {
+          const normalizedKey = key.toLowerCase();
+          if (['intelligence', 'int', 'i'].includes(normalizedKey)) {
+            normalizedStats.intelligence = Number(value) || 0;
+          } else if (['creativity', 'cre', 'c'].includes(normalizedKey)) {
+            normalizedStats.creativity = Number(value) || 0;
+          } else if (['perception', 'per', 'p'].includes(normalizedKey)) {
+            normalizedStats.perception = Number(value) || 0;
+          } else if (['wisdom', 'wis', 'w'].includes(normalizedKey)) {
+            normalizedStats.wisdom = Number(value) || 0;
+          }
+        });
+
+        return {
+          id: `choice-${Date.now()}-${index}`,
+          type: choice.type || 'dialogue',
+          text: choice.text || `Choice ${index + 1}`,
+          description: choice.description || 'Continue your journey',
+          statRequirements: normalizedStats,
+          consequences: Array.isArray(choice.consequences) ? choice.consequences : ['Your choice has consequences']
+        } as Choice;
+      })
+      .filter(choice => choice.text && choice.text.length > 0);
+
+    // Ensure we have at least 2 choices
+    if (processedChoices.length < 2) {
+      console.warn('[CHOICE COUNT WARNING] LLM returned', processedChoices.length, 'choices, adding fallback choices');
+      const fallbackChoices = createFallbackChoices(story, character);
+      processedChoices.push(...fallbackChoices.slice(processedChoices.length));
+    }
+
+    console.log(`[CHOICES GENERATED] Parse method: ${parseMethod}, Count: ${processedChoices.length}`);
+    console.log('[LLM CHOICES USED]', processedChoices);
 
     return NextResponse.json({
       success: true,
-      choices: validatedChoices,
-      rawLLMResponse: choicesText,
-      fallbackUsed
+      choices: processedChoices
     });
 
   } catch (error) {
-    console.error('Error generating choices:', error);
+    console.error('[CHOICE GENERATION ERROR]', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred while generating choices.'
-      },
+      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
+}
+
+// Helper function to extract choices manually
+function extractChoicesManually(rawContent: string): any[] {
+  const choices: any[] = [];
+  const choiceRegex = /\{[^}]*"type"[^}]*\}/g;
+  const matches = rawContent.match(choiceRegex);
+  
+  if (matches) {
+    matches.forEach((match, index) => {
+      try {
+        const choice = JSON5.parse(match);
+        if (choice && choice.text) {
+          choices.push(choice);
+        }
+      } catch (e) {
+        console.warn(`[CHOICE OBJECT PARSE FAIL] ${match}`, e);
+      }
+    });
+  }
+  
+  return choices;
+}
+
+// Helper function to create fallback choices
+function createFallbackChoices(story: any, character: Character): Choice[] {
+  return [
+    {
+      id: `choice-${Date.now()}-0`,
+      type: 'dialogue',
+      text: 'Continue forward',
+      description: 'Proceed with your journey',
+      statRequirements: {},
+      consequences: ['Your adventure continues']
+    },
+    {
+      id: `choice-${Date.now()}-1`,
+      type: 'explore',
+      text: 'Investigate further',
+      description: 'Look for more details in your surroundings',
+      statRequirements: { perception: 8 },
+      consequences: ['You may discover something important']
+    },
+    {
+      id: `choice-${Date.now()}-2`,
+      type: 'skill',
+      text: 'Use your abilities',
+      description: 'Apply your skills to the situation',
+      statRequirements: { intelligence: 10 },
+      consequences: ['Your expertise helps you proceed']
+    }
+  ];
 }
 
 function buildChoiceGenerationPrompt({ story, character, turn }: {

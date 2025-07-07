@@ -405,6 +405,57 @@ Adaptive Recommendations:
 Use this comprehensive game state to generate contextually appropriate and engaging story content.`;
 }
 
+// Story Continuity Prompt - NEW
+export function createStoryContinuityPrompt(context: PromptContext): string {
+  if (!context.gameState) {
+    throw new Error('Missing game state for story continuity prompt');
+  }
+
+  const { storyHistory, choiceHistory, currentTurn = 1 } = context.gameState;
+  const recentStories = storyHistory?.slice(-2) || [];
+  const recentChoices = choiceHistory?.slice(-2) || [];
+
+  if (recentStories.length === 0) {
+    return `Story Continuity (Turn ${currentTurn}):
+This is the beginning of the adventure. No previous story context exists.
+
+Generate an opening story segment that establishes the setting, introduces the character, and sets up the initial conflict or challenge.`;
+  }
+
+  const continuitySummary = recentStories.map((story, index) => {
+    const choice = recentChoices[index];
+    return {
+      turn: currentTurn - recentStories.length + index + 1,
+      story: story.text,
+      choice: choice?.text || 'No choice made',
+      outcome: choice?.outcome || 'No outcome recorded'
+    };
+  });
+
+  return `Story Continuity (Turn ${currentTurn}):
+
+Previous Story Context:
+${continuitySummary.map(c => 
+  `Turn ${c.turn}: ${c.story} - Choice: ${c.choice} - Outcome: ${c.outcome}`
+).join('\n')}
+
+Continuity Requirements:
+- Reference previous story events and choices
+- Build upon established character development
+- Maintain consistent tone and style
+- Advance the overall narrative arc
+- Create meaningful progression from previous scenes
+
+Narrative Guidelines:
+- Each scene should feel like a natural continuation
+- Reference specific details from previous turns
+- Show consequences of previous choices
+- Maintain character consistency
+- Build toward a larger story goal
+
+Use this continuity to create a cohesive narrative that feels like part of a larger adventure.`;
+}
+
 // Utility Functions
 
 function extractStoryThemes(storyHistory: StoryEntry[]): string[] {

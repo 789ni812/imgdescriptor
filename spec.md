@@ -919,3 +919,153 @@ We will implement the following game mechanics, ensuring all features are extens
 5. User selects a choice
 6. **NEW:** DM narrates outcome, updates stats, and determines if game continues or ends (via `/api/dm-outcome`)
 7. If not game over, next turn begins (repeat)
+
+## Current Status: Phase 9 - Good vs Bad Dynamic Optimization
+
+### 🎯 **Phase 9: Good vs Bad Dynamic Optimization**
+
+**Objective:** Enhance the Good vs Bad system to create more engaging gameplay with specific villains like Darth Vader, improving story generation, conflict mechanics, and character interactions.
+
+#### **Phase 9.1: Enhanced Villain Configuration System**
+- [ ] **Villain Personality Profiles**
+  - Add detailed villain characteristics (motivations, fears, strengths, weaknesses)
+  - Include villain backstory and goals
+  - Add villain-specific dialogue patterns and speech styles
+  - Implement villain relationship tracking with the player character
+
+- [ ] **Villain Integration Prompts**
+  - Create specialized prompts for villain-specific story generation
+  - Add villain dialogue generation system
+  - Implement villain action/reaction mechanics
+  - Add villain state tracking (health, resources, influence)
+
+- [ ] **Enhanced Good vs Bad UI**
+  - Add villain personality builder interface
+  - Include villain motivation and goal settings
+  - Add villain relationship dynamics configuration
+  - Implement villain state visualization
+
+#### **Phase 9.2: Advanced Story Generation with Villains**
+- [ ] **Villain-Centric Story Prompts**
+  - Create prompts that emphasize villain presence and influence
+  - Add villain-specific story elements and plot devices
+  - Implement villain-driven conflict generation
+  - Add villain dialogue integration in stories
+
+- [ ] **Dynamic Conflict System**
+  - Implement escalating conflict mechanics
+  - Add villain counter-actions based on player choices
+  - Create villain resource management system
+  - Add villain territory/influence zones
+
+- [ ] **Hero-Villain Interaction Mechanics**
+  - Add confrontation scenes with specific mechanics
+  - Implement negotiation and persuasion systems
+  - Add combat/conflict resolution mechanics
+  - Create alliance/betrayal dynamics
+
+#### **Phase 9.3: Character Development Integration**
+- [ ] **Villain Impact on Character Growth**
+  - Track how villain interactions affect character development
+  - Add villain-specific character growth opportunities
+  - Implement villain influence on moral alignment
+  - Create villain-driven character transformation paths
+
+- [ ] **Enhanced Choice System**
+  - Add villain-specific choice consequences
+  - Implement villain reaction to player choices
+  - Create villain memory of player actions
+  - Add long-term villain relationship consequences
+
+#### **Phase 9.4: Testing and Optimization**
+- [ ] **Darth Vader Specific Testing**
+  - Test with Darth Vader image and configuration
+  - Optimize prompts for Star Wars-style storytelling
+  - Test villain personality integration
+  - Validate conflict mechanics
+
+- [ ] **Performance Optimization**
+  - Optimize story generation with villain complexity
+  - Test prompt efficiency and response quality
+  - Validate choice generation with villain context
+  - Performance testing with complex villain configurations
+
+### **Implementation Priority:**
+1. **High Priority:** Enhanced villain configuration and basic villain integration
+2. **Medium Priority:** Advanced story generation and conflict mechanics
+3. **Low Priority:** Complex interaction systems and performance optimization
+
+### **Success Criteria:**
+- [ ] Villain configuration allows detailed personality setup
+- [ ] Story generation effectively incorporates villain characteristics
+- [ ] Player choices have meaningful villain reactions
+- [ ] Darth Vader gameplay feels authentic and engaging
+- [ ] System performance remains acceptable with enhanced complexity
+
+---
+
+## Previous Phases (Completed)
+
+### Phase 1: Core Infrastructure ✅
+### Phase 2: Image Analysis & Story Generation ✅
+### Phase 3: Character System & Stats ✅
+### Phase 4: Choice System & Consequences ✅
+### Phase 5: Template Management ✅
+### Phase 6: DM Personality System ✅
+### Phase 7: Good vs Bad Framework ✅
+### Phase 8: Advanced UI & Gamebook Interface ✅
+
+# Spec Update: Narrative Consistency & Gameplay
+
+## Narrative & Gameplay Improvements
+
+### Story Continuity
+- Prompts now always include a summary of previous chapters, key choices, and consequences.
+- Ensures the LLM maintains a logical, evolving narrative.
+
+### Villain & Player Context
+- Villain state, motivations, and recent actions are always included in the prompt.
+- Player's role, stats, and recent choices are explicitly stated.
+
+### Choice & Consequence Clarity
+- Choices are output as strict JSON with type, description, stat requirements, and consequences.
+- After each choice, the impact on stats and story is summarized.
+
+### Scene Setting & Imagery
+- The first paragraph of every story must reference the current image's setting, objects, mood, and hooks.
+
+### Gamebook Structure & Tone
+- Prompts enforce a structure: scene description, conflict, choices, consequences, stat changes.
+- Formatting (bold/italic) is used for key moments and dialogue.
+
+### Testing & Iteration
+- Jest tests ensure prompt structure, output parsing, and narrative continuity.
+- Manual playtesting is recommended for further refinement.
+
+## Example Prompt Structure
+
+```
+You are an expert RPG storyteller. Output ONLY a valid JSON object with these keys: sceneTitle, summary, dilemmas, cues, consequences.
+
+CONTEXT:
+- Previous Chapters: [summary]
+- Player: [name, stats, recent choices]
+- Villain: [name, motivations, last action, state]
+- Current Image: [description]
+
+INSTRUCTIONS:
+- First paragraph must reference the image's setting, objects, mood, and hooks.
+- Build on previous story events and choices.
+- Present a clear dilemma.
+- Output 2-3 choices, each with stat requirements and consequences.
+- Show how the villain's actions influence the scene.
+- Update player stats as needed.
+- Use bold for names and key moments, italics for dialogue/thoughts.
+
+If you cannot create a valid JSON object, output: {}
+```
+
+## Best Practices for Prompt Building & LLM Output
+- Always include story history, player/villain context, and image details in prompts.
+- Enforce strict output parsing and fallback handling.
+- Playtest and iterate on prompt instructions as needed.

@@ -7,6 +7,7 @@ import type { DMAdaptation } from '@/lib/types/dmAdaptation';
 import { v4 as uuidv4 } from 'uuid';
 import type { StoryDescription } from '@/lib/types';
 import { playGenerationSound } from '@/lib/utils/soundUtils';
+import { createStoryContinuityPrompt } from '@/lib/prompts/gameStatePrompts';
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -56,18 +57,45 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     formattedDescription = String(description);
   }
 
-  // Inject GoodVsBad context if enabled
+  // Enhanced GoodVsBad context with villain personality
   let goodVsBadContext = '';
   if (goodVsBadConfig && goodVsBadConfig.isEnabled) {
-    goodVsBadContext = [
-      'Good vs Bad Dynamic:',
-      `Theme: ${goodVsBadConfig.theme}`,
-      `Hero: ${goodVsBadConfig.userRole}`,
-      `Villain: ${goodVsBadConfig.badRole}`,
-      `Villain Definition: ${goodVsBadConfig.badDefinition}`,
-      goodVsBadConfig.badProfilePicture ? `Villain Profile Picture: ${goodVsBadConfig.badProfilePicture}` : ''
-    ].filter(Boolean).join('\n');
+    const villain = goodVsBadConfig.villainPersonality;
+    const villainState = goodVsBadConfig.villainState;
+    const conflict = goodVsBadConfig.conflictMechanics;
+    
+    goodVsBadContext = `
+VILLAIN CONTEXT:
+Name: ${goodVsBadConfig.badRole}
+Personality: ${villain?.motivations.join(', ') || 'Unknown'}
+Current State: Health ${villainState?.health || 100}/100, Influence ${villainState?.influence || 100}/100
+Conflict Level: ${conflict?.escalationLevel || 5}
+Recent Actions: ${villainState?.lastAction || 'None recorded'}
+
+VILLAIN INSTRUCTIONS:
+- Make the villain a driving force in the story, not just an obstacle
+- Reference their personality traits and current state
+- Show how their actions affect the player's situation
+- Create meaningful confrontations that test the player's values
+- Build tension through the villain's presence and influence`;
   }
+
+  // Add story continuity context
+  const continuityContext = createStoryContinuityPrompt({
+    character,
+    gameState: {
+      storyHistory: character.storyHistory.map(s => ({ 
+        text: s.text, 
+        turnNumber: s.turnNumber,
+        id: s.id,
+        timestamp: s.timestamp,
+        imageDescription: s.imageDescription
+      })),
+      choiceHistory: character.choiceHistory,
+      currentTurn: turn,
+      maxTurns: 3
+    }
+  });
 
   // Add moral alignment context
   const moralAlignmentContext = [
@@ -93,18 +121,25 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     }
   }
 
-  // --- STRONG GAMEBOOK-STYLE INSTRUCTION BLOCK ---
   const gamebookInstruction = `
-You are the Dungeon Master for a classic gamebook adventure.
-Write the next story segment in the style of Ian Livingstone's Forest of Doom.
+GAMEBOOK STYLE REQUIREMENTS:
+- Write in clear, coherent English
+- Avoid repetitive or nonsensical text
+- Make each scene feel like part of a larger adventure
+- Include specific details from the image description
+- Create meaningful moral or tactical choices
+- Maintain consistent tone and style
+- Reference previous story events and choices
+- Show consequences of previous decisions
+- Build toward a larger narrative goal
 
-**Context:**
-- Previous story summary: ${previousStories || 'None yet.'}
-- Player stats: ${statsString}
-- DM context: ${goodVsBadContext}\n${moralAlignmentContext}
-- Current image description: ${formattedDescription}
+STORY STRUCTURE:
+1. Opening: Set the scene using image details
+2. Conflict: Present a clear challenge or decision point
+3. Choices: Set up 2-3 meaningful options for the player
+4. Consequences: Explain what each choice might lead to
 
-**Instructions:**
+**General Instructions:**
 - The new story must be set in the scene described by the image.
 - You MUST reference the following image details in the first paragraph: setting, objects, mood, hooks. If you do not, the story will be rejected.
 - Reference the image's setting, objects, mood, and hooks.
@@ -112,11 +147,21 @@ Write the next story segment in the style of Ian Livingstone's Forest of Doom.
 - Adjust the player's health/stats if appropriate.
 - If the player's health reaches zero, narrate their demise.
 - End with a clear dilemma or choice for the player.
+- The villain should be a driving force in the story, not just an obstacle.
 `;
 
+  const contextPrompt = [
+    continuityContext,
+    goodVsBadContext,
+    moralAlignmentContext,
+    `Turn: ${turn}`,
+    `Stats: ${statsString}`,
+    `**IMAGE DESCRIPTION:**\n${formattedDescription}`
+  ].filter(Boolean).join('\n\n');
+
   return customPrompt
-    ? `${customPrompt}${storyLengthInstruction}\n\n${gamebookInstruction}`
-    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${gamebookInstruction}`;
+    ? `${customPrompt}${storyLengthInstruction}\n\n${gamebookInstruction}\n\n${contextPrompt}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${gamebookInstruction}\n\n${contextPrompt}`;
 }
 
 export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
@@ -145,18 +190,45 @@ export function buildAdaptiveStoryPrompt({ character, description, customPrompt,
     formattedDescription = String(description);
   }
 
-  // Inject GoodVsBad context if enabled
+  // Enhanced GoodVsBad context with villain personality
   let goodVsBadContext = '';
   if (goodVsBadConfig && goodVsBadConfig.isEnabled) {
-    goodVsBadContext = [
-      'Good vs Bad Dynamic:',
-      `Theme: ${goodVsBadConfig.theme}`,
-      `Hero: ${goodVsBadConfig.userRole}`,
-      `Villain: ${goodVsBadConfig.badRole}`,
-      `Villain Definition: ${goodVsBadConfig.badDefinition}`,
-      goodVsBadConfig.badProfilePicture ? `Villain Profile Picture: ${goodVsBadConfig.badProfilePicture}` : ''
-    ].filter(Boolean).join('\n');
+    const villain = goodVsBadConfig.villainPersonality;
+    const villainState = goodVsBadConfig.villainState;
+    const conflict = goodVsBadConfig.conflictMechanics;
+    
+    goodVsBadContext = `
+VILLAIN CONTEXT:
+Name: ${goodVsBadConfig.badRole}
+Personality: ${villain?.motivations.join(', ') || 'Unknown'}
+Current State: Health ${villainState?.health || 100}/100, Influence ${villainState?.influence || 100}/100
+Conflict Level: ${conflict?.escalationLevel || 5}
+Recent Actions: ${villainState?.lastAction || 'None recorded'}
+
+VILLAIN INSTRUCTIONS:
+- Make the villain a driving force in the story, not just an obstacle
+- Reference their personality traits and current state
+- Show how their actions affect the player's situation
+- Create meaningful confrontations that test the player's values
+- Build tension through the villain's presence and influence`;
   }
+
+  // Add story continuity context
+  const continuityContext = createStoryContinuityPrompt({
+    character,
+    gameState: {
+      storyHistory: character.storyHistory.map(s => ({ 
+        text: s.text, 
+        turnNumber: s.turnNumber,
+        id: s.id,
+        timestamp: s.timestamp,
+        imageDescription: s.imageDescription
+      })),
+      choiceHistory: character.choiceHistory,
+      currentTurn: turn,
+      maxTurns: 3
+    }
+  });
 
   // Add moral alignment context
   const moralAlignmentContext = [

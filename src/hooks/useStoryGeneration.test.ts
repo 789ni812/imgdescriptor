@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt, buildAdaptiveStoryPrompt } from './useStoryGeneration';
 import { createCharacter, type Character } from '@/lib/types/character';
-import { createGoodVsBadConfig } from '@/lib/types/goodVsBad';
+import { createGoodVsBadConfig, DEFAULT_DARTH_VADER_PERSONALITY, DEFAULT_DARTH_VADER_STATE, DEFAULT_DARTH_VADER_CONFLICT } from '@/lib/types/goodVsBad';
 import type { StoryDescription } from '@/lib/types';
 
 // Mock fetch
@@ -508,21 +508,21 @@ describe('buildStoryPrompt', () => {
       currentTurn: 2,
       stats: { intelligence: 15, creativity: 12, perception: 8, wisdom: 10 },
       storyHistory: [
-        { 
-          id: '1',
-          turnNumber: 1, 
+        {
+          id: 'story-1',
           text: 'The adventure began in a mysterious forest.',
+          turnNumber: 1,
           timestamp: '2023-01-01T00:00:00Z',
-          imageDescription: 'A mysterious forest'
+          imageDescription: 'A forest'
         }
       ],
     });
-
     const description = 'A hidden cave entrance with ancient symbols';
+
     const prompt = buildStoryPrompt({ character, description });
 
-    expect(prompt).toContain('Player stats: INT 15, CRE 12, PER 8, WIS 10');
-    expect(prompt).toContain('Previous story summary: The adventure began in a mysterious forest.');
+    expect(prompt).toContain('Stats: INT 15, CRE 12, PER 8, WIS 10');
+    expect(prompt).toContain('Turn: 2');
     expect(prompt).toContain(description);
   });
 
@@ -546,12 +546,12 @@ describe('buildStoryPrompt', () => {
       ...defaultCharacter,
       storyHistory: []
     });
-
     const description = 'A beautiful landscape';
+
     const prompt = buildStoryPrompt({ character, description });
 
-    expect(prompt).toContain('Player stats: INT 10, CRE 10, PER 10, WIS 10');
-    expect(prompt).toContain('Previous story summary: None yet.');
+    expect(prompt).toContain('Stats: INT 10, CRE 10, PER 10, WIS 10');
+    expect(prompt).toContain('Turn: 1');
     expect(prompt).toContain(description);
   });
 
@@ -562,25 +562,24 @@ describe('buildStoryPrompt', () => {
       stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
       storyHistory: [],
     });
+    const description = 'A mysterious castle looms on the horizon.';
     const goodVsBadConfig = createGoodVsBadConfig({
       isEnabled: true,
-      badProfilePicture: 'http://example.com/bad.jpg',
-      badDefinition: 'A cunning villain who opposes the hero at every turn.',
       theme: 'hero-vs-villain',
       userRole: 'hero',
       badRole: 'villain',
+      villainPersonality: DEFAULT_DARTH_VADER_PERSONALITY,
+      villainState: DEFAULT_DARTH_VADER_STATE,
+      conflictMechanics: DEFAULT_DARTH_VADER_CONFLICT
     });
-    // Simulate DM config with GoodVsBadConfig stored as JSON string
-    // For now, simulate what the prompt should look like
-    const description = 'A mysterious castle looms on the horizon.';
-    // This is where the real implementation will inject the context
+
     const prompt = buildStoryPrompt({ character, description, customPrompt: undefined, goodVsBadConfig });
-    // Fails: GoodVsBad context is not present yet
-    expect(prompt).toContain('Good vs Bad Dynamic');
-    expect(prompt).toContain('Theme: hero-vs-villain');
-    expect(prompt).toContain('Hero: hero');
-    expect(prompt).toContain('Villain: villain');
-    expect(prompt).toContain('A cunning villain who opposes the hero at every turn.');
+    
+    expect(prompt).toContain('VILLAIN CONTEXT:');
+    expect(prompt).toContain('Name: villain');
+    expect(prompt).toContain('Personality: Maintain control and order in the galaxy');
+    expect(prompt).toContain('Current State: Health 85/100, Influence 95/100');
+    expect(prompt).toContain('VILLAIN INSTRUCTIONS:');
   });
 
   it('should format JSON image description into readable text', () => {

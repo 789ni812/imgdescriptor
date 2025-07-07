@@ -105,11 +105,11 @@ export const generateStory = async (
 
   // Use debugConfig for AI tuning if provided
   const aiTuning: GameTemplate['debugConfig']['aiResponseTuning'] = debugConfig?.aiResponseTuning ?? {
-    temperature: 0.85,
+    temperature: 0.7, // Reduced from 0.85 for more consistent output
     maxTokens: 2048,
     topP: 0.9,
-    frequencyPenalty: 0.0,
-    presencePenalty: 0.0,
+    frequencyPenalty: 0.1, // Added to reduce repetition
+    presencePenalty: 0.1, // Added to encourage variety
   };
   const temperature = aiTuning.temperature;
   const max_tokens = aiTuning.maxTokens;
@@ -157,110 +157,130 @@ export const generateStory = async (
     if (!rawContent) {
       return { success: false, error: 'The model did not return a story.' };
     }
-    // Try to parse the JSON object
+
+    // Enhanced JSON parsing with multiple fallback strategies
+    let parsed;
+    let parseMethod = 'initial';
+
     try {
-      // Extract the first {...} block (the JSON object)
-      const jsonMatch = rawContent.match(/{[\s\S]*}/);
-      if (!jsonMatch) throw new Error('No JSON object found in LLM output');
-      const jsonString = jsonMatch[0];
-      let parsed;
+      // Method 1: Direct JSON parse
+      parsed = JSON.parse(rawContent);
+      parseMethod = 'direct';
+    } catch (e1) {
+      console.warn('[STORY JSON PARSE FAIL] Direct parse failed:', e1);
+      
       try {
-        parsed = JSON.parse(jsonString);
-      } catch {
-        // Try to repair the JSON if initial parse fails
+        // Method 2: Extract JSON object with regex
+        const jsonMatch = rawContent.match(/{[\s\S]*}/);
+        if (jsonMatch) {
+          const jsonString = jsonMatch[0];
+          parsed = JSON.parse(jsonString);
+          parseMethod = 'regex_extract';
+        } else {
+          throw new Error('No JSON object found');
+        }
+      } catch (e2) {
+        console.warn('[STORY JSON PARSE FAIL] Regex extract failed:', e2);
+        
         try {
-          const repaired = jsonrepair(jsonString);
-          parsed = JSON.parse(repaired);
-          console.warn('Story JSON was repaired and parsed successfully.');
-        } catch (repairError) {
-          console.error('Failed to repair and parse story JSON:', jsonString, repairError);
-          // --- BEGIN REGEX FALLBACK EXTRACTION ---
-          function extractFieldArray(raw: string, field: string): string[] {
-            const match = raw.match(new RegExp(`"${field}"\\s*:\\s*\\[(.*?)\\]`, 's'));
-            if (match) {
-              // Try to split by quotes and commas
-              return match[1]
-                .split(/"\s*,\s*"/)
-                .map((s: string) => s.replace(/(^\s*"|"\s*$)/g, '').trim())
-                .filter(Boolean);
-            }
-            return [];
+          // Method 3: JSON repair
+          const jsonMatch = rawContent.match(/{[\s\S]*}/);
+          if (jsonMatch) {
+            const jsonString = jsonMatch[0];
+            const repaired = jsonrepair(jsonString);
+            parsed = JSON.parse(repaired);
+            parseMethod = 'jsonrepair';
+          } else {
+            throw new Error('No JSON object found for repair');
           }
-          function extractFieldString(raw: string, field: string): string {
-            const match = raw.match(new RegExp(`"${field}"\\s*:\\s*"(.*?)"`, 's'));
-            return match ? match[1] : '';
+        } catch (e3) {
+          console.error('[STORY JSON PARSE FAIL] All parsing methods failed:', e3);
+          
+          // Method 4: Manual field extraction as last resort
+          try {
+            parsed = extractStoryFields(rawContent);
+            parseMethod = 'manual_extraction';
+          } catch (e4) {
+            console.error('[STORY JSON PARSE FAIL] Manual extraction failed:', e4);
+            
+            // Final fallback: Return a minimal valid story
+            console.warn('Using fallback story due to parsing failure');
+            return { 
+              success: true, 
+              story: createFallbackStory(description),
+              warning: `Story generation encountered parsing issues. Parse method: ${parseMethod}. Raw output: ${rawContent.substring(0, 200)}...`
+            };
           }
-          const fallbackStory = {
-            sceneTitle: extractFieldString(rawContent, 'sceneTitle'),
-            summary: extractFieldString(rawContent, 'summary'),
-            dilemmas: extractFieldArray(rawContent, 'dilemmas'),
-            cues: extractFieldString(rawContent, 'cues'),
-            consequences: extractFieldArray(rawContent, 'consequences'),
-          };
-          if (
-            !fallbackStory.sceneTitle &&
-            !fallbackStory.summary &&
-            fallbackStory.dilemmas.length === 0 &&
-            !fallbackStory.cues &&
-            fallbackStory.consequences.length === 0
-          ) {
-            return { success: false, error: 'Failed to parse story JSON.' };
-          }
-          console.warn('Used regex fallback extraction for story JSON:', fallbackStory);
-          return { success: true, story: fallbackStory };
-          // --- END REGEX FALLBACK EXTRACTION ---
         }
       }
-      // Fallbacks for missing or wrong-type fields
-      const story = {
-        sceneTitle: typeof parsed.sceneTitle === 'string' ? parsed.sceneTitle : '',
-        summary: typeof parsed.summary === 'string' ? parsed.summary : '',
-        dilemmas: Array.isArray(parsed.dilemmas)
-          ? parsed.dilemmas
-          : typeof parsed.dilemmas === 'string'
-            ? [parsed.dilemmas]
-            : [],
-        cues: typeof parsed.cues === 'string' ? parsed.cues : '',
-        consequences: Array.isArray(parsed.consequences)
-          ? parsed.consequences
-          : typeof parsed.consequences === 'string'
-            ? [parsed.consequences]
-            : [],
-      };
-      // If all fields are empty, treat as error
-      if (
-        !story.sceneTitle &&
-        !story.summary &&
-        story.dilemmas.length === 0 &&
-        !story.cues &&
-        story.consequences.length === 0
-      ) {
-        throw new Error('All story fields are empty after parsing.');
-      }
-      return { success: true, story };
-    } catch (e) {
-      console.error('Failed to robustly parse/repair story JSON:', rawContent, e);
-      
-      // LAST RESORT: Return a minimal valid story object to prevent UI crashes
-      console.warn('Using last-resort fallback story due to parsing failure');
-      const lastResortStory = {
-        sceneTitle: 'Adventure Conclusion',
-        summary: 'Your journey has reached its conclusion. Though the details may be unclear, your choices have shaped your destiny.',
-        dilemmas: ['Reflect on your journey', 'Consider the consequences of your actions'],
-        cues: 'The path ahead is uncertain, but your story continues.',
-        consequences: ['Your adventure has left its mark on the world', 'Future encounters will remember your choices']
-      };
-      
+    }
+
+    // Validate the parsed story structure
+    if (!parsed || typeof parsed !== 'object') {
+      console.warn('[STORY VALIDATION FAIL] Parsed result is not an object');
       return { 
         success: true, 
-        story: lastResortStory,
-        warning: `Story generation encountered issues. Raw LLM output: ${rawContent.substring(0, 500)}${rawContent.length > 500 ? '...' : ''}`
+        story: createFallbackStory(description),
+        warning: 'Story validation failed, using fallback'
       };
     }
+
+    // Ensure all required fields exist
+    const validatedStory = {
+      sceneTitle: parsed.sceneTitle || 'Adventure Scene',
+      summary: parsed.summary || 'Your adventure continues...',
+      dilemmas: Array.isArray(parsed.dilemmas) ? parsed.dilemmas : ['Continue your journey'],
+      cues: parsed.cues || 'The path ahead is uncertain.',
+      consequences: Array.isArray(parsed.consequences) ? parsed.consequences : ['Your choices shape your destiny']
+    };
+
+    console.log(`[STORY GENERATED] Parse method: ${parseMethod}`);
+    return { success: true, story: validatedStory };
+
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio story generation error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return { success: false, error: errorMessage };
   }
-}; 
+};
+
+// Helper function to extract story fields manually
+function extractStoryFields(rawContent: string) {
+  const extractField = (field: string): string => {
+    const regex = new RegExp(`"${field}"\\s*:\\s*"([^"]*)"`, 'i');
+    const match = rawContent.match(regex);
+    return match ? match[1] : '';
+  };
+
+  const extractArray = (field: string): string[] => {
+    const regex = new RegExp(`"${field}"\\s*:\\s*\\[(.*?)\\]`, 'is');
+    const match = rawContent.match(regex);
+    if (match) {
+      return match[1]
+        .split(/"\s*,\s*"/)
+        .map(s => s.replace(/(^\s*"|"\s*$)/g, '').trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
+
+  return {
+    sceneTitle: extractField('sceneTitle') || 'Adventure Scene',
+    summary: extractField('summary') || 'Your adventure continues...',
+    dilemmas: extractArray('dilemmas').length > 0 ? extractArray('dilemmas') : ['Continue your journey'],
+    cues: extractField('cues') || 'The path ahead is uncertain.',
+    consequences: extractArray('consequences').length > 0 ? extractArray('consequences') : ['Your choices shape your destiny']
+  };
+}
+
+// Helper function to create a fallback story
+function createFallbackStory(description: string) {
+  return {
+    sceneTitle: 'Adventure Scene',
+    summary: `Your journey continues in this mysterious location. ${description.substring(0, 100)}...`,
+    dilemmas: ['Explore further', 'Proceed with caution', 'Seek another path'],
+    cues: 'The environment holds secrets waiting to be discovered.',
+    consequences: ['Your choices will determine your fate', 'The adventure continues']
+  };
+} 
