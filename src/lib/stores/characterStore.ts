@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Character, CharacterStats, createCharacter, ImageHistoryEntry, Choice, ChoiceOutcome, StoryEntry, ChoicesHistoryEntry, updateMoralAlignment, getMoralChoiceImpact } from '../types/character';
 import { v4 as uuidv4 } from 'uuid';
+import type { ImageDescription, StoryDescription } from '@/lib/types';
 
 // Extended Character interface for the store with additional fields
 export interface ExtendedCharacter extends Character {
@@ -35,12 +36,12 @@ export interface CharacterState {
   removeStory: (id: string) => void;
   getStory: (id: string) => StoryEntry | undefined;
   getRecentStories: (limit?: number) => StoryEntry[];
-  initializeCharacterFromDescription: (description: string) => void;
+  initializeCharacterFromDescription: (description: ImageDescription) => void;
   incrementTurn: () => void;
   addImageToHistory: (image: ImageHistoryEntry) => void;
   updateImageDescription: (id: string, description: string) => void;
   updateImageStory: (id: string, story: string) => void;
-  updateCurrentStory: (story: string | undefined) => void;
+  updateCurrentStory: (story: StoryDescription | undefined) => void;
   updateCurrentDescription: (description: string | undefined) => void;
   makeChoice: (choiceId: string) => void;
   addChoice: (choice: Choice) => void;
@@ -246,7 +247,7 @@ export const useCharacterStore = create<CharacterState>()(
         return limit ? sortedStories.slice(0, limit) : sortedStories;
       },
 
-      initializeCharacterFromDescription: (description: string) => {
+      initializeCharacterFromDescription: (description: ImageDescription) => {
         set((state) => {
           const { character } = state;
           
@@ -254,12 +255,21 @@ export const useCharacterStore = create<CharacterState>()(
           if (character.storyHistory.length > 0) {
             return state;
           }
-          
+          // Helper to join all fields into a single string for keyword analysis
+          const joinDesc = (desc: ImageDescription): string => {
+            return [
+              desc.setting,
+              ...(desc.objects || []),
+              ...(desc.characters || []),
+              desc.mood,
+              ...(desc.hooks || [])
+            ].filter(Boolean).join(' ');
+          };
           // Generate character name based on description
-          const generateName = (desc: string): string => {
+          const generateName = (desc: ImageDescription): string => {
             const adjectives = ['Brave', 'Wise', 'Mysterious', 'Curious', 'Bold', 'Clever', 'Swift'];
             const nouns = ['Explorer', 'Seeker', 'Wanderer', 'Discoverer', 'Observer', 'Traveler', 'Scout', 'Hunter'];
-            const lowerDesc = desc.toLowerCase();
+            const lowerDesc = joinDesc(desc).toLowerCase();
             // Look for key words in description to influence name
             if (lowerDesc.includes('dragon') || lowerDesc.includes('fire') || lowerDesc.includes('magic')) {
               return 'Mystical Seeker';
@@ -294,10 +304,9 @@ export const useCharacterStore = create<CharacterState>()(
               return name;
             }
           };
-          
           // Generate stats based on description content
-          const generateStats = (desc: string): CharacterStats => {
-            const words = desc.toLowerCase();
+          const generateStats = (desc: ImageDescription): CharacterStats => {
+            const words = joinDesc(desc).toLowerCase();
             let intelligence = 10;
             let creativity = 10;
             let perception = 10;
@@ -367,10 +376,8 @@ export const useCharacterStore = create<CharacterState>()(
               wisdom: clamp(wisdom, 1, 20),
             };
           };
-          
           const newName = generateName(description);
           const newStats = generateStats(description);
-          
           return {
             character: {
               ...character,
@@ -436,11 +443,11 @@ export const useCharacterStore = create<CharacterState>()(
         }));
       },
 
-      updateCurrentStory: (story: string | undefined) => {
+      updateCurrentStory: (story: StoryDescription | undefined) => {
         set((state) => ({
           character: {
             ...state.character,
-            currentStory: story,
+            currentStory: story ? JSON.stringify(story) : undefined,
             updatedAt: new Date(),
           },
         }));

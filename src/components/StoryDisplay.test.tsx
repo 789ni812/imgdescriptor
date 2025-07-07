@@ -1,20 +1,26 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { StoryDisplay } from './StoryDisplay';
-import { StoryDisplayProps } from '@/lib/types';
+import type { StoryDescription } from '@/lib/types';
 
 // Mock the LoadingSpinner to simplify testing
 jest.mock('./ui/LoadingSpinner', () => ({
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
 }));
 
-type RenderProps = Partial<StoryDisplayProps>;
+type RenderProps = Partial<{
+  story: StoryDescription | null;
+  isLoading: boolean;
+  error: string | null;
+  summary: string | null;
+}>;
 
 const renderComponent = (props: RenderProps = {}) => {
-  const defaultProps: StoryDisplayProps = {
+  const defaultProps = {
     story: null,
     isLoading: false,
     error: null,
+    summary: null,
   };
   return render(<StoryDisplay {...defaultProps} {...props} />);
 };
@@ -29,63 +35,91 @@ describe('StoryDisplay', () => {
   });
 
   it('should render the story when provided', () => {
-    const testStory = 'This is a test story.';
-    renderComponent({ story: testStory });
-    expect(screen.getByTestId('markdown-renderer')).toHaveTextContent(testStory);
-  });
-
-  it('should use MarkdownRenderer for story content', () => {
-    const testStory = 'This is a **bold** story.';
-    renderComponent({ story: testStory });
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toBeInTheDocument();
-    // Check for the rendered bold element
-    const bold = screen.getByText('bold');
-    expect(bold.tagName.toLowerCase()).toBe('strong');
-    // Check the full text content (ignoring markdown syntax)
-    expect(markdownRenderer).toHaveTextContent('This is a bold story.');
-  });
-
-  it('should pass story content to MarkdownRenderer', () => {
-    const testStory = 'A story with *italic* text.';
+    const testStory: StoryDescription = {
+      sceneTitle: 'The Adventure Begins',
+      summary: 'This is a test story summary.',
+      dilemmas: ['Should I go left or right?', 'Should I trust the stranger?'],
+      cues: 'Look for the ancient symbols on the wall.',
+      consequences: ['The path leads to treasure.', 'The stranger betrays you.']
+    };
     renderComponent({ story: testStory });
     
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toHaveTextContent(testStory);
+    expect(screen.getByText('Scene:')).toBeInTheDocument();
+    expect(screen.getByText('The Adventure Begins')).toBeInTheDocument();
+    expect(screen.getByText('Summary')).toBeInTheDocument();
+    expect(screen.getByText('This is a test story summary.')).toBeInTheDocument();
+    expect(screen.getByText('Key Dilemmas')).toBeInTheDocument();
+    expect(screen.getByText('Should I go left or right?')).toBeInTheDocument();
+    expect(screen.getByText('Should I trust the stranger?')).toBeInTheDocument();
+    expect(screen.getByText('Visual Cues')).toBeInTheDocument();
+    expect(screen.getByText('Look for the ancient symbols on the wall.')).toBeInTheDocument();
+    expect(screen.getByText('Ongoing Consequences')).toBeInTheDocument();
+    expect(screen.getByText('The path leads to treasure.')).toBeInTheDocument();
+    expect(screen.getByText('The stranger betrays you.')).toBeInTheDocument();
   });
 
-  it('should not use MarkdownRenderer when error is present', () => {
-    const testStory = 'This is a **bold** story.';
+  it('should render story sections conditionally', () => {
+    const partialStory: StoryDescription = {
+      sceneTitle: 'Partial Story',
+      summary: 'Only summary and title.',
+      dilemmas: [],
+      cues: '',
+      consequences: []
+    };
+    renderComponent({ story: partialStory });
+    
+    expect(screen.getByText('Scene:')).toBeInTheDocument();
+    expect(screen.getByText('Partial Story')).toBeInTheDocument();
+    expect(screen.getByText('Summary')).toBeInTheDocument();
+    expect(screen.getByText('Only summary and title.')).toBeInTheDocument();
+    
+    // Should not render empty sections
+    expect(screen.queryByText('Key Dilemmas')).not.toBeInTheDocument();
+    expect(screen.queryByText('Visual Cues')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ongoing Consequences')).not.toBeInTheDocument();
+  });
+
+  it('should render summary when provided', () => {
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: [],
+      cues: '',
+      consequences: []
+    };
+    const summary = 'This is a summary of changes.';
+    renderComponent({ story: testStory, summary });
+    
+    expect(screen.getByText('Summary of Changes')).toBeInTheDocument();
+    expect(screen.getByText('This is a summary of changes.')).toBeInTheDocument();
+  });
+
+  it('should not render summary when not provided', () => {
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: [],
+      cues: '',
+      consequences: []
+    };
+    renderComponent({ story: testStory });
+    
+    expect(screen.queryByText('Summary of Changes')).not.toBeInTheDocument();
+  });
+
+  it('should not render story when error is present', () => {
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: [],
+      cues: '',
+      consequences: []
+    };
     const testError = 'This is a test error.';
     renderComponent({ story: testStory, error: testError });
     
-    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
     expect(screen.getByText(testError)).toBeInTheDocument();
-  });
-
-  it('should handle markdown content with headings and lists', () => {
-    const markdownStory = `
-# The Adventure Begins
-
-This is a **bold** and *italic* story.
-
-## Characters
-- **Hero**: Brave warrior
-- **Villain**: Evil sorcerer
-
-> "This is a memorable quote from the story."
-
-The story continues with [more details](https://example.com).
-    `;
-    
-    renderComponent({ story: markdownStory });
-    
-    const markdownRenderer = screen.getByTestId('markdown-renderer');
-    expect(markdownRenderer).toBeInTheDocument();
-    expect(markdownRenderer).toHaveTextContent('The Adventure Begins');
-    expect(markdownRenderer).toHaveTextContent('Characters');
-    expect(markdownRenderer).toHaveTextContent('Hero');
-    expect(markdownRenderer).toHaveTextContent('Villain');
+    expect(screen.queryByText('Scene: Test Scene')).not.toBeInTheDocument();
   });
 
   it('should display a loading spinner when isLoading is true', () => {
@@ -105,28 +139,50 @@ The story continues with [more details](https://example.com).
   });
 
   it('should prioritize error over story and loading', () => {
-    const testStory = 'This is a test story.';
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: [],
+      cues: '',
+      consequences: []
+    };
     const testError = 'This is a test error.';
     renderComponent({ story: testStory, error: testError, isLoading: true });
     
     expect(screen.getByText(testError)).toBeInTheDocument();
-    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
+    expect(screen.queryByText('Scene: Test Scene')).not.toBeInTheDocument();
     expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
   });
 
-  it('renders markdown as HTML elements (heading, bold, list)', () => {
-    const markdownStory = '# Heading\n**bold**\n- list item 1\n- list item 2';
-    renderComponent({ story: markdownStory });
-    // Heading should render as an h1
-    expect(screen.getByRole('heading', { level: 1, name: 'Heading' })).toBeInTheDocument();
-    // Bold should render as <strong>
-    const bold = screen.getByText('bold');
-    expect(bold.tagName.toLowerCase()).toBe('strong');
-    // List items should render as <li> inside a <ul>
-    const list = screen.getByRole('list');
-    const items = screen.getAllByRole('listitem');
-    expect(items.map(li => li.textContent)).toEqual(['list item 1', 'list item 2']);
-    expect(list).toContainElement(items[0]);
-    expect(list).toContainElement(items[1]);
+  it('should render dilemmas as list items', () => {
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: ['First dilemma', 'Second dilemma'],
+      cues: '',
+      consequences: []
+    };
+    renderComponent({ story: testStory });
+    
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+    expect(listItems[0]).toHaveTextContent('First dilemma');
+    expect(listItems[1]).toHaveTextContent('Second dilemma');
+  });
+
+  it('should render consequences as list items', () => {
+    const testStory: StoryDescription = {
+      sceneTitle: 'Test Scene',
+      summary: 'Test summary.',
+      dilemmas: [],
+      cues: '',
+      consequences: ['First consequence', 'Second consequence']
+    };
+    renderComponent({ story: testStory });
+    
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+    expect(listItems[0]).toHaveTextContent('First consequence');
+    expect(listItems[1]).toHaveTextContent('Second consequence');
   });
 }); 

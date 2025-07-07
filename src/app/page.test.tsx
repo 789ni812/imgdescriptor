@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import Home from './page';
 import { createCharacter } from '@/lib/types/character';
+import type { StoryDescription } from '@/lib/types';
 
 // Mock the config
 jest.mock('@/lib/config', () => ({
@@ -432,8 +433,16 @@ describe('Template Import and Final Story Button', () => {
       updateCurrentDescription: jest.fn(),
     });
 
+    const mockStoryObj: StoryDescription = {
+      sceneTitle: 'Turn 3 Story',
+      summary: 'Turn 3 story content',
+      dilemmas: ['Final choice 1', 'Final choice 2'],
+      cues: 'The final scene unfolds.',
+      consequences: ['Victory', 'Defeat']
+    };
+
     mockUseStoryGeneration.mockReturnValue({
-      story: 'Turn 3 story content',
+      story: mockStoryObj,
       isStoryLoading: false,
       storyError: null,
       generateStory: jest.fn(),

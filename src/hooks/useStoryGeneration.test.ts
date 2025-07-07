@@ -2,6 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt, buildAdaptiveStoryPrompt } from './useStoryGeneration';
 import { createCharacter, type Character } from '@/lib/types/character';
 import { createGoodVsBadConfig } from '@/lib/types/goodVsBad';
+import type { StoryDescription } from '@/lib/types';
 
 // Mock fetch
 (global as any).fetch = jest.fn();
@@ -78,7 +79,14 @@ describe('useStoryGeneration', () => {
     };
     const mockStore = { character: defaultCharacter };
 
-    const mockResponse = { success: true, story: 'A magical adventure begins...' };
+    const mockStoryObj: StoryDescription = {
+      sceneTitle: 'A Magical Beginning',
+      summary: 'A magical adventure begins...',
+      dilemmas: ['Should the hero enter the cave?', 'Trust the talking owl?'],
+      cues: 'Glowing runes on the cave wall.',
+      consequences: ['Find treasure', 'Awaken a guardian']
+    };
+    const mockResponse = { success: true, story: mockStoryObj };
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockResponse,
@@ -96,13 +104,13 @@ describe('useStoryGeneration', () => {
       expect(result.current.isStoryLoading).toBe(false);
     });
 
-    expect(result.current.story).toBe('A magical adventure begins...');
+    expect(result.current.story).toEqual(mockStoryObj);
     expect(result.current.storyError).toBeNull();
     
     // Verify that the story was added to character history
     expect(mockAddStory).toHaveBeenCalledWith({
       id: expect.any(String),
-      text: 'A magical adventure begins...',
+      text: JSON.stringify(mockStoryObj),
       imageDescription: 'A beautiful landscape',
       turnNumber: 1,
       timestamp: expect.any(String),
@@ -240,10 +248,22 @@ describe('useStoryGeneration', () => {
       await waitFor(() => {
         expect(result1.current.isStoryLoading).toBe(false);
       });
-      expect(result1.current.story).toBe('Turn 1: The story begins in the ancient forest.');
+      expect(result1.current.story).toEqual({
+        sceneTitle: 'Mock Story Scene',
+        summary: 'Turn 1: The story begins in the ancient forest.',
+        dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+        cues: 'Mock visual cues',
+        consequences: ['Mock consequence 1', 'Mock consequence 2']
+      });
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        text: 'Turn 1: The story begins in the ancient forest.',
+        text: JSON.stringify({
+          sceneTitle: 'Mock Story Scene',
+          summary: 'Turn 1: The story begins in the ancient forest.',
+          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+          cues: 'Mock visual cues',
+          consequences: ['Mock consequence 1', 'Mock consequence 2']
+        }),
         imageDescription: 'A beautiful landscape',
         turnNumber: 1,
         timestamp: expect.any(String),
@@ -262,10 +282,22 @@ describe('useStoryGeneration', () => {
       await waitFor(() => {
         expect(result2.current.isStoryLoading).toBe(false);
       });
-      expect(result2.current.story).toBe('Turn 2: The adventure continues in the mysterious cave.');
+      expect(result2.current.story).toEqual({
+        sceneTitle: 'Mock Story Scene',
+        summary: 'Turn 2: The adventure continues in the mysterious cave.',
+        dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+        cues: 'Mock visual cues',
+        consequences: ['Mock consequence 1', 'Mock consequence 2']
+      });
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        text: 'Turn 2: The adventure continues in the mysterious cave.',
+        text: JSON.stringify({
+          sceneTitle: 'Mock Story Scene',
+          summary: 'Turn 2: The adventure continues in the mysterious cave.',
+          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+          cues: 'Mock visual cues',
+          consequences: ['Mock consequence 1', 'Mock consequence 2']
+        }),
         imageDescription: 'A beautiful landscape',
         turnNumber: 2,
         timestamp: expect.any(String),
@@ -296,10 +328,22 @@ describe('useStoryGeneration', () => {
       await waitFor(() => {
         expect(result.current.isStoryLoading).toBe(false);
       });
-      expect(result.current.story).toBe('Default mock story');
+      expect(result.current.story).toEqual({
+        sceneTitle: 'Mock Story Scene',
+        summary: 'Default mock story',
+        dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+        cues: 'Mock visual cues',
+        consequences: ['Mock consequence 1', 'Mock consequence 2']
+      });
       expect(mockAddStory).toHaveBeenCalledWith({
         id: expect.any(String),
-        text: 'Default mock story',
+        text: JSON.stringify({
+          sceneTitle: 'Mock Story Scene',
+          summary: 'Default mock story',
+          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+          cues: 'Mock visual cues',
+          consequences: ['Mock consequence 1', 'Mock consequence 2']
+        }),
         imageDescription: 'A beautiful landscape',
         turnNumber: 4,
         timestamp: expect.any(String),
@@ -948,7 +992,13 @@ describe('Choice Generation', () => {
       expect(result.current.isStoryLoading).toBe(false);
     });
 
-    expect(result.current.story).toBe('Turn 1: The story begins with DM adaptations.');
+    expect(result.current.story).toEqual({
+      sceneTitle: 'Mock Story Scene',
+      summary: 'Turn 1: The story begins with DM adaptations.',
+      dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+      cues: 'Mock visual cues',
+      consequences: ['Mock consequence 1', 'Mock consequence 2']
+    });
     expect(result.current.storyError).toBeNull();
   });
 

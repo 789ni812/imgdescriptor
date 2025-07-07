@@ -1,7 +1,7 @@
 // API Response Types
 export interface AnalyzeImageResponse {
   success: boolean;
-  description?: string;
+  description?: ImageDescription;
   error?: string;
 }
 
@@ -61,14 +61,35 @@ export interface AppError {
   details?: string;
 }
 
+// Structured image description type
+export interface ImageDescription {
+  setting: string;
+  objects: string[];
+  characters: string[];
+  mood: string;
+  hooks: string[];
+}
+
+// Structured story description type
+export interface StoryDescription {
+  sceneTitle: string;
+  summary: string;
+  dilemmas: string[];
+  cues: string;
+  consequences: string[];
+}
+
 export type AnalysisResult = {
   success: boolean;
-  description?: string;
+  description?: ImageDescription;
   error?: string;
 };
 
 export type StoryResult = {
   success: boolean;
-  story?: string;
+  story?: StoryDescription;
   error?: string;
+  warning?: string;
 }; 
+
+export type { CharacterStats } from './types/character'; 

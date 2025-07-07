@@ -834,7 +834,7 @@ describe('GameTemplate Debug Configuration', () => {
       const template = createDefaultTemplate('Test Template');
       expect(template.debugConfig).toBeDefined();
       expect(template.debugConfig?.storyLength).toBeDefined();
-      expect(template.debugConfig?.storyLengthCustom).toBeDefined();
+      expect(template.debugConfig?.storyLengthCustom).toBeUndefined();
       expect(template.debugConfig?.choiceCount).toBeDefined();
       expect(template.debugConfig?.enableVerboseLogging).toBeDefined();
       expect(template.debugConfig?.summaryEnabled).toBeDefined();

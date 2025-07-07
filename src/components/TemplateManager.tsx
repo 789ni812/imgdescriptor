@@ -221,7 +221,12 @@ export function TemplateManager() {
       }
       const lastImage = result.gameState.imageHistory[result.gameState.imageHistory.length - 1];
       if (lastImage && lastImage.story) {
-        characterStore.updateCurrentStory(lastImage.story);
+        try {
+          const storyObj = JSON.parse(lastImage.story);
+          characterStore.updateCurrentStory(storyObj);
+        } catch {
+          characterStore.updateCurrentStory(undefined);
+        }
       } else {
         characterStore.updateCurrentStory(undefined);
       }

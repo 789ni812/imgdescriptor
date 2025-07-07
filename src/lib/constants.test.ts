@@ -11,23 +11,22 @@ describe('Constants', () => {
   describe('DEFAULT_IMAGE_DESCRIPTION_PROMPT', () => {
     it('should include RPG game focus', () => {
       expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('interactive RPG adventure');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('moral choices');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('character development');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('JSON object');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('setting');
     });
 
-    it('should include markdown formatting instructions', () => {
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('markdown formatting');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**bold**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('*italic*');
+    it('should include strict JSON output instructions', () => {
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('Output ONLY a valid JSON object');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('double-quoted');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('Do NOT output any text, markdown');
     });
 
-    it('should include structured content sections for RPG elements', () => {
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**Setting**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**Objects**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**People/Characters**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**Mood & Atmosphere**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**Interactive Elements**');
-      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('**Potential Conflicts**');
+    it('should include required JSON fields', () => {
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('"setting"');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('"objects"');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('"characters"');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('"mood"');
+      expect(DEFAULT_IMAGE_DESCRIPTION_PROMPT).toContain('"hooks"');
     });
 
     it('should be a non-empty string', () => {
@@ -72,16 +71,23 @@ describe('Constants', () => {
 
   describe('CHOICE_GENERATION_PROMPT', () => {
     it('should include choice requirements', () => {
-      expect(CHOICE_GENERATION_PROMPT).toContain('Alignment Tested');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Consequence Clear');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Character Growth');
+      expect(CHOICE_GENERATION_PROMPT).toContain('meaningful choices');
+      expect(CHOICE_GENERATION_PROMPT).toContain('JSON array');
+      expect(CHOICE_GENERATION_PROMPT).toContain('type');
     });
 
-    it('should include choice types', () => {
-      expect(CHOICE_GENERATION_PROMPT).toContain('Heroic Choice');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Pragmatic Choice');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Selfish Choice');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Cautious Choice');
+    it('should include strict JSON output instructions', () => {
+      expect(CHOICE_GENERATION_PROMPT).toContain('Output ONLY a valid JSON array');
+      expect(CHOICE_GENERATION_PROMPT).toContain('double-quoted');
+      expect(CHOICE_GENERATION_PROMPT).toContain('Do NOT output any text, markdown');
+    });
+
+    it('should include required JSON fields', () => {
+      expect(CHOICE_GENERATION_PROMPT).toContain('"type"');
+      expect(CHOICE_GENERATION_PROMPT).toContain('"text"');
+      expect(CHOICE_GENERATION_PROMPT).toContain('"description"');
+      expect(CHOICE_GENERATION_PROMPT).toContain('"statRequirements"');
+      expect(CHOICE_GENERATION_PROMPT).toContain('"consequences"');
     });
 
     it('should be a non-empty string', () => {

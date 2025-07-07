@@ -122,6 +122,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       story: storyResult.story,
+      warning: storyResult.warning,
     });
 
   } catch (error) {

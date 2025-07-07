@@ -110,6 +110,22 @@ jest.config.js           # Jest configuration
   - 3-turn limit, managed in Zustand
   - Reset Game button resets all state
   - All per-turn controls (upload, generate story, choices) are strictly gated to only appear at the correct stage for the current turn.
+- **Client-Only Rendering for Zustand-Dependent UI:**
+  - All UI components that depend on Zustand state (e.g., CharacterStats, stats in Header) are now wrapped in a ClientOnly pattern.
+  - This pattern waits for the client to mount before rendering the component, ensuring that the state is always consistent between server and client.
+  - This prevents hydration mismatches and SSR/CSR state issues, which can occur if Zustand state is accessed during SSR.
+  - **Pattern:**
+    ```tsx
+    const ClientOnly: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+      const [mounted, setMounted] = useState(false);
+      useEffect(() => setMounted(true), []);
+      if (!mounted) return null;
+      return <>{children}</>;
+    };
+    // Usage:
+    <ClientOnly><CharacterStats ... /></ClientOnly>
+    ```
+  - This is the recommended best practice for Zustand + Next.js (App Router) projects.
 
 ## Testing Process
 - **Framework:** Jest + React Testing Library
@@ -266,6 +282,10 @@ This process can be applied to future features by:
 - **Commits:**
   - Conventional commit messages (feat, fix, chore, etc.)
   - Commit after passing tests and build
+- **Zustand State:**
+  - All UI that depends on Zustand state should be rendered client-only using a ClientOnly pattern.
+  - This prevents hydration mismatches and ensures state consistency between server and client.
+  - Never access Zustand state directly in server components or during SSR.
 
 ## Decision Rationale
 - **Next.js App Router:** Modern, flexible routing and layouts

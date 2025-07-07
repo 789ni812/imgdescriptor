@@ -1,17 +1,22 @@
-export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Analyze this image as a potential scene for an interactive RPG adventure. Describe it in vivid detail using **markdown formatting**.
+export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Analyze this image as a potential scene for an interactive RPG adventure. Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks".
 
-Focus on elements that could drive story and choices:
-- **Setting**: Where the scene takes place (environment, atmosphere, lighting)
-- **Objects**: Key items, artifacts, or tools that could be interacted with
-- **People/Characters**: Any individuals, their appearance, actions, and potential roles
-- **Mood & Atmosphere**: The emotional tone and how it might affect player decisions
-- **Colors & Lighting**: Visual elements that set the scene's tone
-- **Interactive Elements**: Features that could lead to player choices or consequences
-- **Potential Conflicts**: Any tensions, dangers, or moral dilemmas visible
+INSTRUCTIONS:
+- All property names and string values MUST be double-quoted.
+- "objects", "characters", and "hooks" must be arrays of strings (even if only one item).
+- If a field contains quotes, escape them properly (use \").
+- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object.
+- If you cannot determine a value, use an empty string or empty array as appropriate.
+- Output ONLY the JSON object, nothing else.
+- Do NOT include any comments, explanations, or extra text.
 
-Consider how this scene could fit into a larger narrative with moral choices and character development. Be comprehensive but don't invent details not visually present.
-
-Format with **bold** for emphasis, *italic* for subtle details, and proper structure.`;
+Example output:
+{
+  "setting": "A misty castle looms in the distance, shrouded by ancient trees.",
+  "objects": ["rusty sword", "broken lantern"],
+  "characters": ["mysterious knight", "watchful crow"],
+  "mood": "Ominous and foreboding, with a sense of hidden danger.",
+  "hooks": ["A distant howl echoes through the fog.", "A faint light flickers in a tower window."]
+}`;
 
 export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive story scene based on the image description. This is part of a larger RPG adventure where player choices matter.
 
@@ -35,62 +40,72 @@ export const DEFAULT_STORY_GENERATION_PROMPT = `Create an engaging interactive s
 
 Make this scene feel like a crucial moment in the character's journey where their choices will shape their destiny.`;
 
-export const IMAGE_ANALYSIS_SYSTEM_PROMPT = `You are a skilled visual analyst specializing in RPG game design. Your job is to analyze images and identify elements that could drive interactive storytelling.
+export const IMAGE_ANALYSIS_SYSTEM_PROMPT = `You are a skilled visual analyst specializing in RPG game design. Your ONLY job is to analyze images and output a strict JSON object describing the scene for interactive storytelling.
 
-When analyzing an image, focus on:
-- **Story Potential**: How the scene could lead to meaningful player choices
-- **Character Interaction**: Elements that characters could interact with or respond to
-- **Moral Complexity**: Situations that could present ethical dilemmas
-- **Atmospheric Details**: Mood and tone that could influence player decisions
-- **Narrative Hooks**: Elements that could drive story progression
+INSTRUCTIONS:
+- Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks".
+- All property names and string values MUST be double-quoted.
+- "objects", "characters", and "hooks" must be arrays of strings (even if only one item).
+- If a field contains quotes, escape them properly (use \").
+- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object.
+- If you cannot determine a value, use an empty string or empty array as appropriate.
+- Output ONLY the JSON object, nothing else.
+- Do NOT include any comments, explanations, or extra text.
+
+Example output:
+{
+  "setting": "A misty castle looms in the distance, shrouded by ancient trees.",
+  "objects": ["rusty sword", "broken lantern"],
+  "characters": ["mysterious knight", "watchful crow"],
+  "mood": "Ominous and foreboding, with a sense of hidden danger.",
+  "hooks": ["A distant howl echoes through the fog.", "A faint light flickers in a tower window."]
+}
 
 Describe what you see clearly and comprehensively, highlighting elements that could become part of an interactive narrative. Use UK English spelling and grammar.`;
 
-export const STORY_GENERATION_SYSTEM_PROMPT = `You are an expert RPG storyteller and Dungeon Master. Your role is to create compelling, interactive story scenes that respond to player character development and choices.
+export const STORY_GENERATION_SYSTEM_PROMPT = `You are an expert RPG storyteller and Dungeon Master. Your ONLY job is to create a compelling, interactive story scene as a strict JSON object.
 
-**Your Responsibilities:**
-- **Character Integration**: Weave the player character's traits, alignment, and history into the story
-- **Choice Design**: Create meaningful decisions that test the character's values and growth
-- **Consequence Planning**: Ensure choices have clear, impactful outcomes
-- **Narrative Coherence**: Build on previous story events and maintain consistency
-- **Moral Complexity**: Present situations where right and wrong aren't always obvious
+INSTRUCTIONS:
+- Output ONLY a valid JSON object with the following keys: "sceneTitle", "summary", "dilemmas", "cues", "consequences".
+- All property names and string values MUST be double-quoted.
+- "dilemmas" and "consequences" must be arrays of strings (even if only one item).
+- Do NOT output any text, markdown, code blocks, comments, explanations, or extra keys/objects—ONLY the JSON object.
+- If a field contains quotes, escape them properly (use \").
+- If you cannot determine a value, use an empty string or empty array as appropriate.
+- Output ONLY the JSON object, nothing else.
+- Do NOT include any comments, explanations, extra keys, or extra objects.
+- If you are about to output anything other than a valid JSON object with ONLY the required fields, STOP and output {} instead.
+- If you are unsure, output an empty string or empty array for that field.
+- If you cannot output a valid JSON object, output: {}
 
-**Story Guidelines:**
-- **Length**: 2-4 paragraphs that set up clear decision points
-- **Tone**: Match the character's alignment and the scene's atmosphere
-- **Pacing**: Build tension and anticipation for player choices
-- **Detail**: Rich, immersive descriptions that make choices feel consequential
-
-**Character Context Integration:**
-- Reference the character's moral alignment and how it affects their perception
-- Include elements that challenge or reinforce the character's current path
-- Consider the character's reputation and how NPCs might react
-- Build on previous choices and their consequences
+Example output:
+{
+  "sceneTitle": "The Labyrinth of Shadows",
+  "summary": "The air feels charged as you stand before Darth Vader...",
+  "dilemmas": ["Persuade Vader using your reputation and choices", "Attempt combat (high risk, high reward)", "Seek a nonviolent solution or escape"],
+  "cues": "Vader's armor displays a slight crack, hinting at internal conflict...",
+  "consequences": ["Your past actions influence the outcome of this encounter", "Affecting future story branches and alliances"]
+}
 
 Create stories that feel like they're part of a larger, evolving narrative where every choice matters.`;
 
-export const CHOICE_GENERATION_PROMPT = `Based on the story scene, generate 3-4 meaningful choices that the player character could make. Each choice should:
+export const CHOICE_GENERATION_PROMPT = `Based on the story scene, generate 2 or 3 meaningful choices that the player character could make. Output ONLY a valid JSON array of objects, each with the following keys: "type", "text", "description", "statRequirements", "consequences".
 
-**Choice Requirements:**
-- **Alignment Tested**: Challenge the character's moral alignment and values
-- **Consequence Clear**: Have obvious positive/negative outcomes
-- **Character Growth**: Offer opportunities for development or change
-- **Story Progression**: Move the narrative forward meaningfully
-- **Difficulty Varied**: Mix easy and challenging decisions
+INSTRUCTIONS:
+- All property names and string values MUST be double-quoted.
+- "consequences" must be an array of strings (even if only one item).
+- "statRequirements" must be an object with stat names as keys and numbers as values.
+- If a field contains quotes, escape them properly (use \").
+- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON array.
+- If you cannot determine a value, use an empty string, empty array, or empty object as appropriate.
+- Output ONLY the JSON array, nothing else.
+- Do NOT include any comments, explanations, or extra text.
 
-**Choice Types to Include:**
-- **Heroic Choice**: Selfless, potentially dangerous but morally right
-- **Pragmatic Choice**: Practical, balanced risk/reward
-- **Selfish Choice**: Self-interested, potentially harmful to others
-- **Cautious Choice**: Safe, conservative approach
-
-**Format Each Choice As:**
-- **Text**: Clear, concise action description
-- **Description**: Longer explanation of what this choice means
-- **Alignment Impact**: How this choice affects moral standing
-- **Consequences**: Immediate and long-term outcomes
-
-Make choices that feel consequential and reflect the character's current situation and development.`;
+Example output:
+[
+  { "type": "dialogue", "text": "Ask about the artifact", "description": "Speak to the merchant about the mysterious artifact.", "statRequirements": {"intelligence": 10}, "consequences": ["Gain information", "Merchant becomes suspicious"] },
+  { "type": "explore", "text": "Search the ruins", "description": "Look for clues among the ancient stones.", "statRequirements": {"perception": 12}, "consequences": ["Find a hidden passage", "Trigger a trap"] }
+]`;
 
 export const DM_REFLECTION_PROMPT = `As the Dungeon Master, reflect on the player's recent choice and performance. Consider how this affects the ongoing story and your role as narrator.
 
@@ -149,4 +164,20 @@ export const DYNAMIC_CHOICE_TEMPLATE = `Generate choices for a character with:
 - Vary in difficulty and risk level
 - Move the story forward meaningfully
 
-Generate 3-4 choices that feel consequential and reflect the character's development.`; 
+INSTRUCTIONS:
+- Output ONLY a valid JSON array of objects, each with the following keys: "type", "text", "description", "statRequirements", "consequences".
+- All property names and string values MUST be double-quoted.
+- "consequences" must be an array of strings (even if only one item).
+- "statRequirements" must be an object with stat names as keys and numbers as values.
+- If a field contains quotes, escape them properly (use \").
+- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON array.
+- If you cannot determine a value, use an empty string, empty array, or empty object as appropriate.
+- Output ONLY the JSON array, nothing else.
+- Do NOT include any comments, explanations, or extra text.
+
+Example output:
+[
+  { "type": "dialogue", "text": "Ask about the artifact", "description": "Speak to the merchant about the mysterious artifact.", "statRequirements": {"intelligence": 10}, "consequences": ["Gain information", "Merchant becomes suspicious"] },
+  { "type": "explore", "text": "Search the ruins", "description": "Look for clues among the ancient stones.", "statRequirements": {"perception": 12}, "consequences": ["Find a hidden passage", "Trigger a trap"] }
+]
+`; 

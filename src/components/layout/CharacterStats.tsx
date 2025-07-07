@@ -1,11 +1,18 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 
 interface CharacterStatsProps {
   className?: string;
 }
+
+const ClientOnly: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return <>{children}</>;
+};
 
 const CharacterStats: React.FC<CharacterStatsProps> = ({ className = '' }) => {
   const { character, getTotalStats, getAverageStats } = useCharacterStore();
@@ -64,4 +71,6 @@ const CharacterStats: React.FC<CharacterStatsProps> = ({ className = '' }) => {
   );
 };
 
-export default CharacterStats; 
+export default function CharacterStatsClientOnly(props: CharacterStatsProps) {
+  return <ClientOnly><CharacterStats {...props} /></ClientOnly>;
+} 

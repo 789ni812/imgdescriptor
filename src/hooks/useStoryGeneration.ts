@@ -5,6 +5,7 @@ import { useCharacterStore } from '@/lib/stores/characterStore';
 import type { Character, StoryEntry, Choice } from '@/lib/types/character';
 import type { DMAdaptation } from '@/lib/types/dmAdaptation';
 import { v4 as uuidv4 } from 'uuid';
+import type { StoryDescription } from '@/lib/types';
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -162,25 +163,45 @@ export function buildFinalStoryPrompt(character: Character & { name?: string }) 
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
   const name = character.name || character.persona;
-  // Structure each turn's info, including choice and outcome
-  const turns = character.storyHistory.map((s, i) => {
-    // Find the choice and outcome for this turn
-    const choiceOutcome = character.choiceHistory.find(c => c.turnNumber === s.turnNumber);
-    return [
-      `Turn ${i + 1}:`,
-      `Image Description: ${s.imageDescription}`,
-      `Story: ${s.text}`,
-      choiceOutcome ? `Choice: ${choiceOutcome.text}` : '',
-      choiceOutcome && choiceOutcome.outcome ? `Outcome: ${choiceOutcome.outcome}` : ''
-    ].filter(Boolean).join('\n');
-  }).join('\n\n');
+  
+  // Create a structured summary of the character's journey
+  const journeySummary = character.storyHistory.map((story, index) => {
+    const choice = character.choiceHistory.find(c => c.turnNumber === story.turnNumber);
+    return {
+      turn: index + 1,
+      imageDescription: story.imageDescription,
+      story: story.text,
+      choice: choice?.text || 'No choice made',
+      outcome: choice?.outcome || 'No outcome recorded'
+    };
+  });
 
-  return [
-    `Character: ${name}`,
-    `Stats: ${statsString}`,
-    turns,
-    `\nINSTRUCTIONS:\n1. Carefully read the descriptions, stories, choices, and outcomes for each turn above.\n2. Briefly summarize the main event of each turn, including the player's choices and their outcomes.\n3. Then, write a single, cohesive final story that weaves together the key events, choices, and consequences from all three turns into an epic adventure.\n4. Make sure the final story references important details, choices, and outcomes from each turn and feels like a natural conclusion to the adventure.\n\nFirst, provide the summaries for each turn. Then, write the final story below:`
-  ].filter(Boolean).join('\n\n');
+  return `Create a final, epic conclusion to this character's adventure. This is the culmination of their journey across three turns.
+
+CHARACTER: ${name}
+STATS: ${statsString}
+ALIGNMENT: ${character.moralAlignment.level} (${character.moralAlignment.score}/100)
+REPUTATION: ${character.moralAlignment.reputation}
+
+JOURNEY SUMMARY:
+${journeySummary.map(j => 
+  `Turn ${j.turn}: ${j.imageDescription} - ${j.story} - Choice: ${j.choice} - Outcome: ${j.outcome}`
+).join('\n')}
+
+INSTRUCTIONS:
+- Output ONLY a valid JSON object with the following keys: "sceneTitle", "summary", "dilemmas", "cues", "consequences".
+- All property names and string values MUST be double-quoted.
+- "dilemmas" and "consequences" must be arrays of strings (even if only one item).
+- Do NOT output any text, markdown, code blocks, comments, explanations, or extra keys/objects—ONLY the JSON object.
+- If a field contains quotes, escape them properly (use \").
+- If you cannot determine a value, use an empty string or empty array as appropriate.
+- Output ONLY the JSON object, nothing else.
+- Do NOT include any comments, explanations, extra keys, or extra objects.
+- If you are about to output anything other than a valid JSON object with ONLY the required fields, STOP and output {} instead.
+- If you are unsure, output an empty string or empty array for that field.
+- If you cannot output a valid JSON object, output: {}
+
+Create a final story that weaves together all the character's choices, consequences, and growth into an epic conclusion. The story should reflect their moral alignment, reputation, and the consequences of their choices throughout the adventure.`;
 }
 
 // Types for dependency injection
@@ -252,7 +273,7 @@ export function useStoryGeneration(
   storeOverride?: StoreDependencies,
   debugConfigOverride?: import('@/lib/types/template').GameTemplate['debugConfig']
 ) {
-  const [story, setStoryState] = useState<string | undefined>(undefined);
+  const [story, setStoryState] = useState<StoryDescription | undefined>(undefined);
   const [isStoryLoading, setIsStoryLoading] = useState<boolean>(false);
   const [storyError, setStoryError] = useState<string | null>(null);
   const [isChoicesLoading, setIsChoicesLoading] = useState<boolean>(false);
@@ -265,7 +286,7 @@ export function useStoryGeneration(
   const effectiveCharacter = store.character;
 
   // Update both local state and global store
-  const setStory = useCallback((s: string | undefined) => {
+  const setStory = useCallback((s: StoryDescription | undefined) => {
     setStoryState(s);
     if (storeFromHook.updateCurrentStory) {
       storeFromHook.updateCurrentStory(s);
@@ -298,30 +319,34 @@ export function useStoryGeneration(
         const turnBasedStory = config.TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.stories];
         
         // Use turn-based data if available, otherwise fall back to default
-        const mockStory = turnBasedStory || config.MOCK_STORY_TEXT;
-        
+        const mockStoryText = turnBasedStory || config.MOCK_STORY_TEXT;
+        // Convert mock text to StoryDescription object
+        const mockStory: StoryDescription = {
+          sceneTitle: 'Mock Story Scene',
+          summary: mockStoryText,
+          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+          cues: 'Mock visual cues',
+          consequences: ['Mock consequence 1', 'Mock consequence 2']
+        };
         setStory(mockStory);
-        
         // Add the story to character history
         if (storeFromHook.addStory) {
           const entry: StoryEntry = {
             id: uuidv4(),
-            text: mockStory,
+            text: JSON.stringify(mockStory),
             timestamp: new Date().toISOString(),
             turnNumber: effectiveCharacter.currentTurn,
             imageDescription: description,
           };
           storeFromHook.addStory(entry);
         }
-        
         // Generate choices after story (using static generation for mock mode)
-        const choices = generateChoicesFromStory(mockStory);
+        const choices = generateChoicesFromStory(mockStoryText);
         choices.forEach(choice => {
           if (storeFromHook.addChoice) {
             storeFromHook.addChoice(choice);
           }
         });
-        
         setIsChoicesLoading(false);
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
@@ -360,7 +385,7 @@ export function useStoryGeneration(
 
       if (response.ok && data.success) {
         debugLog('useStoryGeneration', 'Story generation successful', { 
-          storyLength: data.story?.length || 0 
+          story: data.story 
         });
         
         setStory(data.story);
@@ -369,7 +394,7 @@ export function useStoryGeneration(
         if (storeFromHook.addStory) {
           const entry: StoryEntry = {
             id: uuidv4(),
-            text: data.story,
+            text: JSON.stringify(data.story),
             timestamp: new Date().toISOString(),
             turnNumber: effectiveCharacter.currentTurn,
             imageDescription: description,
@@ -454,30 +479,34 @@ export function useStoryGeneration(
         const turnBasedStory = config.TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.stories];
         
         // Use turn-based data if available, otherwise fall back to default
-        const mockStory = turnBasedStory || config.MOCK_STORY_TEXT;
-        
+        const mockStoryText = turnBasedStory || config.MOCK_STORY_TEXT;
+        // Convert mock text to StoryDescription object
+        const mockStory: StoryDescription = {
+          sceneTitle: 'Mock Story Scene',
+          summary: mockStoryText,
+          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
+          cues: 'Mock visual cues',
+          consequences: ['Mock consequence 1', 'Mock consequence 2']
+        };
         setStory(mockStory);
-        
         // Add the story to character history
         if (storeFromHook.addStory) {
           const entry: StoryEntry = {
             id: uuidv4(),
-            text: mockStory,
+            text: JSON.stringify(mockStory),
             timestamp: new Date().toISOString(),
             turnNumber: effectiveCharacter.currentTurn,
             imageDescription: description,
           };
           storeFromHook.addStory(entry);
         }
-        
         // Generate choices after story (using static generation for mock mode)
-        const choices = generateChoicesFromStory(mockStory);
+        const choices = generateChoicesFromStory(mockStoryText);
         choices.forEach(choice => {
           if (storeFromHook.addChoice) {
             storeFromHook.addChoice(choice);
           }
         });
-        
         setIsChoicesLoading(false);
         setIsStoryLoading(false);
       }, 300); // Simulate a short delay
@@ -510,7 +539,7 @@ export function useStoryGeneration(
         if (storeFromHook.addStory) {
           const entry: StoryEntry = {
             id: uuidv4(),
-            text: data.story,
+            text: JSON.stringify(data.story),
             timestamp: new Date().toISOString(),
             turnNumber: effectiveCharacter.currentTurn,
             imageDescription: description,

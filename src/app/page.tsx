@@ -16,7 +16,7 @@ import { buildFinalStoryPrompt } from '@/hooks/useStoryGeneration';
 import { MOCK_STORY } from '@/lib/config';
 import { TemplateManager } from '@/components/TemplateManager';
 import TurnCard from '@/components/TurnCard';
-import type { CharacterStats } from '@/lib/types/character';
+import type { CharacterStats, StoryDescription, ImageDescription } from '@/lib/types';
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -41,7 +41,6 @@ export default function Home() {
     resetCharacter,
     addImageToHistory,
     updateImageDescription,
-    updateImageStory,
     makeChoice,
   } = useCharacterStore();
 
@@ -82,16 +81,41 @@ export default function Home() {
   const [isFinalStoryLoading, setIsFinalStoryLoading] = useState(false);
   const [finalStory, setFinalStory] = useState<string | null>(null);
   const [finalStoryError, setFinalStoryError] = useState<string | null>(null);
+  const [finalStoryWarning, setFinalStoryWarning] = useState<string | null>(null);
 
-  const story = character.currentStory;
+  // Removed unused setStory state
 
-  const description = character.currentDescription ?? null;
+  const description: string | null = character.currentDescription ?? null;
 
   // Per-turn state helpers (use latest image entry for current turn)
   const latestImageEntry = character.imageHistory[character.imageHistory.length - 1];
   const latestTurn = latestImageEntry?.turn;
   const storyEntry = latestTurn ? character.storyHistory.find(story => story.turnNumber === latestTurn) : undefined;
   const choiceOutcome = latestTurn ? character.choiceHistory.find(outcome => outcome.turnNumber === latestTurn) : undefined;
+
+  const parseStoryDescription = (text: string | undefined): StoryDescription | null => {
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
+  };
+
+  const formatStoryObject = (story: StoryDescription): string => {
+    return `# ${story.sceneTitle}
+
+${story.summary}
+
+## Dilemmas
+${story.dilemmas.map(dilemma => `- ${dilemma}`).join('\n')}
+
+## Visual Cues
+${story.cues}
+
+## Consequences
+${story.consequences.map(consequence => `- ${consequence}`).join('\n')}`;
+  };
 
   // Helper function to build turn data for TurnCard
   const buildTurnData = (turnNumber: number) => {
@@ -105,24 +129,31 @@ export default function Home() {
       statChanges = choiceOutcome.statChanges;
     }
 
-    // Extract summary from story if present
-    let storyText = storyEntry?.text || '';
-    let summary: string | null = null;
-    if (storyText) {
-      // Look for a heading or bullet list after the main story
-      const summaryMatch = storyText.match(/(?:\n|\r|^)\s*(Summary of Changes|Summary|\- )/i);
-      if (summaryMatch) {
-        const idx = summaryMatch.index || 0;
-        summary = storyText.slice(idx).trim();
-        storyText = storyText.slice(0, idx).trim();
+    // Parse structured story
+    const storyObj = parseStoryDescription(storyEntry?.text);
+
+    // Parse structured image description
+    let imageDescObj: ImageDescription | null = null;
+    if (imageEntry?.description) {
+      if (typeof imageEntry.description === 'string') {
+        try {
+          imageDescObj = JSON.parse(imageEntry.description);
+        } catch {
+          imageDescObj = null;
+        }
+      } else {
+        imageDescObj = imageEntry.description;
       }
     }
+
+    // Extract summary if present (not used for strict JSON)
+    const summary: string | null = null;
 
     return {
       turnNumber,
       imageUrl: imageEntry?.url || '',
-      imageDescription: imageEntry?.description || '',
-      story: storyText,
+      imageDescription: imageDescObj,
+      story: storyObj,
       summary,
       isStoryLoading: isStoryLoading && character.currentTurn === turnNumber,
       choices: character.currentChoices,
@@ -181,7 +212,15 @@ export default function Home() {
   // After description is available, initialize character if needed
   useEffect(() => {
     if (shouldInitCharacter && description) {
-      initializeCharacterFromDescription(description);
+      let imageDesc: ImageDescription | null = null;
+      try {
+        imageDesc = typeof description === 'string' ? JSON.parse(description) : description;
+      } catch {
+        imageDesc = null;
+      }
+      if (imageDesc) {
+        initializeCharacterFromDescription(imageDesc);
+      }
       setShouldInitCharacter(false);
     }
   }, [shouldInitCharacter, description, initializeCharacterFromDescription]);
@@ -202,6 +241,7 @@ export default function Home() {
     resetCharacter();
     setFinalStory(null);
     setFinalStoryError(null);
+    setFinalStoryWarning(null);
     setIsFinalStoryLoading(false);
     // Optionally reset other local state if needed
   };
@@ -241,20 +281,13 @@ export default function Home() {
     }
   }, [description, character.imageHistory, updateImageDescription]);
 
-  // Save story to imageHistory when it changes
-  useEffect(() => {
-    if (story && character.imageHistory.length > 0) {
-      const latestImage = character.imageHistory[character.imageHistory.length - 1];
-      if (latestImage && latestImage.story !== story) {
-        updateImageStory(latestImage.id, story);
-      }
-    }
-  }, [story, character.imageHistory, updateImageStory]);
+  // Story is now handled through character store, no need for local story state
 
   const handleGenerateFinalStory = async () => {
     setIsFinalStoryLoading(true);
     setFinalStory(null);
     setFinalStoryError(null);
+    setFinalStoryWarning(null);
     // Use mock if enabled
     if (MOCK_STORY) {
       setTimeout(() => {
@@ -274,7 +307,12 @@ export default function Home() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        setFinalStory(data.story);
+        // Convert story object to formatted string
+        const formattedStory = formatStoryObject(data.story);
+        setFinalStory(formattedStory);
+        if (data.warning) {
+          setFinalStoryWarning(data.warning);
+        }
       } else {
         setFinalStoryError(data.error || 'An unknown error occurred while generating the final story.');
       }
@@ -365,6 +403,7 @@ export default function Home() {
                 choices: turnChoices,
                 isDescriptionLoading: isDescriptionLoading && character.currentTurn === turnNumber,
                 onSelectChoice: handleChoiceSelect,
+                isStoryLoading: isStoryLoading
               };
               return (
                 <TurnCard key={turnNumber} {...turnCardProps} />
@@ -406,6 +445,35 @@ export default function Home() {
             <Card className="w-full max-w-md mx-auto mt-8 border-destructive">
               <CardContent className="p-6">
                 <span className="text-destructive font-semibold">{finalStoryError}</span>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Final Story Warning */}
+          {finalStoryWarning && (
+            <Card className="w-full max-w-4xl mx-auto mt-8 border-yellow-500">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-yellow-500">Story Generation Warning</h3>
+                    <div className="mt-2 text-sm text-yellow-400">
+                      <p className="mb-2">The AI encountered some issues while generating your story, but we were able to create a fallback version.</p>
+                      <details className="mt-3">
+                        <summary className="cursor-pointer text-yellow-300 hover:text-yellow-200">
+                          Technical Details (click to expand)
+                        </summary>
+                        <pre className="mt-2 text-xs bg-yellow-900/20 p-3 rounded overflow-auto max-h-40">
+                          {finalStoryWarning}
+                        </pre>
+                      </details>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}

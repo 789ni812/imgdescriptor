@@ -216,10 +216,26 @@ MOOD_CHANGE: neutral
       expect(result.adaptations.storyModifications).toEqual([]);
     });
 
-    it('should throw error for invalid response format', () => {
+    it('should return fallback response for invalid response format', () => {
       const invalidResponse = 'Invalid response without required fields';
 
-      expect(() => parseDMReflectionResponse(invalidResponse)).toThrow('Invalid reflection response format');
+      const result = parseDMReflectionResponse(invalidResponse);
+
+      expect(result).toEqual({
+        reflection: 'The Dungeon Master is momentarily silent, reflecting on the events... (No valid reflection returned by AI)',
+        adaptations: {
+          difficultyAdjustment: 0,
+          narrativeDirection: 'Continue the story as best as possible.',
+          moodChange: 'neutral',
+          personalityEvolution: [],
+          storyModifications: []
+        },
+        playerAssessment: {
+          engagement: 0,
+          understanding: 0,
+          satisfaction: 0
+        }
+      });
     });
 
     it('should handle negative difficulty adjustments', () => {

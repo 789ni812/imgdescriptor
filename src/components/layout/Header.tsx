@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import CharacterStats from './CharacterStats';
+import CharacterStatsClientOnly from './CharacterStats';
 import { useCharacterStore } from '@/lib/stores/characterStore';
 import { Heart, Dice5 } from 'lucide-react';
 
@@ -33,7 +33,7 @@ export function Header() {
                 <Dice5 data-testid="stat-icon-turn" className="w-5 h-5 text-blue-500" />
                 <span>Turn {character.currentTurn}/3</span>
               </div>
-              <CharacterStats className="text-muted-foreground" />
+              <CharacterStatsClientOnly className="text-muted-foreground" />
             </div>
           )}
           <div className="text-sm text-muted-foreground ml-4">
@@ -48,7 +48,7 @@ export function Header() {
       {/* Mobile Character Stats - only below header bar */}
       {hasCharacter && (
         <div className="md:hidden container mx-auto px-4 pb-2">
-          <CharacterStats className="text-muted-foreground" />
+          <CharacterStatsClientOnly className="text-muted-foreground" />
         </div>
       )}
     </header>

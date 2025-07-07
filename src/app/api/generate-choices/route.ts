@@ -86,13 +86,12 @@ export async function POST(request: NextRequest) {
 }
 
 function buildChoiceGenerationPrompt({ story, character, turn }: {
-  story: string;
+  story: import('@/lib/types').StoryDescription;
   character: Character;
   turn: number;
 }): string {
-  // Only use the last paragraph of the story for brevity
-  const storyParagraphs = story.split(/\n+/).filter(Boolean);
-  const lastParagraph = storyParagraphs.length > 0 ? storyParagraphs[storyParagraphs.length - 1] : story;
+  // Destructure the story object
+  const { sceneTitle, summary, dilemmas, cues, consequences } = story;
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
   const inventoryString = character.inventory && character.inventory.length > 0
@@ -102,14 +101,22 @@ function buildChoiceGenerationPrompt({ story, character, turn }: {
     ? character.traits.join(', ')
     : '';
 
+  let storySection = '';
+  if (sceneTitle) storySection += `Scene: ${sceneTitle}\n`;
+  if (summary) storySection += `Summary: ${summary}\n`;
+  if (dilemmas && dilemmas.length > 0) storySection += `Key Dilemmas:\n- ${dilemmas.join('\n- ')}\n`;
+  if (cues) storySection += `Visual Cues: ${cues}\n`;
+  if (consequences && consequences.length > 0) storySection += `Ongoing Consequences:\n- ${consequences.join('\n- ')}\n`;
+
   return `Given the following story and character info, generate 2 or 3 short, creative choices for the player.
 
 INSTRUCTIONS:
 1. Output exactly 2 or 3 choices, no more, no less.
 2. Each choice must be a JSON object in a JSON array.
-3. Do not output any text, markdown, or code blocks—only the JSON array.
-4. If you are unsure, output 3 choices.
-5. CRITICAL: You must output exactly 2 or 3 choices. Never output 1 choice or 4+ choices.
+3. Output ONLY the JSON array. Do NOT output any text, markdown, code blocks, or explanations—ONLY the JSON array.
+4. If you are unsure, output 3 choices. Never output 1 or 4+ choices.
+5. If you cannot generate valid choices, output an empty array [] (do NOT output fallback or generic options).
+6. WARNING: Any extra text, markdown, or explanation will be ignored and may result in no choices being used.
 
 Each choice should have:
 - a type (combat, explore, dialogue, item, skill)
@@ -125,8 +132,7 @@ Example output:
 ]
 
 Story:
-${lastParagraph}
-Stats: ${statsString}
+${storySection}Stats: ${statsString}
 Health: ${character.health}
 ${inventoryString ? inventoryString + '\n' : ''}${traitsString ? 'Traits: ' + traitsString + '\n' : ''}Turn: ${turn}`;
 }
@@ -177,6 +183,10 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
       .replace(/&amp;/g, '&');
     // Aggressive pre-parse fix
     const fixed = aggressiveJsonFix(cleaned);
+    // Log all stages for debugging
+    console.log('[LLM RAW CHOICE RESPONSE]', responseText);
+    console.log('[LLM CLEANED CHOICE RESPONSE]', cleaned);
+    console.log('[LLM FIXED CHOICE RESPONSE]', fixed);
     // Try to extract JSON array from the response
     const jsonMatch = fixed.match(/\[([\s\S]*?)\]/m);
     let arrayText = jsonMatch ? jsonMatch[0] : '';
@@ -188,10 +198,12 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
     let parsedChoices = [];
     try {
       choicesData = JSON.parse(arrayText);
-    } catch {
+    } catch (e1) {
+      console.warn('[CHOICE ARRAY JSON PARSE FAIL]', arrayText, e1);
       try {
         choicesData = JSON5.parse(arrayText);
-      } catch {
+      } catch (e2) {
+        console.warn('[CHOICE ARRAY JSON5 PARSE FAIL]', arrayText, e2);
         // If array parsing fails, try to extract and parse each object individually
         const objectMatches = fixed.match(/\{[\s\S]*?\}/g);
         if (objectMatches && objectMatches.length > 0) {
@@ -243,9 +255,6 @@ function parseChoicesFromResponse(responseText: string): Choice[] {
         consequences: Array.isArray(choice.consequences) ? choice.consequences : []
       };
     });
-    console.log('[LLM RAW CHOICE RESPONSE]', responseText);
-    console.log('[LLM CLEANED CHOICE RESPONSE]', cleaned);
-    console.log('[LLM FIXED CHOICE RESPONSE]', fixed);
     console.log('[LLM CHOICES USED]', parsedChoices);
     // TODO: In debug mode, save raw LLM output to a file for easier review.
     return parsedChoices;

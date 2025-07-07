@@ -1605,3 +1605,31 @@ Ensure the entire application uses the official [shadcn/ui](https://ui.shadcn.co
 - **Performance**: Optimized component rendering and styling
 
 ---
+
+### Phase XX: Zustand-Dependent UI Client-Only Migration (2025-07-07)
+**Objective:** Prevent hydration mismatches and SSR/CSR state issues by ensuring all UI components that depend on Zustand state are rendered only on the client.
+
+#### Tasks
+- [x] Wrap all Zustand-dependent UI components (e.g., CharacterStats) in a ClientOnly pattern that waits for client mount before rendering.
+- [x] Update all parent components (e.g., Header) to use the client-only version.
+- [x] Test in browser to confirm hydration errors are resolved.
+- [x] Document rationale and implementation in spec.md and ARCHITECTURE.md.
+- [x] Commit: `fix(hydration): migrate Zustand-dependent UI to client-only rendering`
+
+#### Rationale
+- Zustand is a client-side state manager; its state is not available during SSR.
+- Rendering Zustand-dependent UI on the server can cause hydration mismatches if the server and client state differ.
+- Wrapping these components in a ClientOnly pattern ensures they only render after the client has mounted, guaranteeing state consistency and eliminating hydration errors.
+
+#### Impact
+- Hydration errors related to Zustand state are eliminated.
+- SSR/CSR boundaries are respected, improving reliability and maintainability.
+- This is the recommended best practice for Zustand + Next.js (App Router) projects.
+
+## Conventions & Best Practices
+- **Zustand State:**
+  - All UI that depends on Zustand state should be rendered client-only using a ClientOnly pattern.
+  - This prevents hydration mismatches and ensures state consistency between server and client.
+  - Never access Zustand state directly in server components or during SSR.
+
+---
