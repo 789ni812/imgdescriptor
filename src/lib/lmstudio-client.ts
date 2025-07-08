@@ -158,8 +158,12 @@ export const generateStory = async (
       return { success: false, error: 'The model did not return a story.' };
     }
 
+    console.log('[STORY DEBUG] Raw content from LM Studio:', rawContent.substring(0, 500) + '...');
+
     // Preprocess the raw content to fix common issues
     const preprocessedContent = preprocessJsonContent(rawContent);
+    
+    console.log('[STORY DEBUG] Preprocessed content:', preprocessedContent.substring(0, 500) + '...');
 
     // Enhanced JSON parsing with multiple fallback strategies
     let parsed;
@@ -167,10 +171,13 @@ export const generateStory = async (
 
     try {
       // Method 1: Direct JSON parse
+      console.log('[STORY DEBUG] Attempting direct JSON parse...');
       parsed = JSON.parse(preprocessedContent);
       parseMethod = 'direct';
+      console.log('[STORY DEBUG] Direct parse successful!');
     } catch (e1) {
       console.warn('[STORY JSON PARSE FAIL] Direct parse failed:', e1);
+      console.log('[STORY DEBUG] Direct parse error details:', e1 instanceof Error ? e1.message : String(e1));
       
       try {
         // Method 2: Extract JSON object with regex
@@ -256,8 +263,6 @@ function preprocessJsonContent(content: string): string {
     .replace(/```\s*/g, '')
     // Fix common control character issues
     .replace(/[\x00-\x1F\x7F]/g, '')
-    // Fix unescaped quotes in strings
-    .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
     // Remove any trailing commas before closing braces/brackets
     .replace(/,(\s*[}\]])/g, '$1')
     // Fix common LLM artifacts
