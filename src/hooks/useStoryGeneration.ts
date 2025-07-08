@@ -8,7 +8,28 @@ import { v4 as uuidv4 } from 'uuid';
 import type { StoryDescription } from '@/lib/types';
 import { playGenerationSound } from '@/lib/utils/soundUtils';
 import { createStoryContinuityPrompt } from '@/lib/prompts/gameStatePrompts';
-import { generateStory as generateStoryApi } from '@/lib/lmstudio-client';
+// API function to call the generate-story endpoint
+async function generateStoryApi(description: string, prompt?: string, debugConfig?: any) {
+  const response = await fetch('/api/generate-story', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      description,
+      prompt,
+      debugConfig,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    return { success: false, error: errorData.error || 'Failed to generate story' };
+  }
+
+  const data = await response.json();
+  return { success: true, story: data.story, warning: data.warning };
+}
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
