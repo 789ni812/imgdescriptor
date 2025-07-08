@@ -39,27 +39,27 @@ describe('Constants', () => {
   describe('DEFAULT_STORY_GENERATION_PROMPT', () => {
     it('should include RPG story requirements', () => {
       expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('interactive story scene');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('RPG adventure');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('player choices matter');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('larger adventure');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('character\'s journey');
     });
 
     it('should include character-driven elements', () => {
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Character-Driven');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('moral alignment');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Character Context');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('alignment');
       expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Character Growth');
     });
 
     it('should include story structure elements', () => {
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Choice-Ready');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Consequence-Aware');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Progressive');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('STORY STRUCTURE');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Choices');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('Consequences');
     });
 
     it('should include markdown formatting examples', () => {
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('**Bold**');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('*Italic*');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('character names');
-      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('dialogue');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('**MUST USE IMAGE ELEMENTS**');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('**Opening**');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('**Conflict**');
+      expect(DEFAULT_STORY_GENERATION_PROMPT).toContain('**Character Context**');
     });
 
     it('should be a non-empty string', () => {
@@ -79,7 +79,7 @@ describe('Constants', () => {
     it('should include strict JSON output instructions', () => {
       expect(CHOICE_GENERATION_PROMPT).toContain('Output ONLY a valid JSON array');
       expect(CHOICE_GENERATION_PROMPT).toContain('double-quoted');
-      expect(CHOICE_GENERATION_PROMPT).toContain('Do NOT output any text, markdown');
+      expect(CHOICE_GENERATION_PROMPT).toContain('no text, no explanations, no markdown');
     });
 
     it('should include required JSON fields', () => {

@@ -140,6 +140,42 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
     handleVillainPersonalityChange(field, newArray);
   };
 
+  const handleVillainStateArrayFieldChange = (field: keyof VillainState, index: number, value: string) => {
+    const currentArray = config.villainState?.[field] as string[] || [];
+    const newArray = [...currentArray];
+    newArray[index] = value;
+    handleVillainStateChange(field, newArray);
+  };
+
+  const addVillainStateArrayItem = (field: keyof VillainState) => {
+    const currentArray = config.villainState?.[field] as string[] || [];
+    handleVillainStateChange(field, [...currentArray, '']);
+  };
+
+  const removeVillainStateArrayItem = (field: keyof VillainState, index: number) => {
+    const currentArray = config.villainState?.[field] as string[] || [];
+    const newArray = currentArray.filter((_, i) => i !== index);
+    handleVillainStateChange(field, newArray);
+  };
+
+  const handleConflictMechanicsArrayFieldChange = (field: keyof ConflictMechanics, index: number, value: string) => {
+    const currentArray = config.conflictMechanics?.[field] as string[] || [];
+    const newArray = [...currentArray];
+    newArray[index] = value;
+    handleConflictMechanicsChange(field, newArray);
+  };
+
+  const addConflictMechanicsArrayItem = (field: keyof ConflictMechanics) => {
+    const currentArray = config.conflictMechanics?.[field] as string[] || [];
+    handleConflictMechanicsChange(field, [...currentArray, '']);
+  };
+
+  const removeConflictMechanicsArrayItem = (field: keyof ConflictMechanics, index: number) => {
+    const currentArray = config.conflictMechanics?.[field] as string[] || [];
+    const newArray = currentArray.filter((_, i) => i !== index);
+    handleConflictMechanicsChange(field, newArray);
+  };
+
   return (
     <Card className="w-full" data-testid="good-vs-bad-config">
       <CardHeader>
@@ -304,7 +340,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
             onClick={() => setShowAdvancedConfig(!showAdvancedConfig)}
             disabled={!config.isEnabled}
           >
-            {showAdvancedConfig ? 'Hide' : 'Show'} Advanced
+            {showAdvancedConfig ? 'Hide' : 'Show'} Advanced Configuration
           </Button>
         </div>
 
@@ -428,7 +464,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                 </label>
                 <select
                   value={config.villainPersonality?.relationshipWithPlayer || 'enemy'}
-                  onChange={(e) => handleVillainPersonalityChange('relationshipWithPlayer', e.target.value as any)}
+                  onChange={(e) => handleVillainPersonalityChange('relationshipWithPlayer', e.target.value as 'enemy' | 'rival' | 'ally' | 'unknown')}
                   className="w-full p-2 border rounded-md bg-background text-foreground border-border"
                 >
                   {relationshipTypes.map((type) => (
@@ -455,6 +491,512 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                 <span className="text-sm text-muted-foreground">
                   Current: {config.villainPersonality?.influenceLevel || 5}
                 </span>
+              </div>
+
+              {/* Strengths */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Strengths
+                </label>
+                {(config.villainPersonality?.strengths || []).map((strength, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={strength}
+                      onChange={(e) => handleArrayFieldChange('strengths', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter villain strength..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('strengths', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('strengths')}
+                >
+                  Add Strength
+                </Button>
+              </div>
+
+              {/* Weaknesses */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Weaknesses
+                </label>
+                {(config.villainPersonality?.weaknesses || []).map((weakness, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={weakness}
+                      onChange={(e) => handleArrayFieldChange('weaknesses', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter villain weakness..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('weaknesses', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('weaknesses')}
+                >
+                  Add Weakness
+                </Button>
+              </div>
+
+              {/* Goals */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Goals
+                </label>
+                {(config.villainPersonality?.goals || []).map((goal, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={goal}
+                      onChange={(e) => handleArrayFieldChange('goals', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter villain goal..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('goals', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('goals')}
+                >
+                  Add Goal
+                </Button>
+              </div>
+
+              {/* Dialogue Patterns */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Dialogue Patterns
+                </label>
+                {(config.villainPersonality?.dialoguePatterns || []).map((pattern, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={pattern}
+                      onChange={(e) => handleArrayFieldChange('dialoguePatterns', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter dialogue pattern..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('dialoguePatterns', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('dialoguePatterns')}
+                >
+                  Add Dialogue Pattern
+                </Button>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Resources
+                </label>
+                {(config.villainPersonality?.resources || []).map((resource, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={resource}
+                      onChange={(e) => handleArrayFieldChange('resources', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter villain resource..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('resources', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('resources')}
+                >
+                  Add Resource
+                </Button>
+              </div>
+
+              {/* Territory */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Territory
+                </label>
+                {(config.villainPersonality?.territory || []).map((territory, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={territory}
+                      onChange={(e) => handleArrayFieldChange('territory', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter villain territory..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeArrayItem('territory', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem('territory')}
+                >
+                  Add Territory
+                </Button>
+              </div>
+            </div>
+
+            {/* Villain State */}
+            <div className="space-y-4">
+              <h4 className="text-md font-semibold text-card-foreground">Villain State</h4>
+              
+              {/* Health */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Health (0-100)
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.villainState?.health || 85}
+                  onChange={(e) => handleVillainStateChange('health', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.villainState?.health || 85}
+                </span>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Resources (0-100)
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.villainState?.resources || 90}
+                  onChange={(e) => handleVillainStateChange('resources', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.villainState?.resources || 90}
+                </span>
+              </div>
+
+              {/* Influence */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Influence (0-100)
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.villainState?.influence || 95}
+                  onChange={(e) => handleVillainStateChange('influence', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.villainState?.influence || 95}
+                </span>
+              </div>
+
+              {/* Anger */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Anger (0-100)
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.villainState?.anger || 30}
+                  onChange={(e) => handleVillainStateChange('anger', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.villainState?.anger || 30}
+                </span>
+              </div>
+
+              {/* Respect */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Respect for Player (0-100)
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.villainState?.respect || 20}
+                  onChange={(e) => handleVillainStateChange('respect', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.villainState?.respect || 20}
+                </span>
+              </div>
+
+              {/* Current Goal */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Current Goal
+                </label>
+                <input
+                  type="text"
+                  value={config.villainState?.currentGoal || ''}
+                  onChange={(e) => handleVillainStateChange('currentGoal', e.target.value)}
+                  className="w-full p-2 border rounded-md bg-background text-foreground border-border"
+                  placeholder="Enter villain's current goal..."
+                />
+              </div>
+
+              {/* Last Action */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Last Action
+                </label>
+                <input
+                  type="text"
+                  value={config.villainState?.lastAction || ''}
+                  onChange={(e) => handleVillainStateChange('lastAction', e.target.value)}
+                  className="w-full p-2 border rounded-md bg-background text-foreground border-border"
+                  placeholder="Enter villain's last action..."
+                />
+              </div>
+
+              {/* Memory */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Memory (Remembered Player Actions)
+                </label>
+                {(config.villainState?.memory || []).map((memory, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={memory}
+                      onChange={(e) => handleVillainStateArrayFieldChange('memory', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter remembered player action..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeVillainStateArrayItem('memory', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addVillainStateArrayItem('memory')}
+                >
+                  Add Memory
+                </Button>
+              </div>
+
+              {/* Territory Control */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Territory Control
+                </label>
+                {(config.villainState?.territoryControl || []).map((territory, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={territory}
+                      onChange={(e) => handleVillainStateArrayFieldChange('territoryControl', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter controlled territory..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeVillainStateArrayItem('territoryControl', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addVillainStateArrayItem('territoryControl')}
+                >
+                  Add Territory
+                </Button>
+              </div>
+            </div>
+
+            {/* Conflict Mechanics */}
+            <div className="space-y-4">
+              <h4 className="text-md font-semibold text-card-foreground">Conflict Mechanics</h4>
+              
+              {/* Escalation Level */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Escalation Level (1-10)
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={config.conflictMechanics?.escalationLevel || 5}
+                  onChange={(e) => handleConflictMechanicsChange('escalationLevel', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.conflictMechanics?.escalationLevel || 5}
+                </span>
+              </div>
+
+              {/* Confrontation Type */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Confrontation Type
+                </label>
+                <select
+                  value={config.conflictMechanics?.confrontationType || 'mixed'}
+                  onChange={(e) => handleConflictMechanicsChange('confrontationType', e.target.value as any)}
+                  className="w-full p-2 border rounded-md bg-background text-foreground border-border"
+                >
+                  {confrontationTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Villain Reaction Style */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Villain Reaction Style
+                </label>
+                <select
+                  value={config.conflictMechanics?.villainReactionStyle || 'calculating'}
+                  onChange={(e) => handleConflictMechanicsChange('villainReactionStyle', e.target.value as any)}
+                  className="w-full p-2 border rounded-md bg-background text-foreground border-border"
+                >
+                  {reactionStyles.map((style) => (
+                    <option key={style.value} value={style.value}>
+                      {style.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Player Advantage */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Player Advantage (-10 to +10)
+                </label>
+                <input
+                  type="range"
+                  min="-10"
+                  max="10"
+                  value={config.conflictMechanics?.playerAdvantage || 0}
+                  onChange={(e) => handleConflictMechanicsChange('playerAdvantage', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.conflictMechanics?.playerAdvantage || 0}
+                </span>
+              </div>
+
+              {/* Villain Advantage */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Villain Advantage (-10 to +10)
+                </label>
+                <input
+                  type="range"
+                  min="-10"
+                  max="10"
+                  value={config.conflictMechanics?.villainAdvantage || 5}
+                  onChange={(e) => handleConflictMechanicsChange('villainAdvantage', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Current: {config.conflictMechanics?.villainAdvantage || 5}
+                </span>
+              </div>
+
+              {/* Conflict History */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-card-foreground">
+                  Conflict History
+                </label>
+                {(config.conflictMechanics?.conflictHistory || []).map((conflict, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={conflict}
+                      onChange={(e) => handleConflictMechanicsArrayFieldChange('conflictHistory', index, e.target.value)}
+                      className="flex-1 p-2 border rounded-md bg-background text-foreground border-border"
+                      placeholder="Enter conflict event..."
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeConflictMechanicsArrayItem('conflictHistory', index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addConflictMechanicsArrayItem('conflictHistory')}
+                >
+                  Add Conflict Event
+                </Button>
               </div>
             </div>
 

@@ -105,11 +105,11 @@ export const generateStory = async (
 
   // Use debugConfig for AI tuning if provided
   const aiTuning: GameTemplate['debugConfig']['aiResponseTuning'] = debugConfig?.aiResponseTuning ?? {
-    temperature: 0.7, // Reduced from 0.85 for more consistent output
-    maxTokens: 2048,
-    topP: 0.9,
-    frequencyPenalty: 0.1, // Added to reduce repetition
-    presencePenalty: 0.1, // Added to encourage variety
+    temperature: 0.6, // Reduced for more consistent output
+    maxTokens: 1500, // Reduced to prevent rambling
+    topP: 0.85, // Reduced for more focused output
+    frequencyPenalty: 0.2, // Increased to reduce repetition
+    presencePenalty: 0.15, // Increased to encourage variety
   };
   const temperature = aiTuning.temperature;
   const max_tokens = aiTuning.maxTokens;
@@ -158,20 +158,23 @@ export const generateStory = async (
       return { success: false, error: 'The model did not return a story.' };
     }
 
+    // Preprocess the raw content to fix common issues
+    const preprocessedContent = preprocessJsonContent(rawContent);
+
     // Enhanced JSON parsing with multiple fallback strategies
     let parsed;
     let parseMethod = 'initial';
 
     try {
       // Method 1: Direct JSON parse
-      parsed = JSON.parse(rawContent);
+      parsed = JSON.parse(preprocessedContent);
       parseMethod = 'direct';
     } catch (e1) {
       console.warn('[STORY JSON PARSE FAIL] Direct parse failed:', e1);
       
       try {
         // Method 2: Extract JSON object with regex
-        const jsonMatch = rawContent.match(/{[\s\S]*}/);
+        const jsonMatch = preprocessedContent.match(/{[\s\S]*}/);
         if (jsonMatch) {
           const jsonString = jsonMatch[0];
           parsed = JSON.parse(jsonString);
@@ -184,7 +187,7 @@ export const generateStory = async (
         
         try {
           // Method 3: JSON repair
-          const jsonMatch = rawContent.match(/{[\s\S]*}/);
+          const jsonMatch = preprocessedContent.match(/{[\s\S]*}/);
           if (jsonMatch) {
             const jsonString = jsonMatch[0];
             const repaired = jsonrepair(jsonString);
@@ -198,7 +201,7 @@ export const generateStory = async (
           
           // Method 4: Manual field extraction as last resort
           try {
-            parsed = extractStoryFields(rawContent);
+            parsed = extractStoryFields(preprocessedContent);
             parseMethod = 'manual_extraction';
           } catch (e4) {
             console.error('[STORY JSON PARSE FAIL] Manual extraction failed:', e4);
@@ -225,13 +228,13 @@ export const generateStory = async (
       };
     }
 
-    // Ensure all required fields exist
+    // Ensure all required fields exist and clean the content
     const validatedStory = {
-      sceneTitle: parsed.sceneTitle || 'Adventure Scene',
-      summary: parsed.summary || 'Your adventure continues...',
-      dilemmas: Array.isArray(parsed.dilemmas) ? parsed.dilemmas : ['Continue your journey'],
-      cues: parsed.cues || 'The path ahead is uncertain.',
-      consequences: Array.isArray(parsed.consequences) ? parsed.consequences : ['Your choices shape your destiny']
+      sceneTitle: cleanStoryText(parsed.sceneTitle || 'Adventure Scene'),
+      summary: cleanStoryText(parsed.summary || 'Your adventure continues...'),
+      dilemmas: Array.isArray(parsed.dilemmas) ? parsed.dilemmas.map(cleanStoryText) : ['Continue your journey'],
+      cues: cleanStoryText(parsed.cues || 'The path ahead is uncertain.'),
+      consequences: Array.isArray(parsed.consequences) ? parsed.consequences.map(cleanStoryText) : ['Your choices shape your destiny']
     };
 
     console.log(`[STORY GENERATED] Parse method: ${parseMethod}`);
@@ -244,6 +247,56 @@ export const generateStory = async (
     return { success: false, error: errorMessage };
   }
 };
+
+// Helper function to preprocess JSON content
+function preprocessJsonContent(content: string): string {
+  return content
+    // Remove any markdown formatting
+    .replace(/```json\s*/g, '')
+    .replace(/```\s*/g, '')
+    // Fix common control character issues
+    .replace(/[\x00-\x1F\x7F]/g, '')
+    // Fix unescaped quotes in strings
+    .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+    // Remove any trailing commas before closing braces/brackets
+    .replace(/,(\s*[}\]])/g, '$1')
+    // Fix common LLM artifacts
+    .replace(/CreateTagHelperIVE/g, 'PERCEPTIVE')
+    .replace(/OBLIVVIOUS/g, 'OBLIVIOUS')
+    .replace(/DETEPTIVITY/g, 'DETECTIVITY')
+    .replace(/UNuxxxxIVE/g, 'UNUSUAL')
+    .replace(/EPANCY/g, 'DISCREPANCY')
+    .trim();
+}
+
+// Helper function to clean story text
+function cleanStoryText(text: string): string {
+  if (typeof text !== 'string') return 'Your adventure continues...';
+  
+  return text
+    // Remove nonsensical phrases
+    .replace(/SILENT OBLIVVIOUS BREAKDOWN-RESCALE/g, 'mysterious disturbance')
+    .replace(/OPTIMAL PER CreateTagHelperIVE ANGLE/g, 'optimal perspective')
+    .replace(/LETHARGIC ALARM/g, 'warning signs')
+    .replace(/OLD-EPOCH CONSTELLATION REMNANTS/g, 'ancient artifacts')
+    .replace(/DETE DETECTION/g, 'detection')
+    .replace(/ABATTOIR-LIKE ILL-ATTIVENESS/g, 'hostile environment')
+    .replace(/SHEENLESS AND SAVE/g, 'dark and dangerous')
+    .replace(/INFESTED expanse/g, 'corrupted area')
+    .replace(/FORGED OF SILENT OBLIVVIOUS DESTRU/g, 'forged from dark materials')
+    .replace(/CONTINUOUS AND UNuxxxxIVE OCCURRENCE/g, 'continuous and unusual occurrence')
+    .replace(/DECEPTIVENESS INTENT/g, 'deceptive intent')
+    .replace(/LOG DISAPPEARENCE/g, 'log disappearance')
+    .replace(/ORDER BELIVENESS/g, 'Order\'s believability')
+    .replace(/EMBLEM DETEPTIVITY/g, 'emblem detection')
+    .replace(/CARNAVEL SHIP/g, 'carnival ship')
+    .replace(/BREAKDOWN-RESCALE EPANCY/g, 'breakdown discrepancy')
+    // Clean up excessive capitalization
+    .replace(/\b([A-Z]{3,})\b/g, (match) => match.toLowerCase())
+    // Fix spacing issues
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 // Helper function to extract story fields manually
 function extractStoryFields(rawContent: string) {

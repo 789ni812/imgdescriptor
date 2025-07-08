@@ -65,27 +65,30 @@ export async function POST(request: NextRequest) {
 
     console.log('[LLM FIXED CHOICE RESPONSE]', choicesText);
 
+    // Preprocess the choices text to fix common issues
+    const preprocessedChoicesText = preprocessChoicesContent(choicesText);
+
     // Enhanced choice parsing with multiple fallback strategies
     let choicesData;
     let parseMethod = 'initial';
 
     try {
       // Method 1: Direct JSON parse
-      choicesData = JSON.parse(choicesText);
+      choicesData = JSON.parse(preprocessedChoicesText);
       parseMethod = 'direct';
     } catch (e1) {
-      console.warn('[CHOICE ARRAY JSON PARSE FAIL]', choicesText, e1);
+      console.warn('[CHOICE ARRAY JSON PARSE FAIL]', preprocessedChoicesText, e1);
       
       try {
         // Method 2: JSON5 parse
-        choicesData = JSON5.parse(choicesText);
+        choicesData = JSON5.parse(preprocessedChoicesText);
         parseMethod = 'json5';
       } catch (e2) {
-        console.warn('[CHOICE ARRAY JSON5 PARSE FAIL]', choicesText, e2);
+        console.warn('[CHOICE ARRAY JSON5 PARSE FAIL]', preprocessedChoicesText, e2);
         
         try {
           // Method 3: Extract array with regex
-          const arrayMatch = choicesText.match(/\[[\s\S]*\]/);
+          const arrayMatch = preprocessedChoicesText.match(/\[[\s\S]*\]/);
           if (arrayMatch) {
             const arrayText = arrayMatch[0];
             choicesData = JSON.parse(arrayText);
@@ -98,7 +101,7 @@ export async function POST(request: NextRequest) {
           
           try {
             // Method 4: Manual extraction
-            choicesData = extractChoicesManually(choicesText);
+            choicesData = extractChoicesManually(preprocessedChoicesText);
             parseMethod = 'manual_extraction';
           } catch (e4) {
             console.error('[CHOICE ARRAY MANUAL PARSE FAIL]', e4);
@@ -107,7 +110,7 @@ export async function POST(request: NextRequest) {
             console.warn('Using fallback choices due to parsing failure');
             return NextResponse.json({
               success: true,
-              choices: createFallbackChoices(story, character)
+              choices: createFallbackChoices()
             });
           }
         }
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
       console.warn('[CHOICE VALIDATION FAIL] Not an array, using fallback');
       return NextResponse.json({
         success: true,
-        choices: createFallbackChoices(story, character)
+        choices: createFallbackChoices()
       });
     }
 
@@ -147,10 +150,10 @@ export async function POST(request: NextRequest) {
         return {
           id: `choice-${Date.now()}-${index}`,
           type: choice.type || 'dialogue',
-          text: choice.text || `Choice ${index + 1}`,
-          description: choice.description || 'Continue your journey',
+          text: cleanChoiceText(choice.text || `Choice ${index + 1}`),
+          description: cleanChoiceText(choice.description || 'Continue your journey'),
           statRequirements: normalizedStats,
-          consequences: Array.isArray(choice.consequences) ? choice.consequences : ['Your choice has consequences']
+          consequences: Array.isArray(choice.consequences) ? choice.consequences.map(cleanChoiceText) : ['Your choice has consequences']
         } as Choice;
       })
       .filter(choice => choice.text && choice.text.length > 0);
@@ -158,7 +161,7 @@ export async function POST(request: NextRequest) {
     // Ensure we have at least 2 choices
     if (processedChoices.length < 2) {
       console.warn('[CHOICE COUNT WARNING] LLM returned', processedChoices.length, 'choices, adding fallback choices');
-      const fallbackChoices = createFallbackChoices(story, character);
+      const fallbackChoices = createFallbackChoices();
       processedChoices.push(...fallbackChoices.slice(processedChoices.length));
     }
 
@@ -180,13 +183,13 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper function to extract choices manually
-function extractChoicesManually(rawContent: string): any[] {
-  const choices: any[] = [];
+function extractChoicesManually(rawContent: string): Choice[] {
+  const choices: Choice[] = [];
   const choiceRegex = /\{[^}]*"type"[^}]*\}/g;
   const matches = rawContent.match(choiceRegex);
   
   if (matches) {
-    matches.forEach((match, index) => {
+    matches.forEach((match) => {
       try {
         const choice = JSON5.parse(match);
         if (choice && choice.text) {
@@ -202,7 +205,7 @@ function extractChoicesManually(rawContent: string): any[] {
 }
 
 // Helper function to create fallback choices
-function createFallbackChoices(story: any, character: Character): Choice[] {
+function createFallbackChoices(): Choice[] {
   return [
     {
       id: `choice-${Date.now()}-0`,
@@ -254,33 +257,46 @@ function buildChoiceGenerationPrompt({ story, character, turn }: {
   if (cues) storySection += `Visual Cues: ${cues}\n`;
   if (consequences && consequences.length > 0) storySection += `Ongoing Consequences:\n- ${consequences.join('\n- ')}\n`;
 
-  return `Given the following story and character info, generate 2 or 3 short, creative choices for the player.
+  return `Generate 2-3 clear, actionable choices for the player based on the story context.
 
-INSTRUCTIONS:
-1. Output exactly 2 or 3 choices, no more, no less.
-2. Each choice must be a JSON object in a JSON array.
-3. Output ONLY the JSON array. Do NOT output any text, markdown, code blocks, or explanations—ONLY the JSON array.
-4. If you are unsure, output 3 choices. Never output 1 or 4+ choices.
-5. If you cannot generate valid choices, output an empty array [] (do NOT output fallback or generic options).
-6. WARNING: Any extra text, markdown, or explanation will be ignored and may result in no choices being used.
+CRITICAL REQUIREMENTS:
+- Output ONLY a valid JSON array with 2-3 choice objects
+- Use clear, simple language - avoid complex jargon or nonsensical phrases
+- Each choice must be concrete and actionable
+- Focus on meaningful decisions that advance the story
+- Keep text concise and impactful
 
-Each choice should have:
-- a type (combat, explore, dialogue, item, skill)
-- a short text (max 80 chars)
-- a description (max 200 chars)
-- stat requirements (1-20)
-- 2-3 consequences (max 80 chars each)
+CHOICE STRUCTURE:
+Each choice object must have:
+- "type": One of "dialogue", "explore", "combat", "skill", "item"
+- "text": Short action text (max 60 characters)
+- "description": Clear explanation (max 150 characters)
+- "statRequirements": Object with stat names as keys, numbers as values
+- "consequences": Array of 2-3 short outcome descriptions (max 60 chars each)
 
-Example output:
+STAT REQUIREMENTS:
+- Use lowercase stat names: "intelligence", "creativity", "perception", "wisdom"
+- Values should be 1-20, appropriate to the character's level
+- Only include stats that are actually relevant to the choice
+
+EXAMPLE FORMAT:
 [
-  { "type": "...", "text": "...", "description": "...", "statRequirements": {"intelligence": 10}, "consequences": ["...", "..."] },
-  { "type": "...", "text": "...", "description": "...", "statRequirements": {"wisdom": 8}, "consequences": ["...", "..."] }
+  {
+    "type": "dialogue",
+    "text": "Confront the guard",
+    "description": "Use your charisma to question the guard about recent events",
+    "statRequirements": {"intelligence": 12},
+    "consequences": ["Gain information", "Risk alerting others"]
+  }
 ]
 
-Story:
-${storySection}Stats: ${statsString}
+STORY CONTEXT:
+${storySection}
+Character Stats: ${statsString}
 Health: ${character.health}
-${inventoryString ? inventoryString + '\n' : ''}${traitsString ? 'Traits: ' + traitsString + '\n' : ''}Turn: ${turn}`;
+${inventoryString ? inventoryString + '\n' : ''}${traitsString ? 'Traits: ' + traitsString + '\n' : ''}Turn: ${turn}
+
+Generate choices that feel natural to the story and provide meaningful player agency.`;
 }
 
 function aggressiveJsonFix(input: string): string {
@@ -310,169 +326,57 @@ function aggressiveJsonFix(input: string): string {
   return fixed;
 }
 
-function parseChoicesFromResponse(responseText: string): Choice[] {
-  const allowedStatKeys = ['intelligence', 'creativity', 'perception', 'wisdom'];
-  const statKeyMap: Record<string, string> = {
-    intelligence: 'intelligence', Intelligence: 'intelligence', INT: 'intelligence', int: 'intelligence',
-    creativity: 'creativity', Creativity: 'creativity', CRE: 'creativity', cre: 'creativity',
-    perception: 'perception', Perception: 'perception', PER: 'perception', per: 'perception',
-    wisdom: 'wisdom', Wisdom: 'wisdom', WIS: 'wisdom', wis: 'wisdom',
-  };
-  try {
-    // Remove markdown code block markers and trim whitespace
-    let cleaned = responseText.replace(/```json|```/gi, '').trim();
-    // Replace common HTML entities with their intended characters
-    cleaned = cleaned
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&');
-    // Aggressive pre-parse fix
-    const fixed = aggressiveJsonFix(cleaned);
-    // Log all stages for debugging
-    console.log('[LLM RAW CHOICE RESPONSE]', responseText);
-    console.log('[LLM CLEANED CHOICE RESPONSE]', cleaned);
-    console.log('[LLM FIXED CHOICE RESPONSE]', fixed);
-    // Try to extract JSON array from the response
-    const jsonMatch = fixed.match(/\[([\s\S]*?)\]/m);
-    let arrayText = jsonMatch ? jsonMatch[0] : '';
-    // Attempt to auto-close the array if needed
-    if (arrayText && !arrayText.trim().endsWith(']')) {
-      arrayText += ']';
-    }
-    let choicesData;
-    let parsedChoices = [];
-    try {
-      choicesData = JSON.parse(arrayText);
-    } catch (e1) {
-      console.warn('[CHOICE ARRAY JSON PARSE FAIL]', arrayText, e1);
-      try {
-        choicesData = JSON5.parse(arrayText);
-      } catch (e2) {
-        console.warn('[CHOICE ARRAY JSON5 PARSE FAIL]', arrayText, e2);
-        // If array parsing fails, try to extract and parse each object individually
-        const objectMatches = fixed.match(/\{[\s\S]*?\}/g);
-        if (objectMatches && objectMatches.length > 0) {
-          choicesData = objectMatches.map((objText) => {
-            // Aggressive fix for each object
-            const objClean = aggressiveJsonFix(objText.replace(/,\s*([}\]])/g, '$1'));
-            try {
-              return JSON5.parse(objClean);
-            } catch (e3) {
-              console.warn('[CHOICE OBJECT PARSE FAIL]', objClean, e3);
-              return null;
-            }
-          }).filter(Boolean);
-        } else {
-          throw new Error('No valid JSON objects found in response');
-        }
-      }
-    }
-    if (!Array.isArray(choicesData)) {
-      throw new Error('Response is not an array');
-    }
-    // Validate and transform each choice
-    parsedChoices = choicesData.map((choice, index) => {
-      // Normalize statRequirements keys
-      const normalizedStatRequirements: Record<string, number> = {};
-      if (choice.statRequirements && typeof choice.statRequirements === 'object') {
-        Object.entries(choice.statRequirements).forEach(([key, value]) => {
-          const canonicalKey = statKeyMap[key] || key.toLowerCase();
-          if (allowedStatKeys.includes(canonicalKey)) {
-            if (typeof value === 'number' && !isNaN(value)) {
-              normalizedStatRequirements[canonicalKey] = value;
-              if (key !== canonicalKey) {
-                console.log(`[STAT KEY REMAP] '${key}' -> '${canonicalKey}'`);
-              }
-            } else {
-              console.warn(`[STAT VALUE IGNORED] '${key}': value is not a valid number:`, value);
-            }
-          } else {
-            console.warn(`[STAT KEY IGNORED] '${key}' is not a recognized stat key.`);
-          }
-        });
-      }
-      // Robustly parse consequences as an array of trimmed strings
-      let consequences: string[] = [];
-      if (Array.isArray(choice.consequences)) {
-        consequences = choice.consequences.map((c: unknown) => typeof c === 'string' ? c.trim() : String(c));
-      } else if (typeof choice.consequences === 'string') {
-        consequences = [choice.consequences.trim()];
-      } else {
-        consequences = [];
-      }
-      return {
-        id: `choice-${Date.now()}-${index}`,
-        type: choice.type || 'other',
-        text: choice.text || `Choice ${index + 1}`,
-        description: choice.description || '',
-        statRequirements: normalizedStatRequirements,
-        consequences
-      };
-    });
-    console.log('[LLM CHOICES USED]', parsedChoices);
-    // TODO: In debug mode, save raw LLM output to a file for easier review.
-    return parsedChoices;
-  } catch (error) {
-    console.error('Error parsing choices from LLM response:', error);
-    console.error('Raw response:', responseText);
-    console.warn('[FALLBACK CHOICES USED]');
-    // Fallback to default choices if parsing fails
-    return [
-      {
-        id: `choice-fallback-1-${Date.now()}`,
-        text: 'Proceed with caution',
-        description: 'Take a careful, measured approach',
-        statRequirements: { wisdom: 8 },
-        consequences: ['Safer approach', 'May miss opportunities']
-      },
-      {
-        id: `choice-fallback-2-${Date.now()}`,
-        text: 'Act boldly',
-        description: 'Take decisive action',
-        statRequirements: { creativity: 10 },
-        consequences: ['May find rewards', 'Could be risky']
-      }
-    ];
-  }
+// Helper function to preprocess choices content
+function preprocessChoicesContent(content: string): string {
+  return content
+    // Remove any markdown formatting
+    .replace(/```json\s*/g, '')
+    .replace(/```\s*/g, '')
+    // Fix common control character issues
+    .replace(/[\x00-\x1F\x7F]/g, '')
+    // Fix unescaped quotes in strings
+    .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+    // Remove any trailing commas before closing braces/brackets
+    .replace(/,(\s*[}\]])/g, '$1')
+    // Fix common LLM artifacts in choices
+    .replace(/LEVEL_PERCEPTION/g, 'perception')
+    .replace(/PERCEPTION:/g, 'perception:')
+    .replace(/crew_skill_COMMS/g, 'communication')
+    .replace(/CreateTagHelperIVE/g, 'perceptive')
+    .replace(/OBLIVVIOUS/g, 'oblivious')
+    .replace(/DETEPTIVITY/g, 'detectivity')
+    .replace(/UNuxxxxIVE/g, 'unusual')
+    .replace(/EPANCY/g, 'discrepancy')
+    .trim();
 }
 
-function validateChoiceCount(choices: Choice[]): Choice[] {
-  // If we have exactly 2-3 choices, return as is
-  if (choices.length >= 2 && choices.length <= 3) {
-    return choices;
-  }
-
-  // If we have too few choices, add fallback choices
-  if (choices.length < 2) {
-    console.warn(`[CHOICE COUNT WARNING] LLM returned ${choices.length} choices, adding fallback choices`);
-    const fallbackChoices: Choice[] = [
-      {
-        id: `choice-fallback-1-${Date.now()}`,
-        text: 'Proceed with caution',
-        description: 'Take a careful, measured approach to the situation',
-        statRequirements: { wisdom: 8 },
-        consequences: ['Safer approach', 'May miss opportunities']
-      },
-      {
-        id: `choice-fallback-2-${Date.now()}`,
-        text: 'Act boldly',
-        description: 'Take decisive action despite the risks',
-        statRequirements: { creativity: 10 },
-        consequences: ['May find rewards', 'Could be risky']
-      }
-    ];
-    
-    // Combine LLM choices with fallback choices, ensuring we have exactly 2
-    const combinedChoices = [...choices, ...fallbackChoices];
-    return combinedChoices.slice(0, 2);
-  }
-
-  // If we have too many choices, take the first 3
-  if (choices.length > 3) {
-    console.warn(`[CHOICE COUNT WARNING] LLM returned ${choices.length} choices, taking first 3`);
-    return choices.slice(0, 3);
-  }
-
-  return choices;
+// Helper function to clean choice text
+function cleanChoiceText(text: string): string {
+  if (typeof text !== 'string') return 'Continue your journey';
+  
+  return text
+    // Remove nonsensical phrases
+    .replace(/SILENT OBLIVVIOUS BREAKDOWN-RESCALE/g, 'mysterious disturbance')
+    .replace(/OPTIMAL PER CreateTagHelperIVE ANGLE/g, 'optimal perspective')
+    .replace(/LETHARGIC ALARM/g, 'warning signs')
+    .replace(/OLD-EPOCH CONSTELLATION REMNANTS/g, 'ancient artifacts')
+    .replace(/DETE DETECTION/g, 'detection')
+    .replace(/ABATTOIR-LIKE ILL-ATTIVENESS/g, 'hostile environment')
+    .replace(/SHEENLESS AND SAVE/g, 'dark and dangerous')
+    .replace(/INFESTED expanse/g, 'corrupted area')
+    .replace(/FORGED OF SILENT OBLIVVIOUS DESTRU/g, 'forged from dark materials')
+    .replace(/CONTINUOUS AND UNuxxxxIVE OCCURRENCE/g, 'continuous and unusual occurrence')
+    .replace(/DECEPTIVENESS INTENT/g, 'deceptive intent')
+    .replace(/LOG DISAPPEARENCE/g, 'log disappearance')
+    .replace(/ORDER BELIVENESS/g, 'Order\'s believability')
+    .replace(/EMBLEM DETEPTIVITY/g, 'emblem detection')
+    .replace(/CARNAVEL SHIP/g, 'carnival ship')
+    .replace(/BREAKDOWN-RESCALE EPANCY/g, 'breakdown discrepancy')
+    // Clean up excessive capitalization
+    .replace(/\b([A-Z]{3,})\b/g, (match) => match.toLowerCase())
+    // Fix spacing issues
+    .replace(/\s+/g, ' ')
+    // Limit choice length
+    .substring(0, 200)
+    .trim();
 } 

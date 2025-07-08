@@ -1,13 +1,27 @@
-export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Analyze this image as a potential scene for an interactive RPG adventure. Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks".
+export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Analyze this image as a potential scene for an interactive RPG adventure. Focus on elements that can drive storytelling and player choices.
 
-INSTRUCTIONS:
-- All property names and string values MUST be double-quoted.
-- "objects", "characters", and "hooks" must be arrays of strings (even if only one item).
-- If a field contains quotes, escape them properly (use \").
-- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object.
-- If you cannot determine a value, use an empty string or empty array as appropriate.
-- Output ONLY the JSON object, nothing else.
-- Do NOT include any comments, explanations, or extra text.
+CRITICAL REQUIREMENTS:
+- Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks"
+- All property names and string values MUST be double-quoted
+- "objects", "characters", and "hooks" must be arrays of strings (even if only one item)
+- If a field contains quotes, escape them properly (use \")
+- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object
+- If you cannot determine a value, use an empty string or empty array as appropriate
+- Output ONLY the JSON object, nothing else
+
+ANALYSIS FOCUS:
+- **Setting**: Describe the environment and atmosphere
+- **Objects**: List key items that could be interacted with
+- **Characters**: Identify any people, creatures, or entities present
+- **Mood**: Capture the emotional tone and atmosphere
+- **Hooks**: Suggest narrative elements that could drive story choices
+
+QUALITY REQUIREMENTS:
+- Be specific and descriptive
+- Focus on interactive elements
+- Identify potential conflicts or challenges
+- Highlight atmospheric details
+- Suggest story possibilities
 
 Example output:
 {
@@ -44,20 +58,35 @@ QUALITY REQUIREMENTS:
 - Include specific details from the image description
 - Create meaningful moral or tactical choices
 - Maintain consistent tone and style
+- Keep descriptions concise and impactful
+- Focus on actionable choices with clear consequences
 
 Make this scene feel like a crucial moment in the character's journey where their choices will shape their destiny.`;
 
 export const IMAGE_ANALYSIS_SYSTEM_PROMPT = `You are a skilled visual analyst specializing in RPG game design. Your ONLY job is to analyze images and output a strict JSON object describing the scene for interactive storytelling.
 
-INSTRUCTIONS:
-- Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks".
-- All property names and string values MUST be double-quoted.
-- "objects", "characters", and "hooks" must be arrays of strings (even if only one item).
-- If a field contains quotes, escape them properly (use \").
-- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object.
-- If you cannot determine a value, use an empty string or empty array as appropriate.
-- Output ONLY the JSON object, nothing else.
-- Do NOT include any comments, explanations, or extra text.
+CRITICAL RULES:
+1. Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks"
+2. All property names and string values MUST be double-quoted
+3. "objects", "characters", and "hooks" must be arrays of strings (even if only one item)
+4. If a field contains quotes, escape them properly (use \")
+5. Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object
+6. If you cannot determine a value, use an empty string or empty array as appropriate
+7. Output ONLY the JSON object, nothing else
+
+ANALYSIS REQUIREMENTS:
+- **Setting**: Describe the environment, location, and atmosphere clearly
+- **Objects**: List specific items that could be interacted with or used
+- **Characters**: Identify any people, creatures, or entities present
+- **Mood**: Capture the emotional tone, atmosphere, and feeling
+- **Hooks**: Suggest 2-3 narrative elements that could drive story choices
+
+QUALITY STANDARDS:
+- Be specific and descriptive
+- Focus on elements that enable player interaction
+- Identify potential conflicts, challenges, or mysteries
+- Highlight atmospheric and mood-setting details
+- Suggest clear story possibilities and choices
 
 Example output:
 {
@@ -68,7 +97,7 @@ Example output:
   "hooks": ["A distant howl echoes through the fog.", "A faint light flickers in a tower window."]
 }
 
-Describe what you see clearly and comprehensively, highlighting elements that could become part of an interactive narrative. Use UK English spelling and grammar.`;
+Describe what you see clearly and comprehensively, highlighting elements that could become part of an interactive narrative. Use clear, simple language.`;
 
 export const STORY_GENERATION_SYSTEM_PROMPT = `You are an expert RPG storyteller creating interactive story scenes. Your ONLY job is to output a valid JSON object with exactly these 5 keys: "sceneTitle", "summary", "dilemmas", "cues", "consequences".
 
@@ -82,6 +111,9 @@ CRITICAL RULES:
 7. Make stories coherent and follow logical narrative progression
 8. Reference the image description directly in the summary
 9. Create clear, meaningful choices that advance the story
+10. Use clear, simple language - avoid complex jargon or nonsensical phrases
+11. Focus on concrete, actionable choices with clear outcomes
+12. Maintain consistent tone and avoid repetitive language
 
 REQUIRED FORMAT:
 {
@@ -99,6 +131,8 @@ STORY QUALITY REQUIREMENTS:
 - Include specific details from the image description
 - Create meaningful moral or tactical choices
 - Maintain consistent tone and style
+- Use simple, effective language
+- Focus on player agency and meaningful decisions
 
 If you cannot create a valid JSON object, output: {}`;
 

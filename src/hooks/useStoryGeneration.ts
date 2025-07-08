@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { StoryDescription } from '@/lib/types';
 import { playGenerationSound } from '@/lib/utils/soundUtils';
 import { createStoryContinuityPrompt } from '@/lib/prompts/gameStatePrompts';
+import { generateStory as generateStoryApi } from '@/lib/lmstudio-client';
 
 // Debug logging utility
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -37,10 +38,6 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
   const turn = character.currentTurn;
   const stats = character.stats;
   const statsString = `INT ${stats.intelligence}, CRE ${stats.creativity}, PER ${stats.perception}, WIS ${stats.wisdom}`;
-  const previousStories = character.storyHistory
-    .filter((s: StoryEntry) => s.turnNumber < turn)
-    .map((s: StoryEntry) => s.text)
-    .join('\n');
 
   // Robustly format the image description
   let formattedDescription = '';
@@ -63,18 +60,46 @@ export function buildStoryPrompt({ character, description, customPrompt, goodVsB
     const villain = goodVsBadConfig.villainPersonality;
     const villainState = goodVsBadConfig.villainState;
     const conflict = goodVsBadConfig.conflictMechanics;
-    
     goodVsBadContext = `
 VILLAIN CONTEXT:
 Name: ${goodVsBadConfig.badRole}
-Personality: ${villain?.motivations.join(', ') || 'Unknown'}
-Current State: Health ${villainState?.health || 100}/100, Influence ${villainState?.influence || 100}/100
-Conflict Level: ${conflict?.escalationLevel || 5}
-Recent Actions: ${villainState?.lastAction || 'None recorded'}
+Theme: ${goodVsBadConfig.theme}
+Personality:
+  - Motivations: ${villain?.motivations?.join(', ') || 'Unknown'}
+  - Fears: ${villain?.fears?.join(', ') || 'Unknown'}
+  - Strengths: ${villain?.strengths?.join(', ') || 'Unknown'}
+  - Weaknesses: ${villain?.weaknesses?.join(', ') || 'Unknown'}
+  - Backstory: ${villain?.backstory || 'Unknown'}
+  - Goals: ${villain?.goals?.join(', ') || 'Unknown'}
+  - Speech Style: ${villain?.speechStyle || 'Unknown'}
+  - Dialogue Patterns: ${villain?.dialoguePatterns?.join(', ') || 'Unknown'}
+  - Relationship with Player: ${villain?.relationshipWithPlayer || 'Unknown'}
+  - Influence Level: ${villain?.influenceLevel ?? 'Unknown'}
+  - Resources: ${villain?.resources?.join(', ') || 'Unknown'}
+  - Territory: ${villain?.territory?.join(', ') || 'Unknown'}
+
+STATE:
+  - Health: ${villainState?.health ?? 'Unknown'}
+  - Resources: ${villainState?.resources ?? 'Unknown'}
+  - Influence: ${villainState?.influence ?? 'Unknown'}
+  - Anger: ${villainState?.anger ?? 'Unknown'}
+  - Respect: ${villainState?.respect ?? 'Unknown'}
+  - Memory: ${villainState?.memory?.join('; ') || 'None'}
+  - Current Goal: ${villainState?.currentGoal || 'Unknown'}
+  - Last Action: ${villainState?.lastAction || 'Unknown'}
+  - Territory Control: ${villainState?.territoryControl?.join(', ') || 'Unknown'}
+
+CONFLICT MECHANICS:
+  - Escalation Level: ${conflict?.escalationLevel ?? 'Unknown'}
+  - Confrontation Type: ${conflict?.confrontationType || 'Unknown'}
+  - Villain Reaction Style: ${conflict?.villainReactionStyle || 'Unknown'}
+  - Player Advantage: ${conflict?.playerAdvantage ?? 'Unknown'}
+  - Villain Advantage: ${conflict?.villainAdvantage ?? 'Unknown'}
+  - Conflict History: ${conflict?.conflictHistory?.join('; ') || 'None'}
 
 VILLAIN INSTRUCTIONS:
 - Make the villain a driving force in the story, not just an obstacle
-- Reference their personality traits and current state
+- Reference their personality traits, strengths, weaknesses, and current state
 - Show how their actions affect the player's situation
 - Create meaningful confrontations that test the player's values
 - Build tension through the villain's presence and influence`;
@@ -121,6 +146,28 @@ VILLAIN INSTRUCTIONS:
     }
   }
 
+  // Add first turn specific instructions
+  let firstTurnInstructions = '';
+  if (turn === 1) {
+    firstTurnInstructions = `
+
+FIRST TURN REQUIREMENTS:
+CRITICAL: This is the opening scene of the adventure. You MUST reference the following image details in the first paragraph: setting, objects, mood, hooks. If you do not reference the image elements, the story will be rejected.
+
+FIRST TURN IMAGE INTEGRATION:
+- Your opening paragraph MUST directly reference the image's setting, objects, mood, and hooks
+- This establishes the visual foundation for the entire adventure
+- Failure to integrate image elements will result in story rejection
+- The image elements are: ${formattedDescription.split('\n').slice(0, 5).join(', ')}
+
+FIRST TURN NARRATIVE REQUIREMENTS:
+- Establish the character's initial situation and motivation
+- Set up the primary conflict or challenge
+- Create a strong hook that draws the player into the adventure
+- Reference specific visual elements from the image description
+- Make the scene feel immediate and engaging`;
+  }
+
   const gamebookInstruction = `
 GAMEBOOK STYLE REQUIREMENTS:
 - Write in clear, coherent English
@@ -159,9 +206,11 @@ STORY STRUCTURE:
     `**IMAGE DESCRIPTION:**\n${formattedDescription}`
   ].filter(Boolean).join('\n\n');
 
-  return customPrompt
-    ? `${customPrompt}${storyLengthInstruction}\n\n${gamebookInstruction}\n\n${contextPrompt}`
-    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}\n\n${gamebookInstruction}\n\n${contextPrompt}`;
+  const finalPrompt = customPrompt
+    ? `${customPrompt}${storyLengthInstruction}${firstTurnInstructions}\n\n${gamebookInstruction}\n\n${contextPrompt}`
+    : `${DEFAULT_STORY_GENERATION_PROMPT}${storyLengthInstruction}${firstTurnInstructions}\n\n${gamebookInstruction}\n\n${contextPrompt}`;
+
+  return finalPrompt;
 }
 
 export function buildAdaptiveStoryPrompt({ character, description, customPrompt, goodVsBadConfig, dmAdaptations }: {
@@ -412,109 +461,55 @@ export function useStoryGeneration(
   }, [storeFromHook]);
 
   const generateStory = async (description: string, customPrompt?: string) => {
-    debugLog('useStoryGeneration', 'Starting story generation', { 
-      descriptionLength: description.length, 
-      customPrompt: !!customPrompt,
-      mockMode: config.MOCK_STORY,
-      currentTurn: effectiveCharacter.currentTurn 
-    });
-    
-    if (!description) {
-      debugLog('useStoryGeneration', 'No description provided');
-      setStoryError('Cannot generate a story without a description.');
-      return;
-    }
-
     setIsStoryLoading(true);
-    setStory(undefined);
     setStoryError(null);
-    setIsChoicesLoading(true);
-
-    // Mock mode: instantly return mock story
-    if (config.MOCK_STORY) {
-      setTimeout(() => {
-        // Try to get turn-based mock data first
-        const turnBasedStory = config.TURN_BASED_MOCK_DATA.stories[effectiveCharacter.currentTurn as keyof typeof config.TURN_BASED_MOCK_DATA.stories];
-        
-        // Use turn-based data if available, otherwise fall back to default
-        const mockStoryText = turnBasedStory || config.MOCK_STORY_TEXT;
-        // Convert mock text to StoryDescription object
-        const mockStory: StoryDescription = {
-          sceneTitle: 'Mock Story Scene',
-          summary: mockStoryText,
-          dilemmas: ['Mock dilemma 1', 'Mock dilemma 2'],
-          cues: 'Mock visual cues',
-          consequences: ['Mock consequence 1', 'Mock consequence 2']
-        };
-        setStory(mockStory);
-        // Add the story to character history
-        if (storeFromHook.addStory) {
-          const entry: StoryEntry = {
-            id: uuidv4(),
-            text: JSON.stringify(mockStory),
-            timestamp: new Date().toISOString(),
-            turnNumber: effectiveCharacter.currentTurn,
-            imageDescription: description,
-          };
-          storeFromHook.addStory(entry);
-        }
-        // Generate choices after story (using static generation for mock mode)
-        const choices = generateChoicesFromStory(mockStoryText);
-        choices.forEach(choice => {
-          if (storeFromHook.addChoice) {
-            storeFromHook.addChoice(choice);
-          }
-        });
-        setIsChoicesLoading(false);
-        setIsStoryLoading(false);
-        playGenerationSound(); // Play after mock story+choices
-      }, 300); // Simulate a short delay
-      return;
-    }
-
-    const prompt = buildStoryPrompt({ 
-      character: effectiveCharacter, 
-      description, 
-      customPrompt,
-      goodVsBadConfig: 'goodVsBadConfig' in store ? store.goodVsBadConfig : undefined,
-      debugConfig: debugConfigOverride
-    });
-
-    // DEBUG: Log the full prompt being sent to the LLM
-    console.log('[StoryGeneration] Full prompt sent to LLM:', prompt);
-
-    debugLog('useStoryGeneration', 'Story prompt built', { 
-      promptLength: prompt.length,
-      hasGoodVsBadConfig: 'goodVsBadConfig' in store 
-    });
-
+    // Use the effectiveCharacter from the hook scope
     try {
-      debugLog('useStoryGeneration', 'Sending story generation API request');
-      const response = await fetch('/api/generate-story', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ description, prompt, debugConfig: debugConfigOverride }),
+      // Determine temperature based on turn (unless overridden by debugConfig)
+      let aiResponseTuning = debugConfigOverride?.aiResponseTuning;
+      if (!aiResponseTuning) {
+        aiResponseTuning = {
+          temperature: effectiveCharacter.currentTurn === 1 ? 0.3 : 0.6,
+          maxTokens: 1500,
+          topP: 0.85,
+          frequencyPenalty: 0.2,
+          presencePenalty: 0.15,
+        };
+      }
+      // Always build the prompt using buildStoryPrompt
+      const prompt = buildStoryPrompt({
+        character: effectiveCharacter,
+        description,
+        customPrompt,
+        goodVsBadConfig: storeOverride?.goodVsBadConfig,
+        debugConfig: debugConfigOverride
       });
-
-      debugLog('useStoryGeneration', 'Story API response received', { 
-        status: response.status, 
-        ok: response.ok 
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      // Build a minimal valid debugConfig for generateStoryApi
+      const debugConfig: import('@/lib/types/template').GameTemplate['debugConfig'] = {
+        storyLength: debugConfigOverride?.storyLength || 'medium',
+        choiceCount: debugConfigOverride?.choiceCount || 3,
+        enableVerboseLogging: debugConfigOverride?.enableVerboseLogging || false,
+        summaryEnabled: debugConfigOverride?.summaryEnabled || false,
+        performanceMetrics: debugConfigOverride?.performanceMetrics || { enabled: false, trackStoryGeneration: false, trackChoiceGeneration: false, trackImageAnalysis: false, trackDMReflection: false },
+        aiResponseTuning,
+        userExperience: debugConfigOverride?.userExperience || { storyPacing: 'medium', choiceComplexity: 'moderate', narrativeDepth: 'medium', characterDevelopment: 'medium', moralComplexity: 'medium' },
+        testing: debugConfigOverride?.testing || { enableMockMode: false, mockResponseDelay: 0, enableStressTesting: false, maxConcurrentRequests: 1 },
+      };
+      const result = await generateStoryApi(
+        description,
+        prompt,
+        debugConfig
+      );
+      if (result.success) {
         debugLog('useStoryGeneration', 'Story generation successful', { 
-          story: data.story 
+          story: result.story 
         });
         
         // --- IMAGE REFERENCE CHECK ---
         let imageReferenceWarning = '';
         try {
           const imageDesc = typeof description === 'string' ? JSON.parse(description) : description;
-          const storyText = JSON.stringify(data.story).toLowerCase();
+          const storyText = JSON.stringify(result.story).toLowerCase();
           const hasSetting = imageDesc.setting && storyText.includes(imageDesc.setting.toLowerCase());
           const hasObject = imageDesc.objects && imageDesc.objects.some((obj: string) => storyText.includes(obj.toLowerCase()));
           const hasMood = imageDesc.mood && storyText.includes(imageDesc.mood.toLowerCase());
@@ -524,7 +519,7 @@ export function useStoryGeneration(
           }
         } catch {}
         // --- END IMAGE REFERENCE CHECK ---
-        setStory(data.story);
+        setStoryState(result.story);
         if (imageReferenceWarning) {
           setStoryError(imageReferenceWarning);
         }
@@ -533,7 +528,7 @@ export function useStoryGeneration(
         if (storeFromHook.addStory) {
           const entry: StoryEntry = {
             id: uuidv4(),
-            text: JSON.stringify(data.story),
+            text: JSON.stringify(result.story),
             timestamp: new Date().toISOString(),
             turnNumber: effectiveCharacter.currentTurn,
             imageDescription: description,
@@ -554,7 +549,7 @@ export function useStoryGeneration(
               character: effectiveCharacter,
               currentTurn: effectiveCharacter.currentTurn,
               imageDescription: description,
-              generatedStory: data.story,
+              generatedStory: result.story,
               playerChoices: effectiveCharacter.choiceHistory || [],
               choiceOutcomes: effectiveCharacter.choicesHistory || [],
               dmPersonality: {
@@ -595,10 +590,12 @@ export function useStoryGeneration(
         // --- END GAME OVER CHECK ---
         
         // Generate LLM-based choices after story, passing DM Reflection
-        await generateLLMChoices(data.story, effectiveCharacter, dmReflection);
+        if (result.story && typeof result.story.summary === 'string') {
+          await generateLLMChoices(result.story.summary, effectiveCharacter, dmReflection);
+        }
       } else {
-        debugLog('useStoryGeneration', 'Story generation failed', { error: data.error });
-        setStoryError(data.error || 'An unknown error occurred while generating the story.');
+        debugLog('useStoryGeneration', 'Story generation failed', { error: result.error });
+        setStoryError(result.error || 'An unknown error occurred while generating the story.');
         setIsChoicesLoading(false);
       }
     } catch (err) {
@@ -748,7 +745,9 @@ export function useStoryGeneration(
         // --- END GAME OVER CHECK ---
         
         // Generate LLM-based choices after story, passing DM Reflection
-        await generateLLMChoices(data.story, effectiveCharacter, dmReflection);
+        if (data.story && typeof data.story.summary === 'string') {
+          await generateLLMChoices(data.story.summary, effectiveCharacter, dmReflection);
+        }
       } else {
         setStoryError(data.error || 'An unknown error occurred while generating the adaptive story.');
         setIsChoicesLoading(false);

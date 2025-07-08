@@ -198,9 +198,9 @@ describe('GoodVsBadConfig', () => {
     const config = createGoodVsBadConfig({
       isEnabled: true,
       theme: 'yin-yang',
-      userRole: 'light',
-      badRole: 'dark',
-      badDefinition: 'A mysterious dark force',
+      userRole: 'protector',
+      badRole: 'corruptor',
+      badDefinition: 'A dark force seeking to corrupt the world',
       badProfilePicture: '/images/villain.jpg'
     });
     
@@ -210,9 +210,133 @@ describe('GoodVsBadConfig', () => {
     const themeSelect = screen.getByLabelText(/theme/i);
     expect(themeSelect).toHaveValue('yin-yang');
     
-    expect(screen.getByDisplayValue('light')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('dark')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('A mysterious dark force')).toBeInTheDocument();
-    expect(screen.getByAltText(/bad profile/i)).toHaveAttribute('src', expect.stringContaining('villain.jpg'));
+    expect(screen.getByDisplayValue('protector')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('corruptor')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('A dark force seeking to corrupt the world')).toBeInTheDocument();
+  });
+
+  it('displays enhanced villain personality configuration when advanced config is shown', () => {
+    const enabledConfig = createGoodVsBadConfig({ isEnabled: true });
+    
+    render(<GoodVsBadConfig {...defaultProps} config={enabledConfig} />);
+    
+    // Click to show advanced configuration
+    const advancedButton = screen.getByText(/show advanced configuration/i);
+    fireEvent.click(advancedButton);
+    
+    // Check for villain personality section
+    expect(screen.getByText(/villain personality/i)).toBeInTheDocument();
+    
+    // Check for detailed villain characteristics - use more specific queries
+    expect(screen.getByText('Motivations')).toBeInTheDocument();
+    expect(screen.getByText('Fears')).toBeInTheDocument();
+    expect(screen.getByText('Strengths')).toBeInTheDocument();
+    expect(screen.getByText('Weaknesses')).toBeInTheDocument();
+    expect(screen.getByText('Backstory')).toBeInTheDocument();
+    expect(screen.getByText('Goals')).toBeInTheDocument();
+    expect(screen.getByText('Speech Style')).toBeInTheDocument();
+    expect(screen.getByText('Dialogue Patterns')).toBeInTheDocument();
+    expect(screen.getByText('Relationship with Player')).toBeInTheDocument();
+    expect(screen.getByText('Influence Level (1-10)')).toBeInTheDocument();
+    expect(screen.getByText('Resources')).toBeInTheDocument();
+    expect(screen.getByText('Territory')).toBeInTheDocument();
+  });
+
+  it('allows editing of villain personality fields', () => {
+    const onConfigChange = jest.fn();
+    const enabledConfig = createGoodVsBadConfig({ isEnabled: true });
+    
+    render(<GoodVsBadConfig 
+      {...defaultProps} 
+      config={enabledConfig}
+      onConfigChange={onConfigChange} 
+    />);
+    
+    // Show advanced configuration
+    const advancedButton = screen.getByText(/show advanced configuration/i);
+    fireEvent.click(advancedButton);
+    
+    // Edit backstory - find the textarea by placeholder
+    const backstoryField = screen.getByPlaceholderText(/enter villain backstory/i);
+    fireEvent.change(backstoryField, { 
+      target: { value: 'A fallen hero who seeks redemption through power' } 
+    });
+    
+    expect(onConfigChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        villainPersonality: expect.objectContaining({
+          backstory: 'A fallen hero who seeks redemption through power'
+        })
+      })
+    );
+  });
+
+  it('allows adding and removing array items in villain personality', () => {
+    const onConfigChange = jest.fn();
+    const enabledConfig = createGoodVsBadConfig({ isEnabled: true });
+    
+    render(<GoodVsBadConfig 
+      {...defaultProps} 
+      config={enabledConfig}
+      onConfigChange={onConfigChange} 
+    />);
+    
+    // Show advanced configuration
+    const advancedButton = screen.getByText(/show advanced configuration/i);
+    fireEvent.click(advancedButton);
+    
+    // Add a new motivation
+    const addMotivationButton = screen.getByText(/add motivation/i);
+    fireEvent.click(addMotivationButton);
+    
+    expect(onConfigChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        villainPersonality: expect.objectContaining({
+          motivations: expect.arrayContaining([''])
+        })
+      })
+    );
+  });
+
+  it('displays villain state configuration when advanced config is shown', () => {
+    const enabledConfig = createGoodVsBadConfig({ isEnabled: true });
+    
+    render(<GoodVsBadConfig {...defaultProps} config={enabledConfig} />);
+    
+    // Show advanced configuration
+    const advancedButton = screen.getByText(/show advanced configuration/i);
+    fireEvent.click(advancedButton);
+    
+    // Check for villain state section
+    expect(screen.getByText('Villain State')).toBeInTheDocument();
+    
+    // Check for state tracking fields - use more specific queries
+    expect(screen.getByText('Health (0-100)')).toBeInTheDocument();
+    expect(screen.getByText('Resources (0-100)')).toBeInTheDocument();
+    expect(screen.getByText('Influence (0-100)')).toBeInTheDocument();
+    expect(screen.getByText('Anger (0-100)')).toBeInTheDocument();
+    expect(screen.getByText('Respect for Player (0-100)')).toBeInTheDocument();
+    expect(screen.getByText('Current Goal')).toBeInTheDocument();
+    expect(screen.getByText('Last Action')).toBeInTheDocument();
+  });
+
+  it('displays conflict mechanics configuration when advanced config is shown', () => {
+    const enabledConfig = createGoodVsBadConfig({ isEnabled: true });
+    
+    render(<GoodVsBadConfig {...defaultProps} config={enabledConfig} />);
+    
+    // Show advanced configuration
+    const advancedButton = screen.getByText(/show advanced configuration/i);
+    fireEvent.click(advancedButton);
+    
+    // Check for conflict mechanics section
+    expect(screen.getByText('Conflict Mechanics')).toBeInTheDocument();
+    
+    // Check for conflict fields - use more specific queries
+    expect(screen.getByText('Escalation Level (1-10)')).toBeInTheDocument();
+    expect(screen.getByText('Confrontation Type')).toBeInTheDocument();
+    expect(screen.getByText('Villain Reaction Style')).toBeInTheDocument();
+    expect(screen.getByText('Player Advantage (-10 to +10)')).toBeInTheDocument();
+    expect(screen.getByText('Villain Advantage (-10 to +10)')).toBeInTheDocument();
   });
 }); 

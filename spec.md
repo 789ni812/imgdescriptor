@@ -403,44 +403,64 @@ The project is ready for comprehensive testing, fine-tuning, and future enhancem
 > - Now, `CharacterStats` is only rendered in the header, with proper responsive design (desktop: in header bar, mobile: below bar).
 > - Improved header layout and visual separation from main content.
 
-### Phase 20: Turn-Based Game System
-**Objective:** Implement a 3-turn system for continuing the story with new images.
+### Phase 20: Story Generation and Image Analysis Improvements
+**Objective:** Implement the suggested improvements to enhance story generation quality, fix malformed JSON output, and improve image analysis integration for the first turn.
 
-#### Tasks
-- [x] **20.1: Implement Turn Management**
-  - Turn state management (`currentTurn`, `incrementTurn`, reset) implemented in character store
-  - Turn counter and validation logic (max 3 turns, UI disables upload and shows message)
-  - Tests for turn management system in `characterStore.test.ts`
-  - **Completed 2025-06-24**
-  - **Commit:** `feat(game): implement turn-based game system`
+#### **Phase 20.1: Enhanced Prompt Strictness and Temperature Control**
+- [x] **20.1.1: Write Failing Test for First Turn Temperature Control**
+  - Create test to verify lower temperature (0.3) is used for first turn story generation
+  - Test that subsequent turns use higher temperature (0.6)
+  - **Commit:** `test(story): add first turn temperature control tests`
 
-- [x] **20.2: Create Turn Display Component**
-  - Turn display is implemented in `CharacterStats` (header) and shows current turn in the UI
-  - Also shown as `Turn {character.currentTurn}/3` in the header for clarity
-  - **Completed 2025-06-24**
-  - **Commit:** `feat(ui): add turn counter component`
+- [x] **20.1.2: Implement First Turn Temperature Control**
+  - Modify `useStoryGeneration` to detect first turn and use lower temperature
+  - Update `lmstudio-client.ts` to accept temperature parameter
+  - **Commit:** `feat(story): implement first turn temperature control`
 
-- [x] **20.3: Update Story Generation for Turns**
-  - Story generation prompt now includes turn number, character stats, and previous story context
-  - Refactored prompt construction into a pure function for TDD
-  - Fully tested with unit and integration tests
-  - **Completed 2025-06-24**
-  - **Commit:** `feat(story): update story generation for turn-based gameplay`
+- [x] **20.1.3: Write Failing Test for Enhanced Prompt Strictness**
+  - Create test to verify first turn prompts include stronger image integration instructions
+  - Test that subsequent turns do not include first turn specific requirements
+  - **Commit:** `test(story): add enhanced prompt strictness tests`
 
-- [x] **20.3.1: Add 3-Turn Mock Data for Story Evolution**
-  - Create 3 sets of mocked image descriptions (one for each turn)
-  - Create 3 sets of mocked story generations that build upon each other
-  - Update mock system to return different data based on current turn
-  - Write tests for turn-based mock data selection
-  - **Completed 2025-06-24**
-  - **Commit:** `feat(mocks): add 3-turn mock data for story evolution testing`
+- [x] **20.1.4: Implement Enhanced Prompt Strictness**
+  - Update `buildStoryPrompt` to include stronger first turn instructions
+  - Add FIRST TURN REQUIREMENTS section with stricter image integration
+  - **Commit:** `feat(story): implement enhanced prompt strictness for first turn`
 
-- [x] **20.4: Implement Turn Validation**
-  - Image upload is disabled after 3 turns (turn limit enforced in UI)
-  - User sees a clear message when turns are exhausted
-  - Tests in page.test.tsx verify upload is disabled and message is shown
-  - **Completed 2025-06-24**
-  - **Commit:** `feat(game): implement turn validation and game end logic`
+#### **Phase 20.2: Malformed JSON Handling and Fallback Logic**
+- [x] **20.2.1: Write Failing Test for Malformed JSON Handling**
+  - Create test to verify graceful handling of malformed JSON output
+  - Test context-aware fallback choices when JSON parsing fails
+  - **Commit:** `test(story): add malformed JSON handling tests`
+
+- [x] **20.2.2: Implement Malformed JSON Handling**
+  - Add robust JSON parsing with fallback logic
+  - Implement context-aware choice generation
+  - **Commit:** `feat(story): implement malformed JSON handling and fallback logic`
+
+#### **Phase 20.3: Image Analysis Integration for First Turn**
+- [ ] **20.3.1: Write Failing Test for Enhanced Image Integration**
+  - Create test to verify first turn prompts include detailed image analysis
+  - Test that image elements are properly referenced in story generation
+  - **Commit:** `test(story): add enhanced image integration tests`
+
+- [ ] **20.3.2: Implement Enhanced Image Integration**
+  - Update prompt building to include comprehensive image analysis
+  - Ensure image elements are properly integrated into first turn stories
+  - **Commit:** `feat(story): implement enhanced image integration for first turn`
+
+#### **Phase 20.4: Testing and Validation**
+- [ ] **20.4.1: Run Full Test Suite**
+  - Ensure all existing tests pass with new improvements
+  - Fix any regressions introduced by changes
+  - **Commit:** `test(story): fix test regressions and ensure full suite passes`
+
+- [ ] **20.4.2: Browser Testing**
+  - Test improvements in browser environment
+  - Verify story generation quality improvements
+  - **Commit:** `test(story): validate improvements in browser environment`
+
+**Current Status:** ✅ Phase 20.1 and 20.2 completed. Phase 20.3 and 20.4 pending.
 
 ### Phase 21: Image Gallery and Story Continuation
 **Objective:** Display all uploaded images and enable story continuation.
