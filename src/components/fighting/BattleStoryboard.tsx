@@ -32,35 +32,34 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
   previousRounds,
 }) => {
   return (
-    <div className="relative w-full max-w-3xl mx-auto bg-gray-100 border border-gray-300 rounded-lg shadow-lg p-4" style={{ minHeight: 700 }}>
-      {/* Top Panel */}
-      <div className="absolute left-4 right-4 top-4 h-48 bg-white border border-black text-gray-800" style={{ zIndex: 2 }}>
-        <div className="flex flex-col items-center justify-center h-full">
+    <div className="flex justify-center items-center min-h-[80vh] w-full">
+      <div
+        className="w-[90%] max-w-5xl grid grid-rows-[minmax(120px,auto)_minmax(100px,auto)_minmax(120px,auto)] grid-cols-2 gap-y-4 gap-x-4 bg-gray-100 border border-gray-300 rounded-lg shadow-lg p-6"
+        style={{ boxSizing: 'border-box' }}
+      >
+        {/* Top Panel (spans both columns) */}
+        <div className="row-start-1 row-end-2 col-span-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-center text-gray-800 min-h-[120px]">
           <div className="font-bold text-lg mb-2">{scene.name}</div>
           <img className="object-cover rounded shadow max-h-28 mb-2" src={scene.imageUrl} alt={scene.name} />
           <div className="text-sm font-semibold">Round {round}</div>
         </div>
-      </div>
-      {/* Middle Panels */}
-      <div className="absolute left-4 top-56 w-[45%] h-32 bg-white border border-black transform -skew-x-3 flex flex-col items-center justify-center text-gray-800" style={{ zIndex: 2 }} data-testid="attacker-box">
-        <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
-        <div className="font-bold text-base">{attacker.name}</div>
-        <div className="text-xs text-center px-2">{attacker.action}</div>
-      </div>
-      <div className="absolute right-4 top-56 w-[45%] h-32 bg-white border border-black transform skew-x-3 flex flex-col items-center justify-center text-gray-800" style={{ zIndex: 2 }} data-testid="defender-box">
-        <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
-        <div className="font-bold text-base">{defender.name}</div>
-        <div className="text-xs text-center px-2">{defender.action}</div>
-      </div>
-      {/* Bottom Panel */}
-      <div className="absolute left-4 right-4 bottom-4 h-40 bg-white border border-black flex flex-col overflow-y-auto p-2 text-gray-800" style={{ zIndex: 2 }}>
-        {previousRounds.map((r) => (
-          <div key={r.round} className="text-xs mb-1">{`Round ${r.round}: ${r.summary}`}</div>
-        ))}
-      </div>
-      {/* Background panel lines (optional, for manga effect) */}
-      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
-        {/* You can add SVG or extra divs here for more hand-drawn panel lines if desired */}
+        {/* Middle Panels */}
+        <div className="row-start-2 row-end-3 col-start-1 col-end-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform -skew-x-3 overflow-auto">
+          <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
+          <div className="font-bold text-base mb-1">{attacker.name}</div>
+          <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{attacker.action}</div>
+        </div>
+        <div className="row-start-2 row-end-3 col-start-2 col-end-3 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform skew-x-3 overflow-auto">
+          <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
+          <div className="font-bold text-base mb-1">{defender.name}</div>
+          <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{defender.action}</div>
+        </div>
+        {/* Bottom Panel (spans both columns) */}
+        <div className="row-start-3 row-end-4 col-span-2 bg-white border border-black rounded-md p-6 flex flex-col overflow-y-auto text-gray-800 min-h-[120px] max-h-40">
+          {previousRounds.map((r) => (
+            <div key={r.round} className="text-xs mb-1 break-words w-full" style={{ wordBreak: 'break-word' }}>{`Round ${r.round}: ${r.summary}`}</div>
+          ))}
+        </div>
       </div>
     </div>
   );
