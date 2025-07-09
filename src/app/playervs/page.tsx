@@ -7,6 +7,7 @@ import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 import BattleStoryboard from '@/components/fighting/BattleStoryboard';
+import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 
 export default function PlayerVsPage() {
   const { gamePhase: storePhase, resetGame } = useFightingGameStore();
@@ -28,6 +29,10 @@ export default function PlayerVsPage() {
   const [autoAdvance, setAutoAdvance] = useState(false);
   // Add state for step reveal: 'attack' or 'defense'
   const [roundStep, setRoundStep] = useState<'attack' | 'defense'>('attack');
+  // Add state for LLM loading
+  const [isLLMGenerating, setIsLLMGenerating] = useState(false);
+  const [fighterAPreviewUrl, setFighterAPreviewUrl] = useState<string | null>(null);
+  const [fighterBPreviewUrl, setFighterBPreviewUrl] = useState<string | null>(null);
 
   // Start combat: show first round animation and enable auto-advance
   const handleBeginCombat = () => {
@@ -70,10 +75,73 @@ export default function PlayerVsPage() {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  // Example: get image analysis descriptions (replace with real hooks if needed)
+  const fighterADescription = fighterA?.description || 'A tall, armored figure with a black helmet and cape. Wields a red lightsaber.';
+  const fighterBDescription = fighterB?.description || 'A young man in white robes wielding a blue lightsaber.';
+  const sceneDescription = devScene?.description || 'A stone castle with a moat and a wooden bridge.';
+
+  // Replace FighterUpload with FighterImageUpload for Fighter A
+  const handleFighterAUpload = async ({ url, analysis, file }: { url: string; analysis: any; file: File }) => {
+    setFighterAPreviewUrl(url); // Show preview immediately
+    // Ensure imageDescription is a string
+    let imageDescription: string;
+    if (typeof analysis.description === 'string') {
+      imageDescription = analysis.description;
+    } else if (analysis.description && typeof analysis.description.setting === 'string') {
+      imageDescription = analysis.description.setting;
+    } else {
+      imageDescription = JSON.stringify(analysis.description);
+    }
+    // Call the fighter generation API with the analysis result
+    const res = await fetch('/api/fighting-game/generate-fighter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageDescription,
+        fighterId: 'fighterA',
+        fighterLabel: 'Fighter A',
+        imageUrl: url,
+      }),
+    });
+    const data = await res.json();
+    if (data.fighter) {
+      setFighterA({ ...data.fighter, imageUrl: url }); // Patch imageUrl if not present
+      setFighterAPreviewUrl(null); // Remove preview after fighter is set
+    }
+  };
+  // Replace FighterUpload with FighterImageUpload for Fighter B
+  const handleFighterBUpload = async ({ url, analysis, file }: { url: string; analysis: any; file: File }) => {
+    setFighterBPreviewUrl(url); // Show preview immediately
+    let imageDescription: string;
+    if (typeof analysis.description === 'string') {
+      imageDescription = analysis.description;
+    } else if (analysis.description && typeof analysis.description.setting === 'string') {
+      imageDescription = analysis.description.setting;
+    } else {
+      imageDescription = JSON.stringify(analysis.description);
+    }
+    const res = await fetch('/api/fighting-game/generate-fighter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageDescription,
+        fighterId: 'fighterB',
+        fighterLabel: 'Fighter B',
+        imageUrl: url,
+      }),
+    });
+    const data = await res.json();
+    if (data.fighter) {
+      setFighterB({ ...data.fighter, imageUrl: url }); // Patch imageUrl if not present
+      setFighterBPreviewUrl(null); // Remove preview after fighter is set
+    }
+  };
+
   // Run round logic after animation
-  const runRoundLogic = () => {
+  const runRoundLogic = async () => {
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
-    setTimeout(() => {
+    setIsLLMGenerating(true);
+    setTimeout(async () => {
       const isAFirst = round % 2 === 1;
       const attacker = isAFirst ? fighterA : fighterB;
       const defender = isAFirst ? fighterB : fighterA;
@@ -96,16 +164,43 @@ export default function PlayerVsPage() {
         setFighterAHealth(newDefenderHealth);
         setFighterBHealth(newAttackerHealth);
       }
-      // Split commentary
-      let attackCommentary = aDamage > 0
-        ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
-        : `${defender.name} dodges ${attacker.name}'s attack!`;
-      let defenseCommentary = dDamage > 0
-        ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
-        : `${attacker.name} dodges ${defender.name}'s attack!`;
-      // Add flavor and round ending
-      const flavor = `${attacker.name} ${randomFrom(flavorMoves)}. ${defender.name} ${randomFrom(flavorRetaliations)}.`;
-      const ending = `${randomFrom([attacker.name, defender.name])} ${randomFrom(roundEndings)}`;
+      // Build LLM prompt
+      const prompt = `You are a witty, energetic fight commentator for a manga-style battle game.\n\nFighter A: ${fighterA.name}\n- Appearance: ${fighterADescription}\nFighter B: ${fighterB.name}\n- Appearance: ${fighterBDescription}\nScene: ${devScene?.name} (${sceneDescription})\n\nRound ${round}:\n- Attacker: ${attacker.name}\n- Defender: ${defender.name}\n- Attack Result: ${aDamage > 0 ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!` : `${defender.name} dodges ${attacker.name}'s attack!`}\n- Defense Result: ${dDamage > 0 ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!` : `${attacker.name} dodges ${defender.name}'s attack!`}\n\nInstructions:\nWrite two short, vivid lines of commentary for this round:\n1. The attack (${attacker.name}'s move)\n2. The defense/counter (${defender.name}'s move)\nMake it entertaining and dramatic, as if for a manga or anime. Reference the fighters’ appearance, weapons, and the scene for flavor. Use energetic, punchy language. Each line should be 1–2 sentences, and clearly indicate who is acting.`;
+      // Call LLM API
+      let attackCommentary = '';
+      let defenseCommentary = '';
+      try {
+        const res = await fetch('/api/generate-story', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const data = await res.json();
+        if (data.success && data.story) {
+          // Expecting two lines, split by newline or number
+          const lines = data.story.trim().split(/\n|\d+\./).map(l => l.trim()).filter(Boolean);
+          attackCommentary = lines[0] || '';
+          defenseCommentary = lines[1] || '';
+        } else {
+          attackCommentary = aDamage > 0
+            ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
+            : `${defender.name} dodges ${attacker.name}'s attack!`;
+          defenseCommentary = dDamage > 0
+            ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
+            : `${attacker.name} dodges ${defender.name}'s attack!`;
+        }
+      } catch (err) {
+        attackCommentary = aDamage > 0
+          ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
+          : `${defender.name} dodges ${attacker.name}'s attack!`;
+        defenseCommentary = dDamage > 0
+          ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
+          : `${attacker.name} dodges ${defender.name}'s attack!`;
+      }
+      setIsLLMGenerating(false);
+      // Add flavor and round ending (optional, can be LLM-generated in future)
+      const flavor = '';
+      const ending = '';
       setCombatLog((log) => [
         ...log,
         {
@@ -292,19 +387,83 @@ export default function PlayerVsPage() {
             {/* Fighter Upload Sections */}
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <FighterUpload
-                  fighterId="fighter-a"
-                  fighterLabel="Fighter A"
-                  onFighterCreated={setFighterA}
-                />
+                {!fighterA ? (
+                  <>
+                    {fighterAPreviewUrl && (
+                      <div className="flex flex-col items-center mb-2">
+                        <img src={fighterAPreviewUrl} alt="Fighter A Preview" className="w-32 h-32 object-cover rounded border-2 border-blue-400 mb-2" />
+                        <span className="text-xs text-blue-400">Preview</span>
+                      </div>
+                    )}
+                    <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" />
+                  </>
+                ) : (
+                  // Existing fighter summary UI for Fighter A
+                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
+                    {fighterA.imageUrl && (
+                      <img src={fighterA.imageUrl} alt={fighterA.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" />
+                    )}
+                    <h4 className="text-lg font-semibold text-green-400 mb-3">{fighterA.name}</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Health: {fighterA.stats.health}</div>
+                      <div>Strength: {fighterA.stats.strength}</div>
+                      <div>Luck: {fighterA.stats.luck}</div>
+                      <div>Agility: {fighterA.stats.agility}</div>
+                      <div>Defense: {fighterA.stats.defense}</div>
+                      <div>Size: {fighterA.stats.size}</div>
+                    </div>
+                    <div className="mt-3 text-xs text-gray-300">
+                      <p><strong>Build:</strong> {fighterA.stats.build}</p>
+                      <p><strong>Age:</strong> {fighterA.visualAnalysis.age}</p>
+                    </div>
+                    <button
+                      onClick={() => setFighterA(null)}
+                      className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
+                    >
+                      Remove Fighter
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <FighterUpload
-                  fighterId="fighter-b"
-                  fighterLabel="Fighter B"
-                  onFighterCreated={setFighterB}
-                />
+                {!fighterB ? (
+                  <>
+                    {fighterBPreviewUrl && (
+                      <div className="flex flex-col items-center mb-2">
+                        <img src={fighterBPreviewUrl} alt="Fighter B Preview" className="w-32 h-32 object-cover rounded border-2 border-blue-400 mb-2" />
+                        <span className="text-xs text-blue-400">Preview</span>
+                      </div>
+                    )}
+                    <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" />
+                  </>
+                ) : (
+                  // Existing fighter summary UI for Fighter B
+                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
+                    {fighterB.imageUrl && (
+                      <img src={fighterB.imageUrl} alt={fighterB.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" />
+                    )}
+                    <h4 className="text-lg font-semibold text-green-400 mb-3">{fighterB.name}</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Health: {fighterB.stats.health}</div>
+                      <div>Strength: {fighterB.stats.strength}</div>
+                      <div>Luck: {fighterB.stats.luck}</div>
+                      <div>Agility: {fighterB.stats.agility}</div>
+                      <div>Defense: {fighterB.stats.defense}</div>
+                      <div>Size: {fighterB.stats.size}</div>
+                    </div>
+                    <div className="mt-3 text-xs text-gray-300">
+                      <p><strong>Build:</strong> {fighterB.stats.build}</p>
+                      <p><strong>Age:</strong> {fighterB.visualAnalysis.age}</p>
+                    </div>
+                    <button
+                      onClick={() => setFighterB(null)}
+                      className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
+                    >
+                      Remove Fighter
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -372,6 +531,7 @@ export default function PlayerVsPage() {
         {/* Combat Phase */}
         {phase === 'combat' && fighterA && fighterB && devScene && (
           <div className="space-y-8">
+            {isLLMGenerating && <div className="text-center text-lg font-bold text-yellow-400">Generating commentary...</div>}
             {(() => {
               const isAFirst = round % 2 === 1;
               const lastRound = combatLog[combatLog.length - 1];

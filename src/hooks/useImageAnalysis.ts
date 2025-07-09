@@ -95,13 +95,19 @@ export function useImageAnalysis(
       try {
         debugLog('useImageAnalysis', 'File read successfully, sending API request');
         const base64Image = (reader.result as string).split(',')[1];
+        const requestBody = {
+          image: base64Image,
+          prompt: finalPrompt,
+        };
+        debugLog('useImageAnalysis', 'Request body prepared', { 
+          imageLength: base64Image.length, 
+          promptLength: finalPrompt.length,
+          bodyKeys: Object.keys(requestBody)
+        });
         const response = await fetch('/api/analyze-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: base64Image,
-            prompt: finalPrompt,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         debugLog('useImageAnalysis', 'API response received', { 

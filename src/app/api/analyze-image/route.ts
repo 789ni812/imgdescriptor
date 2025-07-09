@@ -4,6 +4,19 @@ import type { AnalyzeImageRequest } from '@/lib/types';
 
 export async function POST(request: Request) {
   try {
+    // Debug: Check content type and log raw body
+    const contentType = request.headers.get('content-type') || '';
+    console.log('DEBUG /api/analyze-image content-type:', contentType);
+    
+    if (!contentType.includes('application/json')) {
+      const rawBody = await request.text();
+      console.log('DEBUG /api/analyze-image raw body (first 200 chars):', rawBody.substring(0, 200));
+      return NextResponse.json(
+        { success: false, error: `Expected JSON but received: ${contentType}` },
+        { status: 400 }
+      );
+    }
+    
     const { image, prompt } = (await request.json()) as AnalyzeImageRequest;
 
     if (!image || !prompt) {
