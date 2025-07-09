@@ -1485,3 +1485,9 @@ The implementation plan leverages your existing codebase effectively while creat
 - Winner overlay is implemented in `WinnerAnimation.tsx`.
 - Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
 - Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser

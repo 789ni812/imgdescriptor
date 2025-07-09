@@ -6,6 +6,7 @@ import FighterUpload from '@/components/fighting/FighterUpload';
 import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
+import BattleStoryboard from '@/components/fighting/BattleStoryboard';
 
 export default function PlayerVsPage() {
   const { gamePhase: storePhase, resetGame } = useFightingGameStore();
@@ -71,37 +72,51 @@ export default function PlayerVsPage() {
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
     // Show narration and health update after 2s delay
     setTimeout(() => {
-      const aRoll = Math.floor(Math.random() * 20) + 1 + fighterA.stats.strength;
-      const bRoll = Math.floor(Math.random() * 20) + 1 + fighterB.stats.strength;
-      let aDamage = Math.max(0, aRoll - fighterB.stats.defense);
-      let bDamage = Math.max(0, bRoll - fighterA.stats.defense);
-      if (Math.random() < fighterB.stats.luck / 40) aDamage = 0;
-      if (Math.random() < fighterA.stats.luck / 40) bDamage = 0;
-      const newAHealth = Math.max(0, fighterAHealth - bDamage);
-      const newBHealth = Math.max(0, fighterBHealth - aDamage);
-      setFighterAHealth(newAHealth);
-      setFighterBHealth(newBHealth);
+      // Alternate attacker each round
+      const isAFirst = round % 2 === 1;
+      const attacker = isAFirst ? fighterA : fighterB;
+      const defender = isAFirst ? fighterB : fighterA;
+      const attackerHealth = isAFirst ? fighterAHealth : fighterBHealth;
+      const defenderHealth = isAFirst ? fighterBHealth : fighterAHealth;
+      const attackerStats = attacker.stats;
+      const defenderStats = defender.stats;
+      const aRoll = Math.floor(Math.random() * 20) + 1 + attackerStats.strength;
+      const dRoll = Math.floor(Math.random() * 20) + 1 + defenderStats.strength;
+      let aDamage = Math.max(0, aRoll - defenderStats.defense);
+      let dDamage = Math.max(0, dRoll - attackerStats.defense);
+      if (Math.random() < defenderStats.luck / 40) aDamage = 0;
+      if (Math.random() < attackerStats.luck / 40) dDamage = 0;
+      const newAttackerHealth = Math.max(0, attackerHealth - dDamage);
+      const newDefenderHealth = Math.max(0, defenderHealth - aDamage);
+      // Update healths
+      if (isAFirst) {
+        setFighterAHealth(newAttackerHealth);
+        setFighterBHealth(newDefenderHealth);
+      } else {
+        setFighterAHealth(newDefenderHealth);
+        setFighterBHealth(newAttackerHealth);
+      }
       let narration = `Round ${round}: `;
       if (aDamage > 0) {
-        narration += `${fighterA.name} strikes ${fighterB.name} for ${aDamage} damage! `;
+        narration += `${attacker.name} strikes ${defender.name} for ${aDamage} damage! `;
       } else {
-        narration += `${fighterB.name} dodges ${fighterA.name}'s attack! `;
+        narration += `${defender.name} dodges ${attacker.name}'s attack! `;
       }
-      if (bDamage > 0) {
-        narration += `${fighterB.name} counters and hits ${fighterA.name} for ${bDamage} damage!`;
+      if (dDamage > 0) {
+        narration += `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`;
       } else {
-        narration += `${fighterA.name} dodges ${fighterB.name}'s attack!`;
+        narration += `${attacker.name} dodges ${defender.name}'s attack!`;
       }
       // Add flavor and closing lines
-      narration += `\n${fighterA.name} ${randomFrom(flavorMoves)}. ${fighterB.name} ${randomFrom(flavorRetaliations)}.`;
-      narration += `\n${randomFrom([fighterA.name, fighterB.name])} ${randomFrom(roundEndings)}`;
+      narration += `\n${attacker.name} ${randomFrom(flavorMoves)}. ${defender.name} ${randomFrom(flavorRetaliations)}.`;
+      narration += `\n${randomFrom([attacker.name, defender.name])} ${randomFrom(roundEndings)}`;
       setCombatLog((log) => [...log, narration]);
-      if (newAHealth <= 0 && newBHealth <= 0) {
+      if (newAttackerHealth <= 0 && newDefenderHealth <= 0) {
         setWinner('Draw');
-      } else if (newAHealth <= 0) {
-        setWinner(fighterB.name);
-      } else if (newBHealth <= 0) {
-        setWinner(fighterA.name);
+      } else if (newAttackerHealth <= 0) {
+        setWinner(defender.name);
+      } else if (newDefenderHealth <= 0) {
+        setWinner(attacker.name);
       }
       setRound((r) => r + 1);
       // After narration, wait 2s before next round animation
@@ -318,57 +333,35 @@ export default function PlayerVsPage() {
         {/* Combat Phase */}
         {phase === 'combat' && fighterA && fighterB && devScene && (
           <div className="space-y-8">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-              <div className="flex flex-col items-center">
-                <img src={fighterA.imageUrl} alt={fighterA.name} className="w-40 h-40 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
-                <h3 className="mt-2 text-lg font-bold">{fighterA.name}</h3>
-                <HealthBar current={fighterAHealth ?? 0} max={fighterA?.stats.maxHealth ?? 1} color="red" />
-                <div className="text-xs mt-1">Health: {fighterAHealth} / {fighterA?.stats.maxHealth}</div>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src={devScene.imageUrl} alt={devScene.name} className="w-64 h-40 object-cover rounded-lg border-4 border-yellow-700 shadow-lg" />
-                <h3 className="mt-2 text-lg font-bold">{devScene.name}</h3>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src={fighterB.imageUrl} alt={fighterB.name} className="w-40 h-40 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
-                <h3 className="mt-2 text-lg font-bold">{fighterB.name}</h3>
-                <HealthBar current={fighterBHealth ?? 0} max={fighterB?.stats.maxHealth ?? 1} color="blue" />
-                <div className="text-xs mt-1">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
-              </div>
-            </div>
+            {(() => {
+              const isAFirst = round % 2 === 1;
+              const attacker = isAFirst ? fighterA : fighterB;
+              const defender = isAFirst ? fighterB : fighterA;
+              return (
+                <BattleStoryboard
+                  scene={{ name: devScene.name, imageUrl: devScene.imageUrl }}
+                  round={round}
+                  attacker={{
+                    name: attacker.name,
+                    imageUrl: attacker.imageUrl,
+                    action: combatLog.length > 0 ? combatLog[combatLog.length - 1] : 'Attacks!',
+                  }}
+                  defender={{
+                    name: defender.name,
+                    imageUrl: defender.imageUrl,
+                    action: combatLog.length > 1 ? combatLog[combatLog.length - 2] : 'Defends!',
+                  }}
+                  previousRounds={combatLog.map((entry, idx) => ({
+                    round: idx + 1,
+                    summary: entry.replace(/\n/g, ' '),
+                  }))}
+                />
+              );
+            })()}
             {!isCombatOver && showRoundAnim && <RoundStartAnimation round={round} onDone={runRoundLogic} />}
             {isCombatOver && showRoundAnim && (
               <WinnerAnimation winner={winner} onDone={() => { resetGame(); setPhase('setup'); }} />
             )}
-            {/* Wrap the combat log card in a flex container for horizontal centering */}
-            <div className="flex justify-center w-full">
-              <div className="bg-black/30 rounded-lg p-6 border border-white/20 text-center text-lg font-semibold shadow-xl min-h-[120px] flex flex-col justify-end mx-auto max-w-3xl w-full">
-                {combatLog.length === 0 ? (
-                  <span>The battle begins! Click Next Round to start.</span>
-                ) : (
-                  [...combatLog].reverse().map((entry, idx) => {
-                    // Extract round number and narration
-                    const match = entry.match(/^Round (\d+):\s*([\s\S]*)$/);
-                    let roundTitle = `Round ${combatLog.length - idx}`;
-                    let narration = entry;
-                    if (match) {
-                      roundTitle = `Round ${match[1]}`;
-                      narration = match[2];
-                    }
-                    // Fade and font size for older rounds
-                    const fade = Math.max(1 - idx * 0.18, 0.4); // 0.4 min opacity
-                    const fontSize = idx === 0 ? 'text-lg' : idx === 1 ? 'text-base' : 'text-sm';
-                    const marginClass = idx === 0 ? 'mb-10 pb-6' : 'mb-6';
-                    return (
-                      <div key={idx} className={`${marginClass} text-center`} style={{ opacity: fade }}>
-                        <h3 className={`text-2xl font-bold text-yellow-400 mb-2 ${fontSize}`}>{roundTitle}</h3>
-                        <div className={`whitespace-pre-line text-white font-normal ${fontSize}`}>{narration}</div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
           </div>
         )}
       </div>
