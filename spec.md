@@ -1089,3 +1089,378 @@ If you cannot create a valid JSON object, output: {}
 - Always include story history, player/villain context, and image details in prompts.
 - Enforce strict output parsing and fallback handling.
 - Playtest and iterate on prompt instructions as needed.
+
+## Phase 24: Player vs Player Fighting Game (2025-01-27)
+**Objective:** Implement a turn-based fighting game where players upload character images, AI generates stats and descriptions, and the DM narrates dynamic combat with dice rolls.
+
+### Game Concept
+- Player uploads Fighter A image → AI describes and generates combat stats (health, strength, luck)
+- Player uploads Fighter B image → AI describes and generates combat stats on same criteria
+- Player uploads scene image → AI describes the fighting arena
+- DM creates narrative about why fighters meet and narrates the battle
+- Turn-based combat with dice rolls determining damage, health changes, and narrative outcomes
+
+### Tasks
+- [ ] **24.1: Fighting Game Route and Page**
+  - Create `src/app/playervs/page.tsx` with fighting game interface
+  - Create `src/app/api/fighting-game/` API routes for game logic
+  - Implement fighting game state management in `src/lib/stores/fightingGameStore.ts`
+  - Write comprehensive tests for fighting game components
+  - **Commit:** `feat(fighting): add playervs route and basic fighting game structure`
+
+- [ ] **24.2: Fighter Character System**
+  - Extend character types with fighting stats (health, strength, luck, agility)
+  - Create `src/lib/types/fighter.ts` with Fighter interface and combat state
+  - Implement fighter stat generation based on image analysis
+  - Add fighter image upload and description components
+  - Write tests for fighter system
+  - **Commit:** `feat(fighting): implement fighter character system with stat generation`
+
+- [ ] **24.3: Combat Dice System**
+  - Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - Implement attack rolls, damage calculation, and critical hits
+  - Add luck-based mechanics and stat modifiers
+  - Create combat outcome types and interfaces
+  - Write tests for combat dice system
+  - **Commit:** `feat(combat): implement fighting-specific dice and combat mechanics`
+
+- [ ] **24.4: Fighting Game UI Components**
+  - Create `src/components/fighting/FighterCard.tsx` for displaying fighter stats
+  - Create `src/components/fighting/CombatArena.tsx` for the fighting scene
+  - Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - Create `src/components/fighting/HealthBar.tsx` for visual health display
+  - Write tests for all fighting UI components
+  - **Commit:** `feat(ui): add fighting game UI components with health bars and combat display`
+
+- [ ] **24.5: DM Combat Narration**
+  - Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - Implement DM combat commentary generation
+  - Add narrative generation for fight setup and battle progression
+  - Integrate dice roll results into story generation
+  - Write tests for combat narration system
+  - **Commit:** `feat(narration): implement DM combat commentary and fighting narratives`
+
+- [ ] **24.6: Turn-Based Combat Flow**
+  - Implement alternating attack turns between fighters
+  - Add combat round management and turn progression
+  - Create victory/defeat conditions and game over states
+  - Implement replay and rematch functionality
+  - Write tests for combat flow
+  - **Commit:** `feat(combat): implement turn-based combat flow with victory conditions`
+
+- [ ] **24.7: Advanced Combat Features**
+  - Add special moves and abilities based on fighter stats
+  - Implement status effects (stunned, bleeding, etc.)
+  - Create combo system and critical hit chains
+  - Add sound effects and visual feedback for combat
+  - Write tests for advanced combat features
+  - **Commit:** `feat(combat): add special moves, status effects, and advanced combat mechanics`
+
+### Technical Implementation Details
+
+#### Fighter Stats System
+```typescript
+interface FighterStats {
+  health: number;        // 0-200 (0 = defeated)
+  maxHealth: number;     // Base health capacity
+  strength: number;      // 1-20 (attack power, based on size/build)
+  luck: number;          // 1-20 (critical hit chance, dodge)
+  agility: number;       // 1-20 (dodge chance, initiative, based on age/build)
+  defense: number;       // 1-20 (damage reduction, based on armor/build)
+  age: number;           // Age category (young, adult, old) affects agility
+  size: 'small' | 'medium' | 'large'; // Affects strength and health
+  build: 'thin' | 'average' | 'muscular' | 'heavy'; // Affects strength/defense
+}
+
+interface Fighter {
+  id: string;
+  name: string;
+  imageUrl: string;
+  description: string;
+  stats: FighterStats;
+  visualAnalysis: {
+    age: string;
+    size: string;
+    build: string;
+    appearance: string[];
+    weapons: string[];
+    armor: string[];
+  };
+  combatHistory: CombatEvent[];
+  winLossRecord: { wins: number; losses: number; draws: number };
+  createdAt: string;
+}
+```
+
+#### Combat Dice Mechanics
+```typescript
+interface CombatRoll {
+  type: 'attack' | 'defense' | 'luck' | 'initiative' | 'environmental';
+  dice: number;          // Number of dice
+  sides: number;         // Sides per die
+  modifier: number;      // Stat-based modifier
+  result: number;        // Final roll result
+  critical: boolean;     // Critical success/failure (natural 20)
+  special: boolean;      // Special event (e.g., double 6s for environmental)
+}
+
+interface CombatEvent {
+  round: number;
+  attacker: string;
+  defender: string;
+  attackRoll: CombatRoll;
+  damage: number;
+  narrative: string;
+  environmentalAction?: string; // Chair throw, weapon pickup, etc.
+  timestamp: string;
+}
+
+interface Scene {
+  id: string;
+  name: string;
+  imageUrl: string;
+  description: string;
+  environmentalObjects: string[]; // Chairs, weapons, obstacles
+  createdAt: string;
+}
+```
+
+#### Game Flow
+1. **Setup Phase**: Upload Fighter A → Upload Fighter B → Upload Scene
+2. **Introduction**: DM narrates why fighters meet (sports commentary style)
+3. **Combat Phase**: 3 rounds maximum with alternating turns, dice rolls, and environmental interactions
+4. **Victory Phase**: Winner determination and final narrative
+5. **Library**: Save fighters and scene for future reuse
+
+### Integration with Existing Systems
+- **Reuse**: Image analysis, story generation, DM personality system
+- **Extend**: Character types, dice system, choice outcomes
+- **New**: Combat-specific UI, fighting game state management
+- **Leverage**: Existing sound system, template system, testing framework
+
+### Benefits
+- **Reuses Existing Infrastructure**: Leverages image analysis, AI generation, and DM systems
+- **Extends Game Mechanics**: Builds on planned dice and combat systems
+- **Unique Gameplay**: Turn-based fighting with AI-generated characters and narratives
+- **Scalable Design**: Can easily add more fighters, arenas, and combat mechanics
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
