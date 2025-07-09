@@ -237,9 +237,27 @@ export default function PlayerVsPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 text-white">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Fighter vs Fighter</h1>
-          <p className="text-xl text-gray-300">Upload your fighters and let them battle!</p>
+        <div className="flex items-center justify-center mb-8 gap-8">
+          {/* Fighter A */}
+          {fighterA && (
+            <div className="flex flex-col items-center">
+              <img src={fighterA.imageUrl} alt={fighterA.name} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
+              <div className="mt-2 text-lg font-bold">{fighterA.name}</div>
+              <HealthBar current={fighterAHealth ?? 0} max={fighterA?.stats.maxHealth ?? 1} color="red" />
+              <div className="text-xs mt-1">Health: {fighterAHealth} / {fighterA?.stats.maxHealth}</div>
+            </div>
+          )}
+          {/* VS */}
+          <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
+          {/* Fighter B */}
+          {fighterB && (
+            <div className="flex flex-col items-center">
+              <img src={fighterB.imageUrl} alt={fighterB.name} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
+              <div className="mt-2 text-lg font-bold">{fighterB.name}</div>
+              <HealthBar current={fighterBHealth ?? 0} max={fighterB?.stats.maxHealth ?? 1} color="blue" />
+              <div className="text-xs mt-1">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
+            </div>
+          )}
         </div>
 
         {/* Setup Phase */}
