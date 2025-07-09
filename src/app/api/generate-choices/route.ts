@@ -299,33 +299,6 @@ ${inventoryString ? inventoryString + '\n' : ''}${traitsString ? 'Traits: ' + tr
 Generate choices that feel natural to the story and provide meaningful player agency.`;
 }
 
-function aggressiveJsonFix(input: string): string {
-  let fixed = input;
-  // Add quotes around unquoted string values (after colon, not already quoted, not number/array/object)
-  // e.g. "description": Anya could choose ... => "description": "Anya could choose ..."
-  fixed = fixed.replace(/(:\s*)([A-Za-z_][^",\[\{\]\}\n]*)/g, (match, p1, p2) => {
-    // If value is true/false/null/number, don't quote
-    if (/^(true|false|null|\d+(\.\d+)?)/.test(p2.trim())) return match;
-    // If value is already quoted, don't quote
-    if (/^".*"$/.test(p2.trim())) return match;
-    return `${p1}"${p2.trim()}"`;
-  });
-  // Remove trailing commas before closing brackets/braces
-  fixed = fixed.replace(/,\s*([}\]])/g, '$1');
-  // Attempt to close unclosed arrays/objects (very basic: add ] or } if missing at end)
-  const openBrackets = (fixed.match(/\[/g) || []).length;
-  const closeBrackets = (fixed.match(/\]/g) || []).length;
-  if (openBrackets > closeBrackets) {
-    fixed += ']'.repeat(openBrackets - closeBrackets);
-  }
-  const openBraces = (fixed.match(/\{/g) || []).length;
-  const closeBraces = (fixed.match(/\}/g) || []).length;
-  if (openBraces > closeBraces) {
-    fixed += '}'.repeat(openBraces - closeBraces);
-  }
-  return fixed;
-}
-
 // Helper function to preprocess choices content
 function preprocessChoicesContent(content: string): string {
   return content

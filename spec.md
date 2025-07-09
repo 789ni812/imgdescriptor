@@ -1464,3 +1464,24 @@ interface Scene {
 6. **Game Flow**: AI-generated characters fighting each other with DM narration
 
 The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".

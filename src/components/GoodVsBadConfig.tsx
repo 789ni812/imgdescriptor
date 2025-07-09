@@ -902,7 +902,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                 </label>
                 <select
                   value={config.conflictMechanics?.confrontationType || 'mixed'}
-                  onChange={(e) => handleConflictMechanicsChange('confrontationType', e.target.value as any)}
+                  onChange={(e) => handleConflictMechanicsChange('confrontationType', e.target.value as GoodVsBadTheme)}
                   className="w-full p-2 border rounded-md bg-background text-foreground border-border"
                 >
                   {confrontationTypes.map((type) => (
@@ -920,7 +920,7 @@ export default function GoodVsBadConfig({ config, onConfigChange }: GoodVsBadCon
                 </label>
                 <select
                   value={config.conflictMechanics?.villainReactionStyle || 'calculating'}
-                  onChange={(e) => handleConflictMechanicsChange('villainReactionStyle', e.target.value as any)}
+                  onChange={(e) => handleConflictMechanicsChange('villainReactionStyle', e.target.value as GoodVsBadTheme)}
                   className="w-full p-2 border rounded-md bg-background text-foreground border-border"
                 >
                   {reactionStyles.map((style) => (

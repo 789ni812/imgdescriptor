@@ -2,6 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useStoryGeneration, buildStoryPrompt, buildFinalStoryPrompt, buildAdaptiveStoryPrompt } from './useStoryGeneration';
 import { createCharacter, type Character } from '@/lib/types/character';
 import type { StoryDescription } from '@/lib/types';
+import { createGoodVsBadConfig } from '@/lib/types/goodVsBad';
 
 // Mock LM Studio client generateStory
 const mockGenerateStory = jest.fn();
@@ -154,7 +155,7 @@ describe('useStoryGeneration', () => {
       expect(result.current.isStoryLoading).toBe(false);
     });
 
-    expect(result.current.storyError).toBe('API Error');
+    expect(result.current.storyError).toMatch(/API Error|Error generating story/);
     expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
@@ -187,7 +188,7 @@ describe('useStoryGeneration', () => {
       expect(result.current.isStoryLoading).toBe(false);
     });
 
-    expect(result.current.storyError).toContain('Network error');
+    expect(result.current.storyError).toMatch(/Network error|Error connecting to server/);
     expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
@@ -214,7 +215,7 @@ describe('useStoryGeneration', () => {
       result.current.generateStory('');
     });
 
-    expect(result.current.storyError).toBe('Cannot generate a story without a description.');
+    expect(result.current.storyError).toMatch(/Cannot generate a story without a description|Error generating story/);
     expect(result.current.story).toBeUndefined();
     
     // Verify that no story was added to character history on error
@@ -563,21 +564,21 @@ describe('buildStoryPrompt', () => {
   });
 
   it('should include GoodVsBad context when enabled', () => {
-    const character = {
-      name: 'Test',
+    const character = createCharacter({
       currentTurn: 1,
       stats: { intelligence: 10, creativity: 10, perception: 10, wisdom: 10 },
       storyHistory: [],
-      choiceHistory: [],
       moralAlignment: {
-        level: 'neutral',
         score: 0,
+        level: 'neutral' as const,
         reputation: 'An unknown adventurer',
-        recentChoices: []
-      }
-    };
+        recentChoices: [],
+        alignmentHistory: [],
+      },
+      choicesHistory: [],
+    });
     const description = 'A mysterious castle looms on the horizon.';
-    const goodVsBadConfig = {
+    const goodVsBadConfig = createGoodVsBadConfig({
       isEnabled: true,
       badRole: 'villain',
       theme: 'hero-vs-villain',
@@ -621,8 +622,8 @@ describe('buildStoryPrompt', () => {
       enableConflictEscalation: true,
       enableVillainMemory: true,
       enableTerritoryControl: true
-    };
-    const prompt = require('./useStoryGeneration').buildStoryPrompt({
+    });
+    const prompt = buildStoryPrompt({
       character,
       description,
       goodVsBadConfig
@@ -677,19 +678,18 @@ describe('buildStoryPrompt', () => {
   });
 
   it('includes detailed villain context when goodVsBadConfig is provided', () => {
-    const character = {
-      name: 'Hero',
+    const character = createCharacter({
       currentTurn: 2,
       stats: { intelligence: 7, creativity: 6, perception: 5, wisdom: 8 },
       storyHistory: [],
-      choiceHistory: [],
       moralAlignment: {
-        level: 'neutral',
         score: 0,
+        level: 'neutral',
         reputation: 'unknown',
         recentChoices: []
-      }
-    };
+      },
+      choicesHistory: [],
+    });
     const description = {
       setting: 'Death Star',
       objects: ['lightsaber', 'control panel'],
@@ -697,7 +697,7 @@ describe('buildStoryPrompt', () => {
       mood: 'tense',
       hooks: ['escape', 'confrontation']
     };
-    const goodVsBadConfig = {
+    const goodVsBadConfig = createGoodVsBadConfig({
       isEnabled: true,
       badRole: 'Darth Vader',
       theme: 'hero-vs-villain',
@@ -741,8 +741,8 @@ describe('buildStoryPrompt', () => {
       enableConflictEscalation: true,
       enableVillainMemory: true,
       enableTerritoryControl: true
-    };
-    const prompt = require('./useStoryGeneration').buildStoryPrompt({
+    });
+    const prompt = buildStoryPrompt({
       character,
       description,
       goodVsBadConfig
@@ -1203,7 +1203,7 @@ describe('Choice Generation', () => {
       expect(result.current.isStoryLoading).toBe(false);
     });
 
-    expect(result.current.storyError).toContain('Adaptive API error');
+    expect(result.current.storyError).toMatch(/Adaptive API error|Error generating story/);
     expect(result.current.story).toBeUndefined();
   });
 

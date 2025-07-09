@@ -14,12 +14,10 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fighter, setFighter] = useState<Fighter | null>(null);
-  const [showFileInput, setShowFileInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addFighter } = useFightingGameStore();
 
   const handleUploadClick = () => {
-    setShowFileInput(true);
     fileInputRef.current?.click();
   };
 
@@ -29,7 +27,6 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
 
     setIsUploading(true);
     setError(null);
-    setShowFileInput(false);
 
     try {
       // Step 1: Upload image and get description

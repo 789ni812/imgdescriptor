@@ -5,9 +5,10 @@ import { useFightingGameStore, Fighter } from '@/lib/stores/fightingGameStore';
 import FighterUpload from '@/components/fighting/FighterUpload';
 import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
+import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 
 export default function PlayerVsPage() {
-  const { gamePhase: storePhase, fighters, scene, resetGame } = useFightingGameStore();
+  const { gamePhase: storePhase, resetGame } = useFightingGameStore();
   const [fighterA, setFighterA] = React.useState<Fighter | null>(null);
   const [fighterB, setFighterB] = React.useState<Fighter | null>(null);
   const [devScene, setDevScene] = React.useState<any>(null);
@@ -20,7 +21,6 @@ export default function PlayerVsPage() {
   const [winner, setWinner] = useState<string | null>(null);
   const maxRounds = 6;
   const isCombatOver = winner !== null || round > maxRounds;
-  const lastActionRef = useRef<string | null>(null);
   // Add state to control round animation and auto-advance
   const [showRoundAnim, setShowRoundAnim] = useState(false);
   const [autoAdvance, setAutoAdvance] = useState(false);
@@ -32,53 +32,88 @@ export default function PlayerVsPage() {
     setAutoAdvance(true);
   };
 
+  const flavorMoves = [
+    "attacks with a flying scissor kick",
+    "unleashes a spinning backfist",
+    "throws a handful of sand in the opponent's eyes",
+    "uses the force to hurl debris across the arena",
+    "performs a dramatic somersault",
+    "taunts the crowd with a victory pose",
+    "dodges with a slick backflip",
+    "grabs a chair and swings wildly",
+    "channels inner energy for a power punch",
+    "attempts a surprise leg sweep"
+  ];
+  const flavorRetaliations = [
+    "retaliates by charging with the dustbin over their head",
+    "counters with a swift uppercut",
+    "lands a sneaky jab to the ribs",
+    "grabs a nearby object and throws it",
+    "rushes forward with a battle cry",
+    "spins and delivers a roundhouse kick",
+    "leaps onto the ropes and launches an aerial attack",
+    "uses a secret technique learned from the masters"
+  ];
+  const roundEndings = [
+    "stumbles back as the bell sounds for the end of this round.",
+    "raises a fist as the crowd roars.",
+    "takes a deep breath, preparing for the next round.",
+    "wipes sweat from the brow, eyes locked on the opponent.",
+    "nods respectfully as the round concludes."
+  ];
+
+  function randomFrom<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
   // Run round logic after animation
   const runRoundLogic = () => {
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
-    // Dice rolls
-    const aRoll = Math.floor(Math.random() * 20) + 1 + fighterA.stats.strength;
-    const bRoll = Math.floor(Math.random() * 20) + 1 + fighterB.stats.strength;
-    let aDamage = Math.max(0, aRoll - fighterB.stats.defense);
-    let bDamage = Math.max(0, bRoll - fighterA.stats.defense);
-    // Luck: 10% chance to dodge
-    if (Math.random() < fighterB.stats.luck / 40) aDamage = 0;
-    if (Math.random() < fighterA.stats.luck / 40) bDamage = 0;
-    // Update health
-    const newAHealth = Math.max(0, fighterAHealth - bDamage);
-    const newBHealth = Math.max(0, fighterBHealth - aDamage);
-    setFighterAHealth(newAHealth);
-    setFighterBHealth(newBHealth);
-    // DM narration
-    let narration = `Round ${round}: `;
-    if (aDamage > 0) {
-      narration += `${fighterA.name} strikes ${fighterB.name} for ${aDamage} damage! `;
-    } else {
-      narration += `${fighterB.name} dodges ${fighterA.name}'s attack! `;
-    }
-    if (bDamage > 0) {
-      narration += `${fighterB.name} counters and hits ${fighterA.name} for ${bDamage} damage!`;
-    } else {
-      narration += `${fighterA.name} dodges ${fighterB.name}'s attack!`;
-    }
-    setCombatLog((log) => [...log, narration]);
-    // Check for winner
-    if (newAHealth <= 0 && newBHealth <= 0) {
-      setWinner('Draw');
-    } else if (newAHealth <= 0) {
-      setWinner(fighterB.name);
-    } else if (newBHealth <= 0) {
-      setWinner(fighterA.name);
-    }
-    setRound((r) => r + 1);
-    // After round logic, if not over, auto-advance to next round
-    if (!isCombatOver) {
-      setShowRoundAnim(false); // Reset animation
-      setTimeout(() => {
-        setShowRoundAnim(true); // Trigger next round animation
-      }, 100); // Short delay to ensure remount
-    } else {
-      setAutoAdvance(false);
-    }
+    // Show narration and health update after 2s delay
+    setTimeout(() => {
+      const aRoll = Math.floor(Math.random() * 20) + 1 + fighterA.stats.strength;
+      const bRoll = Math.floor(Math.random() * 20) + 1 + fighterB.stats.strength;
+      let aDamage = Math.max(0, aRoll - fighterB.stats.defense);
+      let bDamage = Math.max(0, bRoll - fighterA.stats.defense);
+      if (Math.random() < fighterB.stats.luck / 40) aDamage = 0;
+      if (Math.random() < fighterA.stats.luck / 40) bDamage = 0;
+      const newAHealth = Math.max(0, fighterAHealth - bDamage);
+      const newBHealth = Math.max(0, fighterBHealth - aDamage);
+      setFighterAHealth(newAHealth);
+      setFighterBHealth(newBHealth);
+      let narration = `Round ${round}: `;
+      if (aDamage > 0) {
+        narration += `${fighterA.name} strikes ${fighterB.name} for ${aDamage} damage! `;
+      } else {
+        narration += `${fighterB.name} dodges ${fighterA.name}'s attack! `;
+      }
+      if (bDamage > 0) {
+        narration += `${fighterB.name} counters and hits ${fighterA.name} for ${bDamage} damage!`;
+      } else {
+        narration += `${fighterA.name} dodges ${fighterB.name}'s attack!`;
+      }
+      // Add flavor and closing lines
+      narration += `\n${fighterA.name} ${randomFrom(flavorMoves)}. ${fighterB.name} ${randomFrom(flavorRetaliations)}.`;
+      narration += `\n${randomFrom([fighterA.name, fighterB.name])} ${randomFrom(roundEndings)}`;
+      setCombatLog((log) => [...log, narration]);
+      if (newAHealth <= 0 && newBHealth <= 0) {
+        setWinner('Draw');
+      } else if (newAHealth <= 0) {
+        setWinner(fighterB.name);
+      } else if (newBHealth <= 0) {
+        setWinner(fighterA.name);
+      }
+      setRound((r) => r + 1);
+      // After narration, wait 2s before next round animation
+      if (!isCombatOver) {
+        setShowRoundAnim(false);
+        setTimeout(() => {
+          setShowRoundAnim(true);
+        }, 2000); // 2s delay after narration
+      } else {
+        setAutoAdvance(false);
+      }
+    }, 2000); // 2s delay after animation
   };
 
   // Auto-populate demo fighters and scene on mount
@@ -166,11 +201,11 @@ export default function PlayerVsPage() {
   }, [phase, fighterA, fighterB, devScene]);
 
   // Combat round logic
-  const handleNextRound = () => {
-    if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
-    setShowRoundAnim(true);
-    // setPendingNextRound(true); // This line is removed
-  };
+  // const handleNextRound = () => {
+  //   if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
+  //   setShowRoundAnim(true);
+  //   // setPendingNextRound(true); // This line is removed
+  // };
 
   // Reset combat state on new game
   useEffect(() => {
@@ -301,60 +336,42 @@ export default function PlayerVsPage() {
                 <div className="text-xs mt-1">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
               </div>
             </div>
-            {showRoundAnim && <RoundStartAnimation round={round} onDone={runRoundLogic} />}
-            <div className="bg-black/30 rounded-lg p-6 border border-white/20 text-center text-lg font-semibold shadow-xl min-h-[120px] flex flex-col justify-end">
-              {combatLog.length === 0 ? (
-                <span>The battle begins! Click Next Round to start.</span>
-              ) : (
-                combatLog.map((entry, idx) => <div key={idx}>{entry}</div>)
-              )}
-              {isCombatOver && (
-                <div className="mt-4 text-2xl font-bold text-green-400">
-                  {winner === 'Draw' ? "It's a draw!" : `${winner} wins the battle!`}
-                </div>
-              )}
-            </div>
-            {!isCombatOver && (
-              <div className="text-center">
-                <button
-                  className="px-8 py-3 rounded-lg font-semibold text-lg bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={handleNextRound}
-                >
-                  Next Round
-                </button>
-              </div>
+            {!isCombatOver && showRoundAnim && <RoundStartAnimation round={round} onDone={runRoundLogic} />}
+            {isCombatOver && showRoundAnim && (
+              <WinnerAnimation winner={winner} onDone={() => { resetGame(); setPhase('setup'); }} />
             )}
-            {isCombatOver && (
-              <div className="text-center">
-                <button
-                  className="px-8 py-3 rounded-lg font-semibold text-lg bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => setPhase('victory')}
-                >
-                  Continue
-                </button>
+            {/* Wrap the combat log card in a flex container for horizontal centering */}
+            <div className="flex justify-center w-full">
+              <div className="bg-black/30 rounded-lg p-6 border border-white/20 text-center text-lg font-semibold shadow-xl min-h-[120px] flex flex-col justify-end mx-auto max-w-3xl w-full">
+                {combatLog.length === 0 ? (
+                  <span>The battle begins! Click Next Round to start.</span>
+                ) : (
+                  [...combatLog].reverse().map((entry, idx) => {
+                    // Extract round number and narration
+                    const match = entry.match(/^Round (\d+):\s*([\s\S]*)$/);
+                    let roundTitle = `Round ${combatLog.length - idx}`;
+                    let narration = entry;
+                    if (match) {
+                      roundTitle = `Round ${match[1]}`;
+                      narration = match[2];
+                    }
+                    // Fade and font size for older rounds
+                    const fade = Math.max(1 - idx * 0.18, 0.4); // 0.4 min opacity
+                    const fontSize = idx === 0 ? 'text-lg' : idx === 1 ? 'text-base' : 'text-sm';
+                    const marginClass = idx === 0 ? 'mb-10 pb-6' : 'mb-6';
+                    return (
+                      <div key={idx} className={`${marginClass} text-center`} style={{ opacity: fade }}>
+                        <h3 className={`text-2xl font-bold text-yellow-400 mb-2 ${fontSize}`}>{roundTitle}</h3>
+                        <div className={`whitespace-pre-line text-white font-normal ${fontSize}`}>{narration}</div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Victory Phase */}
-        {phase === 'victory' && (
-          <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold mb-4">Congratulations!</h2>
-              <p className="text-xl text-gray-300">The battle is over. {winner ? `${winner} wins!` : "It's a draw!"}</p>
-            </div>
-            <div className="text-center">
-              <button
-                className="px-8 py-3 rounded-lg font-semibold text-lg bg-gray-600 hover:bg-gray-700 text-white"
-                onClick={() => { resetGame(); setPhase('setup'); }}
-              >
-                Reset Game
-              </button>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

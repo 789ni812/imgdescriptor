@@ -9,7 +9,7 @@ import type { StoryDescription } from '@/lib/types';
 import { playGenerationSound } from '@/lib/utils/soundUtils';
 import { createStoryContinuityPrompt } from '@/lib/prompts/gameStatePrompts';
 // API function to call the generate-story endpoint
-async function generateStoryApi(description: string, prompt?: string, debugConfig?: any) {
+async function generateStoryApi(description: string, prompt?: string, debugConfig?: import('@/lib/types/template').GameTemplate['debugConfig']) {
   const response = await fetch('/api/generate-story', {
     method: 'POST',
     headers: {
