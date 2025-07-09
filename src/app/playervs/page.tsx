@@ -3,6 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useFightingGameStore, Fighter } from '@/lib/stores/fightingGameStore';
 import FighterUpload from '@/components/fighting/FighterUpload';
+import HealthBar from '@/components/fighting/HealthBar';
+import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 
 export default function PlayerVsPage() {
   const { gamePhase: storePhase, fighters, scene, resetGame } = useFightingGameStore();
@@ -19,6 +21,65 @@ export default function PlayerVsPage() {
   const maxRounds = 6;
   const isCombatOver = winner !== null || round > maxRounds;
   const lastActionRef = useRef<string | null>(null);
+  // Add state to control round animation and auto-advance
+  const [showRoundAnim, setShowRoundAnim] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(false);
+
+  // Start combat: show first round animation and enable auto-advance
+  const handleBeginCombat = () => {
+    setPhase('combat');
+    setShowRoundAnim(true);
+    setAutoAdvance(true);
+  };
+
+  // Run round logic after animation
+  const runRoundLogic = () => {
+    if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
+    // Dice rolls
+    const aRoll = Math.floor(Math.random() * 20) + 1 + fighterA.stats.strength;
+    const bRoll = Math.floor(Math.random() * 20) + 1 + fighterB.stats.strength;
+    let aDamage = Math.max(0, aRoll - fighterB.stats.defense);
+    let bDamage = Math.max(0, bRoll - fighterA.stats.defense);
+    // Luck: 10% chance to dodge
+    if (Math.random() < fighterB.stats.luck / 40) aDamage = 0;
+    if (Math.random() < fighterA.stats.luck / 40) bDamage = 0;
+    // Update health
+    const newAHealth = Math.max(0, fighterAHealth - bDamage);
+    const newBHealth = Math.max(0, fighterBHealth - aDamage);
+    setFighterAHealth(newAHealth);
+    setFighterBHealth(newBHealth);
+    // DM narration
+    let narration = `Round ${round}: `;
+    if (aDamage > 0) {
+      narration += `${fighterA.name} strikes ${fighterB.name} for ${aDamage} damage! `;
+    } else {
+      narration += `${fighterB.name} dodges ${fighterA.name}'s attack! `;
+    }
+    if (bDamage > 0) {
+      narration += `${fighterB.name} counters and hits ${fighterA.name} for ${bDamage} damage!`;
+    } else {
+      narration += `${fighterA.name} dodges ${fighterB.name}'s attack!`;
+    }
+    setCombatLog((log) => [...log, narration]);
+    // Check for winner
+    if (newAHealth <= 0 && newBHealth <= 0) {
+      setWinner('Draw');
+    } else if (newAHealth <= 0) {
+      setWinner(fighterB.name);
+    } else if (newBHealth <= 0) {
+      setWinner(fighterA.name);
+    }
+    setRound((r) => r + 1);
+    // After round logic, if not over, auto-advance to next round
+    if (!isCombatOver) {
+      setShowRoundAnim(false); // Reset animation
+      setTimeout(() => {
+        setShowRoundAnim(true); // Trigger next round animation
+      }, 100); // Short delay to ensure remount
+    } else {
+      setAutoAdvance(false);
+    }
+  };
 
   // Auto-populate demo fighters and scene on mount
   useEffect(() => {
@@ -107,42 +168,8 @@ export default function PlayerVsPage() {
   // Combat round logic
   const handleNextRound = () => {
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
-    // Dice rolls
-    const aRoll = Math.floor(Math.random() * 20) + 1 + fighterA.stats.strength;
-    const bRoll = Math.floor(Math.random() * 20) + 1 + fighterB.stats.strength;
-    let aDamage = Math.max(0, aRoll - fighterB.stats.defense);
-    let bDamage = Math.max(0, bRoll - fighterA.stats.defense);
-    // Luck: 10% chance to dodge
-    if (Math.random() < fighterB.stats.luck / 40) aDamage = 0;
-    if (Math.random() < fighterA.stats.luck / 40) bDamage = 0;
-    // Update health
-    const newAHealth = Math.max(0, fighterAHealth - bDamage);
-    const newBHealth = Math.max(0, fighterBHealth - aDamage);
-    setFighterAHealth(newAHealth);
-    setFighterBHealth(newBHealth);
-    // DM narration
-    let narration = `Round ${round}: `;
-    if (aDamage > 0) {
-      narration += `${fighterA.name} strikes ${fighterB.name} for ${aDamage} damage! `;
-    } else {
-      narration += `${fighterB.name} dodges ${fighterA.name}'s attack! `;
-    }
-    if (bDamage > 0) {
-      narration += `${fighterB.name} counters and hits ${fighterA.name} for ${bDamage} damage!`;
-    } else {
-      narration += `${fighterA.name} dodges ${fighterB.name}'s attack!`;
-    }
-    setCombatLog((log) => [...log, narration]);
-    lastActionRef.current = narration;
-    // Check for winner
-    if (newAHealth <= 0 && newBHealth <= 0) {
-      setWinner('Draw');
-    } else if (newAHealth <= 0) {
-      setWinner(fighterB.name);
-    } else if (newBHealth <= 0) {
-      setWinner(fighterA.name);
-    }
-    setRound((r) => r + 1);
+    setShowRoundAnim(true);
+    // setPendingNextRound(true); // This line is removed
   };
 
   // Reset combat state on new game
@@ -212,7 +239,7 @@ export default function PlayerVsPage() {
                 disabled={!canStartFight}
                 onClick={() => {
                   if (canStartFight) {
-                    setPhase('introduction');
+                    handleBeginCombat();
                   }
                 }}
               >
@@ -260,9 +287,7 @@ export default function PlayerVsPage() {
               <div className="flex flex-col items-center">
                 <img src={fighterA.imageUrl} alt={fighterA.name} className="w-40 h-40 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
                 <h3 className="mt-2 text-lg font-bold">{fighterA.name}</h3>
-                <div className="w-32 bg-gray-700 rounded-full h-4 mt-2">
-                  <div className="bg-red-500 h-4 rounded-full" style={{ width: `${fighterAHealth && fighterA ? (fighterAHealth / fighterA.stats.maxHealth) * 100 : 0}%` }} />
-                </div>
+                <HealthBar current={fighterAHealth ?? 0} max={fighterA?.stats.maxHealth ?? 1} color="red" />
                 <div className="text-xs mt-1">Health: {fighterAHealth} / {fighterA?.stats.maxHealth}</div>
               </div>
               <div className="flex flex-col items-center">
@@ -272,12 +297,11 @@ export default function PlayerVsPage() {
               <div className="flex flex-col items-center">
                 <img src={fighterB.imageUrl} alt={fighterB.name} className="w-40 h-40 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
                 <h3 className="mt-2 text-lg font-bold">{fighterB.name}</h3>
-                <div className="w-32 bg-gray-700 rounded-full h-4 mt-2">
-                  <div className="bg-blue-500 h-4 rounded-full" style={{ width: `${fighterBHealth && fighterB ? (fighterBHealth / fighterB.stats.maxHealth) * 100 : 0}%` }} />
-                </div>
+                <HealthBar current={fighterBHealth ?? 0} max={fighterB?.stats.maxHealth ?? 1} color="blue" />
                 <div className="text-xs mt-1">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
               </div>
             </div>
+            {showRoundAnim && <RoundStartAnimation round={round} onDone={runRoundLogic} />}
             <div className="bg-black/30 rounded-lg p-6 border border-white/20 text-center text-lg font-semibold shadow-xl min-h-[120px] flex flex-col justify-end">
               {combatLog.length === 0 ? (
                 <span>The battle begins! Click Next Round to start.</span>
