@@ -1,9 +1,9 @@
 import React from 'react';
 
-interface Fighter {
+interface FighterPanel {
   name: string;
   imageUrl: string;
-  action: string;
+  commentary: string;
 }
 
 interface Scene {
@@ -19,8 +19,9 @@ interface PreviousRound {
 interface BattleStoryboardProps {
   scene: Scene;
   round: number;
-  attacker: Fighter;
-  defender: Fighter;
+  attacker: FighterPanel;
+  defender: FighterPanel;
+  roundStep: 'attack' | 'defense';
   previousRounds: PreviousRound[];
 }
 
@@ -29,6 +30,7 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
   round,
   attacker,
   defender,
+  roundStep,
   previousRounds,
 }) => {
   return (
@@ -44,15 +46,15 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
           <div className="text-sm font-semibold">Round {round}</div>
         </div>
         {/* Middle Panels */}
-        <div className="row-start-2 row-end-3 col-start-1 col-end-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform -skew-x-3 overflow-auto">
+        <div className={`row-start-2 row-end-3 col-start-1 col-end-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform -skew-x-3 overflow-auto transition-opacity duration-500 ${roundStep === 'defense' ? 'opacity-40' : 'opacity-100'}`} data-testid="attacker-box">
           <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
           <div className="font-bold text-base mb-1">{attacker.name}</div>
-          <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{attacker.action}</div>
+          {roundStep === 'attack' && <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{attacker.commentary}</div>}
         </div>
-        <div className="row-start-2 row-end-3 col-start-2 col-end-3 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform skew-x-3 overflow-auto">
+        <div className={`row-start-2 row-end-3 col-start-2 col-end-3 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform skew-x-3 overflow-auto transition-opacity duration-500 ${roundStep === 'attack' ? 'opacity-40' : 'opacity-100'}`} data-testid="defender-box">
           <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
           <div className="font-bold text-base mb-1">{defender.name}</div>
-          <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{defender.action}</div>
+          {roundStep === 'defense' && <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{defender.commentary}</div>}
         </div>
         {/* Bottom Panel (spans both columns) */}
         <div className="row-start-3 row-end-4 col-span-2 bg-white border border-black rounded-md p-6 flex flex-col overflow-y-auto text-gray-800 min-h-[120px] max-h-40">

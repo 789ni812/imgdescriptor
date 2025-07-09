@@ -15,7 +15,8 @@ export default function PlayerVsPage() {
   const [devScene, setDevScene] = React.useState<any>(null);
   const [phase, setPhase] = useState<'setup' | 'introduction' | 'combat' | 'victory'>('setup');
   const [dmIntro, setDmIntro] = useState<string>('');
-  const [combatLog, setCombatLog] = useState<string[]>([]);
+  // Change combatLog to store objects instead of strings
+  const [combatLog, setCombatLog] = useState<any[]>([]);
   const [round, setRound] = useState(1);
   const [fighterAHealth, setFighterAHealth] = useState<number | null>(null);
   const [fighterBHealth, setFighterBHealth] = useState<number | null>(null);
@@ -25,6 +26,8 @@ export default function PlayerVsPage() {
   // Add state to control round animation and auto-advance
   const [showRoundAnim, setShowRoundAnim] = useState(false);
   const [autoAdvance, setAutoAdvance] = useState(false);
+  // Add state for step reveal: 'attack' or 'defense'
+  const [roundStep, setRoundStep] = useState<'attack' | 'defense'>('attack');
 
   // Start combat: show first round animation and enable auto-advance
   const handleBeginCombat = () => {
@@ -70,9 +73,7 @@ export default function PlayerVsPage() {
   // Run round logic after animation
   const runRoundLogic = () => {
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
-    // Show narration and health update after 2s delay
     setTimeout(() => {
-      // Alternate attacker each round
       const isAFirst = round % 2 === 1;
       const attacker = isAFirst ? fighterA : fighterB;
       const defender = isAFirst ? fighterB : fighterA;
@@ -88,7 +89,6 @@ export default function PlayerVsPage() {
       if (Math.random() < attackerStats.luck / 40) dDamage = 0;
       const newAttackerHealth = Math.max(0, attackerHealth - dDamage);
       const newDefenderHealth = Math.max(0, defenderHealth - aDamage);
-      // Update healths
       if (isAFirst) {
         setFighterAHealth(newAttackerHealth);
         setFighterBHealth(newDefenderHealth);
@@ -96,21 +96,34 @@ export default function PlayerVsPage() {
         setFighterAHealth(newDefenderHealth);
         setFighterBHealth(newAttackerHealth);
       }
-      let narration = `Round ${round}: `;
-      if (aDamage > 0) {
-        narration += `${attacker.name} strikes ${defender.name} for ${aDamage} damage! `;
-      } else {
-        narration += `${defender.name} dodges ${attacker.name}'s attack! `;
-      }
-      if (dDamage > 0) {
-        narration += `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`;
-      } else {
-        narration += `${attacker.name} dodges ${defender.name}'s attack!`;
-      }
-      // Add flavor and closing lines
-      narration += `\n${attacker.name} ${randomFrom(flavorMoves)}. ${defender.name} ${randomFrom(flavorRetaliations)}.`;
-      narration += `\n${randomFrom([attacker.name, defender.name])} ${randomFrom(roundEndings)}`;
-      setCombatLog((log) => [...log, narration]);
+      // Split commentary
+      let attackCommentary = aDamage > 0
+        ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
+        : `${defender.name} dodges ${attacker.name}'s attack!`;
+      let defenseCommentary = dDamage > 0
+        ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
+        : `${attacker.name} dodges ${defender.name}'s attack!`;
+      // Add flavor and round ending
+      const flavor = `${attacker.name} ${randomFrom(flavorMoves)}. ${defender.name} ${randomFrom(flavorRetaliations)}.`;
+      const ending = `${randomFrom([attacker.name, defender.name])} ${randomFrom(roundEndings)}`;
+      setCombatLog((log) => [
+        ...log,
+        {
+          round,
+          attacker: {
+            name: attacker.name,
+            imageUrl: attacker.imageUrl,
+            commentary: attackCommentary,
+          },
+          defender: {
+            name: defender.name,
+            imageUrl: defender.imageUrl,
+            commentary: defenseCommentary,
+          },
+          flavor,
+          ending,
+        },
+      ]);
       if (newAttackerHealth <= 0 && newDefenderHealth <= 0) {
         setWinner('Draw');
       } else if (newAttackerHealth <= 0) {
@@ -119,16 +132,15 @@ export default function PlayerVsPage() {
         setWinner(attacker.name);
       }
       setRound((r) => r + 1);
-      // After narration, wait 2s before next round animation
       if (!isCombatOver) {
         setShowRoundAnim(false);
         setTimeout(() => {
           setShowRoundAnim(true);
-        }, 2000); // 2s delay after narration
+        }, 2000);
       } else {
         setAutoAdvance(false);
       }
-    }, 2000); // 2s delay after animation
+    }, 2000);
   };
 
   // Auto-populate demo fighters and scene on mount
@@ -214,6 +226,15 @@ export default function PlayerVsPage() {
       );
     }
   }, [phase, fighterA, fighterB, devScene]);
+
+  // When a new round is added to combatLog, start with 'attack' step, then auto-advance to 'defense'
+  useEffect(() => {
+    if (phase === 'combat' && combatLog.length > 0) {
+      setRoundStep('attack');
+      const timer = setTimeout(() => setRoundStep('defense'), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [combatLog.length, phase]);
 
   // Combat round logic
   // const handleNextRound = () => {
@@ -353,25 +374,28 @@ export default function PlayerVsPage() {
           <div className="space-y-8">
             {(() => {
               const isAFirst = round % 2 === 1;
-              const attacker = isAFirst ? fighterA : fighterB;
-              const defender = isAFirst ? fighterB : fighterA;
+              const lastRound = combatLog[combatLog.length - 1];
+              // Fallback for first render
+              if (!lastRound) return null;
+              // Use roundStep to control which commentary is shown and which panel is faded
               return (
                 <BattleStoryboard
                   scene={{ name: devScene.name, imageUrl: devScene.imageUrl }}
                   round={round}
                   attacker={{
-                    name: attacker.name,
-                    imageUrl: attacker.imageUrl,
-                    action: combatLog.length > 0 ? combatLog[combatLog.length - 1] : 'Attacks!',
+                    name: lastRound.attacker.name,
+                    imageUrl: lastRound.attacker.imageUrl,
+                    commentary: lastRound.attacker.commentary,
                   }}
                   defender={{
-                    name: defender.name,
-                    imageUrl: defender.imageUrl,
-                    action: combatLog.length > 1 ? combatLog[combatLog.length - 2] : 'Defends!',
+                    name: lastRound.defender.name,
+                    imageUrl: lastRound.defender.imageUrl,
+                    commentary: lastRound.defender.commentary,
                   }}
-                  previousRounds={combatLog.map((entry, idx) => ({
-                    round: idx + 1,
-                    summary: entry.replace(/\n/g, ' '),
+                  roundStep={roundStep}
+                  previousRounds={combatLog.slice(0, -1).map((entry) => ({
+                    round: entry.round,
+                    summary: `${entry.attacker.commentary} ${entry.defender.commentary}`,
                   }))}
                 />
               );
