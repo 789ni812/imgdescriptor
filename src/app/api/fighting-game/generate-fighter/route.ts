@@ -9,8 +9,33 @@ export async function POST(req: NextRequest) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  // Convert imageDescription to string - handle both string and object cases
+  let descString = '';
+  if (typeof imageDescription === 'string') {
+    descString = imageDescription;
+  } else if (typeof imageDescription === 'object' && imageDescription !== null) {
+    // If it's an object (from AI analysis), extract relevant fields
+    const desc = imageDescription as Record<string, unknown>;
+    const parts = [];
+    if (typeof desc.setting === 'string') parts.push(desc.setting);
+    if (typeof desc.mood === 'string') parts.push(desc.mood);
+    if (Array.isArray(desc.characters)) {
+      const charStrings = desc.characters
+        .filter((char: unknown) => typeof char === 'string')
+        .join(', ');
+      if (charStrings) parts.push(charStrings);
+    }
+    if (Array.isArray(desc.objects)) {
+      const objStrings = desc.objects
+        .filter((obj: unknown) => typeof obj === 'string')
+        .join(', ');
+      if (objStrings) parts.push(objStrings);
+    }
+    descString = parts.join('. ');
+  }
+
   // Simple mock logic: if description contains 'strong', boost strength, etc.
-  const desc = (imageDescription || '').toLowerCase();
+  const desc = descString.toLowerCase();
   const strength = desc.includes('strong') ? randomStat(14, 20) : randomStat(8, 16);
   const health = desc.includes('large') ? randomStat(140, 200) : randomStat(90, 150);
   const luck = desc.includes('lucky') ? randomStat(14, 20) : randomStat(8, 16);
@@ -22,9 +47,9 @@ export async function POST(req: NextRequest) {
 
   const fighter: Fighter = {
     id: fighterId + '-' + Date.now(),
-    name: fighterLabel + ' ' + Math.floor(Math.random() * 1000),
+    name: fighterLabel, // Use only the provided label, no random number
     imageUrl: '/public/imgRepository/download (1)-1751890389185-ke76fu.jpg', // placeholder
-    description: imageDescription || 'A mysterious fighter',
+    description: descString || 'A mysterious fighter',
     stats: {
       health,
       maxHealth: health,

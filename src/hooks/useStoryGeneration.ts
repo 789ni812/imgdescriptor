@@ -7,7 +7,6 @@ import type { DMAdaptation } from '@/lib/types/dmAdaptation';
 import { v4 as uuidv4 } from 'uuid';
 import type { StoryDescription } from '@/lib/types';
 import { playGenerationSound } from '@/lib/utils/soundUtils';
-import { createStoryContinuityPrompt } from '@/lib/prompts/gameStatePrompts';
 // API function to call the generate-story endpoint
 async function generateStoryApi(description: string, prompt?: string, debugConfig?: import('@/lib/types/template').GameTemplate['debugConfig']) {
   const response = await fetch('/api/generate-story', {
@@ -127,21 +126,21 @@ VILLAIN INSTRUCTIONS:
   }
 
   // Add story continuity context
-  const continuityContext = createStoryContinuityPrompt({
-    character,
-    gameState: {
-      storyHistory: character.storyHistory.map(s => ({ 
-        text: s.text, 
-        turnNumber: s.turnNumber,
-        id: s.id,
-        timestamp: s.timestamp,
-        imageDescription: s.imageDescription
-      })),
-      choiceHistory: character.choiceHistory,
-      currentTurn: turn,
-      maxTurns: 3
-    }
-  });
+  // const continuityContext = createStoryContinuityPrompt({
+  //   character,
+  //   gameState: {
+  //     storyHistory: character.storyHistory.map(s => ({ 
+  //       text: s.text, 
+  //       turnNumber: s.turnNumber,
+  //       id: s.id,
+  //       timestamp: s.timestamp,
+  //       imageDescription: s.imageDescription
+  //     })),
+  //     choiceHistory: character.choiceHistory,
+  //     currentTurn: turn,
+  //     maxTurns: 3
+  //   }
+  // });
 
   // Add moral alignment context
   const moralAlignmentContext = [
@@ -219,7 +218,7 @@ STORY STRUCTURE:
 `;
 
   const contextPrompt = [
-    continuityContext,
+    // continuityContext, // This line is commented out as per the edit hint
     goodVsBadContext,
     moralAlignmentContext,
     `Turn: ${turn}`,
@@ -284,21 +283,21 @@ VILLAIN INSTRUCTIONS:
   }
 
   // Add story continuity context
-  const continuityContext = createStoryContinuityPrompt({
-    character,
-    gameState: {
-      storyHistory: character.storyHistory.map(s => ({ 
-        text: s.text, 
-        turnNumber: s.turnNumber,
-        id: s.id,
-        timestamp: s.timestamp,
-        imageDescription: s.imageDescription
-      })),
-      choiceHistory: character.choiceHistory,
-      currentTurn: turn,
-      maxTurns: 3
-    }
-  });
+  // const continuityContext = createStoryContinuityPrompt({
+  //   character,
+  //   gameState: {
+  //     storyHistory: character.storyHistory.map(s => ({ 
+  //       text: s.text, 
+  //       turnNumber: s.turnNumber,
+  //       id: s.id,
+  //       timestamp: s.timestamp,
+  //       imageDescription: s.imageDescription
+  //     })),
+  //     choiceHistory: character.choiceHistory,
+  //     currentTurn: turn,
+  //     maxTurns: 3
+  //   }
+  // });
 
   // Add moral alignment context
   const moralAlignmentContext = [
