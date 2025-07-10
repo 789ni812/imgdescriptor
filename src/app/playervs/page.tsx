@@ -228,6 +228,7 @@ export default function PlayerVsPage() {
 
   // Run round logic after animation
   const runRoundLogic = async () => {
+    setShowRoundAnim(false); // Ensure animation can retrigger for next round
     if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || winner || currentRound > maxRounds) return;
     setIsLLMGenerating(true);
     setTimeout(async () => {
