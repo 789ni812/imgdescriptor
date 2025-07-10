@@ -99,6 +99,7 @@ export default function PlayerVsPage() {
     removeFighter,
     scene,
     setFighterHealth,
+    setCurrentRound,
   } = useFightingGameStore();
 
   // Local state only for fighter/arena upload previews
@@ -217,11 +218,11 @@ export default function PlayerVsPage() {
   // Begin combat handler
   const handleBeginCombat = () => {
     setGamePhase('combat');
-    // Initialize fighter health values when combat starts
     if (fighterA && fighterB) {
       setFighterHealth(fighterA.id, fighterA.stats.health);
       setFighterHealth(fighterB.id, fighterB.stats.health);
     }
+    setCurrentRound(1); // Start at round 1
     setShowRoundAnim(true);
   };
 
@@ -290,6 +291,7 @@ export default function PlayerVsPage() {
       setTimeout(() => setRoundStep('defense'), 1500);
       setTimeout(() => {
         if (!winner && currentRound + 1 <= maxRounds) {
+          setCurrentRound(currentRound + 1); // Increment round before next animation
           setShowRoundAnim(true);
         }
       }, 2000);

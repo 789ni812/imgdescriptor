@@ -109,6 +109,7 @@ interface FightingGameState {
   nextRound: () => void;
   setFighter: (slot: 'fighterA' | 'fighterB', fighter: Fighter | null) => void;
   removeFighter: (slot: 'fighterA' | 'fighterB') => void;
+  setCurrentRound: (round: number) => void;
   
   // Battle Actions
   setFighterHealth: (fighterId: string, health: number) => void;
@@ -187,6 +188,8 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
   removeFighter: (slot) => set((state) => ({
     fighters: { ...state.fighters, [slot]: null }
   })),
+  
+  setCurrentRound: (round: number) => set({ currentRound: round }),
   
   // Battle Actions
   setFighterHealth: (fighterId, health) => set((state) => {
