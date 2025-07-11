@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFightingGameStore, type CombatLogEntry, type Fighter, type Scene } from '@/lib/stores/fightingGameStore';
+import { useFightingGameStore, type CombatLogEntry, type Fighter, type Scene, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
@@ -100,10 +100,19 @@ export default function PlayerVsPage() {
     scene,
     setFighterHealth,
     setCurrentRound,
+    preGeneratedBattleLog,
+    currentBattleIndex,
+    setPreGeneratedBattleLog,
+    advanceBattleIndex,
+    resetBattlePlayback,
   } = useFightingGameStore();
 
   // Local state only for fighter/arena upload previews
   const [dmIntro, setDmIntro] = React.useState<string>('');
+
+  // New: Pre-generated battle playback state
+  const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
+  const [preBattleError, setPreBattleError] = React.useState<string | null>(null);
 
   // Helper: get fighterA/fighterB from store
   const fighterA = fighters.fighterA;
@@ -215,89 +224,60 @@ export default function PlayerVsPage() {
   };
 
 
-  // Begin combat handler
-  const handleBeginCombat = () => {
-    setGamePhase('combat');
-    if (fighterA && fighterB) {
+  // New: Start fight with pre-generated battle log
+  const handleBeginCombat = async () => {
+    setIsPreBattleLoading(true);
+    setPreBattleError(null);
+    try {
+      const fighterA = fighters.fighterA;
+      const fighterB = fighters.fighterB;
+      if (!fighterA || !fighterB || !scene) throw new Error('Missing fighters or scene');
+      const res = await fetch('/api/fighting-game/generate-battle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fighterA, fighterB, scene, maxRounds }),
+      });
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.battleLog)) throw new Error('Failed to generate battle');
+      setPreGeneratedBattleLog(data.battleLog as PreGeneratedBattleRound[]);
+      setGamePhase('combat');
       setFighterHealth(fighterA.id, fighterA.stats.health);
       setFighterHealth(fighterB.id, fighterB.stats.health);
+      setCurrentRound(1);
+      setShowRoundAnim(true);
+    } catch (err) {
+      setPreBattleError((err as Error).message);
+    } finally {
+      setIsPreBattleLoading(false);
     }
-    setCurrentRound(1); // Start at round 1
-    setShowRoundAnim(true);
   };
 
-  // Run round logic after animation
-  const runRoundLogic = async () => {
-    setShowRoundAnim(false); // Ensure animation can retrigger for next round
-    if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || winner || currentRound > maxRounds) return;
-    setIsLLMGenerating(true);
-    setTimeout(async () => {
-      const attacker = currentRound % 2 === 1 ? fighterA : fighterB;
-      const defender = currentRound % 2 === 1 ? fighterB : fighterA;
-
-      const attackerStats = attacker.stats;
-      const defenderStats = defender.stats;
-      const aRoll = Math.floor(Math.random() * 20) + 1 + attackerStats.strength;
-      const dRoll = Math.floor(Math.random() * 20) + 1 + defenderStats.strength;
-      let aDamage = Math.max(0, aRoll - defenderStats.defense);
-      let dDamage = Math.max(0, dRoll - attackerStats.defense);
-      if (Math.random() < defenderStats.luck / 40) aDamage = 0;
-      if (Math.random() < attackerStats.luck / 40) dDamage = 0;
-      // Build LLM prompt
-      const prompt = `You are a witty, energetic fight commentator for a manga-style battle game.\n\nFighter A: ${fighterA.name}\n- Appearance: ${fighterA.description}\nFighter B: ${fighterB.name}\n- Appearance: ${fighterB.description}\nScene: ${scene?.name} (${scene?.description})\n\nRound ${currentRound}:\n- Attacker: ${attacker.name}\n- Defender: ${defender.name}\n- Attack Result: ${aDamage > 0 ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!` : `${defender.name} dodges ${attacker.name}'s attack!`}\n- Defense Result: ${dDamage > 0 ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!` : `${attacker.name} dodges ${defender.name}'s attack!`}\n\nInstructions:\nWrite two short, vivid lines of commentary for this round:\n1. The attack (${attacker.name}'s move)\n2. The defense/counter (${defender.name}'s move)\nMake it entertaining and dramatic, as if for a manga or anime. Reference the fighters’ appearance, weapons, and the scene for flavor. Use energetic, punchy language. Each line should be 1–2 sentences, and clearly indicate who is acting.`;
-      // Call LLM API
-      let attackCommentary = '';
-      let defenseCommentary = '';
-      try {
-        const res = await fetch('/api/generate-story', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt }),
-        });
-        const data = await res.json();
-        if (data.success && data.story) {
-          // Expecting two lines, split by newline or number
-          const lines = data.story.trim().split(/\n|\d+\./).map((l: string) => l.trim()).filter(Boolean);
-          attackCommentary = lines[0] || '';
-          defenseCommentary = lines[1] || '';
-        } else {
-          attackCommentary = aDamage > 0
-            ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
-            : `${defender.name} dodges ${attacker.name}'s attack!`;
-          defenseCommentary = dDamage > 0
-            ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
-            : `${attacker.name} dodges ${defender.name}'s attack!`;
-        }
-      } catch {
-        attackCommentary = aDamage > 0
-          ? `${attacker.name} strikes ${defender.name} for ${aDamage} damage!`
-          : `${defender.name} dodges ${attacker.name}'s attack!`;
-        defenseCommentary = dDamage > 0
-          ? `${defender.name} counters and hits ${attacker.name} for ${dDamage} damage!`
-          : `${attacker.name} dodges ${defender.name}'s attack!`;
-      }
-      setIsLLMGenerating(false);
-      // Synchronized update: health, commentary, round, winner
+  // New: Playback logic for pre-generated rounds
+  React.useEffect(() => {
+    if (gamePhase !== 'combat' || preGeneratedBattleLog.length === 0) return;
+    if (currentBattleIndex >= preGeneratedBattleLog.length) return;
+    if (!showRoundAnim) {
+      // Animate the round
+      const roundData = preGeneratedBattleLog[currentBattleIndex];
+      // Update health and commentary
       updateHealthAndCommentary({
-        attackerId: attacker.id,
-        defenderId: defender.id,
-        attackerDamage: aDamage,
-        defenderDamage: dDamage,
-        attackCommentary,
-        defenseCommentary,
-        round: currentRound,
+        attackerId: fighters.fighterA?.name === roundData.attacker ? fighters.fighterA.id : fighters.fighterB?.id!,
+        defenderId: fighters.fighterA?.name === roundData.defender ? fighters.fighterA.id : fighters.fighterB?.id!,
+        attackerDamage: roundData.attackerDamage,
+        defenderDamage: roundData.defenderDamage,
+        attackCommentary: roundData.attackCommentary,
+        defenseCommentary: roundData.defenseCommentary,
+        round: roundData.round,
       });
-      // Animation/round step logic
       setRoundStep('attack');
       setTimeout(() => setRoundStep('defense'), 1500);
       setTimeout(() => {
-        if (!winner && currentRound + 1 <= maxRounds) {
-          setCurrentRound(currentRound + 1); // Increment round for next round
-          setShowRoundAnim(true);
-        }
+        advanceBattleIndex();
+        setCurrentRound(currentRound + 1);
+        setShowRoundAnim(true);
       }, 2000);
-    }, 2000);
-  };
+    }
+  }, [gamePhase, preGeneratedBattleLog, currentBattleIndex, showRoundAnim]);
 
   // Auto-populate demo fighters and scene on mount
   useEffect(() => {
@@ -539,30 +519,46 @@ export default function PlayerVsPage() {
         {/* Combat Phase */}
         {gamePhase === 'combat' && fighterA && fighterB && scene && (
           <div className="space-y-8">
-            {isLLMGenerating && <div className="text-center text-lg font-bold text-yellow-400">Generating commentary...</div>}
+            {isPreBattleLoading && <div className="text-center text-lg font-bold text-yellow-400">Loading pre-generated battle...</div>}
+            {preBattleError && <div className="text-center text-lg font-bold text-red-400">{preBattleError}</div>}
             {(() => {
-              const lastRound = combatLog[combatLog.length - 1];
-              // Fallback for first render
-              if (!lastRound) return null;
-              // Use roundStep to control which commentary is shown and which panel is faded
+              // Use preGeneratedBattleLog for display if available
+              let roundData: PreGeneratedBattleRound | null = null;
+              if (preGeneratedBattleLog.length > 0 && currentBattleIndex < preGeneratedBattleLog.length) {
+                roundData = preGeneratedBattleLog[currentBattleIndex];
+              }
+              // Fallback to combatLog if needed
+              if (!roundData && combatLog.length > 0) {
+                const lastRound = combatLog[combatLog.length - 1];
+                roundData = {
+                  round: lastRound.round,
+                  attacker: lastRound.attacker.name,
+                  defender: lastRound.defender.name,
+                  attackCommentary: lastRound.attacker.commentary,
+                  defenseCommentary: lastRound.defender.commentary,
+                  attackerDamage: lastRound.damage.attackerDamage,
+                  defenderDamage: lastRound.damage.defenderDamage,
+                };
+              }
+              if (!roundData) return null;
               return (
                 <BattleStoryboard
                   scene={{ name: typeof scene?.name === 'string' ? scene.name : '', imageUrl: typeof scene?.imageUrl === 'string' ? scene.imageUrl : '' }}
-                  round={lastRound.round} // Show the round number that matches the displayed data
+                  round={roundData.round}
                   attacker={{
-                    name: lastRound.attacker.name,
-                    imageUrl: lastRound.attacker.imageUrl,
-                    commentary: lastRound.attacker.commentary,
+                    name: roundData.attacker,
+                    imageUrl: fighterA.name === roundData.attacker ? fighterA.imageUrl : fighterB.imageUrl,
+                    commentary: roundData.attackCommentary,
                   }}
                   defender={{
-                    name: lastRound.defender.name,
-                    imageUrl: lastRound.defender.imageUrl,
-                    commentary: lastRound.defender.commentary,
+                    name: roundData.defender,
+                    imageUrl: fighterA.name === roundData.defender ? fighterA.imageUrl : fighterB.imageUrl,
+                    commentary: roundData.defenseCommentary,
                   }}
                   roundStep={roundStep}
-                  previousRounds={combatLog.slice(0, -1).map((entry: CombatLogEntry) => ({
+                  previousRounds={preGeneratedBattleLog.slice(0, currentBattleIndex).map((entry) => ({
                     round: entry.round,
-                    summary: `${entry.attacker.commentary} ${entry.defender.commentary}`,
+                    summary: `${entry.attackCommentary} ${entry.defenseCommentary}`,
                   }))}
                 />
               );
@@ -570,7 +566,9 @@ export default function PlayerVsPage() {
             {!winner && showRoundAnim && (
               <RoundStartAnimation 
                 round={currentRound} 
-                onDone={runRoundLogic} 
+                onDone={() => {
+                  setShowRoundAnim(false); // Advance to next round after animation
+                }} 
               />
             )}
             {winner && showRoundAnim && (

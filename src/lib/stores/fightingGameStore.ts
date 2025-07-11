@@ -84,6 +84,16 @@ export interface CombatLogEntry {
   };
 }
 
+export interface PreGeneratedBattleRound {
+  round: number;
+  attacker: string;
+  defender: string;
+  attackCommentary: string;
+  defenseCommentary: string;
+  attackerDamage: number;
+  defenderDamage: number;
+}
+
 interface FightingGameState {
   // Game State
   gamePhase: GamePhase;
@@ -133,6 +143,11 @@ interface FightingGameState {
   // Utility Actions
   getFighterById: (id: string) => Fighter | undefined;
   getCurrentFighters: () => { fighterA: Fighter | null; fighterB: Fighter | null };
+  preGeneratedBattleLog: PreGeneratedBattleRound[];
+  currentBattleIndex: number;
+  setPreGeneratedBattleLog: (log: PreGeneratedBattleRound[]) => void;
+  advanceBattleIndex: () => void;
+  resetBattlePlayback: () => void;
 }
 
 export const useFightingGameStore = create<FightingGameState>((set, get) => ({
@@ -298,4 +313,9 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
     const state = get();
     return { fighterA: state.fighters.fighterA, fighterB: state.fighters.fighterB };
   },
+  preGeneratedBattleLog: [],
+  currentBattleIndex: 0,
+  setPreGeneratedBattleLog: (log) => set({ preGeneratedBattleLog: log, currentBattleIndex: 0 }),
+  advanceBattleIndex: () => set((state) => ({ currentBattleIndex: state.currentBattleIndex + 1 })),
+  resetBattlePlayback: () => set({ preGeneratedBattleLog: [], currentBattleIndex: 0 }),
 })); 
