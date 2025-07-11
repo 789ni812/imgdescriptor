@@ -1491,3 +1491,63 @@ The implementation plan leverages your existing codebase effectively while creat
 - Integrated into combat phase of PlayerVsPage
 - Attacker/defender images and actions swap each round based on who is attacking
 - All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
