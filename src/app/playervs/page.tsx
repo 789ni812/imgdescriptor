@@ -292,7 +292,7 @@ export default function PlayerVsPage() {
       setTimeout(() => setRoundStep('defense'), 1500);
       setTimeout(() => {
         if (!winner && currentRound + 1 <= maxRounds) {
-          setCurrentRound(currentRound + 1); // Increment round before next animation
+          setCurrentRound(currentRound + 1); // Increment round for next round
           setShowRoundAnim(true);
         }
       }, 2000);
@@ -548,7 +548,7 @@ export default function PlayerVsPage() {
               return (
                 <BattleStoryboard
                   scene={{ name: typeof scene?.name === 'string' ? scene.name : '', imageUrl: typeof scene?.imageUrl === 'string' ? scene.imageUrl : '' }}
-                  round={currentRound}
+                  round={lastRound.round} // Show the round number that matches the displayed data
                   attacker={{
                     name: lastRound.attacker.name,
                     imageUrl: lastRound.attacker.imageUrl,
@@ -567,7 +567,12 @@ export default function PlayerVsPage() {
                 />
               );
             })()}
-            {!winner && showRoundAnim && <RoundStartAnimation round={currentRound} onDone={runRoundLogic} />}
+            {!winner && showRoundAnim && (
+              <RoundStartAnimation 
+                round={currentRound} 
+                onDone={runRoundLogic} 
+              />
+            )}
             {winner && showRoundAnim && (
               <WinnerAnimation winner={winner} onDone={() => { resetGame(); setGamePhase('setup'); }} />
             )}
