@@ -479,19 +479,22 @@ export default function PlayerVsPage() {
             <div className="text-center">
               <button
                 className={`px-8 py-3 rounded-lg font-semibold text-lg transition-all ${
-                  canStartFight
+                  canStartFight && !isPreBattleLoading
                     ? 'bg-red-600 hover:bg-red-700 text-white'
                     : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
-                disabled={!canStartFight}
+                disabled={!canStartFight || isPreBattleLoading}
                 onClick={() => {
-                  if (canStartFight) {
+                  if (canStartFight && !isPreBattleLoading) {
                     handleBeginCombat();
                   }
                 }}
               >
-                Start Fight
+                {isPreBattleLoading ? 'Generating Battle...' : 'Start Fight'}
               </button>
+              {isPreBattleLoading && (
+                <div className="mt-4 text-yellow-300 text-lg font-semibold animate-pulse">Generating Battle...</div>
+              )}
             </div>
           </div>
         )}
