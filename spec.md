@@ -1590,3 +1590,10 @@ All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
 The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
 
 This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
