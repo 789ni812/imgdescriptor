@@ -1578,15 +1578,15 @@ To adjust the pacing or feel of the battle UI, simply change these values in the
 
 ## Demo Data Centralization: Godzilla vs Bruce Lee
 
-To make the demo reset feature robust and maintainable, all assets and data for the Godzilla vs Bruce Lee battle will be stored in a dedicated folder:
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
 
-- **Location:** `src/vs/godzillaVSbrucelee/`
+- **Location:** `public/vs/godzillaVSbrucelee/`
 - **Contents:**
-  - Fighter images (Godzilla, Bruce Lee)
-  - Arena image
-  - Image descriptions for each fighter and the arena
-  - Any other relevant metadata (e.g., stats, names)
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
 
-The "Reset to Demo" button will load all required data from this folder and initialize the UI, showing the "Start Fight" button.
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
 
 This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
