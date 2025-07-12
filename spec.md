@@ -1671,3 +1671,11 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
 
 ---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---

@@ -476,3 +476,12 @@ If you cannot create a valid JSON object, output: {}
 - See `src/hooks/useStoryGeneration.ts` and `src/lib/prompts/gameStatePrompts.ts` for prompt-building logic.
 - See `src/lib/constants.ts` for strict prompt instructions and output format.
 - See Jest tests for coverage of prompt structure and output validation. 
+
+---
+
+## 2025-07-13 Update
+- Battle UI halts all animation and state updates when the winner is shown (no background updates or duplicate UI).
+- Tournament logs include image URLs for fighters and arena.
+- Replay and restart logic is robust and user-friendly.
+
+--- 
