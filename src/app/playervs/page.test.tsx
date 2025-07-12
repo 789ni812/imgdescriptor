@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import PlayerVsPage from './page';
 import { renderHook, act } from '@testing-library/react';
 import { useFightingGameStore } from '@/lib/stores/fightingGameStore';
+import { ROUND_ANIMATION_DURATION_MS, BATTLE_ATTACK_DEFENSE_STEP_MS, ROUND_TRANSITION_PAUSE_MS } from '@/lib/constants';
 
 // Helper: re-define extractFighterName for test (since it's not exported)
 function extractFighterName(analysis: Record<string, unknown>, fallback: string) {
@@ -258,6 +259,11 @@ describe('Battle Timing Synchronization', () => {
       result.current.setFighterHealth(demoFighterB.id, demoFighterB.stats.health);
     });
 
+    // Simulate round animation and transitions
+    act(() => {
+      jest.advanceTimersByTime(ROUND_ANIMATION_DURATION_MS + BATTLE_ATTACK_DEFENSE_STEP_MS + ROUND_TRANSITION_PAUSE_MS);
+    });
+
     // Verify round animation shows current round
     expect(result.current.currentRound).toBe(1);
     expect(result.current.showRoundAnim).toBe(true);
@@ -294,6 +300,11 @@ describe('Battle Timing Synchronization', () => {
       result.current.setShowRoundAnim(true);
     });
 
+    // Simulate round animation and transitions
+    act(() => {
+      jest.advanceTimersByTime(ROUND_ANIMATION_DURATION_MS + BATTLE_ATTACK_DEFENSE_STEP_MS + ROUND_TRANSITION_PAUSE_MS);
+    });
+
     // Verify initial state: animation shows round 1, no combat log yet
     expect(result.current.currentRound).toBe(1);
     expect(result.current.showRoundAnim).toBe(true);
@@ -320,6 +331,7 @@ describe('Battle Timing Synchronization', () => {
     act(() => {
       result.current.setCurrentRound(2);
       result.current.setShowRoundAnim(true);
+      jest.advanceTimersByTime(ROUND_ANIMATION_DURATION_MS + BATTLE_ATTACK_DEFENSE_STEP_MS + ROUND_TRANSITION_PAUSE_MS);
     });
 
     // Verify round 2 animation is shown

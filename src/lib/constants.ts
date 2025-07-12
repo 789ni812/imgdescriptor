@@ -242,4 +242,11 @@ Example output:
   { "type": "dialogue", "text": "Ask about the artifact", "description": "Speak to the merchant about the mysterious artifact.", "statRequirements": {"intelligence": 10}, "consequences": ["Gain information", "Merchant becomes suspicious"] },
   { "type": "explore", "text": "Search the ruins", "description": "Look for clues among the ancient stones.", "statRequirements": {"perception": 12}, "consequences": ["Find a hidden passage", "Trigger a trap"] }
 ]
-`; 
+`;
+
+// UI/UX: Pause duration (ms) between battle info and next round animation in playervs
+export const ROUND_TRANSITION_PAUSE_MS = 3000;
+// UI/UX: Duration (ms) of the round start animation in playervs
+export const ROUND_ANIMATION_DURATION_MS = 3000;
+// UI/UX: Duration (ms) to show the attack step before switching to defense in battle
+export const BATTLE_ATTACK_DEFENSE_STEP_MS = 3000; 

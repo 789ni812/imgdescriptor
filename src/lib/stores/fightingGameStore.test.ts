@@ -14,7 +14,7 @@ describe('FightingGameStore', () => {
       const { result } = renderHook(() => useFightingGameStore());
       
       expect(result.current.gamePhase).toBe('setup');
-      expect(result.current.fighters).toEqual([]);
+      expect(result.current.fighters).toEqual({ fighterA: null, fighterB: null });
       expect(result.current.scene).toBeNull();
       expect(result.current.combatLog).toEqual([]);
       expect(result.current.currentRound).toBe(0);
@@ -72,8 +72,8 @@ describe('FightingGameStore', () => {
         result.current.addFighter(fighter);
       });
       
-      expect(result.current.fighters).toHaveLength(1);
-      expect(result.current.fighters[0]).toEqual(fighter);
+      expect(result.current.fighters.fighterA).toEqual(fighter);
+      expect(result.current.fighters.fighterB).toBeNull();
     });
 
     it('should set scene', () => {
@@ -488,8 +488,8 @@ describe('FightingGameStore', () => {
       };
       
       act(() => {
-        result.current.addFighter(fighterA);
-        result.current.addFighter(fighterB);
+        result.current.setFighter('fighterA', fighterA);
+        result.current.setFighter('fighterB', fighterB);
       });
       
       const { fighterA: currentFighterA, fighterB: currentFighterB } = result.current.getCurrentFighters();

@@ -12,16 +12,17 @@ describe('BattleStoryboard', () => {
     attacker: {
       name: 'Darth Vader',
       imageUrl: '/public/vs/starWars1/Darth-1.jpg',
-      action: 'Swings his lightsaber with force!'
+      commentary: 'Swings his lightsaber with force!'
     },
     defender: {
       name: 'Luke Skywalker',
       imageUrl: '/public/vs/starWars1/luke-1.jpg',
-      action: 'Blocks with his saber and counters.'
+      commentary: 'Blocks with his saber and counters.'
     },
     previousRounds: [
       { round: 1, summary: 'Luke attacked, Vader defended.' },
     ],
+    roundStep: 'attack' as 'attack',
   };
 
   it('renders the top panel with scene, both fighters, and round indicator', () => {

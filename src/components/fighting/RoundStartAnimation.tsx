@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ROUND_ANIMATION_DURATION_MS } from '@/lib/constants';
 
 interface RoundStartAnimationProps {
   round: number;
@@ -12,7 +13,7 @@ const RoundStartAnimation: React.FC<RoundStartAnimationProps> = ({ round, onDone
     const timeout = setTimeout(() => {
       setVisible(false);
       if (onDone) onDone();
-    }, 1000);
+    }, ROUND_ANIMATION_DURATION_MS);
     return () => clearTimeout(timeout);
   }, [round, onDone]);
 

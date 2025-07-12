@@ -7,6 +7,7 @@ import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 import BattleStoryboard from '@/components/fighting/BattleStoryboard';
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
+import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 
 // Helper: demo fighters and scene
 const demoFighterA: Fighter = {
@@ -272,12 +273,12 @@ export default function PlayerVsPage() {
         round: roundData.round,
       });
       setRoundStep('attack');
-      setTimeout(() => setRoundStep('defense'), 1500);
+      setTimeout(() => setRoundStep('defense'), BATTLE_ATTACK_DEFENSE_STEP_MS);
       setTimeout(() => {
         advanceBattleIndex();
         setCurrentRound(currentRound + 1);
         setShowRoundAnim(true);
-      }, 2000);
+      }, ROUND_TRANSITION_PAUSE_MS);
     }
   }, [gamePhase, preGeneratedBattleLog, currentBattleIndex, showRoundAnim]);
 
@@ -313,7 +314,7 @@ export default function PlayerVsPage() {
   useEffect(() => {
     if (gamePhase === 'combat' && combatLog.length > 0) {
       setRoundStep('attack');
-      const timer = setTimeout(() => setRoundStep('defense'), 1500);
+      const timer = setTimeout(() => setRoundStep('defense'), BATTLE_ATTACK_DEFENSE_STEP_MS);
       return () => clearTimeout(timer);
     }
   }, [combatLog.length, gamePhase]);

@@ -1551,3 +1551,13 @@ The fighting game now uses a **pre-generated battle log** approach for fast, smo
 ---
 
 *Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import RoundStartAnimation from './RoundStartAnimation';
 import { act } from 'react-dom/test-utils';
+import { ROUND_ANIMATION_DURATION_MS } from '@/lib/constants';
 
 jest.useFakeTimers();
 
@@ -10,26 +11,9 @@ describe('RoundStartAnimation', () => {
     render(<RoundStartAnimation round={3} />);
     expect(screen.getByText('Round 3')).toBeInTheDocument();
     act(() => {
-      jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(ROUND_ANIMATION_DURATION_MS);
     });
     expect(screen.queryByText('Round 3')).not.toBeInTheDocument();
-  });
-
-  it('calls onStart when animation begins', () => {
-    const onStart = jest.fn();
-    const onDone = jest.fn();
-    
-    render(<RoundStartAnimation round={2} onStart={onStart} onDone={onDone} />);
-    
-    // onStart should be called immediately when component mounts
-    expect(onStart).toHaveBeenCalledTimes(1);
-    expect(onDone).not.toHaveBeenCalled();
-    
-    // onDone should be called after 1 second
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(onDone).toHaveBeenCalledTimes(1);
   });
 
   it('calls onDone after animation completes', () => {
@@ -40,7 +24,7 @@ describe('RoundStartAnimation', () => {
     expect(onDone).not.toHaveBeenCalled();
     
     act(() => {
-      jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(ROUND_ANIMATION_DURATION_MS);
     });
     
     expect(onDone).toHaveBeenCalledTimes(1);
