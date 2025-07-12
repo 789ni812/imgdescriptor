@@ -1575,3 +1575,18 @@ To adjust the pacing or feel of the battle UI, simply change these values in the
 
 4. **Allow the arena/environment to impact the battle and commentary**
    - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+To make the demo reset feature robust and maintainable, all assets and data for the Godzilla vs Bruce Lee battle will be stored in a dedicated folder:
+
+- **Location:** `src/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (Godzilla, Bruce Lee)
+  - Arena image
+  - Image descriptions for each fighter and the arena
+  - Any other relevant metadata (e.g., stats, names)
+
+The "Reset to Demo" button will load all required data from this folder and initialize the UI, showing the "Start Fight" button.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.

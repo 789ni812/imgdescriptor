@@ -1,79 +1,19 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFightingGameStore, type CombatLogEntry, type Fighter, type Scene, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
+import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 import BattleStoryboard from '@/components/fighting/BattleStoryboard';
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
+import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
 
 // Helper: demo fighters and scene
-const demoFighterA: Fighter = {
-  id: 'darth-1',
-  name: 'Darth Vader',
-  imageUrl: '/vs/starWars1/Darth-1.jpg',
-  description: 'A tall, armored figure with a black helmet and cape. Wields a red lightsaber. Strong, intimidating, and experienced.',
-  stats: {
-    health: 180,
-    maxHealth: 180,
-    strength: 19,
-    luck: 12,
-    agility: 10,
-    defense: 18,
-    age: 45,
-    size: 'large',
-    build: 'muscular',
-  },
-  visualAnalysis: {
-    age: 'adult',
-    size: 'large',
-    build: 'muscular',
-    appearance: ['armored', 'helmeted', 'intimidating'],
-    weapons: ['red lightsaber'],
-    armor: ['black armor'],
-  },
-  combatHistory: [],
-  winLossRecord: { wins: 0, losses: 0, draws: 0 },
-  createdAt: new Date().toISOString(),
-};
-const demoFighterB: Fighter = {
-  id: 'luke-1',
-  name: 'Luke Skywalker',
-  imageUrl: '/vs/starWars1/luke-1.jpg',
-  description: 'A young man in white robes wielding a blue lightsaber. Agile, determined, and hopeful.',
-  stats: {
-    health: 130,
-    maxHealth: 130,
-    strength: 14,
-    luck: 16,
-    agility: 18,
-    defense: 10,
-    age: 22,
-    size: 'medium',
-    build: 'average',
-  },
-  visualAnalysis: {
-    age: 'young',
-    size: 'medium',
-    build: 'average',
-    appearance: ['determined', 'hopeful'],
-    weapons: ['blue lightsaber'],
-    armor: [],
-  },
-  combatHistory: [],
-  winLossRecord: { wins: 0, losses: 0, draws: 0 },
-  createdAt: new Date().toISOString(),
-};
-const demoScene: Scene = {
-  id: 'scene-castle-1',
-  name: 'Castle Bridge',
-  imageUrl: '/vs/starWars1/scene-castle-1.jpg',
-  description: 'A stone castle with a moat and a wooden bridge. The perfect place for an epic duel.',
-  environmentalObjects: ['bridge', 'moat', 'castle walls'],
-  createdAt: new Date().toISOString(),
-};
+const demoFighterA = godzillaVSbruceleeDemo.fighterA;
+const demoFighterB = godzillaVSbruceleeDemo.fighterB;
+const demoScene = godzillaVSbruceleeDemo.scene;
 
 export default function PlayerVsPage() {
   // Zustand store selectors
@@ -86,8 +26,6 @@ export default function PlayerVsPage() {
     combatLog,
     roundStep,
     setRoundStep,
-    isLLMGenerating,
-    setIsLLMGenerating,
     winner,
     showRoundAnim,
     setShowRoundAnim,
@@ -105,7 +43,6 @@ export default function PlayerVsPage() {
     currentBattleIndex,
     setPreGeneratedBattleLog,
     advanceBattleIndex,
-    resetBattlePlayback,
   } = useFightingGameStore();
 
   // Local state only for fighter/arena upload previews
@@ -299,7 +236,7 @@ export default function PlayerVsPage() {
     if (!scene) {
       setScene(demoScene);
     }
-  }, []); // Empty dependency array to run only on mount
+  }, []);
 
   // Generate DM intro when phase changes to introduction
   React.useEffect(() => {
