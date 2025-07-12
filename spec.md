@@ -1597,3 +1597,30 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
 - This ensures a clear end to every battle, even if neither fighter is knocked out.
 - Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---

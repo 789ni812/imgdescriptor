@@ -255,6 +255,129 @@ export const generateStory = async (
   }
 };
 
+export const generateBattleCommentary = async (
+  fighterA: string,
+  fighterB: string,
+  round: number,
+  isAttack: boolean,
+  damage?: number
+): Promise<string> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+  try {
+    const action = isAttack ? 'attack' : 'defense';
+    const prompt = `Generate a concise, exciting, and readable battle commentary for a fighting game round.
+
+Fighter A: ${fighterA}
+Fighter B: ${fighterB}
+Round: ${round}
+Action: ${action}${damage ? ` (Damage: ${damage})` : ''}
+
+Requirements:
+- 1 to 2 sentences, maximum 30 words total
+- Use normal sentence casing (no all-caps, only capitalize proper nouns or dramatic effect)
+- Make it clear, exciting, and easy to read
+- Avoid awkward or nonsensical phrases
+- Do not use repetitive language
+- Do not use markdown, formatting, or JSON—just the commentary text
+`;
+
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert fighting game commentator. Generate concise, exciting, and readable battle commentary. Use normal sentence casing, never all-caps.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 100,
+        top_p: 0.85,
+        frequency_penalty: 0.3,
+        presence_penalty: 0.2,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio battle commentary API response error: ${response.status} ${errorBody}`);
+      // Fallback to template-based commentary
+      return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+    }
+
+    let commentary = response && (await response.json()).choices[0]?.message?.content?.trim();
+    if (!commentary) {
+      return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+    }
+
+    commentary = postProcessCommentary(commentary);
+    return commentary;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio battle commentary error:', error);
+    return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+  }
+};
+
+function generateFallbackCommentary(
+  fighterA: string,
+  fighterB: string,
+  round: number,
+  isAttack: boolean,
+  damage?: number
+): string {
+  const attacker = isAttack ? fighterA : fighterB;
+  const defender = isAttack ? fighterB : fighterA;
+  
+  if (isAttack) {
+    const attackPhrases = [
+      `${attacker} launches a devastating strike at ${defender}!`,
+      `${attacker} unleashes a powerful attack on ${defender}!`,
+      `${attacker} delivers a crushing blow to ${defender}!`,
+      `${attacker} strikes with incredible force at ${defender}!`,
+      `${attacker} attacks ${defender} with fierce determination!`
+    ];
+    return attackPhrases[Math.floor(Math.random() * attackPhrases.length)];
+  } else {
+    const defensePhrases = [
+      `${defender} braces for impact and defends bravely!`,
+      `${defender} raises their guard against the incoming attack!`,
+      `${defender} blocks the strike with expert timing!`,
+      `${defender} dodges and counters with precision!`,
+      `${defender} defends with incredible skill!`
+    ];
+    return defensePhrases[Math.floor(Math.random() * defensePhrases.length)];
+  }
+}
+
+function postProcessCommentary(text: string): string {
+  // Remove all-caps unless it's a proper noun or acronym (simple heuristic)
+  // Convert to sentence case if mostly uppercase
+  const words = text.split(' ');
+  const upperCount = words.filter(w => w === w.toUpperCase() && w.length > 2).length;
+  if (upperCount > words.length / 2) {
+    // Convert to sentence case
+    text = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  }
+  // Truncate to 30 words max
+  const truncated = text.split(' ').slice(0, 30).join(' ');
+  // Ensure it ends with a period
+  return truncated.replace(/([.!?])?$/, '.');
+}
+
 // Helper function to preprocess JSON content
 function preprocessJsonContent(content: string): string {
   return content
