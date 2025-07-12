@@ -9,9 +9,9 @@ export const demoGodzilla: Fighter = {
   stats: {
     health: 500,
     maxHealth: 500,
-    strength: 25,
+    strength: 50, // Dramatically increased for demo
     luck: 8,
-    agility: 6,
+    agility: 1, // Dramatically reduced for demo
     defense: 22,
     age: 200000000,
     size: 'large',

@@ -34,16 +34,43 @@ export async function POST(req: NextRequest) {
     descString = parts.join('. ');
   }
 
-  // Simple mock logic: if description contains 'strong', boost strength, etc.
-  const desc = descString.toLowerCase();
-  const strength = desc.includes('strong') ? randomStat(14, 20) : randomStat(8, 16);
-  const health = desc.includes('large') ? randomStat(140, 200) : randomStat(90, 150);
-  const luck = desc.includes('lucky') ? randomStat(14, 20) : randomStat(8, 16);
-  const agility = desc.includes('young') ? randomStat(14, 20) : randomStat(8, 16);
-  const defense = desc.includes('armor') ? randomStat(12, 18) : randomStat(6, 14);
-  const age = desc.includes('old') ? randomStat(40, 70) : randomStat(18, 35);
-  const size = desc.includes('large') ? 'large' : desc.includes('small') ? 'small' : 'medium';
-  const build = desc.includes('muscular') ? 'muscular' : desc.includes('thin') ? 'thin' : 'average';
+  // Improved logic for animal/monster archetypes
+  const label = (fighterLabel || '').toLowerCase();
+  let strength, health, luck, agility, defense, age, size, build;
+
+  // Small animal archetype
+  if (/mouse|rat|hamster|squirrel|gerbil|shrew/.test(descString) || /mouse|rat|hamster|squirrel|gerbil|shrew/.test(label)) {
+    strength = randomStat(1, 3);
+    health = randomStat(10, 30);
+    luck = randomStat(10, 18);
+    agility = randomStat(18, 20);
+    defense = randomStat(4, 10);
+    age = randomStat(1, 3);
+    size = 'small';
+    build = 'thin';
+  // Giant monster archetype
+  } else if (/godzilla|t-rex|dinosaur|giant|monster|kaiju/.test(descString) || /godzilla|t-rex|dinosaur|giant|monster|kaiju/.test(label)) {
+    // Dramatically increased strength, dramatically reduced agility
+    strength = randomStat(40, 60);
+    health = randomStat(300, 600);
+    luck = randomStat(6, 12);
+    agility = randomStat(1, 2);
+    defense = randomStat(16, 25);
+    age = randomStat(1000, 200000000);
+    size = 'large';
+    build = 'heavy';
+  } else {
+    // Existing logic
+    const desc = descString.toLowerCase();
+    strength = desc.includes('strong') ? randomStat(14, 20) : randomStat(8, 16);
+    health = desc.includes('large') ? randomStat(140, 200) : randomStat(90, 150);
+    luck = desc.includes('lucky') ? randomStat(14, 20) : randomStat(8, 16);
+    agility = desc.includes('young') ? randomStat(14, 20) : randomStat(8, 16);
+    defense = desc.includes('armor') ? randomStat(12, 18) : randomStat(6, 14);
+    age = desc.includes('old') ? randomStat(40, 70) : randomStat(18, 35);
+    size = desc.includes('large') ? 'large' : desc.includes('small') ? 'small' : 'medium';
+    build = desc.includes('muscular') ? 'muscular' : desc.includes('thin') ? 'thin' : 'average';
+  }
 
   const fighter: Fighter = {
     id: fighterId + '-' + Date.now(),
@@ -65,9 +92,9 @@ export async function POST(req: NextRequest) {
       age: age < 25 ? 'young' : age > 50 ? 'old' : 'adult',
       size,
       build,
-      appearance: [desc.includes('scar') ? 'scarred' : 'normal'],
-      weapons: desc.includes('sword') ? ['sword'] : [],
-      armor: desc.includes('armor') ? ['armor'] : [],
+      appearance: [descString.includes('scar') ? 'scarred' : 'normal'],
+      weapons: descString.includes('sword') ? ['sword'] : [],
+      armor: descString.includes('armor') ? ['armor'] : [],
     },
     combatHistory: [],
     winLossRecord: { wins: 0, losses: 0, draws: 0 },

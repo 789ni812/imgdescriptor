@@ -550,7 +550,12 @@ export default function PlayerVsPage() {
               />
             )}
             {winner && showRoundAnim && (
-              <WinnerAnimation winner={winner} onDone={() => { resetGame(); setGamePhase('setup'); }} />
+              <WinnerAnimation 
+                winner={winner} 
+                onDone={() => { resetGame(); setGamePhase('setup'); }}
+                fighterAHealth={fighterAHealth ?? undefined}
+                fighterBHealth={fighterBHealth ?? undefined}
+              />
             )}
           </div>
         )}
