@@ -4,6 +4,37 @@ import PlayerVsPage from './page';
 import { renderHook, act } from '@testing-library/react';
 import { useFightingGameStore } from '@/lib/stores/fightingGameStore';
 
+// Helper: re-define extractFighterName for test (since it's not exported)
+function extractFighterName(analysis: Record<string, unknown>, fallback: string) {
+  let name = fallback;
+  if (analysis && analysis.description) {
+    const desc = analysis.description as Record<string, unknown>;
+    if (Array.isArray(desc.characters) && desc.characters.length > 0) {
+      if (typeof desc.characters[0] === 'string') name = desc.characters[0];
+      if (desc.characters[0] && typeof desc.characters[0].name === 'string') name = desc.characters[0].name;
+    }
+    if (typeof desc.main_character === 'string') name = desc.main_character;
+    if (typeof desc.setting === 'string' && desc.setting.length < 32) name = desc.setting;
+  }
+  name = name.split('-')[0].split(',')[0].trim();
+  return name.replace(/\s*\(.*?\)/g, '').replace(/\d+$/, '').trim();
+}
+
+describe('extractFighterName', () => {
+  it('returns only the name before dash or comma', () => {
+    const analysis = { description: { characters: ['Bruce Lee - battered and bruised, a look of intense concentration on his face'] } };
+    expect(extractFighterName(analysis, 'Fallback')).toBe('Bruce Lee');
+  });
+  it('returns fallback if no name found', () => {
+    const analysis = { description: {} };
+    expect(extractFighterName(analysis, 'Fallback')).toBe('Fallback');
+  });
+  it('returns main_character if present', () => {
+    const analysis = { description: { main_character: 'Godzilla - King of Monsters' } };
+    expect(extractFighterName(analysis, 'Fallback')).toBe('Godzilla');
+  });
+});
+
 // Demo data for testing
 const demoFighterA = {
   id: 'darth-1',

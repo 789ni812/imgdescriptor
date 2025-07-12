@@ -132,6 +132,8 @@ export default function PlayerVsPage() {
       if (typeof desc.main_character === 'string') name = desc.main_character;
       if (typeof desc.setting === 'string' && desc.setting.length < 32) name = desc.setting;
     }
+    // Only take the first part before a dash or comma
+    name = name.split('-')[0].split(',')[0].trim();
     return name.replace(/\s*\(.*?\)/g, '').replace(/\d+$/, '').trim();
   }
 
