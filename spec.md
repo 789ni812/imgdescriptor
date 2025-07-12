@@ -1643,3 +1643,31 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - The system is fair and fun for all possible fighter uploads.
 
 ---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---

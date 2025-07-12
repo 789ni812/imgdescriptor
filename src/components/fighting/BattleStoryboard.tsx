@@ -42,17 +42,35 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
         {/* Top Panel (spans both columns) */}
         <div className="row-start-1 row-end-2 col-span-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-center text-gray-800 min-h-[120px]">
           <div className="font-bold text-lg mb-2">{scene.name}</div>
-          <img className="object-cover rounded shadow max-h-28 mb-2" src={scene.imageUrl} alt={scene.name} />
+          {scene.imageUrl ? (
+            <img className="object-cover rounded shadow max-h-28 mb-2" src={scene.imageUrl} alt={scene.name} />
+          ) : (
+            <div className="w-32 h-28 bg-gray-300 rounded shadow mb-2 flex items-center justify-center text-gray-600 text-xs text-center">
+              No Scene Image
+            </div>
+          )}
           <div className="text-sm font-semibold">Round {round}</div>
         </div>
         {/* Middle Panels */}
         <div className={`row-start-2 row-end-3 col-start-1 col-end-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform -skew-x-3 overflow-auto transition-opacity duration-500 ${roundStep === 'defense' ? 'opacity-40' : 'opacity-100'}`} data-testid="attacker-box">
-          <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
+          {attacker.imageUrl ? (
+            <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
+          ) : (
+            <div className="w-16 h-16 bg-gray-300 rounded mb-1 flex items-center justify-center text-gray-600 text-xs text-center">
+              No Image
+            </div>
+          )}
           <div className="font-bold text-base mb-1">{attacker.name}</div>
           {roundStep === 'attack' && <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{attacker.commentary}</div>}
         </div>
         <div className={`row-start-2 row-end-3 col-start-2 col-end-3 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-800 min-h-[100px] transform skew-x-3 overflow-auto transition-opacity duration-500 ${roundStep === 'attack' ? 'opacity-40' : 'opacity-100'}`} data-testid="defender-box">
-          <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
+          {defender.imageUrl ? (
+            <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
+          ) : (
+            <div className="w-16 h-16 bg-gray-300 rounded mb-1 flex items-center justify-center text-gray-600 text-xs text-center">
+              No Image
+            </div>
+          )}
           <div className="font-bold text-base mb-1">{defender.name}</div>
           {roundStep === 'defense' && <div className="text-xs text-center break-words w-full" style={{ wordBreak: 'break-word' }}>{defender.commentary}</div>}
         </div>

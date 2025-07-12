@@ -9,11 +9,40 @@ import BattleStoryboard from '@/components/fighting/BattleStoryboard';
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
+import BattleViewer from '@/components/fighting/BattleViewer';
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
 const demoFighterB = godzillaVSbruceleeDemo.fighterB;
 const demoScene = godzillaVSbruceleeDemo.scene;
+
+function mapPreGeneratedToBattleRound(
+  log: PreGeneratedBattleRound[],
+  fighterA: any,
+  fighterB: any
+) {
+  let healthA = fighterA?.stats?.health ?? 0;
+  let healthB = fighterB?.stats?.health ?? 0;
+  return log.map((r) => {
+    // Apply damage to defender
+    let attacker = r.attacker === fighterA.name ? 'A' : 'B';
+    let defender = attacker === 'A' ? 'B' : 'A';
+    if (attacker === 'A') {
+      healthB = Math.max(0, healthB - (r.attackerDamage ?? 0));
+    } else {
+      healthA = Math.max(0, healthA - (r.attackerDamage ?? 0));
+    }
+    return {
+      ...r,
+      randomEvent: null,
+      arenaObjectsUsed: null,
+      healthAfter: {
+        attacker: attacker === 'A' ? healthA : healthB,
+        defender: defender === 'A' ? healthA : healthB,
+      },
+    };
+  });
+}
 
 export default function PlayerVsPage() {
   // Zustand store selectors
@@ -239,8 +268,12 @@ export default function PlayerVsPage() {
       const roundData = preGeneratedBattleLog[currentBattleIndex];
       // Update health and commentary
       updateHealthAndCommentary({
-        attackerId: fighters.fighterA?.name === roundData.attacker ? fighters.fighterA.id : fighters.fighterB?.id!,
-        defenderId: fighters.fighterA?.name === roundData.defender ? fighters.fighterA.id : fighters.fighterB?.id!,
+        attackerId: fighters.fighterA?.name === roundData.attacker
+          ? fighters.fighterA?.id ?? ''
+          : fighters.fighterB?.id ?? '',
+        defenderId: fighters.fighterA?.name === roundData.defender
+          ? fighters.fighterA?.id ?? ''
+          : fighters.fighterB?.id ?? '',
         attackerDamage: roundData.attackerDamage,
         defenderDamage: roundData.defenderDamage,
         attackCommentary: roundData.attackCommentary,
@@ -494,70 +527,41 @@ export default function PlayerVsPage() {
           </div>
         )}
 
-        {/* Combat Phase */}
-        {gamePhase === 'combat' && fighterA && fighterB && scene && (
-          <div className="space-y-8">
-            {isPreBattleLoading && <div className="text-center text-lg font-bold text-yellow-400">Loading pre-generated battle...</div>}
-            {preBattleError && <div className="text-center text-lg font-bold text-red-400">{preBattleError}</div>}
-            {(() => {
-              // Use preGeneratedBattleLog for display if available
-              let roundData: PreGeneratedBattleRound | null = null;
-              if (preGeneratedBattleLog.length > 0 && currentBattleIndex < preGeneratedBattleLog.length) {
-                roundData = preGeneratedBattleLog[currentBattleIndex];
-              }
-              // Fallback to combatLog if needed
-              if (!roundData && combatLog.length > 0) {
-                const lastRound = combatLog[combatLog.length - 1];
-                roundData = {
-                  round: lastRound.round,
-                  attacker: lastRound.attacker.name,
-                  defender: lastRound.defender.name,
-                  attackCommentary: lastRound.attacker.commentary,
-                  defenseCommentary: lastRound.defender.commentary,
-                  attackerDamage: lastRound.damage.attackerDamage,
-                  defenderDamage: lastRound.damage.defenderDamage,
-                };
-              }
-              if (!roundData) return null;
-              return (
-                <BattleStoryboard
-                  scene={{ name: typeof scene?.name === 'string' ? scene.name : '', imageUrl: typeof scene?.imageUrl === 'string' ? scene.imageUrl : '' }}
-                  round={roundData.round}
-                  attacker={{
-                    name: roundData.attacker,
-                    imageUrl: fighterA.name === roundData.attacker ? fighterA.imageUrl : fighterB.imageUrl,
-                    commentary: roundData.attackCommentary,
-                  }}
-                  defender={{
-                    name: roundData.defender,
-                    imageUrl: fighterA.name === roundData.defender ? fighterA.imageUrl : fighterB.imageUrl,
-                    commentary: roundData.defenseCommentary,
-                  }}
-                  roundStep={roundStep}
-                  previousRounds={preGeneratedBattleLog.slice(0, currentBattleIndex).map((entry) => ({
-                    round: entry.round,
-                    summary: `${entry.attackCommentary} ${entry.defenseCommentary}`,
-                  }))}
-                />
-              );
-            })()}
-            {!winner && showRoundAnim && (
-              <RoundStartAnimation 
-                round={currentRound} 
-                onDone={() => {
-                  setShowRoundAnim(false); // Advance to next round after animation
-                }} 
-              />
-            )}
-            {winner && showRoundAnim && (
-              <WinnerAnimation 
-                winner={winner} 
-                onDone={() => { resetGame(); setGamePhase('setup'); }}
-                fighterAHealth={fighterAHealth ?? undefined}
-                fighterBHealth={fighterBHealth ?? undefined}
-              />
-            )}
-          </div>
+        {/* Combat Phase: Use BattleViewer for animated battle */}
+        {gamePhase === 'combat' && fighterA && fighterB && scene && preGeneratedBattleLog.length > 0 && (
+          <BattleViewer
+            fighterA={fighterA}
+            fighterB={fighterB}
+            scene={scene}
+            battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
+            mode="live"
+            onBattleEnd={setWinner}
+          />
+        )}
+
+        {/* When a new round is added to combatLog, start with 'attack' step, then auto-advance to 'defense' */}
+        {gamePhase === 'combat' && combatLog.length > 0 && (
+          <RoundStartAnimation 
+            round={currentRound} 
+            onDone={() => {
+              setRoundStep('attack');
+              setTimeout(() => setRoundStep('defense'), BATTLE_ATTACK_DEFENSE_STEP_MS);
+              setTimeout(() => {
+                advanceBattleIndex();
+                setCurrentRound(currentRound + 1);
+              }, ROUND_TRANSITION_PAUSE_MS);
+            }} 
+          />
+        )}
+
+        {/* Winner Animation */}
+        {winner && (
+          <WinnerAnimation 
+            winner={winner} 
+            onDone={() => { resetGame(); setGamePhase('setup'); }}
+            fighterAHealth={fighterAHealth ?? undefined}
+            fighterBHealth={fighterBHealth ?? undefined}
+          />
         )}
       </div>
       <button onClick={handleResetToDemo} className="fixed top-4 right-4 z-50 px-4 py-2 bg-blue-700 text-white rounded shadow">Reset to Demo</button>

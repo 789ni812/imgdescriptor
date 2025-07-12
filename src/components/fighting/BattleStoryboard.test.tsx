@@ -22,7 +22,7 @@ describe('BattleStoryboard', () => {
     previousRounds: [
       { round: 1, summary: 'Luke attacked, Vader defended.' },
     ],
-    roundStep: 'attack' as 'attack',
+    roundStep: 'attack' as const,
   };
 
   it('renders the top panel with scene, both fighters, and round indicator', () => {
@@ -42,7 +42,8 @@ describe('BattleStoryboard', () => {
   });
 
   it('renders the right box for the defender with image, name, and action', () => {
-    render(<BattleStoryboard {...mockProps} />);
+    const defenderProps = { ...mockProps, roundStep: 'defense' as const };
+    render(<BattleStoryboard {...defenderProps} />);
     const defender = screen.getByTestId('defender-box');
     expect(defender).toHaveTextContent('Luke Skywalker');
     expect(defender).toHaveTextContent('Blocks with his saber and counters.');

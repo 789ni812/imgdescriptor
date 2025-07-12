@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateBattleCommentary } from '@/lib/lmstudio-client';
-import { resolveBattle } from '@/lib/utils';
+import { resolveBattle, BattleRoundLog } from '@/lib/utils';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest) {
     // Use the new stat-based battle logic
     const resolved = resolveBattle(fighterA, fighterB, scene, maxRounds);
     const battleLog = [];
-    for (const round of resolved.rounds) {
+    for (const round of resolved.rounds as BattleRoundLog[]) {
       // Generate LLM commentary for attack and defense
       // Use attacker/defender names and actual damage
       const [attackCommentary, defenseCommentary] = await Promise.all([
@@ -27,11 +29,56 @@ export async function POST(req: NextRequest) {
         defenderDamage: 0, // Only attacker does damage in this model
         randomEvent: round.randomEvent,
         arenaObjectsUsed: round.arenaObjectsUsed,
-        crit: round.crit,
-        dodged: round.dodged,
         healthAfter: round.healthAfter,
       });
     }
+
+    // Create tournament data for saving
+    const tournamentData = {
+      metadata: {
+        timestamp: new Date().toISOString(),
+        fighterA: {
+          name: fighterA.name,
+          imageUrl: fighterA.imageUrl || '',
+          stats: fighterA.stats,
+          description: fighterA.description
+        },
+        fighterB: {
+          name: fighterB.name,
+          imageUrl: fighterB.imageUrl || '',
+          stats: fighterB.stats,
+          description: fighterB.description
+        },
+        arena: {
+          name: scene.name,
+          imageUrl: scene.imageUrl || '',
+          description: scene.description
+        },
+        winner: resolved.winner,
+        totalRounds: battleLog.length,
+        maxRounds
+      },
+      battleLog
+    };
+
+    // Save battle log to tournaments folder
+    try {
+      const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
+      await mkdir(tournamentsDir, { recursive: true });
+      
+      // Create filename from fighter names (sanitized)
+      const fighterAName = fighterA.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const fighterBName = fighterB.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const filename = `${fighterAName}-vs-${fighterBName}.json`;
+      const filepath = join(tournamentsDir, filename);
+      
+      await writeFile(filepath, JSON.stringify(tournamentData, null, 2));
+      console.log(`Tournament battle saved: ${filename}`);
+    } catch (saveError) {
+      console.error('Failed to save tournament battle:', saveError);
+      // Don't fail the request if saving fails
+    }
+
     return NextResponse.json({ success: true, battleLog });
   } catch (error) {
     console.error('Battle generation error:', error);

@@ -260,7 +260,7 @@ export const generateBattleCommentary = async (
   fighterB: string,
   round: number,
   isAttack: boolean,
-  damage?: number
+  _damage: number // Prefix with underscore to indicate intentionally unused
 ): Promise<string> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -272,7 +272,7 @@ export const generateBattleCommentary = async (
 Fighter A: ${fighterA}
 Fighter B: ${fighterB}
 Round: ${round}
-Action: ${action}${damage ? ` (Damage: ${damage})` : ''}
+Action: ${action}${_damage ? ` (Damage: ${_damage})` : ''}
 
 Requirements:
 - 1 to 2 sentences, maximum 30 words total
@@ -315,12 +315,12 @@ Requirements:
       const errorBody = await response.text();
       console.error(`LM Studio battle commentary API response error: ${response.status} ${errorBody}`);
       // Fallback to template-based commentary
-      return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+      return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
     }
 
     let commentary = response && (await response.json()).choices[0]?.message?.content?.trim();
     if (!commentary) {
-      return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+      return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
     }
 
     commentary = postProcessCommentary(commentary);
@@ -328,7 +328,7 @@ Requirements:
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle commentary error:', error);
-    return generateFallbackCommentary(fighterA, fighterB, round, isAttack, damage);
+    return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
   }
 };
 
@@ -336,8 +336,7 @@ function generateFallbackCommentary(
   fighterA: string,
   fighterB: string,
   round: number,
-  isAttack: boolean,
-  damage?: number
+  isAttack: boolean
 ): string {
   const attacker = isAttack ? fighterA : fighterB;
   const defender = isAttack ? fighterB : fighterA;

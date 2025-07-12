@@ -1755,3 +1755,34 @@ The app now provides a solid foundation for future enhancements:
 - **Cross-Platform Support**: Mobile and desktop applications
 - **Community Features**: Template sharing and collaborative content creation
 - **Educational Applications**: Learning tools and creative writing aids
+
+---
+
+# Tournament System & Battle Replay Architecture (2025-07-12)
+
+## Folder Structure
+- `public/Fighters/`: User-uploaded fighter images
+- `public/Arena/`: User-uploaded arena images
+- `public/tournaments/`: Stores all completed battle logs as JSON files (e.g., `godzilla-vs-brucelee.json`)
+
+## Tournament Generation
+- The app scans `Fighters/` and `Arena/` to generate all possible battle matchups.
+- Each battle is simulated using the core battle logic.
+- After each battle, the log is saved in `public/tournaments/` for replay.
+- Tournament results and score charts are generated and stored/displayed.
+
+## Tournament Page & Replay
+- New page (e.g., `/tournament`) displays:
+  - Tournament bracket or list of battles
+  - Score chart for all fighters
+  - Dropdown/list to select and replay any completed battle
+- When a user selects a battle, the app loads the corresponding JSON log from `public/tournaments/` and replays it in the UI.
+- After a replay, the user can select another battle or upload new fighters/arenas.
+
+## Technical Notes
+- All battle logs are stored in a portable, human-readable JSON format for easy sharing and debugging.
+- The system is extensible for future tournament types (e.g., elimination, round-robin, custom rules).
+- Demo battles (e.g., Godzilla vs Bruce Lee) are included as sample tournament logs.
+- The UI must be robust for any number of fighters/arenas and provide a seamless replay experience.
+
+---
