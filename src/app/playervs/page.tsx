@@ -43,6 +43,7 @@ export default function PlayerVsPage() {
     currentBattleIndex,
     setPreGeneratedBattleLog,
     advanceBattleIndex,
+    setWinner,
   } = useFightingGameStore();
 
   // Local state only for fighter/arena upload previews
@@ -58,6 +59,34 @@ export default function PlayerVsPage() {
 
   // Helper: can start fight
   const canStartFight = fighterA && fighterB && scene;
+
+  // Helper: determine winner based on remaining health
+  const determineWinner = () => {
+    if (!fighterA || !fighterB) return null;
+    
+    const healthA = fighterAHealth ?? fighterA.stats.health;
+    const healthB = fighterBHealth ?? fighterB.stats.health;
+    
+    if (healthA <= 0 && healthB <= 0) {
+      return 'Draw';
+    } else if (healthA <= 0) {
+      return fighterB.name;
+    } else if (healthB <= 0) {
+      return fighterA.name;
+    } else {
+      // Battle ended without knockout - determine winner by remaining health percentage
+      const healthPercentA = (healthA / fighterA.stats.maxHealth) * 100;
+      const healthPercentB = (healthB / fighterB.stats.maxHealth) * 100;
+      
+      if (Math.abs(healthPercentA - healthPercentB) < 5) {
+        return 'Draw'; // Very close - it's a draw
+      } else if (healthPercentA > healthPercentB) {
+        return fighterA.name;
+      } else {
+        return fighterB.name;
+      }
+    }
+  };
 
   function extractFighterName(analysis: Record<string, unknown>, fallback: string) {
     let name = fallback;
@@ -195,7 +224,16 @@ export default function PlayerVsPage() {
   // New: Playback logic for pre-generated rounds
   React.useEffect(() => {
     if (gamePhase !== 'combat' || preGeneratedBattleLog.length === 0) return;
-    if (currentBattleIndex >= preGeneratedBattleLog.length) return;
+    
+    // Check if battle has ended
+    if (currentBattleIndex >= preGeneratedBattleLog.length) {
+      // Battle is over - determine winner and show animation
+      const battleWinner = determineWinner();
+      setWinner(battleWinner);
+      setShowRoundAnim(true);
+      return;
+    }
+    
     if (!showRoundAnim) {
       // Animate the round
       const roundData = preGeneratedBattleLog[currentBattleIndex];

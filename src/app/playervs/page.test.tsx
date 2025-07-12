@@ -64,6 +64,7 @@ const mockSetScene = jest.fn();
 const mockSetCurrentRound = jest.fn();
 const mockSetShowRoundAnim = jest.fn();
 const mockUpdateHealthAndCommentary = jest.fn();
+const mockSetPreGeneratedBattleLog = jest.fn();
 
 jest.mock('@/lib/stores/fightingGameStore', () => ({
   useFightingGameStore: jest.fn(() => ({
@@ -97,6 +98,7 @@ jest.mock('@/lib/stores/fightingGameStore', () => ({
     updateHealthAndCommentary: mockUpdateHealthAndCommentary,
     getFighterById: jest.fn(),
     getCurrentFighters: jest.fn(),
+    setPreGeneratedBattleLog: mockSetPreGeneratedBattleLog,
   })),
 }));
 
