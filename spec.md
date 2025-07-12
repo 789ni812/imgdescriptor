@@ -1624,3 +1624,22 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - Jest tests ensure commentary is concise, readable, and properly punctuated.
 
 ---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---

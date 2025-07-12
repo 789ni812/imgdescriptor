@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useFightingGameStore } from './fightingGameStore';
+import { resolveBattle } from '../utils';
 
 describe('FightingGameStore', () => {
   beforeEach(() => {
@@ -496,5 +497,102 @@ describe('FightingGameStore', () => {
       expect(currentFighterA).toEqual(fighterA);
       expect(currentFighterB).toEqual(fighterB);
     });
+  });
+}); 
+
+describe('Battle Resolution Logic', () => {
+  it('should resolve a 6-round battle using all stats, random events, and arena objects, and log each round in JSON', () => {
+    // Example fighters and arena
+    const godzilla = {
+      id: 'godzilla-1',
+      name: 'Godzilla',
+      imageUrl: '/vs/godzillaVSbrucelee/godzilla.jpg',
+      description: 'A massive prehistoric monster',
+      stats: {
+        health: 500,
+        maxHealth: 500,
+        strength: 25,
+        luck: 8,
+        agility: 6,
+        defense: 22,
+        age: 200000000,
+        size: 'large' as const,
+        build: 'heavy' as const,
+      },
+      visualAnalysis: {
+        age: 'ancient',
+        size: 'massive',
+        build: 'monstrous',
+        appearance: ['scaly'],
+        weapons: ['atomic breath'],
+        armor: ['thick scales'],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: new Date().toISOString(),
+    };
+    const bruceLee = {
+      id: 'bruce-lee-1',
+      name: 'Bruce Lee',
+      imageUrl: '/vs/godzillaVSbrucelee/bruce-lee.jpg',
+      description: 'A legendary martial artist',
+      stats: {
+        health: 120,
+        maxHealth: 120,
+        strength: 12,
+        luck: 18,
+        agility: 20,
+        defense: 8,
+        age: 32,
+        size: 'medium' as const,
+        build: 'muscular' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'athletic',
+        appearance: ['focused'],
+        weapons: ['martial arts'],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: new Date().toISOString(),
+    };
+    const arena = {
+      id: 'tokyo-city-1',
+      name: 'Tokyo City Streets',
+      imageUrl: '/vs/godzillaVSbrucelee/tokyo-arena.jpg',
+      description: 'A bustling Tokyo cityscape',
+      environmentalObjects: ['skyscrapers', 'cars', 'street signs', 'neon lights', 'buildings', 'pavement'],
+      createdAt: new Date().toISOString(),
+    };
+
+    // This function does not exist yet, so this test should fail
+    // It should return a battle log with 6 rounds, each round containing all required info
+    // and the winner should usually be Godzilla, but Bruce Lee should have a chance to win via luck/random event
+    // The log should include any arena object usage and random events
+    //
+    // Example call (to be implemented):
+    // const battleLog = resolveBattle(godzilla, bruceLee, arena, 6);
+    //
+    // For now, just expect the function to be defined and return the correct structure
+    // (This will fail until implemented)
+    expect(typeof resolveBattle).toBe('function');
+    const battleLog = resolveBattle(godzilla, bruceLee, arena, 6);
+    expect(Array.isArray(battleLog.rounds)).toBe(true);
+    expect(battleLog.rounds.length).toBe(6);
+    expect(typeof battleLog.winner).toBe('string');
+    // Each round should have attacker, defender, stats used, damage, randomEvent, arenaObjectUsed, and healthAfter
+    battleLog.rounds.forEach((round: any) => {
+      expect(typeof round.attacker).toBe('string');
+      expect(typeof round.defender).toBe('string');
+      expect(typeof round.damage).toBe('number');
+      expect(typeof round.statsUsed).toBe('object');
+      expect(typeof round.healthAfter).toBe('object');
+      expect(typeof round.randomEvent).toBe('string');
+      expect(Array.isArray(round.arenaObjectsUsed)).toBe(true);
+    });
+    // Godzilla should win most of the time, but Bruce Lee should sometimes win (run test multiple times to check randomness)
   });
 }); 
