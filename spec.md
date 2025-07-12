@@ -1561,3 +1561,17 @@ All major UI/UX timing and transition settings for the playervs battle flow are 
 - `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
 
 To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
