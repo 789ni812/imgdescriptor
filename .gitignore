@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test artifacts
+public/vs/fighters/test-fighter-*.jpg
+public/vs/fighters/test-fighter-*.json
+public/vs/arena/test-arena-*.jpg
+public/vs/arena/test-arena-*.json
