@@ -255,6 +255,129 @@ export const generateStory = async (
   }
 };
 
+export const generateFighterStats = async (
+  imageDescription: string,
+  fighterLabel: string
+): Promise<{ success: boolean; stats?: any; error?: string }> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
+
+  try {
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert fighter stats generator for a fighting game. Your job is to analyze an image description and generate balanced, realistic stats for a fighter.
+
+CRITICAL RULES:
+1. Output ONLY a valid JSON object with the following keys: "strength", "agility", "health", "defense", "luck", "age", "size", "build"
+2. All property names and string values MUST be double-quoted
+3. "size" must be one of: "small", "medium", "large"
+4. "build" must be one of: "thin", "average", "muscular", "heavy"
+5. All numeric values must be integers within the specified ranges
+6. Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object
+
+STAT RANGES:
+- **Health**: 0-1000 (0 = defeated, Godzilla level = 800-1000, human = 50-150)
+- **Strength**: 1-200 (1 = ant, 30-40 = Bruce Lee, 200 = Godzilla)
+- **Agility**: 1-100 (1 = sloth, 50-70 = Bruce Lee, 100 = speedster)
+- **Defense**: 1-100 (1 = paper, 20-40 = human, 100 = indestructible)
+- **Luck**: 1-50 (1 = unlucky, 10-20 = average, 50 = extremely lucky)
+- **Age**: 1-200000000 (appropriate for creature type)
+
+CREATURE TYPE GUIDELINES:
+- **Rodents/Insects**: High agility (60-95), low strength (1-5), low health (10-50)
+- **Small Animals**: Good agility (50-80), moderate strength (5-20), moderate health (50-120)
+- **Humans**: Balanced stats, strength 15-50, agility 30-70, health 80-150
+- **Large Animals**: High strength (40-80), moderate agility (25-50), high health (200-400)
+- **Kaiju/Giants**: Maximum strength (150-200), low agility (5-20), maximum health (800-1000)
+
+BALANCE REQUIREMENTS:
+- Stronger creatures should generally have lower agility
+- Larger creatures should have higher health and defense
+- Consider the visual description when assigning stats
+- Ensure stats are internally consistent and realistic
+
+Example output:
+{
+  "strength": 35,
+  "agility": 65,
+  "health": 120,
+  "defense": 25,
+  "luck": 15,
+  "age": 28,
+  "size": "medium",
+  "build": "muscular"
+}`,
+          },
+          {
+            role: 'user',
+            content: `Generate balanced fighter stats for: "${fighterLabel}"
+
+Image Description: ${imageDescription}
+
+Consider the visual elements, creature type, and ensure the stats are realistic and balanced for a fighting game.`,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 512,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio fighter stats API response error: ${response.status} ${errorBody}`);
+      return { success: false, error: `API Error: ${response.status} - ${errorBody}` };
+    }
+
+    const data = await response.json();
+    const rawContent = data.choices[0]?.message?.content;
+    if (!rawContent) {
+      return { success: false, error: 'The model did not return fighter stats.' };
+    }
+
+    // Try to parse the JSON object
+    try {
+      // Remove markdown/code block wrappers if present
+      const cleaned = rawContent.replace(/```json|```/gi, '').trim();
+      const parsed = JSON.parse(cleaned);
+      
+      // Validate required fields
+      if (
+        typeof parsed.strength === 'number' &&
+        typeof parsed.agility === 'number' &&
+        typeof parsed.health === 'number' &&
+        typeof parsed.defense === 'number' &&
+        typeof parsed.luck === 'number' &&
+        typeof parsed.age === 'number' &&
+        typeof parsed.size === 'string' &&
+        typeof parsed.build === 'string'
+      ) {
+        return { success: true, stats: parsed };
+      } else {
+        throw new Error('Missing required fields in fighter stats JSON.');
+      }
+    } catch (e) {
+      console.error('Failed to parse fighter stats JSON:', rawContent, e);
+      return { success: false, error: 'Failed to parse fighter stats JSON.' };
+    }
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio fighter stats error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { success: false, error: errorMessage };
+  }
+};
+
 export const generateBattleCommentary = async (
   fighterA: string,
   fighterB: string,

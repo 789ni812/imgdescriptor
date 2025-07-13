@@ -1857,3 +1857,10 @@ The app now provides a solid foundation for future enhancements:
 | Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
 | Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
 | Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+### Fighter Stat Balancing Workflow (2024-07-13)
+- When a fighter is uploaded or generated:
+  - The API first searches all JSON files in `public/vs/fighters/` for a case-insensitive name match.
+  - If a match is found, the stats from that JSON file are used for the new fighter (ensuring fair, lore-accurate stats for iconic or previously-uploaded fighters).
+  - If no match is found, the API falls back to the current stat generation logic (using LLM or archetype-based rules).
+- This ensures that iconic fighters like Bruce Lee, Godzilla, etc. always get the correct stats, and prevents random/weak stat assignments for known characters.
