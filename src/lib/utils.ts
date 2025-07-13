@@ -100,7 +100,7 @@ export interface BattleRoundLog {
     defender: number;
   };
   randomEvent: string | null;
-  arenaObjectsUsed: string | null;
+  arenaObjectsUsed: string[];
 }
 
 /**
@@ -156,7 +156,7 @@ export function resolveBattle(
 
     let damage = 0;
     let randomEvent = '';
-    let arenaObjectsUsed = '';
+    let arenaObjectsUsed: string[] = [];
 
     if (isUnderdogMode && attacker === underdog) {
       // Underdog mode: underdog must dodge or is KO'd
@@ -183,7 +183,7 @@ export function resolveBattle(
       damage = Math.floor(attacker.stats.strength * (0.8 + rng() * 0.4));
       if (rng() < 0.2) { // 20% chance for environmental interaction
         const object = pick(environmentalObjects) as string;
-        arenaObjectsUsed = object;
+        arenaObjectsUsed = [object];
         damage = Math.floor(damage * 1.5);
         randomEvent = `${attacker.name} uses ${object} to enhance their attack!`;
       }
@@ -205,7 +205,7 @@ export function resolveBattle(
         }
       } else if (rng() < 0.1) { // 10% chance for environmental interaction
         const object = pick(environmentalObjects) as string;
-        arenaObjectsUsed = object;
+        arenaObjectsUsed = [object];
         damage = Math.floor(damage * 1.3);
         randomEvent = `${attacker.name} uses ${object} in their attack!`;
       }
@@ -241,8 +241,8 @@ export function resolveBattle(
         attacker: newAttackerHealth,
         defender: newDefenderHealth,
       },
-      randomEvent: randomEvent || null,
-      arenaObjectsUsed: arenaObjectsUsed || null,
+      randomEvent: randomEvent || '',
+      arenaObjectsUsed: arenaObjectsUsed,
     });
 
     // Check for knockout

@@ -1,15 +1,30 @@
 import fs from 'fs';
 import path from 'path';
 import { saveUploadedImage } from './saveUploadedImage';
+import { glob } from 'glob';
 
 describe('saveUploadedImage with fighter metadata', () => {
   const fightersDir = path.join(process.cwd(), 'public', 'vs', 'fighters');
-  const testImageName = 'test-fighter.jpg';
-  const testJsonName = 'test-fighter.json';
+  const timestamp = Date.now();
+  const testImageName = `test-fighter-${timestamp}.jpg`;
+  const testJsonName = `test-fighter-${timestamp}.json`;
   const testImagePath = path.join(fightersDir, testImageName);
   const testJsonPath = path.join(fightersDir, testJsonName);
 
+  beforeEach(() => {
+    // Remove all test-fighter-*.json files before each test
+    const files = glob.sync(path.join(fightersDir, 'test-fighter-*.json')) || [];
+    for (const file of files) {
+      if (fs.existsSync(file)) fs.unlinkSync(file);
+    }
+  });
+
   afterEach(() => {
+    // Remove all test-fighter-*.json files after each test
+    const files = glob.sync(path.join(fightersDir, 'test-fighter-*.json')) || [];
+    for (const file of files) {
+      if (fs.existsSync(file)) fs.unlinkSync(file);
+    }
     if (fs.existsSync(testImagePath)) fs.unlinkSync(testImagePath);
     if (fs.existsSync(testJsonPath)) fs.unlinkSync(testJsonPath);
   });
@@ -36,7 +51,7 @@ describe('saveUploadedImage with fighter metadata', () => {
     const uniquePart = url.split('/').pop().replace('.jpg', '');
     const files = fs.readdirSync(fightersDir);
     console.log('Files in fightersDir:', files);
-    const jsonFiles = files.filter(f => f.startsWith('test-fighter-') && f.endsWith('.json'));
+    const jsonFiles = files.filter(f => f === uniquePart + '.json');
     console.log('Image URL:', url);
     console.log('Expected JSON file:', uniquePart + '.json');
     console.log('Found JSON files:', jsonFiles);

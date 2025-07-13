@@ -170,9 +170,16 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
   // Basic Actions
   setGamePhase: (phase) => set({ gamePhase: phase }),
   
-  addFighter: (fighter) => set((state) => ({
-    fighters: { ...state.fighters, fighterA: fighter }
-  })),
+  addFighter: (fighter) => set((state) => {
+    if (!state.fighters.fighterA) {
+      return { fighters: { ...state.fighters, fighterA: fighter } };
+    } else if (!state.fighters.fighterB) {
+      return { fighters: { ...state.fighters, fighterB: fighter } };
+    } else {
+      // Both filled, replace fighterA (could also throw an error)
+      return { fighters: { fighterA: fighter, fighterB: state.fighters.fighterB } };
+    }
+  }),
   
   setScene: (scene) => set({ scene }),
   

@@ -85,13 +85,19 @@ describe('FighterUpload', () => {
       winLossRecord: { wins: 0, losses: 0, draws: 0 },
       createdAt: new Date().toISOString(),
     };
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ description: 'A strong warrior' }),
-    }).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ fighter: mockFighter }),
-    });
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ url: 'test-url' }), // upload-image
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ description: 'A strong warrior' }), // analyze-image
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ fighter: mockFighter }), // generate-fighter
+      });
     render(<FighterUpload {...mockProps} />);
     const uploadButton = screen.getByRole('button', { name: /Upload Image/i });
     fireEvent.click(uploadButton);
