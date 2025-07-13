@@ -357,7 +357,7 @@ export default function PlayerVsPage() {
                 <button onClick={() => removeFighter('fighterA')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">Remove Fighter</button>
               </>
             ) : (
-              <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" />
+              <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
             )}
           </div>
           {/* VS */}
@@ -373,7 +373,7 @@ export default function PlayerVsPage() {
                 <button onClick={() => removeFighter('fighterB')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">Remove Fighter</button>
               </>
             ) : (
-              <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" />
+              <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
             )}
           </div>
         </div>
@@ -390,7 +390,7 @@ export default function PlayerVsPage() {
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
                 {!fighterA ? (
-                  <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" />
+                  <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
                 ) : (
                   // Existing fighter summary UI for Fighter A
                   <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
@@ -422,7 +422,7 @@ export default function PlayerVsPage() {
 
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
                 {!fighterB ? (
-                  <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" />
+                  <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
                 ) : (
                   // Existing fighter summary UI for Fighter B
                   <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
@@ -457,7 +457,7 @@ export default function PlayerVsPage() {
             <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20 mt-8">
               <h3 className="text-xl font-semibold mb-4">Battle Arena</h3>
               {!scene ? (
-                <FighterImageUpload onUploadComplete={handleArenaUpload} label="Upload image of the fighting scene" />
+                <FighterImageUpload onUploadComplete={handleArenaUpload} label="Upload image of the fighting scene" category="arena" />
               ) : (
                 <div className="flex flex-col items-center mb-2">
                   {typeof scene.imageUrl === 'string' && scene.imageUrl !== '' && (

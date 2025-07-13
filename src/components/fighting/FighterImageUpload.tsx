@@ -5,12 +5,14 @@ interface FighterImageUploadProps {
   onUploadComplete: (result: { url: string; analysis: Record<string, unknown>; file: File }) => void;
   disabled?: boolean;
   label?: string;
+  category?: 'fighter' | 'arena';
 }
 
 export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
   onUploadComplete,
   disabled = false,
   label = 'Upload Image',
+  category = 'fighter',
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -25,6 +27,7 @@ export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('category', category);
       const res = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
@@ -85,7 +88,7 @@ export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
           ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} data-testid="file-input" />
         <p className="text-gray-700 font-medium">{label}</p>
         <p className="text-gray-500 text-sm">Drag & drop or click to select an image</p>
         {selectedFile && <p className="text-blue-700 text-xs mt-2">Selected: {selectedFile.name}</p>}

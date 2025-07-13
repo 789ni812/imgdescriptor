@@ -31,9 +31,10 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
     try {
       // Step 1: Upload image and get description
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
+      formData.append('category', 'fighter');
 
-      const uploadResponse = await fetch('/api/analyze-image', {
+      const uploadResponse = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });
@@ -43,38 +44,61 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
       }
 
       const uploadData = await uploadResponse.json();
-      const imageDescription = uploadData.description;
+      const imageUrl = uploadData.url;
 
-      // Step 2: Generate fighter stats and details
+      // Step 2: Analyze image to get description
       setIsAnalyzing(true);
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64Image = (reader.result as string).split(',')[1];
+          const analysisRes = await fetch('/api/analyze-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Image, prompt: 'Describe this fighter.' }),
+          });
+          if (!analysisRes.ok) throw new Error('Analysis failed');
+          const analysisData = await analysisRes.json();
+          const imageDescription = analysisData.description;
 
-      const fighterResponse = await fetch('/api/fighting-game/generate-fighter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageDescription,
-          fighterId,
-          fighterLabel,
-        }),
-      });
+          // Step 3: Generate fighter stats and details
+          const fighterResponse = await fetch('/api/fighting-game/generate-fighter', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageDescription,
+              fighterId,
+              fighterLabel,
+              imageUrl,
+            }),
+          });
 
-      if (!fighterResponse.ok) {
-        throw new Error('Failed to generate fighter');
-      }
+          if (!fighterResponse.ok) {
+            throw new Error('Failed to generate fighter');
+          }
 
-      const fighterData = await fighterResponse.json();
-      const newFighter: Fighter = fighterData.fighter;
+          const fighterData = await fighterResponse.json();
+          const newFighter: Fighter = fighterData.fighter;
 
-      // Add fighter to store and call callback
-      addFighter(newFighter);
-      setFighter(newFighter);
-      onFighterCreated(newFighter);
-
+          // Add fighter to store and call callback
+          addFighter(newFighter);
+          setFighter(newFighter);
+          onFighterCreated(newFighter);
+          setIsAnalyzing(false);
+        } catch (err) {
+          setError('Failed to analyze image or generate fighter.');
+          setIsAnalyzing(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file.');
+        setIsAnalyzing(false);
+      };
+      reader.readAsDataURL(file);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
       setIsUploading(false);
       setIsAnalyzing(false);
       if (fileInputRef.current) {

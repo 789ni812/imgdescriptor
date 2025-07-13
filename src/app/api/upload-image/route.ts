@@ -24,7 +24,17 @@ export async function POST(req: NextRequest) {
 
   let fileUrl = '';
   let fileError: Error | null = null;
+  let uploadCategory: 'fighter' | 'arena' | undefined = undefined;
+  let uploadedFile: { buffer: Buffer; filename: string } | null = null;
   const fileSavePromises: Promise<void>[] = [];
+
+  busboy.on('field', (fieldname: string, val: string) => {
+    console.log('[API] busboy field event:', { fieldname, val }); // <-- Debug log
+    if (fieldname === 'category' && (val === 'fighter' || val === 'arena')) {
+      uploadCategory = val;
+      console.log('[API] uploadCategory set to:', uploadCategory); // <-- Debug log
+    }
+  });
 
   const finished = new Promise<void>((resolve, reject) => {
     busboy.on('file', async (fieldname: string, file: NodeJS.ReadableStream, info: { filename: string; encoding: string; mimeType: string }) => {
@@ -35,16 +45,62 @@ export async function POST(req: NextRequest) {
         file.resume();
         return;
       }
-      const savePromise = saveUploadedImage(file, actualFilename)
-        .then(url => { fileUrl = url; console.log('[API] File saved:', fileUrl); })
-        .catch(err => {
-          fileError = err instanceof Error ? err : new Error('Upload failed');
-          console.error('[API] Error saving file:', fileError);
-        });
-      fileSavePromises.push(savePromise);
+      
+      // Collect the file data as a buffer
+      const chunks: Buffer[] = [];
+      file.on('data', (chunk) => {
+        chunks.push(Buffer.from(chunk));
+      });
+      file.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        uploadedFile = { buffer, filename: actualFilename };
+        console.log('[API] File buffer collected, size:', buffer.length);
+      });
+      file.on('error', (err) => {
+        console.error('[API] File stream error:', err);
+        fileError = err;
+      });
     });
     busboy.on('finish', async () => {
       console.log('[API] busboy finish event');
+      console.log('[API] uploadCategory value at finish:', uploadCategory); // <-- Debug log
+      
+      // Process the file after all fields have been processed
+      if (uploadedFile) {
+        // Write the buffer directly to a file using fs
+        const fs = await import('fs');
+        const path = await import('path');
+        
+        // Determine the target directory and public prefix based on category
+        let targetDir: string;
+        let publicPrefix: string;
+        if (uploadCategory === 'fighter') {
+          targetDir = path.join(process.cwd(), 'public', 'vs', 'fighters');
+          publicPrefix = '/vs/fighters/';
+        } else if (uploadCategory === 'arena') {
+          targetDir = path.join(process.cwd(), 'public', 'vs', 'arena');
+          publicPrefix = '/vs/arena/';
+        } else {
+          targetDir = path.join(process.cwd(), 'public', 'imgRepository');
+          publicPrefix = '/imgRepository/';
+        }
+        
+        // Create directory if it doesn't exist
+        fs.mkdirSync(targetDir, { recursive: true });
+        
+        // Generate unique filename
+        const ext = path.extname(uploadedFile.filename);
+        const base = path.basename(uploadedFile.filename, ext);
+        const uniqueName = `${base}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}${ext}`;
+        const savePath = path.join(targetDir, uniqueName);
+        const publicUrl = `${publicPrefix}${uniqueName}`;
+        
+        // Write the buffer to file
+        fs.writeFileSync(savePath, uploadedFile.buffer);
+        fileUrl = publicUrl;
+        console.log('[API] File saved:', fileUrl);
+      }
+      
       await Promise.all(fileSavePromises);
       resolve();
     });
