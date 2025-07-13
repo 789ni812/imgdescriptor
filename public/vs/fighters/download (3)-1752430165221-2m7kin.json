@@ -1,0 +1,17 @@
+{
+  "id": "download (3)-1752430165221-2m7kin",
+  "name": "Godzilla",
+  "image": "download (3)-1752430165221-2m7kin.jpg",
+  "stats": {
+    "health": 1000,
+    "maxHealth": 1000,
+    "strength": 200,
+    "luck": 20,
+    "agility": 15,
+    "defense": 90,
+    "age": 48765321,
+    "size": "large",
+    "build": "heavy"
+  },
+  "matchHistory": []
+}

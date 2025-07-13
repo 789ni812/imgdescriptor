@@ -1,0 +1,17 @@
+{
+  "id": "mouse-1752430062405-vnuhjm",
+  "name": "a brown field mouse",
+  "image": "mouse-1752430062405-vnuhjm.jpg",
+  "stats": {
+    "health": 30,
+    "maxHealth": 30,
+    "strength": 2,
+    "luck": 15,
+    "agility": 85,
+    "defense": 10,
+    "age": 6,
+    "size": "small",
+    "build": "thin"
+  },
+  "matchHistory": []
+}

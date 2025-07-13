@@ -3,10 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import BattleViewer from '@/components/fighting/BattleViewer';
 import Leaderboard from '@/components/fighting/Leaderboard';
+import Image from 'next/image';
+import { Listbox } from '@headlessui/react';
 
 const TournamentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'replay'>('leaderboard');
   const [battles, setBattles] = useState<string[]>([]);
+  const [battleMeta, setBattleMeta] = useState<Record<string, { fighterA: { name: string; imageUrl: string }; fighterB: { name: string; imageUrl: string } }>>({});
   const [selected, setSelected] = useState<string>('');
   
   interface BattleData {
@@ -70,7 +73,25 @@ const TournamentPage: React.FC = () => {
   useEffect(() => {
     fetch('/api/tournaments/list')
       .then(res => res.json())
-      .then(data => setBattles(data.battles || []))
+      .then(async data => {
+        setBattles(data.battles || []);
+        // Fetch metadata for each battle
+        const meta: Record<string, { fighterA: { name: string; imageUrl: string }; fighterB: { name: string; imageUrl: string } }> = {};
+        await Promise.all((data.battles || []).map(async (b: string) => {
+          try {
+            const res = await fetch(`/tournaments/${b}`);
+            if (!res.ok) return;
+            const d = await res.json();
+            if (d && d.metadata && d.metadata.fighterA && d.metadata.fighterB) {
+              meta[b] = {
+                fighterA: { name: d.metadata.fighterA.name, imageUrl: d.metadata.fighterA.imageUrl },
+                fighterB: { name: d.metadata.fighterB.name, imageUrl: d.metadata.fighterB.imageUrl },
+              };
+            }
+          } catch {}
+        }));
+        setBattleMeta(meta);
+      })
       .catch(() => setError('Failed to load battle list'));
   }, []);
 
@@ -113,16 +134,57 @@ const TournamentPage: React.FC = () => {
           <h1 className="text-3xl font-bold mb-6 text-center md:text-left">Tournament Hub</h1>
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium text-gray-700">Select a past battle:</label>
-            <select 
-              className="w-full p-3 border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={selected} 
-              onChange={handleSelect}
-            >
-              <option value="">-- Choose a battle --</option>
-              {battles.map(b => (
-                <option key={b} value={b}>{formatBattleName(b)}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <Listbox value={selected} onChange={value => { setSelected(value); handleSelect({ target: { value } } as any); }}>
+                <div className="relative">
+                  <Listbox.Button className="w-full p-3 border border-gray-300 rounded-lg mb-2 bg-white text-black font-semibold flex items-center justify-between">
+                    <span className="flex items-center">
+                      {selected && battleMeta[selected] ? (
+                        <>
+                          {battleMeta[selected].fighterA.imageUrl && (
+                            <img src={battleMeta[selected].fighterA.imageUrl} alt={battleMeta[selected].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
+                          )}
+                          <span className="mr-2">{battleMeta[selected].fighterA.name}</span>
+                          <span className="mx-1 text-gray-400">vs</span>
+                          <span className="mr-2">{battleMeta[selected].fighterB.name}</span>
+                          {battleMeta[selected].fighterB.imageUrl && (
+                            <img src={battleMeta[selected].fighterB.imageUrl} alt={battleMeta[selected].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-gray-400">-- Choose a battle --</span>
+                      )}
+                    </span>
+                    <span className="text-gray-500 ml-2">▼</span>
+                  </Listbox.Button>
+                  <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+                    <Listbox.Option key="empty" value="">
+                      {({ active }) => (
+                        <span className={`block px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'}`}>-- Choose a battle --</span>
+                      )}
+                    </Listbox.Option>
+                    {battles.map(b => (
+                      <Listbox.Option key={b} value={b}>
+                        {({ selected: isSelected, active }) => (
+                          <div className={`flex items-center px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'} ${isSelected ? 'font-bold' : ''}`}>
+                            {battleMeta[b]?.fighterA?.imageUrl && (
+                              <img src={battleMeta[b].fighterA.imageUrl} alt={battleMeta[b].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
+                            )}
+                            <span>{battleMeta[b]?.fighterA?.name || ''}</span>
+                            <span className="mx-1 text-gray-400">vs</span>
+                            <span>{battleMeta[b]?.fighterB?.name || ''}</span>
+                            {battleMeta[b]?.fighterB?.imageUrl && (
+                              <img src={battleMeta[b].fighterB.imageUrl} alt={battleMeta[b].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
+                            )}
+                            <span className="ml-2 text-xs text-gray-400">{formatBattleName(b)}</span>
+                          </div>
+                        )}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </div>
+              </Listbox>
+            </div>
             {error && (
               <div className="text-red-500 mb-2 p-2 bg-red-50 rounded-lg border border-red-200">
                 {error}
@@ -194,16 +256,57 @@ const TournamentPage: React.FC = () => {
           ) : (
             <div className="flex flex-col items-center justify-center w-full h-full opacity-50 select-none">
               <span className="text-2xl font-semibold mb-4 text-gray-400">Choose a battle</span>
-              <select 
-                className="w-full p-3 border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={selected} 
-                onChange={handleSelect}
-              >
-                <option value="">-- Choose a battle --</option>
-                {battles.map(b => (
-                  <option key={b} value={b}>{formatBattleName(b)}</option>
-                ))}
-              </select>
+              <div className="relative w-full max-w-md">
+                <Listbox value={selected} onChange={value => { setSelected(value); handleSelect({ target: { value } } as any); }}>
+                  <div className="relative">
+                    <Listbox.Button className="w-full p-3 border border-gray-300 rounded-lg mb-2 bg-white text-black font-semibold flex items-center justify-between">
+                      <span className="flex items-center">
+                        {selected && battleMeta[selected] ? (
+                          <>
+                            {battleMeta[selected].fighterA.imageUrl && (
+                              <img src={battleMeta[selected].fighterA.imageUrl} alt={battleMeta[selected].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
+                            )}
+                            <span className="mr-2">{battleMeta[selected].fighterA.name}</span>
+                            <span className="mx-1 text-gray-400">vs</span>
+                            <span className="mr-2">{battleMeta[selected].fighterB.name}</span>
+                            {battleMeta[selected].fighterB.imageUrl && (
+                              <img src={battleMeta[selected].fighterB.imageUrl} alt={battleMeta[selected].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-- Choose a battle --</span>
+                        )}
+                      </span>
+                      <span className="text-gray-500 ml-2">▼</span>
+                    </Listbox.Button>
+                    <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+                      <Listbox.Option key="empty" value="">
+                        {({ active }) => (
+                          <span className={`block px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'}`}>-- Choose a battle --</span>
+                        )}
+                      </Listbox.Option>
+                      {battles.map(b => (
+                        <Listbox.Option key={b} value={b}>
+                          {({ selected: isSelected, active }) => (
+                            <div className={`flex items-center px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'} ${isSelected ? 'font-bold' : ''}`}>
+                              {battleMeta[b]?.fighterA?.imageUrl && (
+                                <img src={battleMeta[b].fighterA.imageUrl} alt={battleMeta[b].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
+                              )}
+                              <span>{battleMeta[b]?.fighterA?.name || ''}</span>
+                              <span className="mx-1 text-gray-400">vs</span>
+                              <span>{battleMeta[b]?.fighterB?.name || ''}</span>
+                              {battleMeta[b]?.fighterB?.imageUrl && (
+                                <img src={battleMeta[b].fighterB.imageUrl} alt={battleMeta[b].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
+                              )}
+                              <span className="ml-2 text-xs text-gray-400">{formatBattleName(b)}</span>
+                            </div>
+                          )}
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </div>
+                </Listbox>
+              </div>
             </div>
           )}
         </div>
