@@ -52,6 +52,7 @@ interface BattleViewerProps {
   battleLog: BattleRound[];
   mode: 'live' | 'replay';
   onBattleEnd?: (winner: string) => void;
+  onClose?: () => void;
 }
 
 const BATTLE_ATTACK_DEFENSE_STEP_MS = 1200;
@@ -64,6 +65,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   battleLog,
   mode,
   onBattleEnd,
+  onClose,
 }) => {
   const [currentRoundIdx, setCurrentRoundIdx] = useState(0);
   const [roundStep, setRoundStep] = useState<'attack' | 'defense'>('attack');
@@ -162,6 +164,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
         <WinnerAnimation
           winner={winner}
           onDone={mode === 'replay' ? handleRestart : (() => { if (onBattleEnd && winner) onBattleEnd(winner); })}
+          onClose={onClose}
         />
       ) : (
         <>

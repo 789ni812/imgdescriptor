@@ -3,11 +3,12 @@ import React from 'react';
 interface WinnerAnimationProps {
   winner: string | null;
   onDone?: () => void;
+  onClose?: () => void;
   fighterAHealth?: number;
   fighterBHealth?: number;
 }
 
-const WinnerAnimation: React.FC<WinnerAnimationProps> = ({ winner, onDone, fighterAHealth, fighterBHealth }) => {
+const WinnerAnimation: React.FC<WinnerAnimationProps> = ({ winner, onDone, onClose, fighterAHealth, fighterBHealth }) => {
   let displayText = '';
   let showKO = false;
   if (winner === 'Draw') {
@@ -31,13 +32,24 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({ winner, onDone, fight
         {showKO && winner !== 'Draw' && (
           <div className="text-red-500 text-5xl font-extrabold mb-8 text-center">KO!</div>
         )}
-        <button
-          className="px-10 py-4 rounded-lg font-bold text-2xl bg-green-600 hover:bg-green-700 text-white shadow-lg mt-2"
-          onClick={onDone}
-          autoFocus
-        >
-          Restart
-        </button>
+        <div className="flex flex-row gap-4 mt-2">
+          <button
+            className="px-10 py-4 rounded-lg font-bold text-2xl bg-green-600 hover:bg-green-700 text-white shadow-lg"
+            onClick={onDone}
+            autoFocus
+          >
+            Restart
+          </button>
+          {onClose && (
+            <button
+              className="px-8 py-4 rounded-lg font-bold text-2xl bg-gray-700/40 hover:bg-gray-700/60 text-gray-300 border border-gray-500 shadow-sm"
+              onClick={onClose}
+              type="button"
+            >
+              Close
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

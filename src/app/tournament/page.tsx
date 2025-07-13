@@ -185,6 +185,10 @@ const TournamentPage: React.FC = () => {
                 }}
                 battleLog={battleData.battleLog}
                 mode="replay"
+                onClose={() => {
+                  setSelected('');
+                  setBattleData(null);
+                }}
               />
             </div>
           ) : (
