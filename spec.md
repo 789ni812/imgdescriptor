@@ -1737,3 +1737,6 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
 - This ensures that rematches and repeated battles are all preserved for replay and analysis.
 - The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.

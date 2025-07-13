@@ -1816,3 +1816,7 @@ The app now provides a solid foundation for future enhancements:
 - Accessible: Keyboard navigation, focus ring, ARIA labels
 
 ---
+
+## 4. Tournament Page Improvements
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.

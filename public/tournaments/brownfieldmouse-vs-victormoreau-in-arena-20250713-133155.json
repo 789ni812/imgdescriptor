@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-13T13:31:55.119Z",
+    "fighterA": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752412249126-acvzyg.jpg",
+      "stats": {
+        "health": 20,
+        "maxHealth": 20,
+        "strength": 1,
+        "luck": 19,
+        "agility": 18,
+        "defense": 5,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "fighterB": {
+      "name": "Victor Moreau",
+      "imageUrl": "/vs/fighters/Stephen-Siegal-1752412680859-asgd4j.jpg",
+      "stats": {
+        "health": 15,
+        "maxHealth": 15,
+        "strength": 1,
+        "luck": 16,
+        "agility": 19,
+        "defense": 2,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/beach-stairway-1752412300013-807a0b.jpg",
+      "description": ""
+    },
+    "winner": "brown field mouse",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "brown field mouse",
+      "defender": "Victor Moreau",
+      "attackCommentary": "The tiny brown field mouse goes for a risky burst of speed toward Victor Moreau in Round 1! It's a sliver of damage dealt with a desperate pounce but will.",
+      "defenseCommentary": "The tiny titan MICKEY is on pure defense as Moreau's Victor pushes with calculated aggression. Will Mickey weather this opening onslaught or crumble under the pressure.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 20,
+        "defender": 14
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Victor Moreau",
+      "defender": "brown field mouse",
+      "attackCommentary": "Moreau presses forward with a calculated poke, landing a single shot on the tenacious brown field mouse! Can he chip away at their resilience in this crucial round two.",
+      "defenseCommentary": "Moreau's pressure is relentless in round two, but that tiny titan, brown field mouse, stays remarkably nimble with a flawless defensive showing.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "Victor Moreau lands a critical hit!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 14,
+        "defender": 19
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "brown field mouse",
+      "defender": "Victor Moreau",
+      "attackCommentary": "The tiny titan is pushing hard in round 3! Can Brown Field Mouse outmaneuver the calculated Moreau and land a decisive blow?  This crowd is on their feet as.",
+      "defenseCommentary": "The crowd erupts as little Squeak weaves through Moreau's relentless pressure in a ballet of perfect defense! Can he maintain this for long, or will Victor unleash his full fury.",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "Victor Moreau successfully dodges the attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 19,
+        "defender": 14
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "Victor Moreau",
+      "defender": "brown field mouse",
+      "attackCommentary": "Moreau presses the attack in round 4 with a quick flurry, landing a single but telling blow on the tenacious brown field mouse! It's a small edge in this unpredictable.",
+      "defenseCommentary": "The pressure's on as Moreau navigates brown field mouse's relentless combo attempts in a tense round four. Can he weather this onslaught and set his own counter-offensive.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 14,
+        "defender": 18
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "brown field mouse",
+      "defender": "Victor Moreau",
+      "attackCommentary": "The tiny titan struggles in this fifth round! A desperate 1-point shot connects as Brown Field Mouse tries to chip away at Victor Moreau's lead.  Will it be enough.",
+      "defenseCommentary": "The pressure is immense on round 5! Tiny Tim's outmaneuvering has stalled - Victor Moreau needs a decisive strike, but will the field mouse find another window of elusive defense.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 18,
+        "defender": 13
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "Victor Moreau",
+      "defender": "brown field mouse",
+      "attackCommentary": "The crowd erupts as Victor Moreau lands a punishing combo! A sliver of health remains for brown field mouse in round six, but will it be enough to stage a.",
+      "defenseCommentary": "The pressure is on as Victor Moreau navigates round six's unpredictable terrain. Can he outmaneuver the tenacious brown field mouse and maintain a perfect defensive record? \n\n\n \nThis leaves their.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 13,
+        "defender": 17
+      }
+    }
+  ]
+}
