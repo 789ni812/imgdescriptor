@@ -1679,3 +1679,57 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
 
 ---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---

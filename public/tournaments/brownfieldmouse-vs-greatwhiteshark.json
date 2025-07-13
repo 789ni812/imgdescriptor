@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-13T11:28:55.363Z",
+    "fighterA": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752405991861-i4bvg9.jpg",
+      "stats": {
+        "health": 18,
+        "maxHealth": 18,
+        "strength": 1,
+        "luck": 19,
+        "agility": 18,
+        "defense": 5,
+        "age": 12,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a damp, moss-covered stone path winds through a dense forest. sunlight filters weakly through the canopy above, casting dappled shadows on the ground. worn leather boots small stone scattered berries brown field mouse (fighter) quiet and cautious, with an undercurrent of alertness. the air is thick with humidity. the mouse clutches a tiny, sharpened thorn in its paws. a faint rustling sound comes from the bushes ahead."
+    },
+    "fighterB": {
+      "name": "Great White Shark",
+      "imageUrl": "/vs/fighters/download (4)-1752406089049-fjulvd.jpg",
+      "stats": {
+        "health": 30,
+        "maxHealth": 30,
+        "strength": 1,
+        "luck": 17,
+        "agility": 20,
+        "defense": 3,
+        "age": 15,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a dark, turbulent ocean stretches to the horizon under a bruised, stormy sky. broken ship wreckage scattered crates a partially submerged life raft great white shark terrifying and desperate; a sense of imminent danger and isolation. the shark appears to be guarding something hidden beneath the waves. a faint signal flare drifts across the water in the distance."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/beach-stairway-1752406099631-ebwoes.jpg",
+      "description": ""
+    },
+    "winner": "Great White Shark",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "brown field mouse",
+      "defender": "Great White Shark",
+      "attackCommentary": "The tiny titan strikes first! A daring flurry from Pip the Mouse connects, a single nibble landing on Mako's massive frame in Round 1.  But will it be enough.",
+      "defenseCommentary": "brown field mouse raises their guard against the incoming attack!",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 18,
+        "defender": 29
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Great White Shark",
+      "defender": "brown field mouse",
+      "attackCommentary": "The Great White Shark lands a calculated nip on the brown field mouse in round two! It's a minor hit, but momentum shifts with each scaling point. 1 to nothing.",
+      "defenseCommentary": "The crowd roars as Brown navigates a brutal flurry from Great White Shark's relentless assault in round 2! This tiny titan of defense is showcasing unmatched agility to stay out.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "Great White Shark lands a critical hit!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 29,
+        "defender": 17
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "brown field mouse",
+      "defender": "Great White Shark",
+      "attackCommentary": "The tiny titan endures! Round 3 sees Brown showing remarkable resilience as he eats a single point of damage from that legendary Bite and lives to fight another day.",
+      "defenseCommentary": "Round 3's tension explodes as Pip the Mouse miraculously evades a flurry of Bone Jaw's attacks! Can he withstand the Shark's relentless pressure and stage a comeback.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 17,
+        "defender": 28
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "Great White Shark",
+      "defender": "brown field mouse",
+      "attackCommentary": "The pressure's on in Round 4! A desperate surge from the tiny brown field mouse lands a shot but it's barely a nibble against the titanic force of Great White.",
+      "defenseCommentary": "The tension is palpable as Round 4 unfolds! The brown field mouse dances with uncanny precision, expertly countering the Great White Shark's every offensive move. This round belongs to pure,.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 28,
+        "defender": 16
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "brown field mouse",
+      "defender": "Great White Shark",
+      "attackCommentary": "The tiny brown field mouse KING MINK has survived four rounds against the relentless Leviathan of a Great White Shark! Can one measly point from a desperate attack turn the.",
+      "defenseCommentary": "The tiny titan of round 5 is SQUIRRELING OUT OF IMMEDIATE DANGER! The Mighty Mouse's elusive speed buys a crucial moment against the relentless PREDATORY CHARGE of  the great.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 16,
+        "defender": 27
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "Great White Shark",
+      "defender": "brown field mouse",
+      "attackCommentary": "The pressure's on as Great White Shark goes for a decisive Round 6 assault. Can the tiny titan of the turf withstand this oceanic onslaught, or will we see a.",
+      "defenseCommentary": "The tiny titan's outmaneuvering the Shark in a flurry of calculated dodges! Can Brown withstand this onslaught and take their lead into the deciding round.",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "brown field mouse successfully dodges the attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 27,
+        "defender": 16
+      }
+    }
+  ]
+}

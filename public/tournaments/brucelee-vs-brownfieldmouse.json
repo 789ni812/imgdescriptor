@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-13T08:48:21.673Z",
+    "fighterA": {
+      "name": "Bruce Lee",
+      "imageUrl": "/vs/fighters/brcue-lee-1752396456615-y2y06m.jpg",
+      "stats": {
+        "health": 11,
+        "maxHealth": 11,
+        "strength": 2,
+        "luck": 11,
+        "agility": 18,
+        "defense": 2,
+        "age": 1,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a stark, minimalist dojo bathed in cool, diffused light. the walls are smooth concrete, reflecting the image of a polished steel training dummy positioned directly behind the subject. geometric patterns – sharp triangles and squares – are subtly etched into the floor. steel training dummy worn black gi wooden bokken (practice sword) circular meditation cushion bruce lee focused, intense, disciplined; a palpable sense of controlled power and readiness. a faint rhythmic chanting can be heard in the background. the training dummy seems to subtly shift its posture."
+    },
+    "fighterB": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752396431005-qlx1lo.jpg",
+      "stats": {
+        "health": 12,
+        "maxHealth": 12,
+        "strength": 3,
+        "luck": 19,
+        "agility": 20,
+        "defense": 5,
+        "age": 38,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a sun-drenched meadow dotted with wildflowers, bordering a dense forest. wildflowers smooth river stone worn wooden signpost brown field mouse (fighter) peaceful and serene, with an underlying sense of alertness. the mouse seems unusually confident for its size. a strange symbol is carved into the river stone."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/scene-castle-1-1752396468202-h24d56.jpg",
+      "description": "a medieval stone castle sits prominently on a small island in a calm lake. the castle is constructed of weathered gray stone and features tall cylindrical towers flanking the main gate. a wooden walkway leads across the water to the entrance. lush green grass surrounds the base of the castle, and trees line the shoreline. wooden walkway castle gates stone walls lake water tree line peaceful yet imposing; a sense of history and potential danger. the calm water contrasts with the solid structure of the castle. a single raven circles the highest tower. the walkway appears worn and uneven, suggesting it hasn't been used recently."
+    },
+    "winner": "brown field mouse",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Bruce Lee",
+      "defender": "brown field mouse",
+      "attackCommentary": "The diminutive brown field mouse lands a surprising first hit on Bruce Lee! It's a tiny opening - but can they sustain the pressure.",
+      "defenseCommentary": "Bruce Lee defends with incredible skill!",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 11,
+        "defender": 11
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "brown field mouse",
+      "defender": "Bruce Lee",
+      "attackCommentary": "The tiny titan of round 1 is on the ropes! Bruce Lee lands a calculated flurry, chipping away at the mouse's health and leaving its future uncertain. 3 points of.",
+      "defenseCommentary": "The tiny titan is digging deep! Can SQUEAKY withstand the relentless speed of THE ONCE legendary DRAGON as Bruce Lee unleashes a flurry in round two.",
+      "attackerDamage": 3,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 11,
+        "defender": 8
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Bruce Lee",
+      "defender": "brown field mouse",
+      "attackCommentary": "The Dragon's legendary speed is on full display as he lands a lightning-fast jab against the unlikely competitor! The brown field mouse endures, but 1 point of damage stings nonetheless.",
+      "defenseCommentary": "The pressure's on in Round 3 as Bruce Lee stalks a relentlessly nimble Brown Field Mouse. Can Lee land his decisive strike, or will the tiny titan outmaneuver him once.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 8,
+        "defender": 10
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "brown field mouse",
+      "defender": "Bruce Lee",
+      "attackCommentary": "The crowd erupts as Tiny steps in with a daring flurry! Three measly points of damage - but can brown field mouse overcome the Dragon's legendary might.",
+      "defenseCommentary": "The tiny titan scrambles for a block as Bruce Lee's lightning reflexes unleash another flurry of devastating strikes - can Squeak withstand the pressure in round four.",
+      "attackerDamage": 3,
+      "defenderDamage": 0,
+      "randomEvent": "brown field mouse lands a critical hit!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 10,
+        "defender": 5
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Bruce Lee",
+      "defender": "brown field mouse",
+      "attackCommentary": "The flurry of Bruce Lee's iconic moves connects! A single but precise strike for a sliver of damage - can Brown manage a counter in this final round.",
+      "defenseCommentary": "The pressure's immense as Bruce Lee closes in on round 5! The tiny brown field mouse uses lightning-fast reflexes for a desperate weave and survives another flurry of iconic strikes.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 5,
+        "defender": 9
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "brown field mouse",
+      "defender": "Bruce Lee",
+      "attackCommentary": "The tiny titan lands a flurry of jabs for 3 damage! Can Mousey weather The Leap's pressure in round six, or will Lee's legendary speed carry him to victory.",
+      "defenseCommentary": "The little titan of the 6th round is proving surprisingly elusive! Can Brown Fieldery outmaneuver the legendary speed and precision of Bruce Lee's onslaught.",
+      "attackerDamage": 3,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 9,
+        "defender": 2
+      }
+    }
+  ]
+}

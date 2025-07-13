@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-13T10:17:12.058Z",
+    "fighterA": {
+      "name": "Darth Vader",
+      "imageUrl": "/vs/fighters/Darth-1-1752401779867-vf3hy5.jpg",
+      "stats": {
+        "health": 19,
+        "maxHealth": 19,
+        "strength": 2,
+        "luck": 18,
+        "agility": 18,
+        "defense": 2,
+        "age": 43,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a vast, obsidian chamber deep within a volcanic fortress. molten rock flows through cracks in the walls, casting flickering red light across the scene. the air is thick with heat and sulfurous fumes. ancient sith holocron energy shield generator broken control panel darth vader menacing, oppressive, and filled with a sense of ancient power and cold calculation. the holocron pulses with an unknown energy signature. vader’s helmet seems to subtly shift, revealing a glimpse of something beneath."
+    },
+    "fighterB": {
+      "name": "great white shark",
+      "imageUrl": "/vs/fighters/download (4)-1752401790348-clf4zr.jpg",
+      "stats": {
+        "health": 40,
+        "maxHealth": 40,
+        "strength": 7,
+        "luck": 17,
+        "agility": 17,
+        "defense": 6,
+        "age": 9,
+        "size": "small",
+        "build": "average"
+      },
+      "description": "a rugged coastline with dark, churning grey water. jagged black rocks jut out from the sea, partially submerged. the sky is overcast and heavy with rain. large rock formation scattered driftwood broken oar great white shark menacing, dangerous, and isolated. a palpable sense of dread. the shark appears to be tracking something – a faint trail of bubbles in the water. a partially submerged shipwreck is visible on the horizon."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/scene-castle-1-1752401798864-uiag9h.jpg",
+      "description": "a weathered stone castle dominates the scene, situated on a small island in a calm lake. the castle features multiple cylindrical towers and a large gatehouse with a raised wooden walkway leading to the entrance. lush green grass surrounds the base of the structure. the sky is overcast, creating soft shadows. wooden walkway stone gatehouse castle walls lake peaceful but with an underlying sense of age and isolation. a faint smell of damp stone and wood emanates from the castle. the reflection in the lake seems to show a figure standing near the gatehouse."
+    },
+    "winner": "great white shark",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Darth Vader",
+      "defender": "great white shark",
+      "attackCommentary": "Vader lunges with a brutal Force-enhanced thrust, finding unexpected purchase on the slippery scales of his aquatic opponent! It's a single point landed but this is no lightweight battlefish.",
+      "defenseCommentary": "Darth Vader blocks the strike with expert timing!",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "Darth Vader narrowly dodges great white shark's attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 19,
+        "defender": 39
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "great white shark",
+      "defender": "Darth Vader",
+      "attackCommentary": "The Shark explodes into a flurry of bites, connecting with 9 damage! Can Vader weather this onslaught in round two? This is one clash for the ages.",
+      "defenseCommentary": "Round 2 erupts with a flurry of blaster fire as Vader tests THE OPEN OCEANS' DEFENCE. Can MaKO withstand the relentless onslaught and survive this crucial exchange.",
+      "attackerDamage": 9,
+      "defenderDamage": 0,
+      "randomEvent": "great white shark uses undefined to enhance their attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 39,
+        "defender": 10
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Darth Vader",
+      "defender": "great white shark",
+      "attackCommentary": "Vader presses forward in Round 3 with a flurry of calculated Force-enhanced strikes, landing a single punishing blow on the surprisingly durable apex predator. This unexpected damage could shift the.",
+      "defenseCommentary": "Vader's calculated force pushes deflect a vicious flurry from the Great White. Can this relentless aquatic predator land a decisive blow on the entrenched dark lord.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "Darth Vader narrowly dodges great white shark's attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 10,
+        "defender": 38
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "great white shark",
+      "defender": "Darth Vader",
+      "attackCommentary": "Round 4 explodes with action as a punishing bite from the Great White lands a solid 8 on Vader! This could shift the momentum in the fight's final stretch.",
+      "defenseCommentary": "The relentless pressure of Great White's flurry is met with a wall of calculated defense from Darth Vader in this tense Round 4. Will the shark be able to overcome.",
+      "attackerDamage": 8,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 38,
+        "defender": 2
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Darth Vader",
+      "defender": "great white shark",
+      "attackCommentary": "Vader lands a brutal Force choke on his unexpected Leviathan opponent in round 5! A single point of damage leaves no time for the Shark to recover as the pressure.",
+      "defenseCommentary": "Vader's Force choke attempts are deflected by a flurry of Razor-sharp teeth! Can the shark withstand this onslaught in their final defensive stand? 5th round tension is reaching Breaking Point.",
+      "attackerDamage": 1,
+      "defenderDamage": 0,
+      "randomEvent": "Darth Vader narrowly dodges great white shark's attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 2,
+        "defender": 37
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "great white shark",
+      "defender": "Darth Vader",
+      "attackCommentary": "The shark launches a flurry of bites at Vader's vulnerable points in a desperate 6th round surge! A solid hit connects, chipping away at the dark lord's remaining health.",
+      "defenseCommentary": "The white shark senses a pattern in Vader's Force-enhanced aggression but can he outmaneuver it with pure speed and raw aquatic might? This sixth round is all about precise defense.",
+      "attackerDamage": 6,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 37,
+        "defender": 0
+      }
+    }
+  ]
+}

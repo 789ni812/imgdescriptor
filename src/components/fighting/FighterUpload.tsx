@@ -82,6 +82,20 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
           const fighterData = await fighterResponse.json();
           const newFighter: Fighter = fighterData.fighter;
 
+          // Save fighter metadata JSON
+          if (newFighter && newFighter.imageUrl && newFighter.name && newFighter.stats) {
+            const imageFilename = newFighter.imageUrl.split('/').pop();
+            await fetch('/api/save-fighter-metadata', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: imageFilename,
+                name: newFighter.name,
+                stats: newFighter.stats,
+              }),
+            });
+          }
+
           // Add fighter to store and call callback
           addFighter(newFighter);
           setFighter(newFighter);

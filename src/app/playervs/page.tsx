@@ -10,6 +10,11 @@ import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
 import BattleViewer from '@/components/fighting/BattleViewer';
+import ChooseExistingFighter from '@/components/fighting/ChooseExistingFighter';
+import { FighterMetadata } from '@/lib/utils/fighterUtils';
+import { Fighter } from '@/lib/stores/fightingGameStore';
+import { Scene } from '@/lib/stores/fightingGameStore';
+import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
@@ -42,6 +47,48 @@ function mapPreGeneratedToBattleRound(
       },
     };
   });
+}
+
+function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
+  return {
+    id: meta.id,
+    name: meta.name,
+    imageUrl: meta.image ? `/vs/fighters/${meta.image}` : '',
+    description: '',
+    stats: {
+      health: meta.stats.health,
+      maxHealth: meta.stats.health, // No maxHealth in metadata, use health
+      strength: meta.stats.strength,
+      luck: meta.stats.luck,
+      agility: meta.stats.agility,
+      defense: meta.stats.defense,
+      age: 30, // Default/placeholder
+      size: 'medium', // Default/placeholder
+      build: 'average', // Default/placeholder
+    },
+    visualAnalysis: {
+      age: '',
+      size: '',
+      build: '',
+      appearance: [],
+      weapons: [],
+      armor: [],
+    },
+    combatHistory: [],
+    winLossRecord: { wins: 0, losses: 0, draws: 0 },
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function mapArenaMetadataToScene(meta: { id: string; name: string; image: string; description?: string; environmentalObjects?: string[]; createdAt?: string }): Scene {
+  return {
+    id: meta.id,
+    name: meta.name,
+    imageUrl: meta.image ? `/vs/arena/${meta.image}` : '',
+    description: meta.description || '',
+    environmentalObjects: meta.environmentalObjects || [],
+    createdAt: meta.createdAt || new Date().toISOString(),
+  };
 }
 
 export default function PlayerVsPage() {
@@ -77,6 +124,9 @@ export default function PlayerVsPage() {
 
   // Local state only for fighter/arena upload previews
   const [dmIntro, setDmIntro] = React.useState<string>('');
+  const [fighterASelectMode, setFighterASelectMode] = React.useState<'upload' | 'choose'>('upload');
+  const [fighterBSelectMode, setFighterBSelectMode] = React.useState<'upload' | 'choose'>('upload');
+  const [arenaSelectMode, setArenaSelectMode] = React.useState<'upload' | 'choose'>('upload');
 
   // New: Pre-generated battle playback state
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
@@ -190,26 +240,36 @@ export default function PlayerVsPage() {
     }
   };
   const handleArenaUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
-    const genRes = await fetch('/api/fighting-game/generate-fighter', {
+    // Generate arena name and description
+    const arenaName = extractArenaName(analysis, 'Arena');
+    let description = '';
+    if (analysis && typeof analysis.description === 'string') {
+      description = analysis.description;
+    } else if (analysis && typeof analysis.description === 'object' && analysis.description !== null && 'description' in analysis.description && typeof (analysis.description as any).description === 'string') {
+      description = (analysis.description as any).description;
+    }
+    // Save arena metadata JSON
+    const imageFilename = url.split('/').pop();
+    await fetch('/api/save-arena-metadata', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        imageDescription: analysis.description || '',
-        fighterId: 'arena',
-        fighterLabel: extractArenaName(analysis, 'Arena'),
-        imageUrl: url,
+        image: imageFilename,
+        name: arenaName,
+        description,
+        environmentalObjects: [], // You can enhance this if you extract objects from analysis
       }),
     });
-    if (!genRes.ok) {
-      const errorText = await genRes.text();
-      console.error('Failed to generate arena:', errorText);
-      // Optionally show a user-friendly error message here
-      return;
-    }
-    const data = await genRes.json();
-    if (data.fighter) {
-      setScene({ ...data.fighter, imageUrl: url, id: `arena-${Date.now()}` });
-    }
+
+    // Optionally, you can fetch/generate more arena details here
+    setScene(mapArenaMetadataToScene({
+      id: imageFilename?.replace(/\.jpg$|\.png$|\.jpeg$/i, '') || `arena-${Date.now()}`,
+      name: arenaName,
+      image: imageFilename || '',
+      description: description,
+      environmentalObjects: [],
+      createdAt: new Date().toISOString(),
+    }));
   };
 
   // Add a Reset to Demo button
@@ -388,9 +448,30 @@ export default function PlayerVsPage() {
 
             {/* Fighter Upload Sections */}
             <div className="grid md:grid-cols-2 gap-8 mb-8">
+              {/* Fighter A Card */}
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
                 {!fighterA ? (
-                  <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
+                  <>
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        className={`px-3 py-1 rounded ${fighterASelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterASelectMode('upload')}
+                      >
+                        Upload New
+                      </button>
+                      <button
+                        className={`px-3 py-1 rounded ${fighterASelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterASelectMode('choose')}
+                      >
+                        Choose Existing
+                      </button>
+                    </div>
+                    {fighterASelectMode === 'upload' ? (
+                      <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
+                    ) : (
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} />
+                    )}
+                  </>
                 ) : (
                   // Existing fighter summary UI for Fighter A
                   <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
@@ -420,9 +501,30 @@ export default function PlayerVsPage() {
                 )}
               </div>
 
+              {/* Fighter B Card */}
               <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
                 {!fighterB ? (
-                  <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
+                  <>
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterBSelectMode('upload')}
+                      >
+                        Upload New
+                      </button>
+                      <button
+                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterBSelectMode('choose')}
+                      >
+                        Choose Existing
+                      </button>
+                    </div>
+                    {fighterBSelectMode === 'upload' ? (
+                      <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
+                    ) : (
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} />
+                    )}
+                  </>
                 ) : (
                   // Existing fighter summary UI for Fighter B
                   <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
@@ -457,7 +559,27 @@ export default function PlayerVsPage() {
             <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20 mt-8">
               <h3 className="text-xl font-semibold mb-4">Battle Arena</h3>
               {!scene ? (
-                <FighterImageUpload onUploadComplete={handleArenaUpload} label="Upload image of the fighting scene" category="arena" />
+                <>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      className={`px-3 py-1 rounded ${arenaSelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                      onClick={() => setArenaSelectMode('upload')}
+                    >
+                      Upload New
+                    </button>
+                    <button
+                      className={`px-3 py-1 rounded ${arenaSelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                      onClick={() => setArenaSelectMode('choose')}
+                    >
+                      Choose Existing
+                    </button>
+                  </div>
+                  {arenaSelectMode === 'upload' ? (
+                    <FighterImageUpload onUploadComplete={handleArenaUpload} label="Upload image of the fighting scene" category="arena" />
+                  ) : (
+                    <ChooseExistingArena onSelect={(arena) => setScene(mapArenaMetadataToScene(arena))} />
+                  )}
+                </>
               ) : (
                 <div className="flex flex-col items-center mb-2">
                   {typeof scene.imageUrl === 'string' && scene.imageUrl !== '' && (

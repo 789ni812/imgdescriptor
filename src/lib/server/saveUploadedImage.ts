@@ -6,12 +6,14 @@ import fs from 'fs';
  * @param fileStream Readable stream of the uploaded file
  * @param originalFilename The original filename (to preserve extension)
  * @param category 'fighter' | 'arena' | undefined
+ * @param metadata Optional metadata for fighters (name, stats)
  * @returns The public URL (e.g., /vs/fighters/filename.jpg)
  */
 export async function saveUploadedImage(
   fileStream: NodeJS.ReadableStream,
   originalFilename: string,
-  category?: 'fighter' | 'arena'
+  category?: 'fighter' | 'arena',
+  metadata?: { name: string; stats: Record<string, unknown> }
 ): Promise<string> {
   let targetDir: string;
   let publicPrefix: string;
@@ -37,5 +39,18 @@ export async function saveUploadedImage(
     writeStream.on('finish', resolve);
     writeStream.on('error', reject);
   });
+
+  // If fighter metadata is provided, create/update the JSON file
+  if (category === 'fighter' && metadata) {
+    const jsonName = uniqueName.replace(ext, '.json');
+    const jsonPath = path.join(targetDir, jsonName);
+    const fighterData = {
+      name: metadata.name,
+      image: uniqueName,
+      stats: metadata.stats,
+      matchHistory: [],
+    };
+    await fs.promises.writeFile(jsonPath, JSON.stringify(fighterData, null, 2), 'utf-8');
+  }
   return publicUrl;
 } 

@@ -1786,3 +1786,30 @@ The app now provides a solid foundation for future enhancements:
 - The UI must be robust for any number of fighters/arenas and provide a seamless replay experience.
 
 ---
+
+# Architecture Addendum (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- For every image in `public/vs/fighters/`, there is a JSON file (same basename) with:
+  - `id`, `name`, `image` (filename), `stats` (object), `matchHistory` (array of objects)
+- Example: `public/vs/fighters/darth-vader.json`
+- Used for:
+  - Displaying stats in UI
+  - Tracking matchups (to avoid duplicate battles)
+  - Feeding data to balancing script
+
+## 2. On-Demand Balancing Script
+- Script lives in `/scripts/balanceFighters.ts` (or similar)
+- Reads all fighter JSON files, uses LLM or logic to adjust stats
+- Updates JSON files in place
+- UI trigger: Button on `/playervs` (visible only in dev)
+- Never runs in production
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Component: `<ChooseExistingFighter />` and `<ChooseExistingArena />`
+- Fetches list of images and metadata from API route (e.g., `/api/list-fighters`)
+- Renders grid of thumbnails (with stats)
+- Selection updates parent state (sets fighter/arena)
+- Accessible: Keyboard navigation, focus ring, ARIA labels
+
+---

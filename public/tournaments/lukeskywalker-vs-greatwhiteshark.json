@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-13T09:56:42.262Z",
+    "fighterA": {
+      "name": "Luke Skywalker",
+      "imageUrl": "/vs/fighters/luke-1-1752400529727-vwfbwt.jpg",
+      "stats": {
+        "health": 14,
+        "maxHealth": 14,
+        "strength": 1,
+        "luck": 15,
+        "agility": 17,
+        "defense": 3,
+        "age": 7,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a stark white training room, dominated by a large holographic projector displaying combat simulations. the floor is polished metal, reflecting the blue glow of a lightsaber. lightsaber holographic projector training droid control panel luke skywalker focused and determined, with an underlying sense of anticipation and potential danger. the holographic simulation glitches, revealing a hidden threat. a voiceover instructs luke to react to an unseen enemy."
+    },
+    "fighterB": {
+      "name": "great white shark",
+      "imageUrl": "/vs/fighters/download (4)-1752400550955-vapf84.jpg",
+      "stats": {
+        "health": 29,
+        "maxHealth": 29,
+        "strength": 7,
+        "luck": 17,
+        "agility": 17,
+        "defense": 5,
+        "age": 12,
+        "size": "small",
+        "build": "average"
+      },
+      "description": "a dark, turbulent ocean with towering waves crashing against a rocky shoreline. large boulder scattered driftwood broken fishing net great white shark terrifying and suspenseful, conveying imminent danger and vulnerability. a distant ship struggles against the waves. strange symbols are carved into the rocks near the shoreline."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/scene-castle-1-1752400567768-yl15p9.jpg",
+      "description": "a weathered stone castle dominates the scene, reflecting in a calm body of water. a wooden walkway leads to the main entrance, flanked by high walls and turrets. the sky is overcast, casting a muted light across the landscape. wooden walkway stone walls castle gate turrets body of water none quiet and solemn, with an impression of age and resilience. a sense of history and potential isolation. a faint draft emanates from the castle gates. footsteps can be heard echoing within the walls."
+    },
+    "winner": "great white shark",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Luke Skywalker",
+      "defender": "great white shark",
+      "attackCommentary": "Luke opens with a flurry of lightsaber strikes, testing the Great White's defenses! Can this aquatic apex predator withstand the pressure of a Jedi assault in round one.",
+      "defenseCommentary": "Luke Skywalker braces for impact and defends bravely!",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "Luke Skywalker narrowly dodges great white shark's attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 14,
+        "defender": 29
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "great white shark",
+      "defender": "Luke Skywalker",
+      "attackCommentary": "The Great White opens round two with a brutal uppercut! Luke staggers but that's 6 damage right out of the gate and he'll need to recover fast.",
+      "defenseCommentary": "The heat of round one's exchange still lingers as  Apex Prime electrifies with a calculated block. Can Luke weather this surge and turn the tide in his favor, or.",
+      "attackerDamage": 6,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 29,
+        "defender": 8
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Luke Skywalker",
+      "defender": "great white shark",
+      "attackCommentary": "Round 3 explodes with a primal fury as Luke Force pushes for an offensive combo, testing if his Jedi mastery can overcome the unexpected apex predator in the Great White.",
+      "defenseCommentary": "The Force is tested as Luke's lightsaber parries a Razor-sharp flurry from the relentless great white! It's a tense defensive stand for the Jedi in round three - can he.",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "Luke Skywalker narrowly dodges great white shark's attack!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 8,
+        "defender": 29
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "great white shark",
+      "defender": "Luke Skywalker",
+      "attackCommentary": "The great white's flurry connects! Luke staggers back with a solid six damage as the pressure intensifies in this climactic round. \n\n\n  </p> model: </text_block; The lean and mean.",
+      "defenseCommentary": "The pressure is on as Luke weaves and dodges a relentless flurry of Great White's attacks! This defensive mastery might just buy him time for a counter-offensive in this tightly.",
+      "attackerDamage": 6,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 29,
+        "defender": 2
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Luke Skywalker",
+      "defender": "great white shark",
+      "attackCommentary": "Luke presses his advantage with a Force-enhanced blast that sends the Great White spiraling! The shark is reeling from 23 damage in this climactic Round 5 - will they recover.",
+      "defenseCommentary": "Luke's Force deflection is on point in this 5th round as he flawlessly parries each incoming thrash from the relentless Great White! The pressure mounts—can Luke weather this aquatic onslaught.",
+      "attackerDamage": 23,
+      "defenderDamage": 0,
+      "randomEvent": "Luke Skywalker narrowly dodges great white shark's attack! Luke Skywalker finds a weak spot and deals devastating damage!",
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 2,
+        "defender": 6
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "great white shark",
+      "defender": "Luke Skywalker",
+      "attackCommentary": "The Great White explodes in with a flurry of bites! Five hard hits land on Luke, but will that stagger The Force--or leave his defenses open for a knockout.",
+      "defenseCommentary": "The crowd erupts as Luke deftly parries a flurry of razor-sharp turrents from Great White. This sixth round tension is palpable -  can anyone overcome this Jedi wall.",
+      "attackerDamage": 5,
+      "defenderDamage": 0,
+      "randomEvent": null,
+      "arenaObjectsUsed": null,
+      "healthAfter": {
+        "attacker": 6,
+        "defender": 0
+      }
+    }
+  ]
+}

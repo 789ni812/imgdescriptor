@@ -1,0 +1,15 @@
+{
+  "name": "Test Fighter",
+  "image": "test-fighter-1752403588597-1jpemy.jpg",
+  "stats": {
+    "health": 100,
+    "strength": 10,
+    "agility": 8,
+    "luck": 5,
+    "defense": 3,
+    "size": "medium",
+    "build": "athletic",
+    "age": "adult"
+  },
+  "matchHistory": []
+}
