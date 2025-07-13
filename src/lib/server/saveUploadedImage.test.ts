@@ -32,7 +32,8 @@ describe('saveUploadedImage with fighter metadata', () => {
   it('creates a JSON metadata file for each uploaded fighter image', async () => {
     // Simulate a file upload
     const fileBuffer = Buffer.from('fake image data');
-    const fileStream = require('stream').Readable.from(fileBuffer);
+    const { Readable } = await import('stream');
+    const fileStream = Readable.from(fileBuffer);
     const url = await saveUploadedImage(fileStream, testImageName, 'fighter', {
       name: 'Test Fighter',
       stats: {
@@ -48,7 +49,7 @@ describe('saveUploadedImage with fighter metadata', () => {
     });
     expect(url).toMatch(/\/vs\/fighters\//);
     // Find the unique JSON file that matches the image
-    const uniquePart = url.split('/').pop().replace('.jpg', '');
+    const uniquePart = url.split('/').pop()?.replace('.jpg', '') || '';
     const files = fs.readdirSync(fightersDir);
     console.log('Files in fightersDir:', files);
     const jsonFiles = files.filter(f => f === uniquePart + '.json');

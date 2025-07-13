@@ -22,6 +22,7 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('DEBUG handleFileChange called');
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -39,12 +40,15 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
         body: formData,
       });
 
+      console.log('DEBUG uploadResponse:', uploadResponse);
+
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload image');
       }
 
       const uploadData = await uploadResponse.json();
       const imageUrl = uploadData.url;
+      console.log('DEBUG uploadData:', uploadData);
 
       // Step 2: Analyze image to get description
       setIsAnalyzing(true);
@@ -57,9 +61,11 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: base64Image, prompt: 'Describe this fighter.' }),
           });
+          console.log('DEBUG analysisRes:', analysisRes);
           if (!analysisRes.ok) throw new Error('Analysis failed');
           const analysisData = await analysisRes.json();
           const imageDescription = analysisData.description;
+          console.log('DEBUG analysisData:', analysisData);
 
           // Step 3: Generate fighter stats and details
           const fighterResponse = await fetch('/api/fighting-game/generate-fighter', {
@@ -74,6 +80,7 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
               imageUrl,
             }),
           });
+          console.log('DEBUG fighterResponse:', fighterResponse);
 
           if (!fighterResponse.ok) {
             throw new Error('Failed to generate fighter');
@@ -81,6 +88,9 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
 
           const fighterData = await fighterResponse.json();
           const newFighter: Fighter = fighterData.fighter;
+
+          // Debug log to inspect the fighter object
+          console.log('DEBUG newFighter:', newFighter);
 
           // Save fighter metadata JSON
           if (newFighter && newFighter.imageUrl && newFighter.name && newFighter.stats) {
@@ -102,6 +112,7 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
           onFighterCreated(newFighter);
           setIsAnalyzing(false);
         } catch (err) {
+          console.error('DEBUG error in analysis/generation:', err);
           setError('Failed to analyze image or generate fighter.');
           setIsAnalyzing(false);
         }
@@ -112,6 +123,7 @@ export default function FighterUpload({ fighterId, fighterLabel, onFighterCreate
       };
       reader.readAsDataURL(file);
     } catch (err) {
+      console.error('DEBUG error in upload flow:', err);
       setError(err instanceof Error ? err.message : 'Upload failed');
       setIsUploading(false);
       setIsAnalyzing(false);

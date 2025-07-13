@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getFightersList } from '@/lib/utils/fighterUtils';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const result = await getFightersList();
   
   if (result.success) {

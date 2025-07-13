@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     const jsonName = `${base}.json`;
     const jsonPath = path.join(fightersDir, jsonName);
     const fighterData = {
+      id: base,
       name,
       image,
       stats,

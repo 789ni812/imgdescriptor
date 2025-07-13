@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveUploadedImage } from '@/lib/server/saveUploadedImage';
+
 
 export const runtime = 'nodejs';
 

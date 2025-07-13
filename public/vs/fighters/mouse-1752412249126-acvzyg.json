@@ -1,0 +1,17 @@
+{
+  "id": "mouse-1752412249126-acvzyg",
+  "name": "brown field mouse",
+  "image": "mouse-1752412249126-acvzyg.jpg",
+  "stats": {
+    "health": 20,
+    "maxHealth": 20,
+    "strength": 1,
+    "luck": 19,
+    "agility": 18,
+    "defense": 5,
+    "age": 11,
+    "size": "small",
+    "build": "thin"
+  },
+  "matchHistory": []
+}

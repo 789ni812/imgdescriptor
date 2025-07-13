@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getArenasList } from '@/lib/utils/arenaUtils';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const result = await getArenasList();
   if (result.success) {
     return NextResponse.json({ success: true, arenas: result.arenas });

@@ -1,45 +1,45 @@
 {
   "metadata": {
-    "timestamp": "2025-07-13T09:47:14.166Z",
+    "timestamp": "2025-07-13T13:12:19.574Z",
     "fighterA": {
       "name": "brown field mouse",
-      "imageUrl": "/vs/fighters/mouse-1752399952296-tfpywl.jpg",
+      "imageUrl": "/vs/fighters/mouse-1752412249126-acvzyg.jpg",
       "stats": {
-        "health": 14,
-        "maxHealth": 14,
-        "strength": 2,
-        "luck": 18,
-        "agility": 19,
-        "defense": 4,
-        "age": 40,
+        "health": 20,
+        "maxHealth": 20,
+        "strength": 1,
+        "luck": 19,
+        "agility": 18,
+        "defense": 5,
+        "age": 11,
         "size": "small",
         "build": "thin"
       },
-      "description": "a sun-drenched clearing within a dense, overgrown forest. wildflowers bloom in patches amongst mossy rocks and fallen logs. the air smells of damp earth and pine needles. small stone wildflower bouquet worn leather pouch brown field mouse (fighter) quiet, cautious, with a subtle sense of alertness. the mouse clutches a tiny, intricately carved wooden shield. a faint rustling in the undergrowth suggests unseen movement."
+      "description": "a damp, moss-covered stone path winds through a dense forest. sunlight struggles to penetrate the canopy above, creating a perpetually twilight atmosphere. ferns and wildflowers grow in abundance along the sides of the path. worn leather boots small stone a scattering of berries brown field mouse (fighter) quiet and cautious, with an undercurrent of alertness. a sense of hidden vulnerability. the mouse clutches a tiny, sharpened pebble in its paws - a surprisingly effective weapon. a faint rustling sound comes from the bushes ahead."
     },
     "fighterB": {
       "name": "Bruce Lee",
-      "imageUrl": "/vs/fighters/brcue-lee-1752399993473-4t47xf.jpg",
+      "imageUrl": "/vs/fighters/brcue-lee-1752412311628-li6ohs.jpg",
       "stats": {
-        "health": 139,
-        "maxHealth": 139,
+        "health": 102,
+        "maxHealth": 102,
         "strength": 14,
-        "luck": 9,
-        "agility": 16,
-        "defense": 9,
-        "age": 72,
+        "luck": 15,
+        "agility": 17,
+        "defense": 12,
+        "age": 32,
         "size": "medium",
-        "build": "average"
+        "build": "muscular"
       },
-      "description": "a stark, minimalist training hall dominates the scene. the walls are smooth concrete, reflecting a single harsh light source above. several stylized suits of armor stand in various poses, seemingly frozen mid-action. the floor is polished and reflects the light intensely. suit of armor training dummy martial arts weapon (likely a staff) bruce lee intense, focused, disciplined; a feeling of controlled power and imminent action. lee is attempting to execute a complex technique that seems impossible. a faint inscription can be seen on the wall behind lee – perhaps a cryptic instruction or warning."
+      "description": "a stark, concrete training hall filled with rows of gleaming, stylized warrior statues. the lighting is harsh and directional, emphasizing the angular forms of the figures. stylized warrior statues training mat metal weights bruce lee (as a statue) focused intensity; disciplined training; controlled power. a faint shimmer around the warrior statues suggests they are not entirely inanimate. the training mat is subtly stained with what appears to be blood."
     },
     "arena": {
       "name": "Arena",
-      "imageUrl": "/vs/arena/scene-castle-1-1752400006433-bla9ym.jpg",
-      "description": "a medieval castle dominates the scene, constructed from grey stone with rounded towers. a wooden walkway leads across a still pond to the main gate. lush green grass surrounds the base of the structure and trees line the water’s edge. the sky is overcast, suggesting a potentially gloomy day. wooden walkway castle gate pond stone walls trees quiet and imposing, with an air of age and history. there's a sense of isolation and potential danger. the castle appears deserted, but signs of recent occupation are visible. a small, weathered sign is affixed to the gate."
+      "imageUrl": "/vs/arena/beach-stairway-1752412300013-807a0b.jpg",
+      "description": ""
     },
-    "winner": "Bruce Lee",
-    "totalRounds": 4,
+    "winner": "brown field mouse",
+    "totalRounds": 3,
     "maxRounds": 6
   },
   "battleLog": [
@@ -47,59 +47,44 @@
       "round": 1,
       "attacker": "brown field mouse",
       "defender": "Bruce Lee",
-      "attackCommentary": "The tiny titan starts with a lightning-fast flurry, landing a single unexpected jab on the legendary Bruce Lee! This unlikely opening has ignited the crowd.",
-      "defenseCommentary": "brown field mouse dodges and counters with precision!",
-      "attackerDamage": 1,
+      "attackCommentary": "The tiny titan charges with a flurry of clawed jabs! But can Pip squeak past Bruce Lee's legendary reflexes in this first round showdown.",
+      "defenseCommentary": "brown field mouse blocks the strike with expert timing!",
+      "attackerDamage": 0,
       "defenderDamage": 0,
       "randomEvent": "brown field mouse narrowly dodges Bruce Lee's attack!",
-      "arenaObjectsUsed": null,
+      "arenaObjectsUsed": [],
       "healthAfter": {
-        "attacker": 14,
-        "defender": 138
+        "attacker": 20,
+        "defender": 102
       }
     },
     {
       "round": 2,
       "attacker": "Bruce Lee",
       "defender": "brown field mouse",
-      "attackCommentary": "Bruce Lee presses his relentless assault with a lightning-fast combo! The tiny brown field mouse endures 12 points of damage, but can they withstand the Dragon's wrath in this round.",
-      "defenseCommentary": "The crowd roars as Bruce Lee circles, his lightning reflexes a blur of calculated pressure. Can the tiny brown field mouse withstand this onslaught and weather the legendary Dragon's counter.",
-      "attackerDamage": 12,
+      "attackCommentary": "Bruce Lee explodes forward with a lightning-fast combo! The tiny brown field mouse doesn't stand a chance as 16 damage racks up their health in this brutal opening.",
+      "defenseCommentary": "Bruce Lee circles cautiously in round two, his lightning reflexes anticipating a desperate surge from the brown field mouse. Can he outmaneuver this unpredictable opponent.",
+      "attackerDamage": 16,
       "defenderDamage": 0,
-      "randomEvent": null,
-      "arenaObjectsUsed": null,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
       "healthAfter": {
-        "attacker": 138,
-        "defender": 2
+        "attacker": 102,
+        "defender": 4
       }
     },
     {
       "round": 3,
       "attacker": "brown field mouse",
       "defender": "Bruce Lee",
-      "attackCommentary": "The crowd ROARED as Mouse connected with a lightning-fast flurry - but despite ONE measly point of damage, the impact STOPPED Bruce Lee in his tracks! Round three is FAR.",
-      "defenseCommentary": "The tiny titan scrambles out of the way as Bruce Lee's lightning reflexes unleash a flurry of devastating kicks -  Round 3 is all about survival for our underdog.",
-      "attackerDamage": 1,
+      "attackCommentary": "The pressure's on as round 3 begins! Brown Field Mouse goes for a desperate combo, but Bruce Lee flawlessly executes an explosive counter for a MAJOR damage swing and leaves.",
+      "defenseCommentary": "The tiny titan squirms out of a flurry from Bruce Lee's lightning reflexes in round 3 - this is no time for overconfidence! Will Nibbles survive the onslaught.",
+      "attackerDamage": 102,
       "defenderDamage": 0,
-      "randomEvent": "brown field mouse narrowly dodges Bruce Lee's attack!",
-      "arenaObjectsUsed": null,
+      "randomEvent": "brown field mouse fails to dodge and is knocked out!",
+      "arenaObjectsUsed": [],
       "healthAfter": {
-        "attacker": 2,
-        "defender": 137
-      }
-    },
-    {
-      "round": 4,
-      "attacker": "Bruce Lee",
-      "defender": "brown field mouse",
-      "attackCommentary": "The whirlwind of the Dragon's fury explodes as Bruce Lee lands a brutal 19 damage combo, sending our tiny brown field mouse reeling! The pressure is on for round five.",
-      "defenseCommentary": "The pressure's mounting as Bruce Lee closes in on Round 4. But our tiny titan showcases unexpected defensive prowess, countering every advance with lightning-fast deflections and a heart of undeniable.",
-      "attackerDamage": 19,
-      "defenderDamage": 0,
-      "randomEvent": "Bruce Lee uses undefined to enhance their attack!",
-      "arenaObjectsUsed": null,
-      "healthAfter": {
-        "attacker": 137,
+        "attacker": 4,
         "defender": 0
       }
     }

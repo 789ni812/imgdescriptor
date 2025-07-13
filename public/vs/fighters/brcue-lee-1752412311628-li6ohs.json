@@ -1,0 +1,17 @@
+{
+  "id": "brcue-lee-1752412311628-li6ohs",
+  "name": "Bruce Lee",
+  "image": "brcue-lee-1752412311628-li6ohs.jpg",
+  "stats": {
+    "health": 102,
+    "maxHealth": 102,
+    "strength": 14,
+    "luck": 15,
+    "agility": 17,
+    "defense": 12,
+    "age": 32,
+    "size": "medium",
+    "build": "muscular"
+  },
+  "matchHistory": []
+}

@@ -5,7 +5,7 @@ import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores
 import HealthBar from '@/components/fighting/HealthBar';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
-import BattleStoryboard from '@/components/fighting/BattleStoryboard';
+
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
@@ -23,15 +23,15 @@ const demoScene = godzillaVSbruceleeDemo.scene;
 
 function mapPreGeneratedToBattleRound(
   log: PreGeneratedBattleRound[],
-  fighterA: any,
-  fighterB: any
+  fighterA: Fighter,
+  fighterB: Fighter
 ) {
   let healthA = fighterA?.stats?.health ?? 0;
   let healthB = fighterB?.stats?.health ?? 0;
   return log.map((r) => {
     // Apply damage to defender
-    let attacker = r.attacker === fighterA.name ? 'A' : 'B';
-    let defender = attacker === 'A' ? 'B' : 'A';
+    const attacker = r.attacker === fighterA.name ? 'A' : 'B';
+    const defender = attacker === 'A' ? 'B' : 'A';
     if (attacker === 'A') {
       healthB = Math.max(0, healthB - (r.attackerDamage ?? 0));
     } else {
@@ -100,7 +100,6 @@ export default function PlayerVsPage() {
     fighterAHealth,
     fighterBHealth,
     combatLog,
-    roundStep,
     setRoundStep,
     winner,
     showRoundAnim,
@@ -130,7 +129,7 @@ export default function PlayerVsPage() {
 
   // New: Pre-generated battle playback state
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
-  const [preBattleError, setPreBattleError] = React.useState<string | null>(null);
+
 
   // Helper: get fighterA/fighterB from store
   const fighterA = fighters.fighterA;
@@ -213,7 +212,21 @@ export default function PlayerVsPage() {
     }
     const data = await genRes.json();
     if (data.fighter) {
-      setFighter('fighterA', { ...data.fighter, imageUrl: url, id: `fighterA-${Date.now()}` });
+      const fighter = { ...data.fighter, imageUrl: url, id: `fighterA-${Date.now()}` };
+      
+      // Save fighter metadata JSON
+      const imageFilename = url.split('/').pop();
+      await fetch('/api/save-fighter-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: imageFilename,
+          name: fighter.name,
+          stats: fighter.stats,
+        }),
+      });
+      
+      setFighter('fighterA', fighter);
     }
   };
   const handleFighterBUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
@@ -236,7 +249,21 @@ export default function PlayerVsPage() {
     }
     const data = await genRes.json();
     if (data.fighter) {
-      setFighter('fighterB', { ...data.fighter, imageUrl: url, id: `fighterB-${Date.now()}` });
+      const fighter = { ...data.fighter, imageUrl: url, id: `fighterB-${Date.now()}` };
+      
+      // Save fighter metadata JSON
+      const imageFilename = url.split('/').pop();
+      await fetch('/api/save-fighter-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: imageFilename,
+          name: fighter.name,
+          stats: fighter.stats,
+        }),
+      });
+      
+      setFighter('fighterB', fighter);
     }
   };
   const handleArenaUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
@@ -245,8 +272,8 @@ export default function PlayerVsPage() {
     let description = '';
     if (analysis && typeof analysis.description === 'string') {
       description = analysis.description;
-    } else if (analysis && typeof analysis.description === 'object' && analysis.description !== null && 'description' in analysis.description && typeof (analysis.description as any).description === 'string') {
-      description = (analysis.description as any).description;
+    } else if (analysis && typeof analysis.description === 'object' && analysis.description !== null && 'description' in analysis.description && typeof (analysis.description as Record<string, unknown>).description === 'string') {
+      description = (analysis.description as Record<string, unknown>).description as string;
     }
     // Save arena metadata JSON
     const imageFilename = url.split('/').pop();
@@ -285,7 +312,6 @@ export default function PlayerVsPage() {
   // New: Start fight with pre-generated battle log
   const handleBeginCombat = async () => {
     setIsPreBattleLoading(true);
-    setPreBattleError(null);
     try {
       const fighterA = fighters.fighterA;
       const fighterB = fighters.fighterB;
@@ -304,7 +330,7 @@ export default function PlayerVsPage() {
       setCurrentRound(1);
       setShowRoundAnim(true);
     } catch (err) {
-      setPreBattleError((err as Error).message);
+      console.error('Battle generation error:', err);
     } finally {
       setIsPreBattleLoading(false);
     }

@@ -1,6 +1,5 @@
 import { getFightersList } from '@/lib/utils/fighterUtils';
 import { readdir, readFile } from 'fs/promises';
-import { join } from 'path';
 
 // Mock fs/promises
 jest.mock('fs/promises');
@@ -9,7 +8,6 @@ const mockReadFile = readFile as jest.MockedFunction<typeof readFile>;
 
 // Mock path
 jest.mock('path');
-const mockJoin = join as jest.MockedFunction<typeof join>;
 
 describe('getFightersList', () => {
   beforeEach(() => {

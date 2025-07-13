@@ -3,7 +3,7 @@ import { Fighter } from '@/lib/stores/fightingGameStore';
 import { getCreatureType, generateStatsFromScoreSheet } from '@/lib/types/creatureScoreSheet';
 
 export async function POST(req: NextRequest) {
-  const { imageDescription, fighterId, fighterLabel } = await req.json();
+  const { imageDescription, fighterId, fighterLabel, imageUrl } = await req.json();
 
   // Generate mock stats based on description keywords
   function randomStat(min: number, max: number) {
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
   const fighter: Fighter = {
     id: fighterId + '-' + Date.now(),
     name: fighterLabel, // Use only the provided label, no random number
-    imageUrl: '/public/imgRepository/download (1)-1751890389185-ke76fu.jpg', // placeholder
+    imageUrl: imageUrl || '/public/imgRepository/download (1)-1751890389185-ke76fu.jpg', // use provided imageUrl or fallback
     description: descString || 'A mysterious fighter',
     stats: {
       health,
