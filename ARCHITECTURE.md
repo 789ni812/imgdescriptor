@@ -1820,3 +1820,40 @@ The app now provides a solid foundation for future enhancements:
 ## 4. Tournament Page Improvements
 - The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
 - Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Layout & Leaderboard Redesign
+- The tournament page now uses a responsive two-column layout (CSS grid/flexbox) to maximize horizontal and vertical space.
+- The leaderboard is given more width and improved column spacing for better readability.
+- The left column contains the hub, battle dropdown, and leaderboard; the right column is dedicated to the battle replay.
+- The design adapts to different screen sizes and ensures all leaderboard columns are visible.
+- Motivation: Addressed user feedback about wasted space and poor leaderboard visibility.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |

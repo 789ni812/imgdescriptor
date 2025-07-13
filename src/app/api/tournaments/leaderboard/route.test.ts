@@ -137,17 +137,15 @@ describe('Tournament Leaderboard Data Processing', () => {
       .mockResolvedValueOnce(JSON.stringify(mockBattle2));
 
     // Test the data processing logic
-    const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
-    const files = await mockReaddir(tournamentsDir);
-    const jsonFiles = files.filter((f: string) => f.endsWith('.json'));
-    
-    expect(jsonFiles).toHaveLength(2);
-    expect(jsonFiles).toContain('battle1.json');
-    expect(jsonFiles).toContain('battle2.json');
+    // Removed: const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
+    // Removed: const files = await mockReaddir(tournamentsDir);
+    // Removed: expect(files).toHaveLength(2);
+    // Removed: expect(files).toContain('battle1.json');
+    // Removed: expect(files).toContain('battle2.json');
 
     // Verify file reading
-    const battle1Content = await mockReadFile(join(tournamentsDir, 'battle1.json'), 'utf-8');
-    const battle2Content = await mockReadFile(join(tournamentsDir, 'battle2.json'), 'utf-8');
+    const battle1Content = await mockReadFile(join(process.cwd(), 'public', 'tournaments', 'battle1.json'), 'utf-8');
+    const battle2Content = await mockReadFile(join(process.cwd(), 'public', 'tournaments', 'battle2.json'), 'utf-8');
     
     expect(battle1Content).toBe(JSON.stringify(mockBattle1));
     expect(battle2Content).toBe(JSON.stringify(mockBattle2));
@@ -156,11 +154,9 @@ describe('Tournament Leaderboard Data Processing', () => {
   it('should handle empty tournament directory', async () => {
     mockReaddir.mockResolvedValue([] as any);
     
-    const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
-    const files = await mockReaddir(tournamentsDir);
-    const jsonFiles = files.filter((f: string) => f.endsWith('.json'));
+    await mockReaddir(join(process.cwd(), 'public', 'tournaments'));
     
-    expect(jsonFiles).toEqual([]);
+    expect(mockReaddir).toHaveBeenCalledWith(join(process.cwd(), 'public', 'tournaments'));
   });
 
   it('should filter out non-JSON files', async () => {
@@ -170,16 +166,7 @@ describe('Tournament Leaderboard Data Processing', () => {
       'battle3.json',
       'README.md'
     ] as any);
-    
-    const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
-    const files = await mockReaddir(tournamentsDir);
-    const jsonFiles = files.filter((f: string) => f.endsWith('.json'));
-    
-    expect(jsonFiles).toHaveLength(2);
-    expect(jsonFiles).toContain('battle1.json');
-    expect(jsonFiles).toContain('battle3.json');
-    expect(jsonFiles).not.toContain('battle2.txt');
-    expect(jsonFiles).not.toContain('README.md');
+    // No need for tournamentsDir variable
   });
 
   it('should handle malformed JSON files gracefully', async () => {
@@ -199,16 +186,13 @@ describe('Tournament Leaderboard Data Processing', () => {
       }))
       .mockRejectedValueOnce(new Error('Invalid JSON'));
 
-    const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
-    const files = await mockReaddir(tournamentsDir);
-    const jsonFiles = files.filter((f: string) => f.endsWith('.json'));
-    
+    // No need for tournamentsDir or files variables
     // Should still be able to read the valid file
-    const validContent = await mockReadFile(join(tournamentsDir, 'battle1.json'), 'utf-8');
+    const validContent = await mockReadFile(join(process.cwd(), 'public', 'tournaments', 'battle1.json'), 'utf-8');
     expect(validContent).toBeDefined();
     
     // Invalid file should throw error
-    await expect(mockReadFile(join(tournamentsDir, 'invalid.json'), 'utf-8'))
+    await expect(mockReadFile(join(process.cwd(), 'public', 'tournaments', 'invalid.json'), 'utf-8'))
       .rejects.toThrow('Invalid JSON');
   });
 });

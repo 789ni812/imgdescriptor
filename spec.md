@@ -1740,3 +1740,4966 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 
 - The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
 - Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+  - [ ] Add narrative variety and dramatic tension building
+  - [ ] **Commit:** `feat(api): implement AI combat narration generation`
+
+- [ ] **5.3: Fight Setup Narration**
+  - [ ] Write failing test for fight setup story generation
+  - [ ] Create API endpoint for generating why fighters meet
+  - [ ] Implement scene-based narrative generation
+  - [ ] Add character motivation and conflict setup
+  - [ ] **Commit:** `feat(narration): add fight setup and character motivation generation`
+
+### Phase 6: Combat Flow Implementation
+- [ ] **6.1: Turn-Based Combat Logic**
+  - [ ] Write failing test for turn-based combat flow
+  - [ ] Implement alternating attack turns between fighters
+  - [ ] Add initiative rolls and turn order determination
+  - [ ] Create combat round management and progression
+  - [ ] **Commit:** `feat(combat): implement turn-based combat flow with initiative`
+
+- [ ] **6.2: Victory Conditions**
+  - [ ] Write failing test for victory/defeat detection
+  - [ ] Implement health-based victory conditions
+  - [ ] Add surrender mechanics and knockout detection
+  - [ ] Create game over states and winner determination
+  - [ ] **Commit:** `feat(combat): add victory conditions and game over states`
+
+- [ ] **6.3: Combat State Management**
+  - [ ] Write failing test for combat state transitions
+  - [ ] Implement game phases: setup, introduction, combat, victory
+  - [ ] Add state persistence and combat history
+  - [ ] Create replay and rematch functionality
+  - [ ] **Commit:** `feat(state): implement combat state management and replay system`
+
+### Phase 7: Advanced Features
+- [ ] **7.1: Special Abilities System**
+  - [ ] Write failing test for special ability mechanics
+  - [ ] Implement special moves based on fighter stats and descriptions
+  - [ ] Add ability cooldowns and resource management
+  - [ ] Create unique abilities for different fighter types
+  - [ ] **Commit:** `feat(abilities): add special moves and fighter abilities system`
+
+- [ ] **7.2: Status Effects**
+  - [ ] Write failing test for status effect application and management
+  - [ ] Implement status effects: stunned, bleeding, buffed, debuffed
+  - [ ] Add status effect duration and stacking mechanics
+  - [ ] Create visual indicators for active status effects
+  - [ ] **Commit:** `feat(effects): add status effects system with visual indicators`
+
+- [ ] **7.3: Sound and Visual Effects**
+  - [ ] Write failing test for sound effect integration
+  - [ ] Add combat sound effects for attacks, damage, and special moves
+  - [ ] Implement visual feedback for critical hits and status effects
+  - [ ] Create victory/defeat sound effects and animations
+  - [ ] **Commit:** `feat(feedback): add sound effects and visual feedback for combat`
+
+### Phase 8: Integration and Polish
+- [ ] **8.1: Full Game Flow Integration**
+  - [ ] Write failing test for complete game flow from setup to victory
+  - [ ] Integrate all components into cohesive fighting game experience
+  - [ ] Add error handling and edge case management
+  - [ ] Implement loading states and user feedback
+  - [ ] **Commit:** `feat(integration): complete fighting game flow integration`
+
+- [ ] **8.2: Performance Optimization**
+  - [ ] Write failing test for performance benchmarks
+  - [ ] Optimize image loading and AI generation response times
+  - [ ] Implement caching for fighter stats and descriptions
+  - [ ] Add lazy loading for combat components
+  - [ ] **Commit:** `feat(performance): optimize fighting game performance and loading`
+
+- [ ] **8.3: Final Testing and Polish**
+  - [ ] Run comprehensive test suite for all fighting game components
+  - [ ] Perform browser testing and mobile responsiveness verification
+  - [ ] Add final UI polish and accessibility improvements
+  - [ ] Create demo data and example fighters for testing
+  - [ ] **Commit:** `feat(polish): final testing and UI polish for fighting game`
+
+### Game Design Decisions
+
+1. **Fighter Stat Generation**: AI generates stats based on visual analysis from image descriptions:
+   - **Age**: Young vs old affects agility and experience
+   - **Size**: Large vs small affects strength and health
+   - **Build**: Muscular vs thin affects strength and defense
+   - **Appearance**: Scars, armor, weapons affect combat abilities
+   - **Visual Cues**: Detect strength, agility, toughness from image analysis
+
+2. **Combat Complexity**: Simple but entertaining mechanics:
+   - **Basic Attacks**: Standard attack/defense with dice rolls
+   - **Environmental Interactions**: DM can roll special dice (e.g., double 6s) for environmental attacks
+   - **Special Moves**: Pick up objects (chairs, weapons) for bonus damage
+   - **Critical Hits**: Natural 20s create dramatic moments
+   - **Luck Mechanics**: Luck stat affects critical hit chance and dodge
+
+3. **Narrative Style**: Sports commentary style with entertainment:
+   - **Commentary Tone**: Like a sports announcer reading the fight
+   - **Entertaining**: Funny moments and dramatic tension
+   - **Descriptive**: Vivid descriptions of combat actions
+   - **Reactive**: Commentary responds to dice rolls and special events
+
+4. **Game Length**: 3 rounds maximum with victory conditions:
+   - **Round Limit**: Maximum 3 rounds per fight
+   - **Victory Conditions**: Health reaches 0, surrender, or round limit reached
+   - **Sudden Death**: If tied after 3 rounds, sudden death round
+
+5. **Replayability**: Persistent fighter and scene library:
+   - **Fighter Library**: Save all created fighters for reuse
+   - **Scene Library**: Save all uploaded scenes for reuse
+   - **Combination Selection**: Choose any fighter + fighter + scene combination
+   - **Fighter History**: Track win/loss records and combat statistics
+
+6. **Game Flow**: AI-generated characters fighting each other with DM narration
+
+The implementation plan leverages your existing codebase effectively while creating a unique fighting game experience. The TDD approach ensures quality and maintainability throughout development.
+
+# Player vs Player (PvP) Mode - UI & Experience Update (2025-06)
+
+## New Features & Improvements
+
+- **Winner Overlay:** At the end of a fight, a large, bold, centered overlay displays the winner's name (or "It's a DRAW !!!") with a prominent Restart button below. No animation, just a clear static box.
+- **Combat Log Centering:** The battle card and all round narration are perfectly centered horizontally. Each round's narration is also centered.
+- **Round Order & Fading:** The most recent round appears at the top, with previous rounds underneath. Older rounds fade out visually (decreasing opacity and font size) as they get further down the list.
+- **Spacing:** There is a large gap (margin and padding) between the current round and previous rounds for clarity.
+- **Restart Flow:** After the winner overlay, clicking Restart resets the game and returns to the setup phase.
+
+## User Experience
+- The UI is visually clear, modern, and easy to follow.
+- The winner is always clearly announced at the end of the fight.
+- The battle log is easy to read, with the most important information (current round) most prominent.
+- The restart flow is intuitive and immediate.
+
+## Technical Notes
+- Winner overlay is implemented in `WinnerAnimation.tsx`.
+- Combat log rendering and centering logic is in `page.tsx` for `/playervs`.
+- Fallback for missing winner always displays "It's a DRAW !!!".
+
+## [x] Manga-Style Battle Storyboard UI
+- Implemented BattleStoryboard component with manga panel layout
+- Integrated into combat phase of PlayerVsPage
+- Attacker/defender images and actions swap each round based on who is attacking
+- All tests pass and UI confirmed in browser
+
+# Fighting Game: Pre-Generated Battle Log Flow (2024-07)
+
+## Overview
+
+The fighting game now uses a **pre-generated battle log** approach for fast, smooth, and reliable battle playback. Instead of calling the LLM for each round, the entire battle is generated in advance as a JSON array, and the UI animates through the rounds using this data.
+
+---
+
+## How It Works
+
+### 1. Start Fight
+- On "Start Fight", the frontend sends both fighters, the scene, and the number of rounds to `/api/fighting-game/generate-battle`.
+- The backend (mock or LLM) returns a JSON array of all rounds, e.g.:
+  ```json
+  [
+    { "round": 1, "attacker": "Godzilla", "defender": "Bruce Lee", ... },
+    { "round": 2, ... },
+    ...
+  ]
+  ```
+
+### 2. Playback
+- The frontend stores the battle log and animates through each round using the pre-generated data.
+- No further API calls are made during playback.
+- The UI displays round animation, commentary, and health updates instantly for each round.
+
+### 3. End of Battle
+- When all rounds are played, the winner is shown and the user can restart or review the battle.
+
+---
+
+## API: `/api/fighting-game/generate-battle`
+- **Input:** `{ fighterA, fighterB, scene, maxRounds }`
+- **Output:** `{ success: true, battleLog: [ ... ] }`
+- The backend can be a mock (for dev) or use the LLM to generate the full log.
+
+---
+
+## Benefits
+- **Much faster:** Only one LLM/API call per battle.
+- **Smooth animation:** No waiting between rounds.
+- **Easier to add features:** Skip, replay, or jump to round.
+- **Deterministic:** The entire battle is known in advance for UI/UX polish.
+
+---
+
+## Legacy (Old) Flow (for reference)
+- The old approach called the LLM for each round, causing delays and a "stop-and-go" feel.
+- This is now deprecated in favor of the pre-generated log approach.
+
+---
+
+## Next Steps
+- (Optional) Integrate the LLM for real battle generation.
+- (Optional) Add advanced features: skip, replay, jump to round, etc.
+
+---
+
+*Last updated: 2024-07-11*
+
+## Battle Timing and Animation Configuration
+
+All major UI/UX timing and transition settings for the playervs battle flow are now centralized in `src/lib/constants.ts`:
+
+- `ROUND_ANIMATION_DURATION_MS`: Duration (ms) of the round start animation (default: 3000)
+- `ROUND_TRANSITION_PAUSE_MS`: Pause (ms) between battle info and the next round animation (default: 3000)
+- `BATTLE_ATTACK_DEFENSE_STEP_MS`: Duration (ms) to show the attack step before switching to defense (default: 3000)
+
+To adjust the pacing or feel of the battle UI, simply change these values in the constants file. All related UI and tests will use the updated values automatically.
+
+## Upcoming Features & Improvements
+
+1. **Show winner/draw message after the final round**
+   - Ensure the UI displays a clear message indicating the winner or if the battle was a draw when the last round is complete.
+
+2. **Make battle commentary more exciting, intense, and varied**
+   - Upgrade the commentary system to generate high-energy, funny, dramatic, and less repetitive battle descriptions.
+
+3. **Make fighter stats more accurate and character-aware**
+   - Improve stat generation so that iconic characters (e.g., Godzilla) have stats that reflect their true power and abilities compared to others (e.g., Bruce Lee).
+
+4. **Allow the arena/environment to impact the battle and commentary**
+   - Implement logic so that the arena setting (e.g., a restaurant) can influence the battle, allowing fighters to interact with objects in the environment for creative attacks or defenses.
+
+## Demo Data Centralization: Godzilla vs Bruce Lee
+
+All assets and data for the Godzilla vs Bruce Lee demo are now stored in:
+
+- **Location:** `public/vs/godzillaVSbrucelee/`
+- **Contents:**
+  - Fighter images (`godzilla.jpg`, `bruce-lee.jpg`)
+  - Arena image (`tokyo-arena.jpg`)
+  - Demo data file (`demoData.ts`)
+  - Documentation (`README.md`)
+
+The "Reset to Demo" button loads all required data from this folder and initializes the UI, showing the "Start Fight" button. See the `README.md` in that folder for details and image requirements.
+
+This approach ensures demo consistency and makes it easy to update or swap demo scenarios in the future.
+
+### Winner/Draw Message After Final Round
+
+- The UI now robustly displays a winner or draw message after the final round using the `WinnerAnimation` component.
+- The logic determines the winner by knockout (health reaches zero) or by remaining health/points if all rounds are completed.
+- This ensures a clear end to every battle, even if neither fighter is knocked out.
+- Testing for this is covered by integration and UI logic, as unit tests with a mocked store cannot simulate the full end-of-battle flow.
+
+# LLM-Powered Battle Commentary
+
+## Overview
+- Battle commentary for each round is now generated using the local LLM (via LM Studio) instead of static templates.
+- Commentary is generated for both attack and defense actions for each round.
+
+## Prompt Requirements
+- Commentary must be 1–2 sentences, maximum 30 words.
+- Use normal sentence casing (no all-caps, except for proper nouns or rare dramatic effect).
+- Must be clear, exciting, and easy to read.
+- Avoid awkward or nonsensical phrases.
+- No repetitive language.
+- No markdown, formatting, or JSON—just plain text.
+
+## Post-Processing
+- Commentary is post-processed to enforce sentence casing if the LLM returns all-caps.
+- Commentary is truncated to 30 words if it exceeds the limit.
+- Ensures commentary ends with a period.
+
+## Fallback
+- If the LLM fails or returns empty, a varied template-based fallback is used.
+
+## Testing
+- Jest tests ensure commentary is concise, readable, and properly punctuated.
+
+---
+
+# Battle Logic Update (2025-06-23)
+
+## Generalized Underdog Mode & Stat-Based Combat
+
+- The battle system now detects when one fighter is much stronger (2x+ power: strength × health) than the other.
+- In these cases, the weaker fighter enters 'underdog mode':
+  - The underdog must dodge (using agility and luck) or is KO'd in one hit.
+  - If the underdog dodges, they have a rare chance to land a devastating 'weak spot' critical hit.
+  - If the underdog fails to dodge, they are instantly defeated or nearly so.
+- If fighters are evenly matched, normal stat-based logic applies (strength, defense, agility, luck, arena objects, and random events all play a role).
+- This logic is fully general and applies to all user-created fighters, not just demo matchups.
+
+## Why This Matters
+- Battles are now more dramatic and realistic, especially for mismatched pairs.
+- Underdog victories are rare and exciting, while dominant fighters feel truly powerful.
+- The system is fair and fun for all possible fighter uploads.
+
+---
+
+# Tournament System & Battle Replay (2025-07-12)
+
+## Fighters & Arena Folder Structure
+- The `public/` folder will include:
+  - `public/Fighters/` for user-uploaded fighter images
+  - `public/Arena/` for user-uploaded arena images
+
+## Tournament System
+- The app can create a tournament by loading all fighters and arenas from these folders.
+- Battles are automatically generated for all fighter/arena combinations (round-robin or bracket style).
+- Each battle is resolved using the existing battle logic.
+- After each battle, the full battle log (JSON) is saved in `public/tournaments/` with a logical filename (e.g., `godzilla-vs-brucelee.json`).
+- Tournament results and score charts are generated and displayed.
+
+## Tournament Page & Replay
+- A new page (e.g., `/tournament`) displays the tournament bracket, results, and score chart.
+- Users can select any completed battle from a dropdown or list to replay it in the UI.
+- The replay uses the stored battle log from `public/tournaments/`.
+- After watching a replay, users can select another battle or upload new fighters/arenas to start a new tournament.
+
+## Requirements
+- Tournament and replay logic must be fully automated and robust for any number of fighters/arenas.
+- All battle data is stored in a portable, human-readable format (JSON) in `public/tournaments/`.
+- The UI must provide an intuitive way to browse, select, and replay battles.
+- Demo data (e.g., Godzilla vs Bruce Lee) should be included as a sample tournament battle.
+
+---
+
+## 2025-07-13 Update: Battle UI & Tournament Replay Improvements
+
+- The battle UI now halts all round animation and state updates as soon as the winner is shown. No background updates or duplicate UI are visible after battle ends.
+- Tournament logs now include `imageUrl` for both fighters and the arena, ensuring images display correctly in replays.
+- Replay and restart logic is robust: the "Restart" button resets the replay cleanly, and all UI/animation is paused when the winner is displayed.
+
+---
+
+# Upcoming Features & Design (2025-06-24)
+
+## 1. Per-Fighter JSON Metadata & Match History
+- Each fighter image in `public/vs/fighters/` will have a corresponding JSON file (e.g., `darth-vader.json`).
+- JSON structure:
+  ```json
+  {
+    "id": "darth-vader",
+    "name": "Darth Vader",
+    "image": "darth-vader.jpg",
+    "stats": {
+      "health": 6,
+      "strength": 2,
+      "agility": 19,
+      "luck": 18,
+      "defense": 1,
+      "size": "small",
+      "build": "thin",
+      "age": "adult"
+    },
+    "matchHistory": [
+      { "opponentId": "godzilla", "result": "win", "date": "2025-06-24" },
+      { "opponentId": "mouse", "result": "loss", "date": "2025-06-23" }
+    ]
+  }
+  ```
+- This enables tracking stats and matchups per fighter.
+
+## 2. On-Demand Balancing Script
+- A script (Node.js or Next.js API route) will review all fighters and adjust their stats for balance.
+- Uses LLM or logic to ensure fairness (e.g., Godzilla is always stronger than a mouse).
+- **UI:** A "Regenerate/Balance Fighters" button will appear on `/playervs` **only in development** (localhost).
+- **Production:** No uploads or balancing; only battle replays.
+
+## 3. UI/UX for Choosing Existing Fighters/Arenas
+- Next to the upload button, add a "Choose Existing Fighter" (and Arena) button.
+- Clicking opens an accordion or modal with a grid of all available images (small, selectable thumbnails).
+- Selecting an image sets it as the current fighter/arena.
+- Show basic stats below each image if available.
+- Ensure accessibility (keyboard navigation, clear selection).
+
+---
+
+## 2025-07-XX Update: Arena Upload & Choose Existing Arena
+
+- Added `/api/save-arena-metadata` endpoint to save arena metadata JSON files in `public/vs/arena/`.
+- Arena upload flow now creates a matching JSON metadata file for each uploaded arena image.
+- Added `ChooseExistingArena` React component, mirroring fighters, to select from existing arenas.
+- PlayerVsPage UI now has an Upload/Choose toggle for Arena, just like for fighters.
+- Arena images and metadata are now displayed correctly in the UI after upload or selection.
+- All TDD steps and tests for this feature are complete.
+
+---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
+
+- The tournament page now always displays the battle dropdown and replay viewer at the top, regardless of which tab (Leaderboard or Battle Replay) is active.
+- Users can view the leaderboard and instantly select and watch any past battle without switching tabs.
+
+## Tournament Page Responsive Layout & Leaderboard Improvements
+- The tournament page layout is being redesigned to maximize use of horizontal and vertical space, based on user feedback and UI review.
+- The leaderboard will be given more width, with improved column spacing and readability.
+- The layout will use CSS grid or flexbox for a true two-column design: left for hub, dropdown, leaderboard; right for battle replay.
+- The design will be responsive, adapting to different screen sizes and ensuring no leaderboard columns are clipped.
+- Motivation: Previous layout wasted space and clipped leaderboard columns even on wide screens (see screenshot review).
+- Expected outcome: Modern, user-friendly, and information-rich tournament experience.
+
+## Fighter Stat System Update (2025-07-13)
+
+- Fighter stats now include:
+  - health (0-2000 for legendary monsters, 10-120 for others)
+  - strength (1-200 for legendary monsters, 1-40 for others)
+  - agility (1-60 for all fighters)
+  - defense (1-100 for legendary monsters, 1-20 for others)
+  - luck (1-30 for all fighters)
+  - magic (1-20, optional; for Force, magic, superpowers)
+  - ranged (1-100 for legendary monsters, 1-10 for others)
+  - intelligence (1-30 for all fighters)
+  - uniqueAbilities (string[], optional; e.g., ["Force Choke", "Atomic Breath"])
+
+### Stat Balancing Principles
+- **Legendary Monsters** (Godzilla): Can have stats above 100, health up to 2000, strength up to 200
+- **Peak Humans** (Bruce Lee, Victor Moreau): Top stats in 30-40 range, health 80-120
+- **Animals**: High agility (mouse: 60), moderate strength (shark: 20), low health/defense
+- **Magic/Ranged**: Only for those with supernatural or ranged abilities
+- **Luck**: Allows for "miracle" upsets but shouldn't break logic
+
+### Updated Fighter Stats (Balanced)
+
+| Fighter         | Health | Strength | Agility | Defense | Luck | Magic | Ranged | Intelligence | Unique Abilities                |
+|-----------------|--------|----------|---------|---------|------|-------|--------|-------------|---------------------------------|
+| Godzilla        | 2000   | 200      | 2       | 100     | 10   | 0     | 100    | 8           | Atomic Breath, Tail Whip        |
+| Bruce Lee       | 100    | 35       | 40      | 15      | 20   | 0     | 5      | 30          | One-Inch Punch, Jeet Kune Do    |
+| Brown Field Mouse| 20    | 1        | 60      | 3       | 30   | 0     | 0      | 2           | Quick Escape                    |
+| Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
+| Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
+
+## Fighting Game Implementation Todo List
+
+### Phase 1: Foundation Setup
+- [ ] **1.1: Create Fighting Game Route**
+  - [ ] Write failing test for `/playervs` route accessibility
+  - [ ] Create `src/app/playervs/page.tsx` with basic layout
+  - [ ] Add route to navigation and test accessibility
+  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+
+- [ ] **1.2: Fighting Game Store**
+  - [ ] Write failing test for fighting game state management
+  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [ ] Add store tests and verify state management
+  - [ ] **Commit:** `feat(store): implement fighting game state management`
+
+- [ ] **1.3: Fighter Types and Interfaces**
+  - [ ] Write failing test for Fighter interface validation
+  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [ ] Implement fighter validation functions
+  - [ ] Add comprehensive type tests
+  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+
+### Phase 2: Fighter Creation System
+- [ ] **2.1: Fighter Image Upload Component**
+  - [ ] Write failing test for fighter image upload functionality
+  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
+  - [ ] Reuse existing image upload logic for fighter images
+  - [ ] Add fighter-specific image validation and preview
+  - [ ] **Commit:** `feat(components): add fighter image upload component`
+
+- [ ] **2.2: Fighter Stat Generation API**
+  - [ ] Write failing test for fighter stat generation
+  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [ ] Implement AI-based stat generation from fighter descriptions
+  - [ ] Add stat validation and balancing logic
+  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+
+- [ ] **2.3: Fighter Description Generation**
+  - [ ] Write failing test for fighter description generation
+  - [ ] Extend image analysis to generate fighter-specific descriptions
+  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [ ] Add fighter name generation based on image analysis
+  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 3: Combat System Foundation
+- [ ] **3.1: Combat Dice Utilities**
+  - [ ] Write failing test for combat dice roll functions
+  - [ ] Create `src/lib/utils/combatDice.ts` with fighting-specific dice mechanics
+  - [ ] Implement attack rolls, defense rolls, and critical hit detection
+  - [ ] Add stat-based modifiers and luck mechanics
+  - [ ] **Commit:** `feat(dice): implement combat-specific dice roll system`
+
+- [ ] **3.2: Combat Event Types**
+  - [ ] Write failing test for combat event structure
+  - [ ] Create `src/lib/types/combat.ts` with CombatEvent and CombatRoll interfaces
+  - [ ] Implement combat round management and turn progression
+  - [ ] Add combat history tracking and replay functionality
+  - [ ] **Commit:** `feat(types): add combat event types and round management`
+
+- [ ] **3.3: Damage Calculation System**
+  - [ ] Write failing test for damage calculation logic
+  - [ ] Implement damage calculation based on attack rolls and fighter stats
+  - [ ] Add critical hit multipliers and defense reduction
+  - [ ] Create health management and defeat detection
+  - [ ] **Commit:** `feat(combat): implement damage calculation and health management`
+
+### Phase 4: UI Components
+- [ ] **4.1: Fighter Card Component**
+  - [ ] Write failing test for fighter card display
+  - [ ] Create `src/components/fighting/FighterCard.tsx` for fighter stats display
+  - [ ] Add health bar, stat visualization, and fighter image
+  - [ ] Implement responsive design and accessibility features
+  - [ ] **Commit:** `feat(ui): add fighter card component with stats display`
+
+- [ ] **4.2: Combat Arena Component**
+  - [ ] Write failing test for combat arena layout
+  - [ ] Create `src/components/fighting/CombatArena.tsx` for battle scene
+  - [ ] Display both fighters, scene background, and combat state
+  - [ ] Add visual feedback for attacks, damage, and status effects
+  - [ ] **Commit:** `feat(ui): add combat arena component with battle visualization`
+
+- [ ] **4.3: Combat Log Component**
+  - [ ] Write failing test for combat log functionality
+  - [ ] Create `src/components/fighting/CombatLog.tsx` for battle narration
+  - [ ] Display turn-by-turn combat events and DM commentary
+  - [ ] Add scrollable history and real-time updates
+  - [ ] **Commit:** `feat(ui): add combat log component for battle narration`
+
+- [ ] **4.4: Health Bar Component**
+  - [ ] Write failing test for health bar display and updates
+  - [ ] Create `src/components/fighting/HealthBar.tsx` with visual health indicator
+  - [ ] Add color-coded health levels and damage animations
+  - [ ] Implement accessibility features and responsive design
+  - [ ] **Commit:** `feat(ui): add health bar component with damage animations`
+
+### Phase 5: DM Combat Narration
+- [ ] **5.1: Combat Prompts System**
+  - [ ] Write failing test for combat prompt generation
+  - [ ] Create `src/lib/prompts/combatPrompts.ts` for fighting-specific prompts
+  - [ ] Implement prompts for fight setup, battle commentary, and outcomes
+  - [ ] Add DM personality integration for different narration styles
+  - [ ] **Commit:** `feat(prompts): add combat-specific DM prompt system`
+
+- [ ] **5.2: Combat Narration API**
+  - [ ] Write failing test for combat narration generation
+  - [ ] Create `src/app/api/fighting-game/narrate-combat/route.ts`
+  - [ ] Implement AI-generated combat commentary based on dice rolls
+ 

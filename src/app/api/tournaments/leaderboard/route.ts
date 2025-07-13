@@ -15,15 +15,7 @@ interface FighterStats {
   averageRoundsSurvived: number;
   totalRounds: number;
   currentStats: {
-    strength: number;
-    agility: number;
-    luck: number;
-    defense: number;
-    health: number;
-    maxHealth: number;
-    size: string;
-    build: string;
-    age: number;
+    [key: string]: number | string;
   };
   opponents: string[];
   arenas: string[];
@@ -37,12 +29,20 @@ interface BattleData {
     fighterA: {
       name: string;
       imageUrl: string;
-      stats: any;
+      stats: {
+        health: number;
+        strength: number;
+        [key: string]: number;
+      };
     };
     fighterB: {
       name: string;
       imageUrl: string;
-      stats: any;
+      stats: {
+        health: number;
+        strength: number;
+        [key: string]: number;
+      };
     };
     arena: {
       name: string;
@@ -77,6 +77,10 @@ export async function GET() {
         const fileContent = await readFile(filePath, 'utf-8');
         const battleData: BattleData = JSON.parse(fileContent);
         
+        // Extract fighter stats
+        const fighterAInitialStats = battleData.metadata.fighterA.stats;
+        const fighterBInitialStats = battleData.metadata.fighterB.stats;
+        
         const { metadata, battleLog } = battleData;
         const { fighterA, fighterB, winner, totalRounds, timestamp } = metadata;
         
@@ -94,7 +98,7 @@ export async function GET() {
             averageDamageTaken: 0,
             averageRoundsSurvived: 0,
             totalRounds: 0,
-            currentStats: fighterA.stats,
+            currentStats: fighterAInitialStats,
             opponents: [],
             arenas: [],
             lastBattle: timestamp,
@@ -115,7 +119,7 @@ export async function GET() {
             averageDamageTaken: 0,
             averageRoundsSurvived: 0,
             totalRounds: 0,
-            currentStats: fighterB.stats,
+            currentStats: fighterBInitialStats,
             opponents: [],
             arenas: [],
             lastBattle: timestamp,
