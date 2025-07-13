@@ -1733,3 +1733,7 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 - All TDD steps and tests for this feature are complete.
 
 ---
+
+- Each battle log is now saved with a unique filename that includes the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This ensures that rematches and repeated battles are all preserved for replay and analysis.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`

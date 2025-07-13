@@ -1784,6 +1784,9 @@ The app now provides a solid foundation for future enhancements:
 - The system is extensible for future tournament types (e.g., elimination, round-robin, custom rules).
 - Demo battles (e.g., Godzilla vs Bruce Lee) are included as sample tournament logs.
 - The UI must be robust for any number of fighters/arenas and provide a seamless replay experience.
+- Battle logs in `public/tournaments/` are now saved with a unique filename for each battle, including the date and time, e.g. `godzilla-vs-brucelee-in-tokyoarena-20240713-153012.json`.
+- This prevents overwriting previous battles and allows full replay history, even for rematches in the same arena.
+- The filename format is: `[fighterA]-vs-[fighterB]-in-[arena]-[YYYYMMDD]-[HHMMSS].json`
 
 ---
 

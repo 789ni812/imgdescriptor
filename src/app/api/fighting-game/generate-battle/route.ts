@@ -66,10 +66,14 @@ export async function POST(req: NextRequest) {
       const tournamentsDir = join(process.cwd(), 'public', 'tournaments');
       await mkdir(tournamentsDir, { recursive: true });
       
-      // Create filename from fighter names (sanitized)
+      // Create filename from fighter names (sanitized) with date and time
       const fighterAName = fighterA.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
       const fighterBName = fighterB.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const filename = `${fighterAName}-vs-${fighterBName}.json`;
+      const arenaName = scene.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+      const timeStr = now.toISOString().slice(11, 19).replace(/:/g, ''); // HHMMSS
+      const filename = `${fighterAName}-vs-${fighterBName}-in-${arenaName}-${dateStr}-${timeStr}.json`;
       const filepath = join(tournamentsDir, filename);
       
       await writeFile(filepath, JSON.stringify(tournamentData, null, 2));
