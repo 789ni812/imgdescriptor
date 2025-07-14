@@ -4,6 +4,8 @@ import { join } from 'path';
 import { balanceAllFighters, type FighterData } from '@/lib/fighter-balancing';
 
 export async function POST(_req: NextRequest) {
+  // Artificial delay for E2E test reliability
+  await new Promise(r => setTimeout(r, 500));
   try {
     const fightersDir = join(process.cwd(), 'public', 'vs', 'fighters');
     const files = await readdir(fightersDir);

@@ -32,6 +32,33 @@ test.describe('PlayerVsPage E2E', () => {
     await expect(startFightButton).toBeDisabled();
   });
 
+  test('rebalance fighters flow works correctly', async ({ page }) => {
+    await page.goto('/playervs');
+    await page.waitForLoadState('networkidle');
+    
+    // Click the Rebalance Fighters button
+    const rebalanceButton = page.getByRole('button', { name: /Rebalance Fighters/i });
+    await rebalanceButton.click();
+    
+    // Wait for the button text to change to loading state
+    const loadingButton = page.getByRole('button', { name: /Rebalancing Fighters\.\.\./i });
+    await expect(loadingButton).toBeVisible();
+    await expect(loadingButton).toBeDisabled();
+    
+    // Wait for the API call to complete and success message to appear
+    await expect(page.getByText(/Successfully rebalanced/i)).toBeVisible();
+    
+    // Verify the button is re-enabled
+    await expect(rebalanceButton).toBeEnabled();
+    
+    // Verify fighter results are displayed
+    await expect(page.getByText(/Rebalanced Fighters:/i)).toBeVisible();
+    
+    // Wait for the success message to auto-clear (should happen after 5 seconds)
+    await page.waitForTimeout(6000);
+    await expect(page.getByText(/Successfully rebalanced/i)).not.toBeVisible();
+  });
+
   test('diagnostic: check what is actually on the page', async ({ page }) => {
     await page.goto('/playervs');
     await page.waitForLoadState('networkidle');
