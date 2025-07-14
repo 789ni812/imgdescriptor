@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-14T14:54:00.214Z",
+    "fighterA": {
+      "name": "Godzilla",
+      "imageUrl": "/vs/fighters/download__3_-1752504377817-1iegip.jpg",
+      "stats": {
+        "health": 1000,
+        "maxHealth": 1000,
+        "strength": 200,
+        "luck": 30,
+        "agility": 15,
+        "defense": 80,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "fighterB": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752504553889-9m1nej.jpg",
+      "stats": {
+        "health": 30,
+        "maxHealth": 30,
+        "strength": 2,
+        "luck": 15,
+        "agility": 85,
+        "defense": 10,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Godzilla",
+    "totalRounds": 1,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Godzilla",
+      "defender": "brown field mouse",
+      "attackCommentary": "Godzilla opens with a ground-shaking atomic blast right out of the gate, instantly reducing the tiny brown field mouse to near annihilation in a devastating display of raw power! 189.",
+      "defenseCommentary": "The tiny titan's outmatched against Godzilla's atomic heat! The brown field mouse shows uncanny agility, weaving AND DEFLECTING each of the King of Monsters' initial blasts as they size each.",
+      "attackerDamage": 189,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 1000,
+        "defender": 0
+      }
+    }
+  ]
+}

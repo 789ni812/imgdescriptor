@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-14T15:11:34.049Z",
+    "fighterA": {
+      "name": "Bruce Lee",
+      "imageUrl": "/vs/fighters/brcue-lee-1752504322447-0omm0e.jpg",
+      "stats": {
+        "health": 120,
+        "maxHealth": 120,
+        "strength": 40,
+        "luck": 15,
+        "agility": 75,
+        "defense": 35,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "fighterB": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752504553889-9m1nej.jpg",
+      "stats": {
+        "health": 30,
+        "maxHealth": 30,
+        "strength": 2,
+        "luck": 15,
+        "agility": 85,
+        "defense": 10,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Bruce Lee",
+    "totalRounds": 1,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Bruce Lee",
+      "defender": "brown field mouse",
+      "attackCommentary": "The crowd erupts as Bruce Lee unleashes a devastating combo, landing a precise 40-damage blow right on the BROWN FIELD MOUSE! This tiny opponent is reeling from the impact.",
+      "defenseCommentary": "The crowd erupts as Bruce Lee's lightning reflexes narrowly deflect a flurry of unexpected attacks from the Brown Field Mouse. This unpredictable early aggression has set the stage for a.",
+      "attackerDamage": 40,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 120,
+        "defender": 0
+      }
+    }
+  ]
+}

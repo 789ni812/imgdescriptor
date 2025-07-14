@@ -1864,3 +1864,58 @@ The app now provides a solid foundation for future enhancements:
   - If a match is found, the stats from that JSON file are used for the new fighter (ensuring fair, lore-accurate stats for iconic or previously-uploaded fighters).
   - If no match is found, the API falls back to the current stat generation logic (using LLM or archetype-based rules).
 - This ensures that iconic fighters like Bruce Lee, Godzilla, etc. always get the correct stats, and prevents random/weak stat assignments for known characters.
+
+## Playwright End-to-End (E2E) Testing
+
+### Rationale
+- Playwright provides true E2E testing by automating browsers and simulating real user actions.
+- E2E tests complement Jest unit/component tests, ensuring both logic and user flows are robust.
+- Use Playwright to catch integration bugs, regressions, and cross-browser issues.
+
+### How Playwright Fits In
+- Jest: fast unit/component tests for logic and isolated UI.
+- Playwright: E2E tests for full user flows (upload, fight, rebalance, error handling, etc.).
+- Next.js: Playwright works seamlessly with Next.js apps (SSR, routing, API routes).
+
+### Install & Setup
+1. Install Playwright and test runner:
+   ```bash
+   npm install --save-dev playwright @playwright/test
+   npx playwright install
+   ```
+2. Add `playwright.config.ts` to project root:
+   ```ts
+   import { defineConfig, devices } from '@playwright/test';
+   export default defineConfig({
+     testDir: './e2e',
+     timeout: 30_000,
+     retries: 0,
+     use: {
+       baseURL: 'http://localhost:3000',
+       headless: true,
+       trace: 'on-first-retry',
+     },
+     projects: [
+       { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+       { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+       { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+     ],
+   });
+   ```
+3. Directory structure:
+   - Place E2E tests in `e2e/` (e.g., `e2e/playervs.spec.ts`).
+
+### Running Playwright
+- Run all tests: `npx playwright test`
+- Run a specific test: `npx playwright test e2e/playervs.spec.ts`
+- Run in headed mode: `npx playwright test --headed`
+
+### Best Practices
+- Use TDD: write a failing E2E test for a user flow, then implement/fix, then refactor.
+- Use Playwright's selectors and built-in waits to avoid flakiness.
+- Keep E2E tests focused on user-visible behavior, not internals.
+- Maintain both Jest and Playwright suites for full coverage.
+- Integrate Playwright into CI to catch regressions before merging/deploying.
+
+### CI Integration
+- Add Playwright to your CI pipeline (GitHub Actions, etc.) to run E2E tests on every PR/merge.
