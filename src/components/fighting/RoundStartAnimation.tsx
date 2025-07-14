@@ -9,8 +9,13 @@ interface RoundStartAnimationProps {
 const RoundStartAnimation: React.FC<RoundStartAnimationProps> = ({ round, onDone }) => {
   const [visible, setVisible] = useState(true);
 
+  // Debug output for E2E testing
+  console.log('RoundStartAnimation Debug:', { round, visible, onDone: !!onDone });
+
   useEffect(() => {
+    console.log('RoundStartAnimation: Starting timer for round', round);
     const timeout = setTimeout(() => {
+      console.log('RoundStartAnimation: Timer completed for round', round);
       setVisible(false);
       if (onDone) onDone();
     }, ROUND_ANIMATION_DURATION_MS);

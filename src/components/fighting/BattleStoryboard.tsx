@@ -13,7 +13,16 @@ interface Scene {
 
 interface PreviousRound {
   round: number;
-  summary: string;
+  attacker: {
+    name: string;
+    imageUrl: string;
+    commentary: string;
+  };
+  defender: {
+    name: string;
+    imageUrl: string;
+    commentary: string;
+  };
 }
 
 interface BattleStoryboardProps {
@@ -33,8 +42,18 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
   roundStep,
   previousRounds,
 }) => {
+  // Debug output for E2E testing
+  console.log('BattleStoryboard Debug:', {
+    scene: scene?.name,
+    round,
+    attacker: attacker?.name,
+    defender: defender?.name,
+    roundStep,
+    previousRoundsLength: previousRounds?.length
+  });
+
   return (
-    <div className="flex justify-center items-center min-h-[80vh] w-full">
+    <div className="flex justify-center items-center min-h-[80vh] w-full" data-testid="battle-storyboard">
       <div
         className="w-[90%] max-w-5xl grid grid-rows-[minmax(120px,auto)_minmax(100px,auto)_minmax(120px,auto)] grid-cols-2 gap-y-4 gap-x-4 bg-gray-100 border border-gray-300 rounded-lg shadow-lg p-6"
         style={{ boxSizing: 'border-box' }}
@@ -77,7 +96,16 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
         {/* Bottom Panel (spans both columns) */}
         <div className="row-start-3 row-end-4 col-span-2 bg-white border border-black rounded-md p-6 flex flex-col overflow-y-auto text-gray-900 min-h-[120px] max-h-40 shadow-md">
           {previousRounds.map((r) => (
-            <div key={r.round} className="text-xs mb-1 break-words w-full text-gray-900" style={{ wordBreak: 'break-word' }}>{`Round ${r.round}: ${r.summary}`}</div>
+            <div key={r.round} className="flex items-center gap-3 mb-2">
+              {/* Attacker avatar and commentary */}
+              <img src={r.attacker.imageUrl} alt={r.attacker.name} className="w-6 h-6 object-cover rounded-full border border-gray-400" />
+              <span className="font-bold text-xs mr-1">{r.attacker.name}:</span>
+              <span className="text-xs">{r.attacker.commentary}</span>
+              {/* Defender avatar and commentary */}
+              <img src={r.defender.imageUrl} alt={r.defender.name} className="w-6 h-6 object-cover rounded-full border border-gray-400 ml-4" />
+              <span className="font-bold text-xs mr-1">{r.defender.name}:</span>
+              <span className="text-xs">{r.defender.commentary}</span>
+            </div>
           ))}
         </div>
       </div>

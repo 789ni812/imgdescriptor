@@ -130,10 +130,21 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
 
   // Show round animation at the start of each round
   useEffect(() => {
+    console.log('BattleViewer: Round animation effect triggered', {
+      winner,
+      battleLogLength: battleLog.length,
+      showRoundAnim,
+      currentRoundIdx
+    });
+
     if (winner) return; // Stop all updates if winner is set
     if (!battleLog.length) return;
     if (showRoundAnim && currentRoundIdx < battleLog.length) {
-      const timer = setTimeout(() => setShowRoundAnim(false), 1000);
+      console.log('BattleViewer: Starting round animation timer');
+      const timer = setTimeout(() => {
+        console.log('BattleViewer: Round animation timer completed, setting showRoundAnim to false');
+        setShowRoundAnim(false);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [showRoundAnim, currentRoundIdx, battleLog.length, winner]);
@@ -157,6 +168,16 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   const round = battleLog[Math.min(currentRoundIdx, battleLog.length - 1)];
   const attacker = fighterA.name === round.attacker ? fighterA : fighterB;
   const defender = fighterA.name === round.defender ? fighterA : fighterB;
+
+  // Debug output for E2E testing
+  console.log('BattleViewer Debug:', {
+    currentRoundIdx,
+    battleLogLength: battleLog.length,
+    showRoundAnim,
+    roundStep,
+    winner,
+    round: round?.round
+  });
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -211,10 +232,23 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
               imageUrl: defender.imageUrl,
               commentary: round.defenseCommentary,
             }}
-            previousRounds={battleLog.slice(0, currentRoundIdx).map(r => ({
-              round: r.round,
-              summary: `${r.attacker} attacked, ${r.defender} defended.`
-            }))}
+            previousRounds={battleLog.slice(0, currentRoundIdx).map(r => {
+              const attackerFighter = r.attacker === fighterA.name ? fighterA : fighterB;
+              const defenderFighter = r.defender === fighterA.name ? fighterA : fighterB;
+              return {
+                round: r.round,
+                attacker: {
+                  name: attackerFighter.name,
+                  imageUrl: attackerFighter.imageUrl,
+                  commentary: r.attackCommentary,
+                },
+                defender: {
+                  name: defenderFighter.name,
+                  imageUrl: defenderFighter.imageUrl,
+                  commentary: r.defenseCommentary,
+                },
+              };
+            })}
             roundStep={roundStep}
           />}
         </>

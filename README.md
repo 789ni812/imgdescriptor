@@ -181,3 +181,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - 🚀 **Ready for Enhancement**: Solid foundation for future features
 
 The app is now ready for comprehensive testing, fine-tuning, and future enhancements!
+
+## Changelog
+
+### 2025-07-14
+- Added robust Playwright E2E tests for `/playervs` battle flow, including round history commentary and avatars.
+- Improved PlayerVsPage and BattleStoryboard to render round-by-round commentary with fighter avatars.
+- Fixed all Jest unit/integration tests and ensured green TDD state.
+- Polyfilled `Request` and `Response` in API route tests for Node 16/Jest compatibility (using `node-fetch@2`).
+- All tests pass and production build is green (only warnings remain).
+- Dev note: `<img>` warnings are known and will be addressed in a future refactor to Next.js `<Image>`.

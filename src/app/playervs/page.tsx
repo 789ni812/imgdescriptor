@@ -313,45 +313,84 @@ export default function PlayerVsPage() {
 
   // New: Start fight with pre-generated battle log
   const handleBeginCombat = async () => {
+    console.log('handleBeginCombat: Starting...');
     setIsPreBattleLoading(true);
     setBattleError(null);
     try {
       const fighterA = fighters.fighterA;
       const fighterB = fighters.fighterB;
+      console.log('handleBeginCombat: Fighters and scene check...', { fighterA: fighterA?.name, fighterB: fighterB?.name, scene: scene?.name });
       if (!fighterA || !fighterB || !scene) throw new Error('Missing fighters or scene. Please upload/select two fighters and an arena.');
-      const res = await fetch('/api/fighting-game/generate-battle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fighterA, fighterB, scene, maxRounds }),
-      });
-      const data = await res.json();
-      if (!data.success || !Array.isArray(data.battleLog) || data.battleLog.length === 0) {
-        throw new Error('Could not generate battle. Please check your fighters and arena, and try again.');
+      
+      console.log('handleBeginCombat: Making API call...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      try {
+        const res = await fetch('/api/fighting-game/generate-battle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fighterA, fighterB, scene, maxRounds }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        console.log('handleBeginCombat: API response received, status:', res.status);
+        
+        const data = await res.json();
+        console.log('handleBeginCombat: JSON parsed, data:', { success: data.success, battleLogLength: data.battleLog?.length });
+        
+        if (!data.success || !Array.isArray(data.battleLog) || data.battleLog.length === 0) {
+          throw new Error('Could not generate battle. Please check your fighters and arena, and try again.');
+        }
+        
+        console.log('handleBeginCombat: Setting preGeneratedBattleLog...');
+        setPreGeneratedBattleLog(data.battleLog as PreGeneratedBattleRound[]);
+        console.log('handleBeginCombat: Setting gamePhase to combat...');
+        setGamePhase('combat');
+        console.log('handleBeginCombat: Setting fighter health...');
+        setFighterHealth(fighterA.id, fighterA.stats.health);
+        setFighterHealth(fighterB.id, fighterB.stats.health);
+        console.log('handleBeginCombat: Setting current round...');
+        setCurrentRound(1);
+        console.log('handleBeginCombat: Setting show round anim...');
+        setShowRoundAnim(true);
+        console.log('handleBeginCombat: All state updates completed successfully');
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error('Battle generation timed out. Please try again.');
+        }
+        throw fetchError;
       }
-      setPreGeneratedBattleLog(data.battleLog as PreGeneratedBattleRound[]);
-      setGamePhase('combat');
-      setFighterHealth(fighterA.id, fighterA.stats.health);
-      setFighterHealth(fighterB.id, fighterB.stats.health);
-      setCurrentRound(1);
-      setShowRoundAnim(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error during battle generation.';
+      console.error('handleBeginCombat: Error caught:', err);
       setBattleError(msg);
       setTimeout(() => setBattleError(null), 6000);
+      // Log error for E2E and debugging
       console.error('Battle generation error:', err);
     } finally {
+      console.log('handleBeginCombat: Finally block - setting isPreBattleLoading to false');
       setIsPreBattleLoading(false);
     }
   };
 
   // New: Playback logic for pre-generated rounds
   React.useEffect(() => {
+    console.log('Playervs: Playback effect triggered', {
+      gamePhase,
+      preGeneratedBattleLogLength: preGeneratedBattleLog?.length ?? 0,
+      currentBattleIndex,
+      showRoundAnim
+    });
+
     if (gamePhase !== 'combat' || preGeneratedBattleLog.length === 0) return;
     
     // Check if battle has ended
     if (currentBattleIndex >= preGeneratedBattleLog.length) {
       // Battle is over - determine winner and show animation
       const battleWinner = determineWinner();
+      console.log('Playervs: Battle ended, winner:', battleWinner);
       setWinner(battleWinner);
       setShowRoundAnim(true);
       return;
@@ -360,6 +399,7 @@ export default function PlayerVsPage() {
     if (!showRoundAnim) {
       // Animate the round
       const roundData = preGeneratedBattleLog[currentBattleIndex];
+      console.log('Playervs: Animating round', roundData.round);
       // Update health and commentary
       updateHealthAndCommentary({
         attackerId: fighters.fighterA?.name === roundData.attacker
@@ -377,6 +417,7 @@ export default function PlayerVsPage() {
       setRoundStep('attack');
       setTimeout(() => setRoundStep('defense'), BATTLE_ATTACK_DEFENSE_STEP_MS);
       setTimeout(() => {
+        console.log('Playervs: Round animation complete, advancing to next round');
         advanceBattleIndex();
         setCurrentRound(currentRound + 1);
         setShowRoundAnim(true);
@@ -475,6 +516,17 @@ export default function PlayerVsPage() {
         {/* Setup Phase */}
         {gamePhase === 'setup' && (
           <div className="space-y-8">
+            {/* Debug Panel - Remove this after fixing the issue */}
+            <div className="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-500/30 text-yellow-200 text-sm">
+              <h4 className="font-semibold mb-2">Debug Info:</h4>
+              <div>Game Phase: {gamePhase}</div>
+              <div>PreBattle Loading: {isPreBattleLoading ? 'true' : 'false'}</div>
+              <div>Battle Log Length: {preGeneratedBattleLog?.length ?? 0}</div>
+              <div>Fighter A: {fighterA ? fighterA.name : 'null'}</div>
+              <div>Fighter B: {fighterB ? fighterB.name : 'null'}</div>
+              <div>Scene: {scene ? scene.name : 'null'}</div>
+              {battleError && <div className="text-red-300">Error: {battleError}</div>}
+            </div>
             {/* Rebalance Fighters Button */}
             <div className="flex justify-center">
               <RebalanceFightersButton />
@@ -667,6 +719,17 @@ export default function PlayerVsPage() {
         {/* Introduction Phase */}
         {gamePhase === 'introduction' && fighterA && fighterB && scene && (
           <div className="space-y-8">
+            {/* Debug Panel - Remove this after fixing the issue */}
+            <div className="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-500/30 text-yellow-200 text-sm">
+              <h4 className="font-semibold mb-2">Debug Info (Intro):</h4>
+              <div>Game Phase: {gamePhase}</div>
+              <div>PreBattle Loading: {isPreBattleLoading ? 'true' : 'false'}</div>
+              <div>Battle Log Length: {preGeneratedBattleLog.length}</div>
+              <div>Fighter A: {fighterA ? fighterA.name : 'null'}</div>
+              <div>Fighter B: {fighterB ? fighterB.name : 'null'}</div>
+              <div>Scene: {scene ? scene.name : 'null'}</div>
+              {battleError && <div className="text-red-300">Error: {battleError}</div>}
+            </div>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
               <div className="flex flex-col items-center">
                 <img src={fighterA.imageUrl} alt={fighterA.name} className="w-40 h-40 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
@@ -697,14 +760,30 @@ export default function PlayerVsPage() {
 
         {/* Combat Phase: Use BattleViewer for animated battle */}
         {gamePhase === 'combat' && fighterA && fighterB && scene && preGeneratedBattleLog.length > 0 && (
-          <BattleViewer
-            fighterA={fighterA}
-            fighterB={fighterB}
-            scene={scene}
-            battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
-            mode="live"
-            onBattleEnd={setWinner}
-          />
+          <>
+            {/* Debug Panel - Remove this after fixing the issue */}
+            <div className="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-500/30 text-yellow-200 text-sm mb-4">
+              <h4 className="font-semibold mb-2">Debug Info (Combat):</h4>
+              <div>Game Phase: {gamePhase}</div>
+              <div>PreBattle Loading: {isPreBattleLoading ? 'true' : 'false'}</div>
+              <div>Battle Log Length: {preGeneratedBattleLog.length}</div>
+              <div>Current Battle Index: {currentBattleIndex}</div>
+              <div>Show Round Anim: {showRoundAnim ? 'true' : 'false'}</div>
+              <div>Winner: {winner || 'null'}</div>
+              <div>Fighter A: {fighterA ? fighterA.name : 'null'}</div>
+              <div>Fighter B: {fighterB ? fighterB.name : 'null'}</div>
+              <div>Scene: {scene ? scene.name : 'null'}</div>
+              {battleError && <div className="text-red-300">Error: {battleError}</div>}
+            </div>
+            <BattleViewer
+              fighterA={fighterA}
+              fighterB={fighterB}
+              scene={scene}
+              battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
+              mode="live"
+              onBattleEnd={setWinner}
+            />
+          </>
         )}
 
         {/* When a new round is added to combatLog, start with 'attack' step, then auto-advance to 'defense' */}

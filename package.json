@@ -53,6 +53,7 @@
     "eslint-config-next": "15.3.4",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
+    "node-fetch": "^2.7.0",
     "node-mocks-http": "^1.17.2",
     "playwright": "^1.54.1",
     "postcss": "^8.5.6",
