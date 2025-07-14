@@ -178,9 +178,9 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
                   No Image
                 </div>
               )}
-              <div className="mt-2 text-lg font-bold">{fighterA.name}</div>
+              <div className="mt-2 text-lg font-bold text-gray-900">{fighterA.name}</div>
               <HealthBar current={health[fighterA.id] ?? 0} max={fighterA.stats.maxHealth} color="red" />
-              <div className="text-xs mt-1">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
+              <div className="text-xs mt-1 text-gray-900">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
             </div>
             <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
             {/* Fighter B */}
@@ -192,9 +192,9 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
                   No Image
                 </div>
               )}
-              <div className="mt-2 text-lg font-bold">{fighterB.name}</div>
+              <div className="mt-2 text-lg font-bold text-gray-900">{fighterB.name}</div>
               <HealthBar current={health[fighterB.id] ?? 0} max={fighterB.stats.maxHealth} color="blue" />
-              <div className="text-xs mt-1">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
+              <div className="text-xs mt-1 text-gray-900">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
             </div>
           </div>
           {showRoundAnim && <RoundStartAnimation round={round.round} />}
