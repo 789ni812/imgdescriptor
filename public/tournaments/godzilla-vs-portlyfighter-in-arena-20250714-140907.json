@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-14T14:09:07.822Z",
+    "fighterA": {
+      "name": "Godzilla",
+      "imageUrl": "/vs/fighters/download__3_-1752500837053-xanrfh.jpg",
+      "stats": {
+        "health": 1000,
+        "maxHealth": 1000,
+        "strength": 200,
+        "luck": 10,
+        "agility": 15,
+        "defense": 80,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "fighterB": {
+      "name": "portly fighter",
+      "imageUrl": "/vs/fighters/Stephen-Siegal-1752500764657-tvx95b.jpg",
+      "stats": {
+        "health": 250,
+        "maxHealth": 250,
+        "strength": 50,
+        "luck": 18,
+        "agility": 35,
+        "defense": 40,
+        "age": 30,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": ""
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Godzilla",
+    "totalRounds": 3,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Godzilla",
+      "defender": "portly fighter",
+      "attackCommentary": "The portly fighter attempts a desperate close-range assault, but Godzilla's atomic breath turns their gamble into rubble! It's a 200 damage DECLAIR for Round ONE.",
+      "defenseCommentary": "Godzilla blocks the strike with expert timing!",
+      "attackerDamage": 200,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 1000,
+        "defender": 50
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "portly fighter",
+      "defender": "Godzilla",
+      "attackCommentary": "The Portly Paragon attempts a surge forward with a gut-punch, but Godzilla LANDS a devastating counter for 25 damage! This round belongs to the King of Monsters.",
+      "defenseCommentary": "The Portly Posse is walking a tightrope here in Round 2! Can they outmaneuver the sheer elemental rage of Godzilla and survive this onslaught of atomic fire?  They'll need.",
+      "attackerDamage": 25,
+      "defenderDamage": 0,
+      "randomEvent": "portly fighter narrowly dodges Godzilla's attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 50,
+        "defender": 975
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Godzilla",
+      "defender": "portly fighter",
+      "attackCommentary": "The ground SHATTERS as Godzilla connects with a DECLAWED FIERCE BLOW! It's a brutal 280 that leaves our portly competitor reeling in round three. This could be their undoing.",
+      "defenseCommentary": "The portly fighter is on the defensive against a relentless Godzilla onslaught! Can they withstand the atomic breath's heat and weather this titan-sized assault in round three.",
+      "attackerDamage": 280,
+      "defenderDamage": 0,
+      "randomEvent": "Godzilla uses undefined to enhance their attack!",
+      "arenaObjectsUsed": [
+        null
+      ],
+      "healthAfter": {
+        "attacker": 975,
+        "defender": 0
+      }
+    }
+  ]
+}

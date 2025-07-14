@@ -97,12 +97,26 @@ export const FIGHTER_TYPES: Record<string, FighterType> = {
     rangedRange: [50, 100],
     intelligenceRange: [8, 25],
     uniqueAbilities: ['Atomic Breath', 'Tail Whip', 'Monster Strength']
+  },
+  'rodent': {
+    name: 'Rodent',
+    healthRange: [3, 9],
+    strengthRange: [1, 5],
+    agilityRange: [60, 95],
+    defenseRange: [1, 8],
+    luckRange: [15, 30],
+    intelligenceRange: [2, 3],
+    uniqueAbilities: ['Quick Escape']
   }
 };
 
 export function classifyFighter(name: string, currentStats: any): string {
   const lowerName = name.toLowerCase();
   
+  // Rodents
+  if (lowerName.includes('mouse') || lowerName.includes('rat') || lowerName.includes('rodent')) {
+    return 'rodent';
+  }
   // Sith Lords and Force Users
   if (lowerName.includes('darth') || lowerName.includes('vader') || lowerName.includes('sith')) {
     return 'sith_lord';

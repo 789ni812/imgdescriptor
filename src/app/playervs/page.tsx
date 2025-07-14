@@ -15,6 +15,7 @@ import { FighterMetadata } from '@/lib/utils/fighterUtils';
 import { Fighter } from '@/lib/stores/fightingGameStore';
 import { Scene } from '@/lib/stores/fightingGameStore';
 import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
+import RebalanceFightersButton from '@/components/fighting/RebalanceFightersButton';
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
@@ -467,6 +468,10 @@ export default function PlayerVsPage() {
         {/* Setup Phase */}
         {gamePhase === 'setup' && (
           <div className="space-y-8">
+            {/* Rebalance Fighters Button */}
+            <div className="flex justify-center">
+              <RebalanceFightersButton />
+            </div>
             <div className="text-center">
               <h2 className="text-2xl font-semibold mb-4">Upload Your Fighters</h2>
               <p className="text-gray-300">Upload images of two fighters and a battle arena</p>

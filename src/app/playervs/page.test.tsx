@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PlayerVsPage from './page';
 import { renderHook, act } from '@testing-library/react';
@@ -8,6 +9,19 @@ import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/de
 
 // Enable fake timers for timing tests
 jest.useFakeTimers();
+
+// Mock fetch globally
+beforeAll(() => {
+  global.fetch = jest.fn();
+});
+afterAll(() => {
+  // @ts-ignore
+  global.fetch.mockRestore && global.fetch.mockRestore();
+});
+beforeEach(() => {
+  // @ts-ignore
+  global.fetch.mockClear && global.fetch.mockClear();
+});
 
 // Helper: re-define extractFighterName for test (since it's not exported)
 function extractFighterName(analysis: Record<string, unknown>, fallback: string) {
@@ -126,6 +140,44 @@ describe('PlayerVsPage', () => {
   it('shows start fight button when setup is complete', () => {
     render(<PlayerVsPage />);
     expect(screen.getByRole('button', { name: /Start Fight/i })).toBeInTheDocument();
+  });
+
+  it('renders the RebalanceFightersButton in setup phase and handles success', async () => {
+    // Mock API response
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        success: true,
+        message: 'Balanced 2 fighters',
+        results: [
+          { name: 'Darth Vader', type: 'Sith Lord', oldStats: {}, newStats: {} },
+          { name: 'Bruce Lee', type: 'Peak Human', oldStats: {}, newStats: {} }
+        ]
+      })
+    });
+
+    render(<PlayerVsPage />);
+
+    // Button should be present
+    const rebalanceBtn = screen.getByRole('button', { name: /rebalance fighters/i });
+    expect(rebalanceBtn).toBeInTheDocument();
+
+    // Click the button
+    fireEvent.click(rebalanceBtn);
+
+    // Should show loading state
+    await waitFor(() => {
+      expect(screen.getByText(/rebalancing fighters/i)).toBeInTheDocument();
+      expect(rebalanceBtn).toBeDisabled();
+    });
+
+    // Should show success message and fighter results
+    await waitFor(() => {
+      expect(screen.getByText(/successfully rebalanced 2 fighters/i)).toBeInTheDocument();
+      // Use getAllByText and check length > 0 for both fighters
+      expect(screen.getAllByText(/darth vader/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/bruce lee/i).length).toBeGreaterThan(0);
+    });
   });
 });
 
