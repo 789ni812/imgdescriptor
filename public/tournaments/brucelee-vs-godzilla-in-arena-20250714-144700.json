@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-14T14:47:00.702Z",
+    "fighterA": {
+      "name": "Bruce Lee",
+      "imageUrl": "/vs/fighters/brcue-lee-1752504322447-0omm0e.jpg",
+      "stats": {
+        "health": 120,
+        "maxHealth": 120,
+        "strength": 40,
+        "luck": 15,
+        "agility": 75,
+        "defense": 35,
+        "age": 32,
+        "size": "medium",
+        "build": "muscular"
+      },
+      "description": "a stark, minimalist training hall dominated by polished steel and concrete. steel training dummy martial arts weapon (likely a staff) worn leather belt bruce lee focused intensity, discipline, and controlled power. the training dummy appears to be subtly shifting its stance. a faint inscription is visible on the steel – possibly instructions or a warning."
+    },
+    "fighterB": {
+      "name": "Godzilla",
+      "imageUrl": "/vs/fighters/download__3_-1752504377817-1iegip.jpg",
+      "stats": {
+        "health": 1000,
+        "maxHealth": 1000,
+        "strength": 200,
+        "luck": 30,
+        "agility": 15,
+        "defense": 80,
+        "age": 450000000,
+        "size": "large",
+        "build": "heavy"
+      },
+      "description": "a ruined temple complex dominates the landscape, constructed from black basalt stone weathered by centuries of storms. the architecture is distinctly reptilian in design, featuring sharp angles and massive arches. rainwater pools on the cracked flagstones, reflecting the stormy sky above. thick jungle foliage encroaches upon the temple walls, obscuring much of its interior. a crumbling altar broken statues of serpentine deities a large, rusted chain a partially submerged stone tablet godzilla terrifying and destructive, conveying immense power and primal rage. the atmosphere is thick with the scent of ozone and decay. a section of the temple appears to be collapsing inward, revealing a dark chamber. strange energy pulses emanate from within godzilla's eyes."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Godzilla",
+    "totalRounds": 2,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Bruce Lee",
+      "defender": "Godzilla",
+      "attackCommentary": "Out of the gate with a furious flurry, Bruce Lee lands a devastating combo on Godzilla! Can the King of Monsters withstand this early assault.",
+      "defenseCommentary": "The flurry of Bruce Lee's kicks are met with Godzilla's impenetrable scales in a brutal symphony of defense. This first round showcases the King of Monsters' raw durability against the.",
+      "attackerDamage": 20,
+      "defenderDamage": 0,
+      "randomEvent": "Bruce Lee narrowly dodges Godzilla's attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 120,
+        "defender": 980
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Godzilla",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Godzilla unleashes a monstrous atomic blast right into Bruce Lee's path! 170 damage registers as King of the Monsters shows his raw power in this unexpected hit.",
+      "defenseCommentary": "The crowd erupts as Bruce Lee dances with impossible speed, narrowly avoiding Godzilla's Atomic Breath in a breathtaking display of counter-reflexes! Will he keep this unpredictable pressure on long enough.",
+      "attackerDamage": 170,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 980,
+        "defender": 0
+      }
+    }
+  ]
+}

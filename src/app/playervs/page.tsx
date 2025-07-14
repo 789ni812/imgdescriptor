@@ -130,6 +130,7 @@ export default function PlayerVsPage() {
 
   // New: Pre-generated battle playback state
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
+  const [battleError, setBattleError] = React.useState<string | null>(null);
 
 
   // Helper: get fighterA/fighterB from store
@@ -313,17 +314,20 @@ export default function PlayerVsPage() {
   // New: Start fight with pre-generated battle log
   const handleBeginCombat = async () => {
     setIsPreBattleLoading(true);
+    setBattleError(null);
     try {
       const fighterA = fighters.fighterA;
       const fighterB = fighters.fighterB;
-      if (!fighterA || !fighterB || !scene) throw new Error('Missing fighters or scene');
+      if (!fighterA || !fighterB || !scene) throw new Error('Missing fighters or scene. Please upload/select two fighters and an arena.');
       const res = await fetch('/api/fighting-game/generate-battle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fighterA, fighterB, scene, maxRounds }),
       });
       const data = await res.json();
-      if (!data.success || !Array.isArray(data.battleLog)) throw new Error('Failed to generate battle');
+      if (!data.success || !Array.isArray(data.battleLog) || data.battleLog.length === 0) {
+        throw new Error('Could not generate battle. Please check your fighters and arena, and try again.');
+      }
       setPreGeneratedBattleLog(data.battleLog as PreGeneratedBattleRound[]);
       setGamePhase('combat');
       setFighterHealth(fighterA.id, fighterA.stats.health);
@@ -331,6 +335,9 @@ export default function PlayerVsPage() {
       setCurrentRound(1);
       setShowRoundAnim(true);
     } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error during battle generation.';
+      setBattleError(msg);
+      setTimeout(() => setBattleError(null), 6000);
       console.error('Battle generation error:', err);
     } finally {
       setIsPreBattleLoading(false);
@@ -630,6 +637,11 @@ export default function PlayerVsPage() {
 
             {/* Start Fight Button */}
             <div className="text-center">
+              {battleError && (
+                <div className="mb-4 p-3 bg-red-900/80 border border-red-500/40 text-red-200 rounded-lg font-semibold animate-pulse">
+                  {battleError}
+                </div>
+              )}
               <button
                 className={`px-8 py-3 rounded-lg font-semibold text-lg transition-all ${
                   canStartFight && !isPreBattleLoading
