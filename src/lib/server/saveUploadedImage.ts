@@ -29,7 +29,9 @@ export async function saveUploadedImage(
   }
   await fs.promises.mkdir(targetDir, { recursive: true });
   const ext = path.extname(originalFilename);
-  const base = path.basename(originalFilename, ext);
+  let base = path.basename(originalFilename, ext);
+  // Sanitize the base filename to remove unsafe characters
+  base = base.replace(/[^a-zA-Z0-9._-]/g, '_');
   const uniqueName = `${base}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}${ext}`;
   const savePath = path.join(targetDir, uniqueName);
   const publicUrl = `${publicPrefix}${uniqueName}`;

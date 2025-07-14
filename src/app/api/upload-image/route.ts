@@ -90,7 +90,9 @@ export async function POST(req: NextRequest) {
         
         // Generate unique filename
         const ext = path.extname(uploadedFile.filename);
-        const base = path.basename(uploadedFile.filename, ext);
+        let base = path.basename(uploadedFile.filename, ext);
+        // Sanitize the base filename to remove unsafe characters
+        base = base.replace(/[^a-zA-Z0-9._-]/g, '_');
         const uniqueName = `${base}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}${ext}`;
         const savePath = path.join(targetDir, uniqueName);
         const publicUrl = `${publicPrefix}${uniqueName}`;
