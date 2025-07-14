@@ -1986,3 +1986,13 @@ The app now provides a solid foundation for future enhancements:
 
 ### CI Integration
 - Add Playwright to your CI pipeline (GitHub Actions, etc.) to run E2E tests on every PR/merge.
+
+## 2025-07-14: Battle Layout & UI Enhancements
+
+### New UI/UX Requirements
+- **Round History Commentary:** The round history panel must now display the same commentary shown in the left/right fighter panels for each round, with a small avatar for each fighter.
+- **Fighter Panel Readability:** Fighter name and health text must be clearly visible (high contrast) and much larger for readability.
+- **Panel Spacing:** All battle panels must have increased margin or padding to ensure text is not close to the edges, improving the visual appeal and user experience.
+
+### TDD Enforcement
+- All UI/UX changes must follow strict TDD: write failing tests for each requirement, implement minimal code to pass, refactor, and verify all tests/builds pass before commit.
