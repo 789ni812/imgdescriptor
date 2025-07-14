@@ -127,10 +127,10 @@ const TournamentPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
-      <div className="flex flex-col md:flex-row gap-8 min-h-[600px]">
+    <div className="w-full mx-auto py-10 px-4">
+      <div className="flex flex-col md:flex-row gap-8 min-h-[600px] ">
         {/* Left Side: Hub, Dropdown, Tabs, Leaderboard */}
-        <div className="md:w-1/2 w-full flex flex-col">
+        <div className="flex-1 w-full flex flex-col min-w-0">
           <h1 className="text-3xl font-bold mb-6 text-center md:text-left">Tournament Hub</h1>
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium text-gray-700">Select a past battle:</label>
@@ -191,42 +191,12 @@ const TournamentPage: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="flex justify-center mb-6">
-            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab('leaderboard')}
-                className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'leaderboard'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                🏆 Leaderboard
-              </button>
-              <button
-                onClick={() => setActiveTab('replay')}
-                className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'replay'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                📺 Battle Replay
-              </button>
-            </div>
-          </div>
-          <div className="flex-1">
-            {activeTab === 'leaderboard' && <Leaderboard />}
-            {activeTab === 'replay' && (
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold mb-4">Battle Replay</h2>
-                <p className="text-gray-500 mb-4">Select a battle to view its replay on the right.</p>
-              </div>
-            )}
-          </div>
+          {/* <div className="w-1/2  flex items-start justify-center min-h-[400px]"> */}
+          <Leaderboard />
+          {/* </div> */}
         </div>
         {/* Right Side: Battle Replay or Placeholder */}
-        <div className="md:w-1/2 w-full flex items-start justify-center min-h-[400px]">
+        <div className="w-1/2  flex items-start justify-center min-h-[400px]">
           {battleData && battleData.metadata && battleData.battleLog ? (
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
               <BattleViewer

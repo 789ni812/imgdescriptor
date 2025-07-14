@@ -177,51 +177,51 @@ const Leaderboard: React.FC = () => {
       </div>
 
       {/* Leaderboard Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-hidden w-full">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Rank
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Fighter
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('winRate')}
                 >
                   Win Rate {sortBy === 'winRate' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('wins')}
                 >
                   Record {sortBy === 'wins' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('damageDealt')}
                 >
                   Avg Damage Dealt {sortBy === 'damageDealt' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('damageTaken')}
                 >
                   Avg Damage Taken {sortBy === 'damageTaken' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('rounds')}
                 >
                   Avg Rounds {sortBy === 'rounds' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stats
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Battle
                 </th>
               </tr>
@@ -229,10 +229,10 @@ const Leaderboard: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedLeaderboard.map((fighter, index) => (
                 <tr key={fighter.name} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <span className="text-lg">{getRankIcon(index + 1)}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-2 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {fighter.imageUrl && (
                         <div className="flex-shrink-0 h-10 w-10 mr-3">
@@ -253,7 +253,7 @@ const Leaderboard: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <div className="flex items-center">
                       <span className="font-medium">{fighter.winRate.toFixed(1)}%</span>
                       <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
@@ -264,21 +264,21 @@ const Leaderboard: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium text-green-600">{fighter.wins}W</span>
                     <span className="text-gray-400 mx-1">-</span>
                     <span className="font-medium text-red-600">{fighter.losses}L</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium">{fighter.averageDamageDealt.toFixed(1)}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium">{fighter.averageDamageTaken.toFixed(1)}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium">{fighter.averageRoundsSurvived.toFixed(1)}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-2 py-4 text-sm text-gray-900">
                     <div className="space-y-1">
                       <div className="flex space-x-2">
                         <span className="text-xs bg-red-100 text-red-800 px-1 rounded">STR: {fighter.currentStats.strength}</span>
@@ -290,7 +290,7 @@ const Leaderboard: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-2 py-4 text-sm text-gray-500">
                     {formatDate(fighter.lastBattle)}
                   </td>
                 </tr>
