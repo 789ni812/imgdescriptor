@@ -1,23 +1,32 @@
-import { POST } from './route';
-
-// Mock NextRequest
-class MockNextRequest {
-  method: string;
-  url: string;
-  cookies: any;
-  nextUrl: any;
-  page: any;
-  ua: any;
-  
-  constructor(url: string, init?: { method?: string }) {
-    this.url = url;
-    this.method = init?.method || 'GET';
-    this.cookies = {};
-    this.nextUrl = { searchParams: new Map() };
-    this.page = {};
-    this.ua = {};
+// Mock Next.js environment before importing the route
+jest.mock('next/server', () => ({
+  NextRequest: class MockNextRequest {
+    method: string;
+    url: string;
+    cookies: Record<string, unknown>;
+    nextUrl: { searchParams: Map<string, string> };
+    page: Record<string, unknown>;
+    ua: Record<string, unknown>;
+    
+    constructor(url: string, init?: { method?: string }) {
+      this.url = url;
+      this.method = init?.method || 'GET';
+      this.cookies = {};
+      this.nextUrl = { searchParams: new Map() };
+      this.page = {};
+      this.ua = {};
+    }
+  },
+  NextResponse: {
+    json: (data: unknown, options?: { status?: number }) => ({
+      json: async () => data,
+      status: options?.status || 200
+    })
   }
-}
+}));
+
+import { POST } from './route';
+import { readdir, readFile, writeFile } from 'fs/promises';
 
 // Mock fs/promises
 jest.mock('fs/promises', () => ({
@@ -27,9 +36,9 @@ jest.mock('fs/promises', () => ({
   mkdir: jest.fn(),
 }));
 
-const mockReaddir = require('fs/promises').readdir as jest.MockedFunction<any>;
-const mockReadFile = require('fs/promises').readFile as jest.MockedFunction<any>;
-const mockWriteFile = require('fs/promises').writeFile as jest.MockedFunction<any>;
+const mockReaddir = readdir as jest.MockedFunction<typeof readdir>;
+const mockReadFile = readFile as jest.MockedFunction<typeof readFile>;
+const mockWriteFile = writeFile as jest.MockedFunction<typeof writeFile>;
 
 describe('/api/fighting-game/balance-fighters', () => {
   beforeEach(() => {
@@ -80,16 +89,17 @@ describe('/api/fighting-game/balance-fighters', () => {
     };
 
     // Setup mocks
-    mockReaddir.mockResolvedValue(mockFighterFiles);
+    mockReaddir.mockResolvedValue(mockFighterFiles as any);
     mockReadFile
       .mockResolvedValueOnce(JSON.stringify(mockDarthVaderData))
       .mockResolvedValueOnce(JSON.stringify(mockStephenData));
     mockWriteFile.mockResolvedValue(undefined);
 
     // Create request
-    const request = new MockNextRequest('http://localhost:3000/api/fighting-game/balance-fighters', {
-      method: 'POST',
-    }) as any;
+    const request = new (jest.requireActual('next/server').NextRequest)(
+      'http://localhost:3000/api/fighting-game/balance-fighters',
+      { method: 'POST' }
+    ) as any;
 
     // Call the API
     const response = await POST(request);
@@ -129,9 +139,10 @@ describe('/api/fighting-game/balance-fighters', () => {
     // Mock error
     mockReaddir.mockRejectedValue(new Error('Directory not found'));
 
-    const request = new MockNextRequest('http://localhost:3000/api/fighting-game/balance-fighters', {
-      method: 'POST',
-    }) as any;
+    const request = new (jest.requireActual('next/server').NextRequest)(
+      'http://localhost:3000/api/fighting-game/balance-fighters',
+      { method: 'POST' }
+    ) as any;
 
     const response = await POST(request);
     const result = await response.json();
@@ -184,15 +195,16 @@ describe('/api/fighting-game/balance-fighters', () => {
       matchHistory: []
     };
 
-    mockReaddir.mockResolvedValue(mockFighterFiles);
+    mockReaddir.mockResolvedValue(mockFighterFiles as any);
     mockReadFile
       .mockResolvedValueOnce(JSON.stringify(mockDarthVaderData))
       .mockResolvedValueOnce(JSON.stringify(mockStephenData));
     mockWriteFile.mockResolvedValue(undefined);
 
-    const request = new MockNextRequest('http://localhost:3000/api/fighting-game/balance-fighters', {
-      method: 'POST',
-    }) as any;
+    const request = new (jest.requireActual('next/server').NextRequest)(
+      'http://localhost:3000/api/fighting-game/balance-fighters',
+      { method: 'POST' }
+    ) as any;
 
     const response = await POST(request);
     const result = await response.json();

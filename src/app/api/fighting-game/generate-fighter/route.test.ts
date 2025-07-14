@@ -1,5 +1,6 @@
 import { POST } from './route';
 import { generateFighterStats } from '@/lib/lmstudio-client';
+import { readdir, readFile } from 'fs/promises';
 
 // Mock the LM Studio client
 jest.mock('@/lib/lmstudio-client', () => ({
@@ -26,7 +27,7 @@ jest.mock('next/server', () => ({
 }));
 
 // Import the mocked NextRequest
-const { NextRequest } = require('next/server');
+const { NextRequest } = jest.requireActual('next/server');
 
 describe('/api/fighting-game/generate-fighter', () => {
   const mockRequest = (body: any) => {
@@ -115,9 +116,11 @@ describe('/api/fighting-game/generate-fighter', () => {
   });
 
   it('should use existing fighter stats when found', async () => {
-    const { readdir, readFile } = require('fs/promises');
-    readdir.mockResolvedValue(['bruce-lee.json']);
-    readFile.mockResolvedValue(JSON.stringify({
+    const mockReaddir = readdir as jest.MockedFunction<typeof readdir>;
+    const mockReadFile = readFile as jest.MockedFunction<typeof readFile>;
+    
+    mockReaddir.mockResolvedValue(['bruce-lee.json'] as any);
+    mockReadFile.mockResolvedValue(JSON.stringify({
       name: 'Bruce Lee',
       stats: {
         strength: 40,

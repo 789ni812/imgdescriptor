@@ -5,7 +5,7 @@ const createJestConfig = nextJest({
   dir: './',
 });
 
-// Add any custom config to be passed to Jest
+  // Add any custom config to be passed to Jest
 const config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
@@ -15,6 +15,11 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  // Exclude Playwright E2E tests from Jest
+  testPathIgnorePatterns: [
+    '<rootDir>/e2e/',
+    '<rootDir>/node_modules/'
+  ],
   // Allow transformation of ESM modules like react-markdown
   transformIgnorePatterns: [
     'node_modules/(?!(react-markdown|remark-.*|rehype-.*|unified|bail|is-plain-obj|trough|vfile|unist-.*|mdast-.*|micromark|decode-named-character-reference|character-entities|property-information|hast-util-.*|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount)/)'

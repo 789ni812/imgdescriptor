@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         console.log('LLM stat generation failed, falling back to score sheet:', llmResult.error);
         throw new Error('LLM generation failed');
       }
-    } catch (error) {
+    } catch {
       console.log('LLM stat generation failed, using fallback methods...');
       
       // Try to identify creature type using score sheet

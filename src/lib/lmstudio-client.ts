@@ -258,7 +258,7 @@ export const generateStory = async (
 export const generateFighterStats = async (
   imageDescription: string,
   fighterLabel: string
-): Promise<{ success: boolean; stats?: any; error?: string }> => {
+): Promise<{ success: boolean; stats?: FighterStats; error?: string }> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
 
@@ -269,63 +269,31 @@ export const generateFighterStats = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: WRITER_MODEL,
+        model: DESCRIBER_MODEL,
         messages: [
           {
             role: 'system',
-            content: `You are an expert fighter stats generator for a fighting game. Your job is to analyze an image description and generate balanced, realistic stats for a fighter.
-
-CRITICAL RULES:
-1. Output ONLY a valid JSON object with the following keys: "strength", "agility", "health", "defense", "luck", "age", "size", "build"
-2. All property names and string values MUST be double-quoted
-3. "size" must be one of: "small", "medium", "large"
-4. "build" must be one of: "thin", "average", "muscular", "heavy"
-5. All numeric values must be integers within the specified ranges
-6. Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object
-
-STAT RANGES:
-- **Health**: 0-1000 (0 = defeated, Godzilla level = 800-1000, human = 50-150)
-- **Strength**: 1-200 (1 = ant, 30-40 = Bruce Lee, 200 = Godzilla)
-- **Agility**: 1-100 (1 = sloth, 50-70 = Bruce Lee, 100 = speedster)
-- **Defense**: 1-100 (1 = paper, 20-40 = human, 100 = indestructible)
-- **Luck**: 1-50 (1 = unlucky, 10-20 = average, 50 = extremely lucky)
-- **Age**: 1-200000000 (appropriate for creature type)
-
-CREATURE TYPE GUIDELINES:
-- **Rodents/Insects**: High agility (60-95), low strength (1-5), low health (10-50)
-- **Small Animals**: Good agility (50-80), moderate strength (5-20), moderate health (50-120)
-- **Humans**: Balanced stats, strength 15-50, agility 30-70, health 80-150
-- **Large Animals**: High strength (40-80), moderate agility (25-50), high health (200-400)
-- **Kaiju/Giants**: Maximum strength (150-200), low agility (5-20), maximum health (800-1000)
-
-BALANCE REQUIREMENTS:
-- Stronger creatures should generally have lower agility
-- Larger creatures should have higher health and defense
-- Consider the visual description when assigning stats
-- Ensure stats are internally consistent and realistic
-
-Example output:
-{
-  "strength": 35,
-  "agility": 65,
-  "health": 120,
-  "defense": 25,
-  "luck": 15,
-  "age": 28,
-  "size": "medium",
-  "build": "muscular"
-}`,
+            content: `You are an expert at analyzing images and generating balanced fighter statistics for a fighting game. 
+            Based on the image description and fighter label, generate realistic but balanced stats.
+            
+            Return ONLY a JSON object with these fields:
+            - strength: number (1-200)
+            - agility: number (1-100) 
+            - health: number (20-1000)
+            - defense: number (1-100)
+            - luck: number (1-50)
+            - age: number (1-1000000)
+            - size: "small" | "medium" | "large"
+            - build: "thin" | "average" | "muscular" | "heavy"
+            
+            Consider the fighter's characteristics when generating stats.`,
           },
           {
             role: 'user',
-            content: `Generate balanced fighter stats for: "${fighterLabel}"
-
-Image Description: ${imageDescription}
-
-Consider the visual elements, creature type, and ensure the stats are realistic and balanced for a fighting game.`,
+            content: `Generate stats for: ${fighterLabel}\nImage description: ${imageDescription}`,
           },
         ],
-        temperature: 0.3,
+        temperature: 0.7,
         max_tokens: 512,
       }),
       signal: controller.signal,
@@ -349,7 +317,7 @@ Consider the visual elements, creature type, and ensure the stats are realistic 
     try {
       // Remove markdown/code block wrappers if present
       const cleaned = rawContent.replace(/```json|```/gi, '').trim();
-      const parsed = JSON.parse(cleaned);
+      const parsed = JSON.parse(cleaned) as FighterStats;
       
       // Validate required fields
       if (
@@ -377,6 +345,17 @@ Consider the visual elements, creature type, and ensure the stats are realistic 
     return { success: false, error: errorMessage };
   }
 };
+
+interface FighterStats {
+  strength: number;
+  agility: number;
+  health: number;
+  defense: number;
+  luck: number;
+  age: number;
+  size: 'small' | 'medium' | 'large';
+  build: 'thin' | 'average' | 'muscular' | 'heavy';
+}
 
 export const generateBattleCommentary = async (
   fighterA: string,

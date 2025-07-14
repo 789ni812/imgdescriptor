@@ -128,15 +128,19 @@ jest.config.js           # Jest configuration
   - This is the recommended best practice for Zustand + Next.js (App Router) projects.
 
 ## Testing Process
-- **Framework:** Jest + React Testing Library
+- **Unit Testing Framework:** Jest + React Testing Library
+- **E2E Testing Framework:** Playwright
 - **Workflow:** Strict TDD (Test-Driven Development)
   - Write failing test → implement code → make test pass → refactor
-  - All features require tests before implementation
+  - All features require both unit and E2E tests before implementation
 - **Test Coverage:**
-  - UI, state, and game logic are all covered
+  - **Unit Tests**: UI, state, and game logic are all covered
+  - **E2E Tests**: Critical user flows, integration scenarios, and regression prevention
   - Reset Game and turn logic are explicitly tested
-  - **463 tests passing** with comprehensive coverage across all systems
-- **Run tests:** `npm test` or `npm run test:watch`
+  - **463 unit tests passing** with comprehensive coverage across all systems
+  - **E2E tests** covering `/playervs` and `/tournament` critical flows
+- **Run unit tests:** `npm test` or `npm run test:watch`
+- **Run E2E tests:** `npx playwright test` or `npx playwright test --headed`
 - **Build check:** `npm run build` (must pass before commit)
 
 ### Recent Test Improvements (2025-01-27)
@@ -165,8 +169,9 @@ Enhanced character store tests with proper type validation:
 - **Result**: All character store tests now pass with proper type validation
 
 ### Test Coverage Summary
-- **Total Tests**: 463 passing, 0 failing
-- **Test Files**: 23 files covering 38 source files
+- **Unit Tests**: 463 passing, 0 failing
+- **E2E Tests**: All Playwright tests passing for critical user flows
+- **Test Files**: 23 unit test files covering 38 source files + E2E test files
 - **Coverage Areas**:
   - ✅ UI Components (React Testing Library)
   - ✅ Custom Hooks (useImageAnalysis, useStoryGeneration)
@@ -175,12 +180,18 @@ Enhanced character store tests with proper type validation:
   - ✅ Utility Functions (soundUtils, lmstudio-client)
   - ✅ Type Validation (all type definitions)
   - ✅ Error Handling (comprehensive error scenarios)
+  - ✅ E2E User Flows (Playwright)
+    - ✅ `/playervs` page loading and navigation
+    - ✅ Demo data verification
+    - ✅ Rebalance Fighters flow
+    - ✅ Tournament page functionality
 
 ## TDD Process and Best Practices
 
 ### TDD Workflow for Each Feature
 1. **Write Failing Tests First**
-   - Create comprehensive test suite covering all requirements
+   - **Unit Tests**: Create comprehensive Jest test suite covering all requirements
+   - **E2E Tests**: Create Playwright tests for critical user flows and integration scenarios
    - Ensure tests fail initially (red phase)
    - Use descriptive test names that explain the expected behavior
    - Test edge cases and error conditions
@@ -196,8 +207,64 @@ Enhanced character store tests with proper type validation:
    - Maintain strict TypeScript typing throughout
 
 4. **Quality Assurance**
-   - Run all relevant tests to ensure no regressions
+   - Run all unit tests: `npm test`
+   - Run all E2E tests: `npx playwright test`
    - Verify production build succeeds (`npm run build`)
+   - Ensure no regressions in either test suite
+
+### E2E Testing Strategy with Playwright
+
+#### Test Organization
+- **Location**: `e2e/` directory
+- **Naming**: `[page-name].spec.ts` (e.g., `playervs.spec.ts`, `tournament.spec.ts`)
+- **Configuration**: `playwright.config.ts` for browser setup and timeouts
+
+#### Test Categories
+1. **Critical User Flows**
+   - Page loading and navigation
+   - Core functionality (e.g., Rebalance Fighters button)
+   - Data persistence and state management
+
+2. **Integration Scenarios**
+   - API interactions and error handling
+   - Cross-component communication
+   - End-to-end user journeys
+
+3. **Regression Prevention**
+   - UI element presence and accessibility
+   - Performance and responsiveness
+   - Cross-browser compatibility
+
+#### Best Practices
+- **Reliable Selectors**: Use `data-testid` attributes for stable element selection
+- **Proper Timing**: Wait for network idle and element visibility before assertions
+- **Error Handling**: Test both success and failure scenarios
+- **Cross-Browser**: Run tests in multiple browsers (Chrome, Firefox, Safari)
+- **Visual Regression**: Use Playwright's screenshot comparison for UI consistency
+
+#### Test Execution
+```bash
+# Run all E2E tests
+npx playwright test
+
+# Run specific test file
+npx playwright test e2e/playervs.spec.ts
+
+# Run with browser UI (for debugging)
+npx playwright test --headed
+
+# Run in specific browser
+npx playwright test --project=chromium
+
+# Generate test report
+npx playwright show-report
+```
+
+#### Integration with TDD
+- **Pre-Implementation**: Write E2E tests that define the expected user experience
+- **During Development**: Use E2E tests to verify integration points
+- **Post-Implementation**: Use E2E tests for regression testing and quality assurance
+- **CI/CD**: Include E2E tests in automated testing pipeline
    - Test in browser for visual verification (`npm run dev`)
 
 ### Test Strategy Best Practices

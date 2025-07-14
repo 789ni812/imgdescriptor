@@ -17,7 +17,7 @@ export interface FighterData {
     intelligence?: number;
     uniqueAbilities?: string[];
   };
-  matchHistory: any[];
+  matchHistory: unknown[];
 }
 
 export interface FighterType {
@@ -110,7 +110,7 @@ export const FIGHTER_TYPES: Record<string, FighterType> = {
   }
 };
 
-export function classifyFighter(name: string, currentStats: any): string {
+export function classifyFighter(name: string): string {
   const lowerName = name.toLowerCase();
   
   // Rodents
@@ -148,7 +148,7 @@ export function classifyFighter(name: string, currentStats: any): string {
   return 'regular_human';
 }
 
-export function generateBalancedStats(fighterType: FighterType, currentStats: any) {
+export function generateBalancedStats(fighterType: FighterType, currentStats: FighterData['stats']) {
   const stats = { ...currentStats };
   
   // Generate new stats within the type's ranges
@@ -179,12 +179,12 @@ export function generateBalancedStats(fighterType: FighterType, currentStats: an
 export function balanceFighter(fighterData: FighterData): { 
   name: string; 
   type: string; 
-  oldStats: any; 
-  newStats: any; 
+  oldStats: FighterData['stats']; 
+  newStats: FighterData['stats']; 
   balancedFighter: FighterData;
 } {
   // Classify the fighter
-  const fighterTypeKey = classifyFighter(fighterData.name, fighterData.stats);
+  const fighterTypeKey = classifyFighter(fighterData.name);
   const typeConfig = FIGHTER_TYPES[fighterTypeKey];
   
   // Generate balanced stats
@@ -206,7 +206,7 @@ export function balanceFighter(fighterData: FighterData): {
 }
 
 export function balanceAllFighters(fighters: FighterData[]): {
-  results: Array<{ name: string; type: string; oldStats: any; newStats: any; balancedFighter: FighterData }>;
+  results: Array<{ name: string; type: string; oldStats: FighterData['stats']; newStats: FighterData['stats']; balancedFighter: FighterData }>;
   message: string;
 } {
   const results = fighters.map(fighter => balanceFighter(fighter));

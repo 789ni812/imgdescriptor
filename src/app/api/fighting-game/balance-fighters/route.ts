@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { balanceAllFighters, type FighterData } from '@/lib/fighter-balancing';
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   // Artificial delay for E2E test reliability
   await new Promise(r => setTimeout(r, 500));
   try {
@@ -17,35 +17,36 @@ export async function POST(_req: NextRequest) {
     for (const file of jsonFiles) {
       const filePath = join(fightersDir, file);
       const content = await readFile(filePath, 'utf-8');
-      const fighterData: FighterData = JSON.parse(content);
+      const fighterData = JSON.parse(content) as FighterData;
       fighters.push(fighterData);
     }
     
-    // Use the pure function to balance all fighters
-    const balanceResult = balanceAllFighters(fighters);
-    
-    // Write balanced fighters back to files
-    for (const result of balanceResult.results) {
-      const filePath = join(fightersDir, `${result.balancedFighter.id}.json`);
-      await writeFile(filePath, JSON.stringify(result.balancedFighter, null, 2), 'utf-8');
+    if (fighters.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'No fighter files found to balance'
+      }, { status: 404 });
     }
     
-    return NextResponse.json({ 
-      success: true, 
-      message: balanceResult.message,
-      results: balanceResult.results.map(r => ({
-        name: r.name,
-        type: r.type,
-        oldStats: r.oldStats,
-        newStats: r.newStats
-      }))
-    });
+    // Balance all fighters
+    const result = balanceAllFighters(fighters);
     
+    // Write updated fighter files
+    for (const { balancedFighter } of result.results) {
+      const filePath = join(fightersDir, `${balancedFighter.id}.json`);
+      await writeFile(filePath, JSON.stringify(balancedFighter, null, 2));
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: `Balanced ${result.results.length} fighters`,
+      results: result.results
+    });
   } catch (error) {
     console.error('Error balancing fighters:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 });
   }
 } 

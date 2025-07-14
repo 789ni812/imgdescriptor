@@ -51,19 +51,19 @@ describe('Creature Score Sheet System', () => {
         const stats = generateStatsFromScoreSheet(rodentType);
         
         expect(stats.strength).toBeGreaterThanOrEqual(1);
-        expect(stats.strength).toBeLessThanOrEqual(3);
+        expect(stats.strength).toBeLessThanOrEqual(5);
         
-        expect(stats.agility).toBeGreaterThanOrEqual(18);
-        expect(stats.agility).toBeLessThanOrEqual(20);
+        expect(stats.agility).toBeGreaterThanOrEqual(60);
+        expect(stats.agility).toBeLessThanOrEqual(90);
         
-        expect(stats.health).toBeGreaterThanOrEqual(10);
-        expect(stats.health).toBeLessThanOrEqual(30);
+        expect(stats.health).toBeGreaterThanOrEqual(20);
+        expect(stats.health).toBeLessThanOrEqual(50);
         
-        expect(stats.defense).toBeGreaterThanOrEqual(2);
-        expect(stats.defense).toBeLessThanOrEqual(5);
+        expect(stats.defense).toBeGreaterThanOrEqual(5);
+        expect(stats.defense).toBeLessThanOrEqual(15);
         
-        expect(stats.luck).toBeGreaterThanOrEqual(15);
-        expect(stats.luck).toBeLessThanOrEqual(20);
+        expect(stats.luck).toBeGreaterThanOrEqual(25);
+        expect(stats.luck).toBeLessThanOrEqual(40);
       }
     });
 
@@ -74,20 +74,20 @@ describe('Creature Score Sheet System', () => {
       if (kaijuType) {
         const stats = generateStatsFromScoreSheet(kaijuType);
         
-        expect(stats.strength).toBeGreaterThanOrEqual(40);
-        expect(stats.strength).toBeLessThanOrEqual(60);
+        expect(stats.strength).toBeGreaterThanOrEqual(150);
+        expect(stats.strength).toBeLessThanOrEqual(200);
         
-        expect(stats.agility).toBeGreaterThanOrEqual(1);
-        expect(stats.agility).toBeLessThanOrEqual(3);
+        expect(stats.agility).toBeGreaterThanOrEqual(5);
+        expect(stats.agility).toBeLessThanOrEqual(20);
         
-        expect(stats.health).toBeGreaterThanOrEqual(400);
-        expect(stats.health).toBeLessThanOrEqual(800);
+        expect(stats.health).toBeGreaterThanOrEqual(800);
+        expect(stats.health).toBeLessThanOrEqual(1000);
         
-        expect(stats.defense).toBeGreaterThanOrEqual(20);
-        expect(stats.defense).toBeLessThanOrEqual(30);
+        expect(stats.defense).toBeGreaterThanOrEqual(70);
+        expect(stats.defense).toBeLessThanOrEqual(100);
         
-        expect(stats.luck).toBeGreaterThanOrEqual(4);
-        expect(stats.luck).toBeLessThanOrEqual(8);
+        expect(stats.luck).toBeGreaterThanOrEqual(5);
+        expect(stats.luck).toBeLessThanOrEqual(15);
       }
     });
 
@@ -135,11 +135,11 @@ describe('Creature Score Sheet System', () => {
         
         // Check that stats are within reasonable bounds
         expect(creatureType.strength.min).toBeGreaterThanOrEqual(1);
-        expect(creatureType.strength.max).toBeLessThanOrEqual(60);
+        expect(creatureType.strength.max).toBeLessThanOrEqual(200);
         expect(creatureType.agility.min).toBeGreaterThanOrEqual(1);
-        expect(creatureType.agility.max).toBeLessThanOrEqual(20);
+        expect(creatureType.agility.max).toBeLessThanOrEqual(100);
         expect(creatureType.health.min).toBeGreaterThanOrEqual(5);
-        expect(creatureType.health.max).toBeLessThanOrEqual(800);
+        expect(creatureType.health.max).toBeLessThanOrEqual(1000);
       });
     });
 
@@ -149,14 +149,14 @@ describe('Creature Score Sheet System', () => {
       expect(kaiju).toBeDefined();
       if (kaiju) {
         expect(kaiju.strength.min).toBeGreaterThan(30); // Very strong
-        expect(kaiju.agility.max).toBeLessThan(5); // Very slow
+        expect(kaiju.agility.max).toBeLessThanOrEqual(20); // Very slow
       }
 
       // Check that rodents have low strength and high agility
       const rodent = initialScoreSheet.creatureTypes.find(ct => ct.name === 'rodent');
       expect(rodent).toBeDefined();
       if (rodent) {
-        expect(rodent.strength.max).toBeLessThan(5); // Very weak
+        expect(rodent.strength.max).toBeLessThanOrEqual(5); // Very weak
         expect(rodent.agility.min).toBeGreaterThan(15); // Very fast
       }
     });

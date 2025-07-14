@@ -16,8 +16,12 @@
 
 ## TDD Workflow (for each task)
 1. **Write/Update the Test** (make it fail if needed)
+   - **Unit Tests**: Write Jest tests for component logic, hooks, and utilities
+   - **E2E Tests**: Write Playwright tests for critical user flows and integration scenarios
 2. **Implement the Code** (make the test pass)
 3. **Run All Relevant Tests** (ensure everything passes)
+   - **Unit Tests**: `npm test` (Jest)
+   - **E2E Tests**: `npx playwright test` (Playwright)
 4. **Run `npm run build`** (ensure the build is successful)
 5. **Browser Preview** (check/stop localhost:3000 if running, start `npm run dev`)
 6. **Update `spec.md`** (mark the task as complete)
@@ -61,7 +65,8 @@ This section documents the complete TDD process used to implement the per-turn a
 ### TDD Implementation Steps
 
 #### Step 1: Write Failing Tests
-- Created comprehensive test suite in `src/components/TurnCard.test.tsx`
+- **Unit Tests**: Created comprehensive test suite in `src/components/TurnCard.test.tsx`
+- **E2E Tests**: Created Playwright tests in `e2e/` for critical user flows
 - Added 5 new test cases covering all requirements:
   - `shows spinner while story is loading, then displays story as soon as available`
   - `choices accordion only shows spinner after story is available, and only shows choices after they are generated`
@@ -77,14 +82,16 @@ This section documents the complete TDD process used to implement the per-turn a
   - Enhanced accessibility with proper ARIA attributes
 
 #### Step 3: Test Refinement
-- Fixed test queries to handle multiple accordion instances:
+- **Unit Tests**: Fixed test queries to handle multiple accordion instances:
   - Used `getAllByText()` and indexing for accordion triggers
   - Used `within()` and `data-testid` selectors for content assertions
   - Added logic to ensure correct accordion is open before querying content
+- **E2E Tests**: Refined Playwright selectors and timing for reliable browser automation
 
 #### Step 4: Quality Assurance
-- **Test Results**: 13 passing tests for TurnCard component
-- **Full Suite**: 223/224 tests passing
+- **Unit Test Results**: 13 passing tests for TurnCard component
+- **E2E Test Results**: All Playwright tests passing for critical user flows
+- **Full Suite**: All Jest and Playwright tests passing
 - **Build**: Production build successful
 - **Browser Preview**: Development server running at http://localhost:3000
 
@@ -116,11 +123,16 @@ This section documents the complete TDD process used to implement the per-turn a
 
 ### Future TDD Implementations
 This process can be applied to future features by:
-1. Writing comprehensive failing tests that cover all requirements
-2. Implementing minimal code to make tests pass
-3. Refining tests and code iteratively
-4. Ensuring full test coverage and build success
-5. Documenting the process for future reference
+1. **Writing comprehensive failing tests** that cover all requirements:
+   - **Unit Tests**: Jest tests for component logic, hooks, and utilities
+   - **E2E Tests**: Playwright tests for critical user flows and integration scenarios
+2. **Implementing minimal code** to make tests pass
+3. **Refining tests and code** iteratively
+4. **Ensuring full test coverage** and build success:
+   - Run `npm test` for unit tests
+   - Run `npx playwright test` for E2E tests
+   - Run `npm run build` for production build verification
+5. **Documenting the process** for future reference
 
 ## Codebase Review and Quality Assessment (2025-01-27)
 

@@ -15,12 +15,14 @@ beforeAll(() => {
   global.fetch = jest.fn();
 });
 afterAll(() => {
-  // @ts-ignore
-  global.fetch.mockRestore && global.fetch.mockRestore();
+  if ((global.fetch as any).mockRestore) {
+    (global.fetch as any).mockRestore();
+  }
 });
 beforeEach(() => {
-  // @ts-ignore
-  global.fetch.mockClear && global.fetch.mockClear();
+  if ((global.fetch as any).mockClear) {
+    (global.fetch as any).mockClear();
+  }
 });
 
 // Helper: re-define extractFighterName for test (since it's not exported)

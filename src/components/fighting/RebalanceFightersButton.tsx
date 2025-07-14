@@ -1,10 +1,26 @@
 import React, { useState } from 'react';
 
+interface FighterStats {
+  health: number;
+  maxHealth: number;
+  strength: number;
+  luck: number;
+  agility: number;
+  defense: number;
+  age: number;
+  size: 'small' | 'medium' | 'large';
+  build: 'thin' | 'average' | 'muscular' | 'heavy';
+  magic?: number;
+  ranged?: number;
+  intelligence?: number;
+  uniqueAbilities?: string[];
+}
+
 interface BalanceResult {
   name: string;
   type: string;
-  oldStats: any;
-  newStats: any;
+  oldStats: FighterStats;
+  newStats: FighterStats;
 }
 
 interface BalanceResponse {
