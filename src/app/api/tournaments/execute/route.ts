@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check if this is a bye (same fighter)
-    if (nextMatch.fighterA?.id === nextMatch.fighterB?.id) {
+    // Check if this is a bye (missing opponent)
+    if (!nextMatch.fighterB) {
       // Handle bye - fighter advances automatically
       nextMatch.winner = nextMatch.fighterA || undefined;
       nextMatch.status = 'completed';

@@ -117,6 +117,27 @@ export const TournamentCreator: React.FC<TournamentCreatorProps> = ({ onTourname
           Choose 2-8 fighters for your tournament. Single elimination bracket will be generated automatically.
         </p>
         
+        {/* Tournament size guidance */}
+        {selectedFighterIds.length >= 2 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm font-medium text-blue-800 mb-1">Tournament Structure:</div>
+            <div className="text-xs text-blue-600">
+              {selectedFighterIds.length === 2 && "2 fighters = 1 match (Final)"}
+              {selectedFighterIds.length === 4 && "4 fighters = 3 matches (2 Semi-Finals + 1 Final)"}
+              {selectedFighterIds.length === 8 && "8 fighters = 7 matches (4 Quarter-Finals + 2 Semi-Finals + 1 Final)"}
+              {selectedFighterIds.length === 3 && "3 fighters = 3 matches (1 Semi-Final + 1 Final + 1 Bye)"}
+              {selectedFighterIds.length === 5 && "5 fighters = 7 matches (3 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
+              {selectedFighterIds.length === 6 && "6 fighters = 7 matches (3 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
+              {selectedFighterIds.length === 7 && "7 fighters = 7 matches (4 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
+            </div>
+            {![2, 4, 8].includes(selectedFighterIds.length) && (
+              <div className="text-xs text-orange-600 mt-1">
+                ⚠️ Non-power-of-2: Some fighters will get byes (automatic advancement)
+              </div>
+            )}
+          </div>
+        )}
+        
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="fighter-grid">
           {availableFighters.map((fighter) => (
             <div

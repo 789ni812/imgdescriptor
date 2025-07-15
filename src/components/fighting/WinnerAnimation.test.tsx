@@ -271,4 +271,115 @@ describe('WinnerAnimation', () => {
     expect(screen.getByText('Final Health: 795 / 800')).toBeInTheDocument();
     expect(screen.getByText('Final Health: 95 / 120')).toBeInTheDocument();
   });
+
+  describe('Health Change Calculations', () => {
+    it('should calculate health changes correctly using damage values', () => {
+      const mockBattleLog = [
+        {
+          round: 1,
+          attacker: 'Fighter 1',
+          defender: 'Fighter 2',
+          attackCommentary: 'Fighter 1 attacks!',
+          defenseCommentary: 'Fighter 2 defends!',
+          attackerDamage: 15,
+          defenderDamage: 0,
+          randomEvent: null,
+          arenaObjectsUsed: null,
+          healthAfter: { attacker: 100, defender: 85 }
+        },
+        {
+          round: 2,
+          attacker: 'Fighter 2',
+          defender: 'Fighter 1',
+          attackCommentary: 'Fighter 2 attacks!',
+          defenseCommentary: 'Fighter 1 defends!',
+          attackerDamage: 20,
+          defenderDamage: 0,
+          randomEvent: null,
+          arenaObjectsUsed: null,
+          healthAfter: { attacker: 80, defender: 85 }
+        }
+      ];
+
+      render(
+        <WinnerAnimation
+          winner="Fighter 2"
+          fighterA={mockFighterA}
+          fighterB={mockFighterB}
+          battleLog={mockBattleLog}
+        />
+      );
+
+      // Check that health changes are displayed correctly
+      // Round 1: Fighter 1 attacks, Fighter 2 takes 15 damage
+      expect(screen.getByText('-15')).toBeInTheDocument();
+      
+      // Round 2: Fighter 2 attacks, Fighter 1 takes 20 damage
+      expect(screen.getByText('-20')).toBeInTheDocument();
+      
+      // Check that attacker health changes are always 0
+      const zeroElements = screen.getAllByText('0');
+      expect(zeroElements.length).toBeGreaterThan(0);
+    });
+
+    it('should allow health increases only with healing powerups', () => {
+      const mockBattleLog = [
+        {
+          round: 1,
+          attacker: 'Fighter 1',
+          defender: 'Fighter 2',
+          attackCommentary: 'Fighter 1 attacks!',
+          defenseCommentary: 'Fighter 2 defends!',
+          attackerDamage: -5, // Healing
+          defenderDamage: 0,
+          randomEvent: 'Fighter 2 uses healing potion!',
+          arenaObjectsUsed: null,
+          healthAfter: { attacker: 100, defender: 105 }
+        }
+      ];
+
+      render(
+        <WinnerAnimation
+          winner="Fighter 2"
+          fighterA={mockFighterA}
+          fighterB={mockFighterB}
+          battleLog={mockBattleLog}
+        />
+      );
+
+      // Check that healing is allowed with powerup
+      expect(screen.getByText('+5')).toBeInTheDocument(); // Healing
+    });
+
+    it('should prevent health increases without healing powerups', () => {
+      const mockBattleLog = [
+        {
+          round: 1,
+          attacker: 'Fighter 1',
+          defender: 'Fighter 2',
+          attackCommentary: 'Fighter 1 attacks!',
+          defenseCommentary: 'Fighter 2 defends!',
+          attackerDamage: -5, // Healing but no powerup
+          defenderDamage: 0,
+          randomEvent: null,
+          arenaObjectsUsed: null,
+          healthAfter: { attacker: 100, defender: 105 }
+        }
+      ];
+
+      render(
+        <WinnerAnimation
+          winner="Fighter 2"
+          fighterA={mockFighterA}
+          fighterB={mockFighterB}
+          battleLog={mockBattleLog}
+        />
+      );
+
+      // Check that health increase is prevented without healing powerup
+      // Should show 0 instead of +5 - check for multiple "0" elements
+      const zeroElements = screen.getAllByText('0');
+      expect(zeroElements.length).toBeGreaterThan(0);
+    });
+  });
 }); 

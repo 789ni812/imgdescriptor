@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "AI Image Describer":
+    - /url: /
+    - heading "AI Image Describer" [level=1]
+  - navigation:
+    - link "Tournament":
+      - /url: /tournament
+    - link "Leaderboard":
+      - /url: /leaderboard
+    - link "Battle Arena":
+      - /url: /playervs
+  - slider "Volume": "0.5"
+  - button "Mute"
+- main:
+  - img "Godzilla"
+  - text: "Godzilla Health: 500 / 500 Health: 500 / 500"
+  - button "Remove Fighter"
+  - text: vs
+  - img "Bruce Lee"
+  - text: "Bruce Lee Health: 120 / 120 Health: 120 / 120"
+  - button "Remove Fighter"
+  - heading "Debug Info (Combat):" [level=4]
+  - text: "Game Phase: combat PreBattle Loading: false Battle Log Length: 2 Current Battle Index: 0 Show Round Anim: true Winner: Draw Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets It's a DRAW!"
+  - heading "Fighter Stats" [level=3]
+  - img "Godzilla"
+  - heading "Godzilla" [level=4]
+  - paragraph: "Final Health: 490 / 500"
+  - text: "Health: 500 | Strength: 50 | Agility: 1 | Defense: 22 | Luck: 8"
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=4]
+  - paragraph: "Final Health: 120 / 120"
+  - text: "Health: 120 | Strength: 12 | Agility: 20 | Defense: 8 | Luck: 18"
+  - heading "Battle Overview" [level=3]
+  - heading "Round 1" [level=4]
+  - img "Godzilla"
+  - text: "Godzilla: Godzilla smashes Bruce Lee with a mighty tail swipe!"
+  - img "Bruce Lee"
+  - text: "Bruce Lee: Bruce Lee dodges with lightning speed!"
+  - img "Godzilla"
+  - text: "0"
+  - img "Bruce Lee"
+  - text: "-30"
+  - heading "Round 2" [level=4]
+  - img "Bruce Lee"
+  - text: "Bruce Lee: Bruce Lee lands a flying kick on Godzilla!"
+  - img "Godzilla"
+  - text: "Godzilla: Godzilla shrugs off the attack."
+  - img "Bruce Lee"
+  - text: "0"
+  - img "Godzilla"
+  - text: "-10"
+  - button "Restart"
+  - text: It's a DRAW!
+  - heading "Fighter Stats" [level=3]
+  - img "Godzilla"
+  - heading "Godzilla" [level=4]
+  - paragraph: "Final Health: 500 / 500"
+  - text: "Health: 500 | Strength: 50 | Agility: 1 | Defense: 22 | Luck: 8"
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=4]
+  - paragraph: "Final Health: 120 / 120"
+  - text: "Health: 120 | Strength: 12 | Agility: 20 | Defense: 8 | Luck: 18"
+  - heading "Battle Overview" [level=3]
+  - heading "Round 1" [level=4]
+  - img "Godzilla"
+  - text: "Godzilla: Godzilla smashes Bruce Lee with a mighty tail swipe!"
+  - img "Bruce Lee"
+  - text: "Bruce Lee: Bruce Lee dodges with lightning speed!"
+  - img "Godzilla"
+  - text: "0"
+  - img "Bruce Lee"
+  - text: "-30"
+  - heading "Round 2" [level=4]
+  - img "Bruce Lee"
+  - text: "Bruce Lee: Bruce Lee lands a flying kick on Godzilla!"
+  - img "Godzilla"
+  - text: "Godzilla: Godzilla shrugs off the attack."
+  - img "Bruce Lee"
+  - text: "0"
+  - img "Godzilla"
+  - text: "-10"
+  - button "Restart"
+  - button "Reset to Demo"
+- region "Notifications alt+T"
+- contentinfo:
+  - paragraph: © 2025
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

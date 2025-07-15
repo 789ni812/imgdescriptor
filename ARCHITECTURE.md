@@ -1838,6 +1838,55 @@ The app now provides a solid foundation for future enhancements:
 - After each battle, the log is saved in `public/tournaments/` for replay.
 - Tournament results and score charts are generated and stored/displayed.
 
+## Tournament Automation System (2025-01-27)
+- **Automate Match Execution**: Button that runs all tournament matches sequentially with a 1-second delay between matches.
+- **Real-time Status Tracking**: Uses `currentTournamentRef` to track the latest tournament state during automation.
+- **Graceful Completion**: Automation automatically stops when:
+  - Tournament status becomes 'completed'
+  - No more pending matches are found
+  - API returns "No pending matches found" error
+- **UI State Management**: Spinner and cancel button disappear immediately upon tournament completion.
+- **Error Handling**: Robust error handling for invalid matches, missing fighters, and API failures.
+
+### Automation Flow
+1. User clicks "Automate Match Execution"
+2. System checks for next pending match
+3. Executes match via API
+4. Updates tournament state via `onTournamentUpdated` callback
+5. Updates `currentTournamentRef` with latest tournament data
+6. Checks if tournament is complete or no more matches
+7. Continues loop or stops automation
+8. UI updates to show completion state
+
+### Technical Implementation
+```typescript
+// TournamentControls.tsx - Automation Loop
+const handleAutomateMatches = async () => {
+  setIsAutomating(true);
+  automatingRef.current = true;
+  
+  try {
+    while (automatingRef.current) {
+      const nextMatch = getNextMatch();
+      if (!nextMatch) break;
+      
+      const success = await executeMatch();
+      if (!success) break; // Tournament completed
+      
+      // Check updated tournament status
+      if (currentTournamentRef.current.status === 'completed') {
+        break;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  } finally {
+    setIsAutomating(false);
+    automatingRef.current = false;
+  }
+};
+```
+
 ## Tournament Page & Replay
 - New page (e.g., `/tournament`) displays:
   - Tournament bracket or list of battles

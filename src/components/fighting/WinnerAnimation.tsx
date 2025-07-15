@@ -157,26 +157,35 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
           <div className="w-full mb-8">
             <h3 className="text-2xl font-bold text-white mb-4 text-center">Battle Overview</h3>
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 max-h-48 overflow-y-auto">
-              {battleLog.map((round, index) => {
+              {battleLog.map((round) => {
                 // Find fighter objects for attacker and defender
                 const attackerFighter = round.attacker === fighterA?.name ? fighterA : fighterB;
                 const defenderFighter = round.defender === fighterA?.name ? fighterA : fighterB;
                 
                 // Calculate health changes for this round
-                const previousRound = index > 0 ? battleLog[index - 1] : null;
                 let attackerHealthChange = 0;
                 let defenderHealthChange = 0;
-                if (previousRound) {
-                  // In battle mechanics, only the defender takes damage, attacker health stays the same
-                  attackerHealthChange = 0; // Attacker health never changes
-                  defenderHealthChange = round.healthAfter.defender - previousRound.healthAfter.defender;
+                
+                // Use the actual damage values from the battle log
+                // In battle mechanics, only the defender takes damage from the attacker
+                attackerHealthChange = 0; // Attacker health never changes (no counter-damage)
+                
+                // Check for healing powerup
+                const hasHealing = round.randomEvent && 
+                  (round.randomEvent.toLowerCase().includes('heal') || 
+                   round.randomEvent.toLowerCase().includes('recover') ||
+                   round.randomEvent.toLowerCase().includes('restore') ||
+                   round.randomEvent.toLowerCase().includes('potion'));
+                
+                if (hasHealing && round.attackerDamage < 0) {
+                  // With healing powerup, show positive healing
+                  defenderHealthChange = +Math.abs(round.attackerDamage);
+                } else if (!hasHealing && round.attackerDamage < 0) {
+                  // No healing allowed without powerup
+                  defenderHealthChange = 0;
                 } else {
-                  // First round: compare to initial health
-                  if (attackerFighter && defenderFighter) {
-                    // In battle mechanics, only the defender takes damage, attacker health stays the same
-                    attackerHealthChange = 0; // Attacker health never changes
-                    defenderHealthChange = round.healthAfter.defender - defenderFighter.stats.health;
-                  }
+                  // Normal damage
+                  defenderHealthChange = -Math.abs(round.attackerDamage);
                 }
                 
                 return (

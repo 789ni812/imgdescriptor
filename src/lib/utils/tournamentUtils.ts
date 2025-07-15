@@ -64,7 +64,7 @@ export function generateBracket(fighters: Fighter[]): TournamentBracket[] {
       firstRoundMatches.push({
         id: `match-1-${matchNumber}`,
         fighterA,
-        fighterB: fighterA, // Same fighter (will be handled as bye)
+        fighterB: null, // No opponent for bye
         winner: fighterA,
         status: 'completed',
         round: 1,

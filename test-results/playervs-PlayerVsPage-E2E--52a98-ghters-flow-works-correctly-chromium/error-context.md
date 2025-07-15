@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "AI Image Describer":
+    - /url: /
+    - heading "AI Image Describer" [level=1]
+  - navigation:
+    - link "Tournament":
+      - /url: /tournament
+    - link "Leaderboard":
+      - /url: /leaderboard
+    - link "Battle Arena":
+      - /url: /playervs
+  - slider "Volume": "0.5"
+  - button "Mute"
+- main:
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
+  - text: vs
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
+  - heading "Debug Info:" [level=4]
+  - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
+  - button "Rebalancing Fighters..." [disabled]
+  - heading "Upload Your Fighters" [level=2]
+  - paragraph: Upload images of two fighters and a battle arena
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
+  - heading "Battle Arena" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image of the fighting scene
+  - paragraph: Drag & drop or click to select an image
+  - button "Start Fight" [disabled]
+  - button "Reset to Demo"
+- region "Notifications alt+T"
+- contentinfo:
+  - paragraph: © 2025
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

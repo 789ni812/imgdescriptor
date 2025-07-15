@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "AI Image Describer":
+    - /url: /
+    - heading "AI Image Describer" [level=1]
+  - navigation:
+    - link "Tournament":
+      - /url: /tournament
+    - link "Leaderboard":
+      - /url: /leaderboard
+    - link "Battle Arena":
+      - /url: /playervs
+  - slider "Volume": "0.5"
+  - button "Mute"
+- main:
+  - img "Godzilla"
+  - text: "Godzilla Health: 0 / 500 Health: / 500"
+  - button "Remove Fighter"
+  - text: vs
+  - img "Bruce Lee"
+  - text: "Bruce Lee Health: 0 / 120 Health: / 120"
+  - button "Remove Fighter"
+  - heading "Debug Info:" [level=4]
+  - text: "Game Phase: setup PreBattle Loading: true Battle Log Length: 0 Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets"
+  - button "Rebalance Fighters"
+  - heading "Upload Your Fighters" [level=2]
+  - paragraph: Upload images of two fighters and a battle arena
+  - img "Godzilla"
+  - heading "Godzilla" [level=4]
+  - text: "Health: 500 Strength: 50 Luck: 8 Agility: 1 Defense: 22 Size: large"
+  - paragraph:
+    - strong: "Build:"
+    - text: heavy
+  - paragraph:
+    - strong: "Age:"
+    - text: ancient
+  - button "Remove Fighter"
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=4]
+  - text: "Health: 120 Strength: 12 Luck: 18 Agility: 20 Defense: 8 Size: medium"
+  - paragraph:
+    - strong: "Build:"
+    - text: muscular
+  - paragraph:
+    - strong: "Age:"
+    - text: adult
+  - button "Remove Fighter"
+  - heading "Battle Arena" [level=3]
+  - img "Tokyo City Streets"
+  - text: Tokyo City Streets A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - button "Remove Arena"
+  - button "Generating Battle..." [disabled]
+  - text: Generating Battle...
+  - button "Reset to Demo"
+- region "Notifications alt+T"
+- contentinfo:
+  - paragraph: © 2025
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```
