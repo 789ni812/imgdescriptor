@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-15T10:34:23.887Z",
+    "fighterA": {
+      "name": "brown field mouse",
+      "imageUrl": "/vs/fighters/mouse-1752575215970-nil8mw.jpg",
+      "stats": {
+        "health": 85,
+        "maxHealth": 85,
+        "strength": 35,
+        "luck": 25,
+        "agility": 70,
+        "defense": 60,
+        "age": 450000,
+        "size": "small",
+        "build": "thin"
+      },
+      "description": "a damp, moss-covered stone courtyard within the ruins of an old temple. crumbling columns surround a central fountain choked with algae and stagnant water. the air is thick with humidity and the scent of decay. broken fountain scattered stones tattered cloth small, ornate key brown field mouse (fighter) quiet and melancholic, with a sense of forgotten grandeur and potential danger lurking in the shadows. the key appears to fit a small, almost invisible lock on one of the columns. a faint scratching sound comes from within the fountain."
+    },
+    "fighterB": {
+      "name": "Godzilla",
+      "imageUrl": "/vs/fighters/download__3_-1752575260995-7er9de.jpg",
+      "stats": {
+        "health": 950,
+        "maxHealth": 950,
+        "strength": 180,
+        "luck": 20,
+        "agility": 40,
+        "defense": 90,
+        "age": 75000000,
+        "size": "large",
+        "build": "muscular"
+      },
+      "description": "a vast, volcanic wasteland stretches before the viewer, dominated by jagged obsidian peaks and rivers of molten lava. cracked shield scorched armor geothermal vents godzilla (adult) heat haze terrifying and destructive, with a palpable sense of immense power and danger. the ground trembles beneath your feet – a new eruption is imminent. strange energy pulses from the highest peak."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752575619528-h1zdte.webp",
+      "description": ""
+    },
+    "winner": "Godzilla",
+    "totalRounds": 2,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "brown field mouse",
+      "defender": "Godzilla",
+      "attackCommentary": "The tiny titan starts STRONG! A brazen assault leaves Godzilla reeling with 17 damage in round one - can this unexpected flurry keep up.",
+      "defenseCommentary": "brown field mouse braces for impact and defends bravely!",
+      "attackerDamage": 17,
+      "defenderDamage": 0,
+      "randomEvent": "brown field mouse narrowly dodges Godzilla's attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 85,
+        "defender": 933
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Godzilla",
+      "defender": "brown field mouse",
+      "attackCommentary": "Godzilla presses his atomic advantage in round two! The brown field mouse gets obliterated with a devastating blast that leaves no hope for recovery. 229 damage sends shockwaves through the.",
+      "defenseCommentary": "The tiny titan's out of their depth! Round 2 is a desperate dance as they weave and dodge Godzilla's atomic heat, but for how long can their agility hold against.",
+      "attackerDamage": 229,
+      "defenderDamage": 0,
+      "randomEvent": "Godzilla uses undefined to enhance their attack!",
+      "arenaObjectsUsed": [
+        null
+      ],
+      "healthAfter": {
+        "attacker": 933,
+        "defender": 0
+      }
+    }
+  ]
+}

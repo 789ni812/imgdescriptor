@@ -6606,6 +6606,172 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 | Great White Shark| 60    | 20       | 25      | 10      | 10   | 0     | 5      | 5           | Bite Attack, Blood Frenzy       |
 | Victor Moreau   | 80     | 18       | 30      | 12      | 15   | 0     | 2      | 25          | Aikido Throw, Iron Palm         |
 
+## Fighter Stat Display & Battle Integration (2025-01-27)
+
+### Phase 30: Enhanced Fighter Stat Display
+- [ ] **30.1: Comprehensive Stat Display Component**
+  - [ ] Write failing test for fighter stat display with all stats including unique abilities
+  - [ ] Create `src/components/fighting/FighterStatDisplay.tsx` component
+  - [ ] Display all fighter stats: health, strength, agility, defense, luck, magic, ranged, intelligence
+  - [ ] Show unique abilities as special badges or icons (e.g., "Force Lightning" for Sith Lords)
+  - [ ] Add visual indicators for stat ranges (color coding, progress bars)
+  - [ ] **Commit:** `feat(ui): add comprehensive fighter stat display component`
+
+- [ ] **30.2: Fighter Panel Enhancement**
+  - [ ] Write failing test for enhanced fighter panel with full stat display
+  - [ ] Update `src/components/fighting/ChooseExistingFighter.tsx` to show all stats
+  - [ ] Integrate FighterStatDisplay component into fighter selection panels
+  - [ ] Add hover tooltips for stat explanations and unique ability descriptions
+  - [ ] **Commit:** `feat(ui): enhance fighter panels with comprehensive stat display`
+
+- [ ] **30.3: Stat Comparison Component**
+  - [ ] Write failing test for fighter stat comparison functionality
+  - [ ] Create `src/components/fighting/FighterComparison.tsx` component
+  - [ ] Side-by-side stat comparison between selected fighters
+  - [ ] Highlight strengths and weaknesses of each fighter
+  - [ ] Add visual indicators for stat advantages/disadvantages
+  - [ ] **Commit:** `feat(ui): add fighter stat comparison component`
+
+### Phase 31: Battle Integration of Unique Abilities
+- [ ] **31.1: Unique Ability Battle System**
+  - [ ] Write failing test for unique ability integration in battle logic
+  - [ ] Extend `src/lib/fighter-balancing.ts` to include ability activation logic
+  - [ ] Create `src/lib/utils/uniqueAbilities.ts` for ability-specific battle mechanics
+  - [ ] Implement ability activation conditions (health thresholds, luck rolls, etc.)
+  - [ ] **Commit:** `feat(combat): implement unique ability battle system`
+
+- [ ] **31.2: Ability Activation Logic**
+  - [ ] Write failing test for ability activation conditions and effects
+  - [ ] Create ability activation rules (e.g., Force Lightning: 15% chance when health > 50%)
+  - [ ] Implement ability effects (damage multipliers, status effects, special moves)
+  - [ ] Add ability cooldowns and usage limits per battle
+  - [ ] **Commit:** `feat(combat): add ability activation conditions and effects`
+
+- [ ] **31.3: Battle Narration Integration**
+  - [ ] Write failing test for unique ability narration in battle commentary
+  - [ ] Update `src/lib/prompts/combatPrompts.ts` to include ability-specific narration
+  - [ ] Generate dramatic descriptions when abilities activate
+  - [ ] Add ability-specific sound effects and visual feedback
+  - [ ] **Commit:** `feat(narration): integrate unique abilities into battle commentary`
+
+- [ ] **31.4: Sparing Ability Usage**
+  - [ ] Write failing test for sparing ability usage mechanics
+  - [ ] Implement ability usage limits (e.g., Force Lightning used max 2 times per battle)
+  - [ ] Add strategic timing for ability usage (health thresholds, opponent vulnerability)
+  - [ ] Create ability failure scenarios and consequences
+  - [ ] **Commit:** `feat(combat): implement sparing ability usage with strategic timing`
+
+### Phase 32: UI/UX Enhancements for Abilities
+- [ ] **32.1: Ability Visual Indicators**
+  - [ ] Write failing test for ability visual feedback during battles
+  - [ ] Create `src/components/fighting/AbilityIndicator.tsx` component
+  - [ ] Show ability availability, cooldowns, and activation status
+  - [ ] Add visual effects when abilities are used (animations, color changes)
+  - [ ] **Commit:** `feat(ui): add ability visual indicators and effects`
+
+- [ ] **32.2: Battle Log Enhancement**
+  - [ ] Write failing test for ability events in battle log
+  - [ ] Update `src/components/fighting/BattleStoryboard.tsx` to highlight ability usage
+  - [ ] Add special formatting for ability activation events
+  - [ ] Include ability descriptions and effects in battle narration
+  - [ ] **Commit:** `feat(ui): enhance battle log with ability events and descriptions`
+
+- [ ] **32.3: Fighter Selection Enhancement**
+  - [ ] Write failing test for ability preview in fighter selection
+  - [ ] Update fighter selection UI to preview unique abilities
+  - [ ] Add ability descriptions and activation conditions
+  - [ ] Show ability power levels and strategic value
+  - [ ] **Commit:** `feat(ui): enhance fighter selection with ability previews`
+
+### Phase 33: Arena Environmental Effects (PLANNED)
+- [ ] **33.1: Arena Analysis System**
+  - [ ] Write failing test for arena environment analysis
+  - [ ] Create `src/lib/utils/arenaAnalysis.ts` for environmental feature detection
+  - [ ] Implement arena type classification (restaurant, outdoor, warehouse, etc.)
+  - [ ] Extract environmental objects and hazards from arena images
+  - [ ] **Commit:** `feat(analysis): implement arena environment analysis system`
+
+- [ ] **33.2: Environmental Battle Mechanics**
+  - [ ] Write failing test for environmental effects in battle logic
+  - [ ] Create `src/lib/utils/environmentalEffects.ts` for arena-based battle modifiers
+  - [ ] Implement environmental object interactions (chairs, tables, walls, etc.)
+  - [ ] Add environmental damage and defensive bonuses
+  - [ ] **Commit:** `feat(combat): add environmental effects to battle mechanics`
+
+- [ ] **33.3: Arena Description Generation**
+  - [ ] Write failing test for arena description generation
+  - [ ] Create `src/lib/prompts/arenaPrompts.ts` for arena analysis prompts
+  - [ ] Generate entertaining arena descriptions for battle replays
+  - [ ] Integrate arena descriptions into battle narration
+  - [ ] **Commit:** `feat(narration): add arena description generation for battle replays`
+
+- [ ] **33.4: Environmental UI Integration**
+  - [ ] Write failing test for environmental effects display in battle UI
+  - [ ] Update `src/components/fighting/BattleStoryboard.tsx` to show environmental interactions
+  - [ ] Add visual indicators for environmental objects and their effects
+  - [ ] Display arena descriptions in battle replay interface
+  - [ ] **Commit:** `feat(ui): integrate environmental effects into battle display`
+
+### Phase 34: Enhanced Battle Replay System (PLANNED)
+- [ ] **34.1: Arena Description Display**
+  - [ ] Write failing test for arena description in battle replay
+  - [ ] Update `src/components/fighting/BattleViewer.tsx` to show arena descriptions
+  - [ ] Add arena description section below arena image in replay interface
+  - [ ] Style arena descriptions with appropriate typography and layout
+  - [ ] **Commit:** `feat(ui): add arena descriptions to battle replay interface`
+
+- [ ] **34.2: Environmental Event Tracking**
+  - [ ] Write failing test for environmental events in battle logs
+  - [ ] Extend battle log structure to include environmental interactions
+  - [ ] Track environmental object usage and effects throughout battles
+  - [ ] Store environmental events for replay accuracy
+  - [ ] **Commit:** `feat(data): extend battle logs with environmental event tracking`
+
+- [ ] **34.3: Replay Enhancement**
+  - [ ] Write failing test for enhanced battle replay with environmental context
+  - [ ] Update battle replay system to include arena descriptions and environmental events
+  - [ ] Add environmental context to battle narration during replays
+  - [ ] Ensure replay accuracy with all environmental interactions
+  - [ ] **Commit:** `feat(replay): enhance battle replay with environmental context`
+
+### Implementation Requirements
+
+#### Stat Display Requirements
+- **Complete Stat Visibility**: Show all fighter stats including optional ones (magic, ranged, intelligence)
+- **Unique Ability Display**: Prominently display unique abilities with descriptive names
+- **Visual Hierarchy**: Use color coding and sizing to indicate stat importance
+- **Accessibility**: Ensure all stats are screen reader accessible with proper ARIA labels
+
+#### Battle Integration Requirements
+- **Sparing Usage**: Abilities should activate rarely (5-15% chance per round) to maintain balance
+- **Strategic Timing**: Abilities should activate based on battle conditions (health, opponent state)
+- **Narrative Integration**: Ability usage should be woven into battle commentary naturally
+- **Balance Maintenance**: Abilities should enhance but not dominate battles
+
+#### Technical Requirements
+- **Type Safety**: All ability types and effects must be strictly typed
+- **Test Coverage**: Comprehensive tests for all ability mechanics and edge cases
+- **Performance**: Ability calculations should not impact battle performance
+- **Extensibility**: System should easily accommodate new abilities and fighter types
+
+#### Arena Environmental Requirements
+- **Arena Analysis**: AI-powered detection of environmental features and objects
+- **Environmental Interactions**: Realistic use of arena objects (chairs, tables, walls, etc.)
+- **Battle Impact**: Environmental effects should provide tactical advantages/disadvantages
+- **Narrative Integration**: Environmental interactions should enhance battle storytelling
+
+#### Battle Replay Requirements
+- **Arena Descriptions**: Light, entertaining commentary about the battle environment
+- **Environmental Context**: Show how arena surroundings affect the battle
+- **Replay Accuracy**: All environmental interactions must be preserved and replayed
+- **Visual Enhancement**: Arena descriptions should improve the replay experience
+
+#### Environmental Mechanics Requirements
+- **Object Detection**: Identify usable objects in arena images (furniture, structures, hazards)
+- **Interaction Logic**: Define how different objects can be used in combat
+- **Balance Considerations**: Environmental effects should enhance but not dominate battles
+- **Variety**: Different arena types should provide different tactical opportunities
+
 ## Fighting Game Implementation Todo List
 
 ### Phase 1: Foundation Setup

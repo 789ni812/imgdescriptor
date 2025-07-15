@@ -1996,3 +1996,630 @@ The app now provides a solid foundation for future enhancements:
 
 ### TDD Enforcement
 - All UI/UX changes must follow strict TDD: write failing tests for each requirement, implement minimal code to pass, refactor, and verify all tests/builds pass before commit.
+
+---
+
+# Fighter Stat Display & Battle Integration Architecture (2025-01-27)
+
+## Overview
+The Fighter Stat Display & Battle Integration system enhances the fighting game by providing comprehensive stat visibility and integrating unique abilities into battle mechanics. This system ensures players can see all fighter capabilities and experience strategic depth through sparing ability usage.
+
+## Core Components
+
+### 1. Fighter Stat Display System (`src/components/fighting/FighterStatDisplay.tsx`)
+```typescript
+interface FighterStatDisplayProps {
+  fighter: FighterData;
+  showAbilities?: boolean;
+  showTooltips?: boolean;
+  size?: 'compact' | 'detailed' | 'full';
+  comparisonMode?: boolean;
+}
+
+interface StatDisplayConfig {
+  stat: keyof FighterStats;
+  label: string;
+  color: string;
+  range: [number, number];
+  showProgressBar: boolean;
+  tooltip?: string;
+}
+```
+
+### 2. Unique Ability System (`src/lib/utils/uniqueAbilities.ts`)
+```typescript
+interface UniqueAbility {
+  id: string;
+  name: string;
+  description: string;
+  activationCondition: AbilityCondition;
+  effect: AbilityEffect;
+  cooldown: number;
+  maxUses: number;
+  rarity: 'common' | 'rare' | 'legendary';
+}
+
+interface AbilityCondition {
+  type: 'health_threshold' | 'luck_roll' | 'opponent_vulnerable' | 'combo_trigger';
+  value: number;
+  probability: number; // 0.05 to 0.15 for sparing usage
+}
+
+interface AbilityEffect {
+  type: 'damage_multiplier' | 'status_effect' | 'healing' | 'defense_boost';
+  value: number;
+  duration?: number;
+  target: 'self' | 'opponent' | 'both';
+}
+```
+
+### 3. Battle Integration Engine (`src/lib/utils/battleAbilityEngine.ts`)
+```typescript
+interface BattleAbilityContext {
+  fighter: FighterData;
+  opponent: FighterData;
+  currentHealth: number;
+  roundNumber: number;
+  previousAbilitiesUsed: string[];
+  battlePhase: 'opening' | 'mid_battle' | 'climax' | 'desperate';
+}
+
+class BattleAbilityEngine {
+  // Check if ability should activate
+  shouldActivateAbility(ability: UniqueAbility, context: BattleAbilityContext): boolean;
+  
+  // Apply ability effects to battle
+  applyAbilityEffect(ability: UniqueAbility, context: BattleAbilityContext): BattleEffect;
+  
+  // Generate ability-specific narration
+  generateAbilityNarration(ability: UniqueAbility, effect: BattleEffect): string;
+  
+  // Track ability usage and cooldowns
+  updateAbilityState(ability: UniqueAbility, context: BattleAbilityContext): void;
+}
+```
+
+## System Flow
+
+### 1. Stat Display Flow
+```mermaid
+flowchart TD
+  A[Fighter Data] --> B[Stat Display Component]
+  B --> C[Render Basic Stats]
+  C --> D[Render Optional Stats]
+  D --> E[Render Unique Abilities]
+  E --> F[Apply Visual Styling]
+  F --> G[Add Tooltips & Accessibility]
+```
+
+### 2. Ability Integration Flow
+```mermaid
+flowchart TD
+  A[Battle Round Start] --> B[Check Ability Conditions]
+  B --> C{Ability Should Activate?}
+  C -->|Yes| D[Roll Activation Probability]
+  C -->|No| E[Continue Normal Battle]
+  D --> F{Activation Successful?}
+  F -->|Yes| G[Apply Ability Effects]
+  F -->|No| E
+  G --> H[Generate Ability Narration]
+  H --> I[Update Battle State]
+  I --> J[Track Ability Usage]
+```
+
+### 3. Sparing Usage Logic
+```mermaid
+flowchart TD
+  A[Ability Check] --> B[Calculate Base Probability]
+  B --> C[Apply Context Modifiers]
+  C --> D[Health Threshold Check]
+  D --> E[Cooldown Check]
+  E --> F[Usage Limit Check]
+  F --> G[Final Activation Roll]
+  G --> H{Activate?}
+  H -->|Yes| I[Use Ability]
+  H -->|No| J[Continue Normal Combat]
+```
+
+## Integration Points
+
+### Fighter Selection Integration
+```typescript
+// Enhanced fighter selection with ability preview
+interface EnhancedFighterCardProps {
+  fighter: FighterData;
+  showAbilities: boolean;
+  onSelect: (fighter: FighterData) => void;
+}
+
+// Ability preview component
+const AbilityPreview: React.FC<{ abilities: UniqueAbility[] }> = ({ abilities }) => {
+  return (
+    <div className="ability-preview">
+      {abilities.map(ability => (
+        <div key={ability.id} className="ability-badge">
+          <span className="ability-name">{ability.name}</span>
+          <span className="ability-rarity">{ability.rarity}</span>
+          <span className="ability-description">{ability.description}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Battle System Integration
+```typescript
+// Enhanced battle round with ability integration
+interface EnhancedBattleRound {
+  roundNumber: number;
+  fighterA: FighterData;
+  fighterB: FighterData;
+  healthA: number;
+  healthB: number;
+  abilityActivations: AbilityActivation[];
+  narration: string;
+}
+
+interface AbilityActivation {
+  fighterId: string;
+  abilityId: string;
+  effect: BattleEffect;
+  narration: string;
+  timestamp: string;
+}
+```
+
+### UI Component Integration
+```typescript
+// Enhanced battle storyboard with ability events
+const EnhancedBattleStoryboard: React.FC<{ battle: EnhancedBattleRound }> = ({ battle }) => {
+  return (
+    <div className="battle-storyboard">
+      {battle.abilityActivations.map(activation => (
+        <div key={activation.timestamp} className="ability-event">
+          <div className="ability-indicator">
+            <span className="ability-name">{activation.abilityId}</span>
+            <span className="ability-effect">{activation.effect.type}</span>
+          </div>
+          <div className="ability-narration">{activation.narration}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Ability Examples
+
+### Sith Lord Abilities
+```typescript
+const sithLordAbilities: UniqueAbility[] = [
+  {
+    id: 'force_lightning',
+    name: 'Force Lightning',
+    description: 'Channels dark side energy into devastating lightning attack',
+    activationCondition: {
+      type: 'health_threshold',
+      value: 0.5, // 50% health or higher
+      probability: 0.12 // 12% chance per round
+    },
+    effect: {
+      type: 'damage_multiplier',
+      value: 2.5,
+      target: 'opponent'
+    },
+    cooldown: 3,
+    maxUses: 2,
+    rarity: 'legendary'
+  },
+  {
+    id: 'force_choke',
+    name: 'Force Choke',
+    description: 'Telekinetically constricts opponent\'s airway',
+    activationCondition: {
+      type: 'luck_roll',
+      value: 18, // High luck required
+      probability: 0.08 // 8% chance per round
+    },
+    effect: {
+      type: 'status_effect',
+      value: 0.3, // 30% damage over time
+      duration: 2,
+      target: 'opponent'
+    },
+    cooldown: 4,
+    maxUses: 1,
+    rarity: 'rare'
+  }
+];
+```
+
+### Peak Human Abilities
+```typescript
+const peakHumanAbilities: UniqueAbility[] = [
+  {
+    id: 'one_inch_punch',
+    name: 'One-Inch Punch',
+    description: 'Bruce Lee\'s devastating close-range technique',
+    activationCondition: {
+      type: 'combo_trigger',
+      value: 3, // After 3 consecutive hits
+      probability: 0.15 // 15% chance per round
+    },
+    effect: {
+      type: 'damage_multiplier',
+      value: 3.0,
+      target: 'opponent'
+    },
+    cooldown: 2,
+    maxUses: 3,
+    rarity: 'rare'
+  }
+];
+```
+
+## Performance Considerations
+
+### Stat Display Performance
+- **Lazy Loading**: Load ability descriptions only when needed
+- **Memoization**: Cache stat calculations and ability effects
+- **Virtual Scrolling**: For large fighter lists with detailed stats
+
+### Battle Integration Performance
+- **Efficient Probability Calculation**: Use pre-calculated probability tables
+- **Ability State Caching**: Cache ability usage and cooldown states
+- **Minimal DOM Updates**: Batch ability effect updates
+
+### Memory Management
+- **Ability Pool**: Reuse ability objects to reduce memory allocation
+- **State Cleanup**: Clear ability states between battles
+- **Event Cleanup**: Remove ability event listeners properly
+
+## Benefits
+
+### Enhanced User Experience
+- **Complete Information**: Players see all fighter capabilities at a glance
+- **Strategic Depth**: Unique abilities add tactical considerations
+- **Visual Appeal**: Rich stat displays with color coding and icons
+- **Accessibility**: Screen reader support for all stat information
+
+### Gameplay Enhancement
+- **Sparing Usage**: Abilities activate rarely to maintain balance
+- **Strategic Timing**: Abilities require specific conditions to activate
+- **Narrative Integration**: Abilities enhance battle storytelling
+- **Replayability**: Different ability activations create varied experiences
+
+### Technical Benefits
+- **Type Safety**: Strict typing for all ability types and effects
+- **Extensibility**: Easy to add new abilities and fighter types
+- **Testability**: Comprehensive test coverage for all ability mechanics
+- **Performance**: Optimized for smooth battle experience
+
+## Implementation Status
+
+### 🔄 Phase 30: Enhanced Fighter Stat Display (PLANNED)
+- Comprehensive stat display component with all fighter stats
+- Fighter panel enhancement with full stat visibility
+- Stat comparison component for side-by-side analysis
+
+### 🔄 Phase 31: Battle Integration of Unique Abilities (PLANNED)
+- Unique ability battle system with activation logic
+- Ability activation conditions and effects
+- Battle narration integration for ability events
+- Sparing ability usage with strategic timing
+
+### 🔄 Phase 32: UI/UX Enhancements for Abilities (PLANNED)
+- Ability visual indicators and effects
+- Battle log enhancement with ability events
+- Fighter selection enhancement with ability previews
+
+### 🔄 Phase 33: Arena Environmental Effects (PLANNED)
+- Arena analysis system with environmental feature detection
+- Environmental battle mechanics with object interactions
+- Arena description generation for battle replays
+- Environmental UI integration in battle display
+
+### 🔄 Phase 34: Enhanced Battle Replay System (PLANNED)
+- Arena description display in battle replay interface
+- Environmental event tracking in battle logs
+- Enhanced replay system with environmental context
+
+---
+
+# Arena Environmental Effects & Battle Replay Architecture (2025-01-27)
+
+## Overview
+The Arena Environmental Effects & Battle Replay system enhances the fighting game by incorporating arena surroundings into battle mechanics and providing rich, contextual battle replays. This system analyzes arena environments, integrates environmental objects into combat, and generates entertaining arena descriptions for enhanced replay experiences.
+
+## Core Components
+
+### 1. Arena Analysis System (`src/lib/utils/arenaAnalysis.ts`)
+```typescript
+interface ArenaAnalysis {
+  arenaType: 'restaurant' | 'warehouse' | 'outdoor' | 'gym' | 'street' | 'office' | 'other';
+  environmentalObjects: EnvironmentalObject[];
+  hazards: Hazard[];
+  tacticalFeatures: TacticalFeature[];
+  atmosphere: string;
+  lighting: 'bright' | 'dim' | 'dark';
+  size: 'small' | 'medium' | 'large';
+}
+
+interface EnvironmentalObject {
+  id: string;
+  name: string;
+  type: 'furniture' | 'structure' | 'weapon' | 'cover' | 'hazard';
+  position: { x: number; y: number };
+  usable: boolean;
+  effects: EnvironmentalEffect[];
+  description: string;
+}
+
+interface EnvironmentalEffect {
+  type: 'damage_boost' | 'defense_boost' | 'mobility_boost' | 'status_effect';
+  value: number;
+  condition: string;
+  target: 'attacker' | 'defender' | 'both';
+}
+```
+
+### 2. Environmental Battle Mechanics (`src/lib/utils/environmentalEffects.ts`)
+```typescript
+interface EnvironmentalInteraction {
+  fighterId: string;
+  objectId: string;
+  action: 'use' | 'throw' | 'dodge_behind' | 'climb' | 'break';
+  effect: EnvironmentalEffect;
+  narration: string;
+  roundNumber: number;
+}
+
+class EnvironmentalBattleEngine {
+  // Check if environmental interaction is possible
+  canInteractWithObject(fighter: FighterData, object: EnvironmentalObject): boolean;
+  
+  // Apply environmental effects to battle
+  applyEnvironmentalEffect(interaction: EnvironmentalInteraction, context: BattleContext): BattleEffect;
+  
+  // Generate environmental interaction narration
+  generateEnvironmentalNarration(interaction: EnvironmentalInteraction): string;
+  
+  // Track environmental object usage and availability
+  updateEnvironmentalState(interaction: EnvironmentalInteraction): void;
+}
+```
+
+### 3. Arena Description Generation (`src/lib/prompts/arenaPrompts.ts`)
+```typescript
+interface ArenaDescriptionContext {
+  arenaAnalysis: ArenaAnalysis;
+  fighters: [FighterData, FighterData];
+  battlePhase: 'setup' | 'mid_battle' | 'climax';
+  environmentalInteractions: EnvironmentalInteraction[];
+}
+
+interface ArenaDescription {
+  shortDescription: string; // 1-2 sentences for replay display
+  detailedDescription: string; // Longer description for battle setup
+  environmentalHighlights: string[]; // Key environmental features
+  atmosphere: string; // Mood and tone of the arena
+}
+```
+
+## System Flow
+
+### 1. Arena Analysis Flow
+```mermaid
+flowchart TD
+  A[Arena Image Upload] --> B[AI Analysis]
+  B --> C[Object Detection]
+  C --> D[Type Classification]
+  D --> E[Feature Extraction]
+  E --> F[Environmental Mapping]
+  F --> G[Battle Integration]
+```
+
+### 2. Environmental Battle Integration
+```mermaid
+flowchart TD
+  A[Battle Round Start] --> B[Check Environmental Opportunities]
+  B --> C{Environmental Interaction Possible?}
+  C -->|Yes| D[Calculate Interaction Probability]
+  C -->|No| E[Continue Normal Battle]
+  D --> F{Interaction Successful?}
+  F -->|Yes| G[Apply Environmental Effects]
+  F -->|No| E
+  G --> H[Generate Environmental Narration]
+  H --> I[Update Battle State]
+  I --> J[Track Object Usage]
+```
+
+### 3. Battle Replay Enhancement
+```mermaid
+flowchart TD
+  A[Battle Replay Request] --> B[Load Battle Data]
+  B --> C[Load Arena Analysis]
+  C --> D[Generate Arena Description]
+  D --> E[Display Enhanced Replay]
+  E --> F[Show Environmental Context]
+  F --> G[Highlight Environmental Events]
+```
+
+## Integration Points
+
+### Battle System Integration
+```typescript
+// Enhanced battle round with environmental context
+interface EnhancedBattleRound {
+  roundNumber: number;
+  fighterA: FighterData;
+  fighterB: FighterData;
+  arena: ArenaAnalysis;
+  environmentalInteractions: EnvironmentalInteraction[];
+  arenaDescription: ArenaDescription;
+  narration: string;
+}
+
+// Environmental interaction tracking
+interface EnvironmentalBattleLog {
+  battleId: string;
+  arenaId: string;
+  interactions: EnvironmentalInteraction[];
+  arenaDescription: ArenaDescription;
+  environmentalNarration: string[];
+}
+```
+
+### UI Component Integration
+```typescript
+// Enhanced battle viewer with arena descriptions
+const EnhancedBattleViewer: React.FC<{ battle: EnhancedBattleRound }> = ({ battle }) => {
+  return (
+    <div className="battle-viewer">
+      <div className="arena-section">
+        <img src={battle.arena.image} alt="Battle Arena" />
+        <div className="arena-description">
+          <h4>Arena</h4>
+          <p>{battle.arenaDescription.shortDescription}</p>
+        </div>
+      </div>
+      
+      <div className="environmental-events">
+        {battle.environmentalInteractions.map(interaction => (
+          <div key={interaction.id} className="environmental-event">
+            <span className="event-icon">🌍</span>
+            <span className="event-narration">{interaction.narration}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+```
+
+## Environmental Examples
+
+### Restaurant Arena
+```typescript
+const restaurantArena: ArenaAnalysis = {
+  arenaType: 'restaurant',
+  environmentalObjects: [
+    {
+      id: 'chair_1',
+      name: 'Wooden Chair',
+      type: 'furniture',
+      usable: true,
+      effects: [
+        {
+          type: 'damage_boost',
+          value: 1.5,
+          condition: 'thrown',
+          target: 'attacker'
+        }
+      ],
+      description: 'A sturdy wooden chair that can be used as a weapon or shield'
+    },
+    {
+      id: 'table_1',
+      name: 'Heavy Table',
+      type: 'structure',
+      usable: true,
+      effects: [
+        {
+          type: 'defense_boost',
+          value: 2.0,
+          condition: 'dodge_behind',
+          target: 'defender'
+        }
+      ],
+      description: 'A solid table providing excellent cover from attacks'
+    }
+  ],
+  atmosphere: 'Cozy but dangerous - the warm lighting belies the brutal combat within',
+  lighting: 'dim',
+  size: 'medium'
+};
+```
+
+### Warehouse Arena
+```typescript
+const warehouseArena: ArenaAnalysis = {
+  arenaType: 'warehouse',
+  environmentalObjects: [
+    {
+      id: 'crate_1',
+      name: 'Wooden Crate',
+      type: 'structure',
+      usable: true,
+      effects: [
+        {
+          type: 'mobility_boost',
+          value: 1.3,
+          condition: 'climb',
+          target: 'attacker'
+        }
+      ],
+      description: 'A stackable crate that can be used for elevation advantage'
+    }
+  ],
+  atmosphere: 'Industrial and unforgiving - every surface is a potential weapon',
+  lighting: 'dim',
+  size: 'large'
+};
+```
+
+## Arena Description Examples
+
+### Restaurant Battle Description
+```
+"The cozy restaurant's warm lighting and rustic charm provide a stark contrast to the brutal combat unfolding within. Wooden chairs become improvised weapons, while heavy tables offer strategic cover - this is no ordinary dining experience."
+```
+
+### Warehouse Battle Description
+```
+"Amidst towering stacks of crates and industrial machinery, the warehouse transforms into a deadly playground. Every surface is a potential weapon, every shadow a tactical advantage in this unforgiving industrial arena."
+```
+
+## Performance Considerations
+
+### Arena Analysis Performance
+- **Efficient Object Detection**: Use optimized AI models for environmental feature extraction
+- **Caching**: Cache arena analysis results to avoid repeated processing
+- **Lazy Loading**: Load environmental data only when needed
+
+### Battle Integration Performance
+- **Interaction Calculation**: Pre-calculate possible environmental interactions
+- **State Management**: Efficient tracking of environmental object availability
+- **Memory Optimization**: Minimize memory usage for environmental data
+
+### Replay Performance
+- **Description Caching**: Cache generated arena descriptions
+- **Event Streaming**: Stream environmental events for large battle replays
+- **Visual Optimization**: Efficient rendering of environmental effects
+
+## Benefits
+
+### Enhanced Gameplay
+- **Environmental Strategy**: Players must consider arena surroundings in battle planning
+- **Tactical Depth**: Environmental objects provide new combat options
+- **Variety**: Different arenas create different tactical challenges
+- **Realism**: Environmental interactions make battles more believable
+
+### Improved Replay Experience
+- **Contextual Information**: Arena descriptions provide battle context
+- **Environmental Storytelling**: Environmental events enhance battle narratives
+- **Visual Enhancement**: Arena descriptions improve replay visual appeal
+- **Educational Value**: Players learn about environmental tactics
+
+### Technical Benefits
+- **Extensibility**: Easy to add new arena types and environmental objects
+- **Scalability**: System can handle complex arena environments
+- **Maintainability**: Well-structured code for environmental mechanics
+- **Testability**: Comprehensive test coverage for all environmental features
+
+---
+
+## Future Directions & Use Cases
+
+[2025-01-27] **Implementation Ready:** The Arena Environmental Effects & Battle Replay system is designed to create more immersive and strategic battles by incorporating arena surroundings into combat mechanics. This system will provide rich, contextual battle experiences with environmental storytelling and enhanced replay functionality.
