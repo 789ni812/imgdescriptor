@@ -6969,3 +6969,45 @@ The enhanced WinnerAnimation is automatically used in:
 - **Extensibility**: Designed to easily accommodate future enhancements and new features
 - **User Experience**: Focus on providing maximum value to users with comprehensive battle context
  
+
+## Battle UI Improvements (2025-01-27)
+
+### Overview
+The battle UI has several usability issues that need to be addressed to provide a better user experience during battle viewing and replays.
+
+### Issues Identified
+1. **Jarring UI Transitions**: Battle information suddenly appears/disappears when round animations show/hide
+2. **Poor Text Visibility**: Dark text on dark background makes fighter information hard to read
+3. **Missing Fighter Stats**: No stat display during battle viewing
+
+### Tasks
+
+#### Phase 1: Smooth UI Transitions
+- [ ] **1.1: Battle Information Fade Effect**
+  - [ ] Write failing test for fade effect during round animations
+  - [ ] Update BattleViewer component to fade battle info during round animations
+  - [ ] Implement CSS transitions for smooth opacity changes
+  - [ ] Ensure battle info fades out when round animation shows
+  - [ ] Ensure battle info fades back in when round animation completes
+  - [ ] Test that fade effect works in both live battles and replays
+  - [ ] **Commit:** `feat(ui): add smooth fade transitions for battle information during round animations`
+
+#### Phase 2: Text Visibility Improvements
+- [ ] **2.1: Fighter Information Text Contrast**
+  - [ ] Write failing test for improved text visibility
+  - [ ] Update fighter name and health text colors to be more visible
+  - [ ] Change text from dark to light colors (white/light gray) for better contrast
+  - [ ] Ensure text is readable against dark backgrounds
+  - [ ] Test text visibility in different battle scenarios
+  - [ ] **Commit:** `fix(ui): improve text contrast for fighter information in battle view`
+
+#### Phase 3: Fighter Stats Display
+- [ ] **3.1: Live Fighter Stats During Battle**
+  - [ ] Write failing test for fighter stats display in battle view
+  - [ ] Add fighter stats section to battle view (similar to WinnerAnimation but more compact)
+  - [ ] Display key stats (Health, Strength, Agility, Defense, Luck) in condensed format
+  - [ ] Show current health vs max health with progress bars
+  - [ ] Position stats below fighter images and names
+  - [ ] Ensure stats update in real-time during battle
+  - [ ] Test stats display in both live battles and replays
+  - [ ] **Commit:** `feat(ui): add live fighter stats display during battle viewing`

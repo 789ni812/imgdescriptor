@@ -194,7 +194,9 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
         />
       ) : (
         <>
-          <div className="flex items-center justify-center gap-8 mb-8">
+          <div className={`flex items-center justify-center gap-8 mb-8 transition-opacity duration-300 ${
+            showRoundAnim ? 'opacity-30 battle-info-fade-out' : 'opacity-100 battle-info-fade-in'
+          }`}>
             {/* Fighter A */}
             <div className="flex-1 flex flex-col items-center">
               {fighterA.imageUrl ? (
