@@ -9,6 +9,7 @@ interface FighterPanel {
 interface Scene {
   name: string;
   imageUrl: string;
+  description?: string;
 }
 
 interface PreviousRound {
@@ -69,6 +70,11 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
             </div>
           )}
           <div className="text-sm font-semibold">Round {round}</div>
+          {scene.description && (
+            <div className="mt-2 text-xs text-center text-gray-700 max-w-md" data-testid="arena-description">
+              {scene.description}
+            </div>
+          )}
         </div>
         {/* Middle Panels */}
         <div className={`row-start-2 row-end-3 col-start-1 col-end-2 bg-white border border-black rounded-md p-6 flex flex-col items-center justify-start text-gray-900 min-h-[100px] transform -skew-x-3 overflow-auto transition-opacity duration-500 shadow-md ${roundStep === 'defense' ? 'opacity-40' : 'opacity-100'}`} data-testid="attacker-box">

@@ -186,6 +186,11 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
           winner={winner}
           onDone={mode === 'replay' ? handleRestart : (() => { if (onBattleEnd && winner) onBattleEnd(winner); })}
           onClose={onClose}
+          fighterAHealth={health[fighterA.id]}
+          fighterBHealth={health[fighterB.id]}
+          fighterA={fighterA}
+          fighterB={fighterB}
+          battleLog={battleLog}
         />
       ) : (
         <>

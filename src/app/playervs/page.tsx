@@ -812,12 +812,15 @@ export default function PlayerVsPage() {
         )}
 
         {/* Winner Animation */}
-        {winner && (
+        {winner && fighterA && fighterB && (
           <WinnerAnimation 
             winner={winner} 
             onDone={() => { resetGame(); setGamePhase('setup'); }}
             fighterAHealth={fighterAHealth ?? undefined}
             fighterBHealth={fighterBHealth ?? undefined}
+            fighterA={fighterA}
+            fighterB={fighterB}
+            battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
           />
         )}
       </div>

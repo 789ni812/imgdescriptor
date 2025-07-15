@@ -74,4 +74,24 @@ describe('BattleStoryboard', () => {
     expect(screen.getAllByAltText('Luke Skywalker').length).toBeGreaterThan(0);
     expect(screen.getAllByAltText('Darth Vader').length).toBeGreaterThan(0);
   });
+
+  it('displays arena description when provided', () => {
+    const propsWithArenaDescription = {
+      ...mockProps,
+      scene: {
+        ...mockProps.scene,
+        description: 'The dimly lit restaurant provides a cozy backdrop for this brutal showdown. Wooden chairs and heavy tables offer strategic cover and improvised weapons.'
+      }
+    };
+    render(<BattleStoryboard {...propsWithArenaDescription} previousRounds={mockPreviousRounds} />);
+    
+    expect(screen.getByText('The dimly lit restaurant provides a cozy backdrop for this brutal showdown. Wooden chairs and heavy tables offer strategic cover and improvised weapons.')).toBeInTheDocument();
+  });
+
+  it('does not display arena description section when no description is provided', () => {
+    render(<BattleStoryboard {...mockProps} previousRounds={mockPreviousRounds} />);
+    
+    // Should not have arena description section
+    expect(screen.queryByTestId('arena-description')).not.toBeInTheDocument();
+  });
 }); 
