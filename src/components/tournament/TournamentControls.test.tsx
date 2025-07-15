@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TournamentControls } from './TournamentControls';
-import { Tournament, TournamentMatch } from '@/lib/types/tournament';
+import { Tournament } from '@/lib/types/tournament';
 
 // Mock the UI components
 jest.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, disabled, className, variant, ...props }: any) => (
+  Button: ({ children, onClick, disabled, className, ...props }: any) => (
     <button 
       onClick={onClick} 
       disabled={disabled} 

@@ -156,7 +156,7 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
         {battleLog.length > 0 && (
           <div className="w-full mb-8">
             <h3 className="text-2xl font-bold text-white mb-4 text-center">Battle Overview</h3>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 max-h-48 overflow-y-auto">
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
               {battleLog.map((round) => {
                 // Find fighter objects for attacker and defender
                 const attackerFighter = round.attacker === fighterA?.name ? fighterA : fighterB;
@@ -215,7 +215,8 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                       {round.randomEvent && typeof round.randomEvent === 'string' && round.randomEvent.trim() !== '' && round.randomEvent !== 'undefined' && (
                         <div className="text-purple-400 text-xs italic">Special Event: {round.randomEvent}</div>
                       )}
-                      {round.arenaObjectsUsed && (
+                      {/* Only show Arena Used if it is a non-empty, non-undefined, non-null string */}
+                      {round.arenaObjectsUsed && typeof round.arenaObjectsUsed === 'string' && round.arenaObjectsUsed.trim() !== '' && round.arenaObjectsUsed !== 'undefined' && (
                         <div className="text-green-400 text-xs italic">Arena Used: {round.arenaObjectsUsed}</div>
                       )}
                       
