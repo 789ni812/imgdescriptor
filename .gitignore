@@ -50,3 +50,7 @@ public/vs/arena/test-arena-*.json
 public/vs/**
 !public/vs/.gitkeep
 !public/vs/README.md
+
+# tournament files
+public/tournaments/*.json
+public/vs/tournaments/*.json
