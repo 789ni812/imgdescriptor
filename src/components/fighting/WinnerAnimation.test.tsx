@@ -137,11 +137,11 @@ describe('WinnerAnimation', () => {
     expect(screen.getByText('Godzilla')).toBeInTheDocument();
     expect(screen.getByText('Bruce Lee')).toBeInTheDocument();
 
-    // Check key stats are displayed
-    expect(screen.getByText((content, node) => node?.textContent === 'Strength: 180')).toBeInTheDocument();
-    expect(screen.getByText((content, node) => node?.textContent === 'Agility: 85')).toBeInTheDocument();
-    expect(screen.getByText((content, node) => node?.textContent === 'Defense: 90')).toBeInTheDocument();
-    expect(screen.getByText((content, node) => node?.textContent === 'Luck: 15')).toBeInTheDocument();
+    // Check key stats are displayed (now in inline format)
+    expect(screen.getByText(/Strength: 180/)).toBeInTheDocument();
+    expect(screen.getByText(/Agility: 85/)).toBeInTheDocument();
+    expect(screen.getByText(/Defense: 90/)).toBeInTheDocument();
+    expect(screen.getByText(/Luck: 15/)).toBeInTheDocument();
   });
 
   it('displays battle overview with round summaries', () => {
