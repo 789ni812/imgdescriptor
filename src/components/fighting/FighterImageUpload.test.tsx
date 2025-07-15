@@ -75,7 +75,7 @@ describe('FighterImageUpload', () => {
 
   it('calls onUploadComplete with correct data for fighter', async () => {
     const mockUploadResponse = { ok: true, json: async () => ({ url: '/vs/fighters/test.jpg' }) };
-    const mockAnalysisResponse = { ok: true, json: async () => ({ description: 'A fierce warrior' }) };
+    const mockAnalysisResponse = { ok: true, json: async () => ({ success: true, description: 'A fierce warrior' }) };
     
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce(mockUploadResponse)
@@ -90,7 +90,7 @@ describe('FighterImageUpload', () => {
     await waitFor(() => {
       expect(mockOnUploadComplete).toHaveBeenCalledWith({
         url: '/vs/fighters/test.jpg',
-        analysis: { description: 'A fierce warrior' },
+        analysis: { success: true, description: 'A fierce warrior' },
         file
       });
     });
@@ -98,7 +98,7 @@ describe('FighterImageUpload', () => {
 
   it('calls onUploadComplete with correct data for arena', async () => {
     const mockUploadResponse = { ok: true, json: async () => ({ url: '/vs/arena/test.jpg' }) };
-    const mockAnalysisResponse = { ok: true, json: async () => ({ description: 'A grand arena' }) };
+    const mockAnalysisResponse = { ok: true, json: async () => ({ success: true, description: 'A grand arena' }) };
     
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce(mockUploadResponse)
@@ -113,7 +113,7 @@ describe('FighterImageUpload', () => {
     await waitFor(() => {
       expect(mockOnUploadComplete).toHaveBeenCalledWith({
         url: '/vs/arena/test.jpg',
-        analysis: { description: 'A grand arena' },
+        analysis: { success: true, description: 'A grand arena' },
         file
       });
     });

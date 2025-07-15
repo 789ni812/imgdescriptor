@@ -51,10 +51,14 @@ function mapPreGeneratedToBattleRound(
 }
 
 function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
+  // Ensure we have a valid image filename
+  const imageFilename = meta.image && meta.image.trim() !== '' ? meta.image : null;
+  const imageUrl = imageFilename ? `/vs/fighters/${imageFilename}` : '';
+  
   return {
     id: meta.id,
     name: meta.name,
-    imageUrl: meta.image ? `/vs/fighters/${meta.image}` : '',
+    imageUrl: imageUrl,
     description: '',
     stats: {
       health: meta.stats.health,
@@ -477,47 +481,47 @@ export default function PlayerVsPage() {
   }, [gamePhase, resetGame]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-red-900 via-purple-900 to-blue-900 text-white" data-testid="playervs-page">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-center mb-8 gap-8">
+        <div className="flex items-center justify-center mb-8 gap-8" data-testid="fighters-header">
           {/* Fighter A */}
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center" data-testid="fighter-a-container">
             {fighterA ? (
               <>
-                <img src={fighterA.imageUrl} alt={fighterA.name} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
-                <div className="mt-2 text-lg font-bold">{fighterA.name}</div>
-                <HealthBar current={fighterAHealth ?? 0} max={fighterA?.stats.maxHealth ?? 1} color="red" />
-                <div className="text-xs mt-1">Health: {fighterAHealth} / {fighterA?.stats.maxHealth}</div>
-                <button onClick={() => removeFighter('fighterA')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">Remove Fighter</button>
+                <img src={fighterA.imageUrl} alt={fighterA.name} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" data-testid="fighter-a-image" />
+                <div className="mt-2 text-lg font-bold" data-testid="fighter-a-name">{fighterA.name}</div>
+                <HealthBar current={fighterAHealth ?? 0} max={fighterA?.stats.maxHealth ?? 1} color="red" data-testid="fighter-a-health-bar" />
+                <div className="text-xs mt-1" data-testid="fighter-a-health-text">Health: {fighterAHealth} / {fighterA?.stats.maxHealth}</div>
+                <button onClick={() => removeFighter('fighterA')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs" data-testid="remove-fighter-a-btn">Remove Fighter</button>
               </>
             ) : (
-              <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
+              <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" data-testid="fighter-a-upload" />
             )}
           </div>
           {/* VS */}
-          <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
+          <div className="text-3xl font-extrabold text-yellow-400 mx-6" data-testid="vs-text">vs</div>
           {/* Fighter B */}
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center" data-testid="fighter-b-container">
             {fighterB ? (
               <>
-                <img src={fighterB.imageUrl} alt={fighterB.name} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
-                <div className="mt-2 text-lg font-bold">{fighterB.name}</div>
-                <HealthBar current={fighterBHealth ?? 0} max={fighterB?.stats.maxHealth ?? 1} color="blue" />
-                <div className="text-xs mt-1">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
-                <button onClick={() => removeFighter('fighterB')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">Remove Fighter</button>
+                <img src={fighterB.imageUrl} alt={fighterB.name} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" data-testid="fighter-b-image" />
+                <div className="mt-2 text-lg font-bold" data-testid="fighter-b-name">{fighterB.name}</div>
+                <HealthBar current={fighterBHealth ?? 0} max={fighterB?.stats.maxHealth ?? 1} color="blue" data-testid="fighter-b-health-bar" />
+                <div className="text-xs mt-1" data-testid="fighter-b-health-text">Health: {fighterBHealth} / {fighterB?.stats.maxHealth}</div>
+                <button onClick={() => removeFighter('fighterB')} className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs" data-testid="remove-fighter-b-btn">Remove Fighter</button>
               </>
             ) : (
-              <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
+              <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" data-testid="fighter-b-upload" />
             )}
           </div>
         </div>
 
         {/* Setup Phase */}
         {gamePhase === 'setup' && (
-          <div className="space-y-8">
+          <div className="space-y-8" data-testid="setup-phase">
             {/* Debug Panel - Remove this after fixing the issue */}
-            <div className="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-500/30 text-yellow-200 text-sm">
+            <div className="bg-yellow-900/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-500/30 text-yellow-200 text-sm" data-testid="debug-panel">
               <h4 className="font-semibold mb-2">Debug Info:</h4>
               <div>Game Phase: {gamePhase}</div>
               <div>PreBattle Loading: {isPreBattleLoading ? 'true' : 'false'}</div>
@@ -528,48 +532,50 @@ export default function PlayerVsPage() {
               {battleError && <div className="text-red-300">Error: {battleError}</div>}
             </div>
             {/* Rebalance Fighters Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center" data-testid="rebalance-section">
               <RebalanceFightersButton />
             </div>
-            <div className="text-center">
+            <div className="text-center" data-testid="setup-instructions">
               <h2 className="text-2xl font-semibold mb-4">Upload Your Fighters</h2>
               <p className="text-gray-300">Upload images of two fighters and a battle arena</p>
             </div>
 
             {/* Fighter Upload Sections */}
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="grid md:grid-cols-2 gap-8 mb-8" data-testid="fighter-upload-sections">
               {/* Fighter A Card */}
-              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-a-card">
                 {!fighterA ? (
                   <>
-                    <div className="flex gap-2 mb-2">
+                    <div className="flex gap-2 mb-2" data-testid="fighter-a-select-mode">
                       <button
                         className={`px-3 py-1 rounded ${fighterASelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
                         onClick={() => setFighterASelectMode('upload')}
+                        data-testid="fighter-a-upload-btn"
                       >
                         Upload New
                       </button>
                       <button
                         className={`px-3 py-1 rounded ${fighterASelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
                         onClick={() => setFighterASelectMode('choose')}
+                        data-testid="fighter-a-choose-btn"
                       >
                         Choose Existing
                       </button>
                     </div>
                     {fighterASelectMode === 'upload' ? (
-                      <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" />
+                      <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" data-testid="fighter-a-upload-component" />
                     ) : (
-                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} />
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} data-testid="fighter-a-choose-component" />
                     )}
                   </>
                 ) : (
                   // Existing fighter summary UI for Fighter A
-                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
+                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30" data-testid="fighter-a-summary">
                     {fighterA.imageUrl && (
-                      <img src={fighterA.imageUrl} alt={fighterA.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" />
+                      <img src={fighterA.imageUrl} alt={fighterA.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" data-testid="fighter-a-summary-image" />
                     )}
-                    <h4 className="text-lg font-semibold text-green-400 mb-3">{fighterA.name}</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <h4 className="text-lg font-semibold text-green-400 mb-3" data-testid="fighter-a-summary-name">{fighterA.name}</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm" data-testid="fighter-a-summary-stats">
                       <div>Health: {fighterA.stats.health}</div>
                       <div>Strength: {fighterA.stats.strength}</div>
                       <div>Luck: {fighterA.stats.luck}</div>
@@ -584,6 +590,7 @@ export default function PlayerVsPage() {
                     <button
                       onClick={() => removeFighter('fighterA')}
                       className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
+                      data-testid="fighter-a-summary-remove-btn"
                     >
                       Remove Fighter
                     </button>
@@ -592,37 +599,39 @@ export default function PlayerVsPage() {
               </div>
 
               {/* Fighter B Card */}
-              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-b-card">
                 {!fighterB ? (
                   <>
-                    <div className="flex gap-2 mb-2">
+                    <div className="flex gap-2 mb-2" data-testid="fighter-b-select-mode">
                       <button
                         className={`px-3 py-1 rounded ${fighterBSelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
                         onClick={() => setFighterBSelectMode('upload')}
+                        data-testid="fighter-b-upload-btn"
                       >
                         Upload New
                       </button>
                       <button
                         className={`px-3 py-1 rounded ${fighterBSelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
                         onClick={() => setFighterBSelectMode('choose')}
+                        data-testid="fighter-b-choose-btn"
                       >
                         Choose Existing
                       </button>
                     </div>
                     {fighterBSelectMode === 'upload' ? (
-                      <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" />
+                      <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" data-testid="fighter-b-upload-component" />
                     ) : (
-                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} />
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} data-testid="fighter-b-choose-component" />
                     )}
                   </>
                 ) : (
                   // Existing fighter summary UI for Fighter B
-                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30">
+                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30" data-testid="fighter-b-summary">
                     {fighterB.imageUrl && (
-                      <img src={fighterB.imageUrl} alt={fighterB.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" />
+                      <img src={fighterB.imageUrl} alt={fighterB.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" data-testid="fighter-b-summary-image" />
                     )}
-                    <h4 className="text-lg font-semibold text-green-400 mb-3">{fighterB.name}</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <h4 className="text-lg font-semibold text-green-400 mb-3" data-testid="fighter-b-summary-name">{fighterB.name}</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm" data-testid="fighter-b-summary-stats">
                       <div>Health: {fighterB.stats.health}</div>
                       <div>Strength: {fighterB.stats.strength}</div>
                       <div>Luck: {fighterB.stats.luck}</div>
@@ -637,6 +646,7 @@ export default function PlayerVsPage() {
                     <button
                       onClick={() => removeFighter('fighterB')}
                       className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
+                      data-testid="fighter-b-summary-remove-btn"
                     >
                       Remove Fighter
                     </button>

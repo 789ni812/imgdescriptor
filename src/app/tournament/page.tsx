@@ -1,230 +1,121 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import BattleViewer from '@/components/fighting/BattleViewer';
-import Leaderboard from '@/components/fighting/Leaderboard';
-import { Listbox } from '@headlessui/react';
+import React, { useState } from 'react';
+import { Tournament } from '@/lib/types/tournament';
+import { TournamentCreator } from '@/components/tournament/TournamentCreator';
+import { TournamentList } from '@/components/tournament/TournamentList';
+import { TournamentBracket } from '@/components/tournament/TournamentBracket';
+import { TournamentControls } from '@/components/tournament/TournamentControls';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/card';
 
-const TournamentPage: React.FC = () => {
-  const [battles, setBattles] = useState<string[]>([]);
-  const [battleMeta, setBattleMeta] = useState<Record<string, { fighterA: { name: string; imageUrl: string }; fighterB: { name: string; imageUrl: string } }>>({});
-  const [selected, setSelected] = useState<string>('');
-  
-  interface BattleData {
-    metadata: {
-      fighterA: {
-        name: string;
-        imageUrl: string;
-        stats: {
-          health: number;
-          maxHealth: number;
-          strength: number;
-          luck: number;
-          agility: number;
-          defense: number;
-          age: number;
-          size: 'small' | 'medium' | 'large';
-          build: 'thin' | 'average' | 'muscular' | 'heavy';
-        };
-      };
-      fighterB: {
-        name: string;
-        imageUrl: string;
-        stats: {
-          health: number;
-          maxHealth: number;
-          strength: number;
-          luck: number;
-          agility: number;
-          defense: number;
-          age: number;
-          size: 'small' | 'medium' | 'large';
-          build: 'thin' | 'average' | 'muscular' | 'heavy';
-        };
-      };
-      arena: {
-        name: string;
-        imageUrl: string;
-        description: string;
-      };
-    };
-    battleLog: Array<{
-      round: number;
-      attacker: string;
-      defender: string;
-      attackCommentary: string;
-      defenseCommentary: string;
-      attackerDamage: number;
-      defenderDamage: number;
-      randomEvent: string | null;
-      arenaObjectsUsed: string | null;
-      healthAfter: {
-        attacker: number;
-        defender: number;
-      };
-    }>;
-  }
+type ViewMode = 'list' | 'create' | 'tournament';
 
-  const [battleData, setBattleData] = useState<BattleData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function TournamentPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
 
-  useEffect(() => {
-    fetch('/api/tournaments/list')
-      .then(res => res.json())
-      .then(async data => {
-        setBattles(data.battles || []);
-        // Fetch metadata for each battle
-        const meta: Record<string, { fighterA: { name: string; imageUrl: string }; fighterB: { name: string; imageUrl: string } }> = {};
-        await Promise.all((data.battles || []).map(async (b: string) => {
-          try {
-            const res = await fetch(`/tournaments/${b}`);
-            if (!res.ok) return;
-            const d = await res.json();
-            if (d && d.metadata && d.metadata.fighterA && d.metadata.fighterB) {
-              meta[b] = {
-                fighterA: { name: d.metadata.fighterA.name, imageUrl: d.metadata.fighterA.imageUrl },
-                fighterB: { name: d.metadata.fighterB.name, imageUrl: d.metadata.fighterB.imageUrl },
-              };
-            }
-          } catch {}
-        }));
-        setBattleMeta(meta);
-      })
-      .catch(() => setError('Failed to load battle list'));
-  }, []);
-
-  const handleSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const filename = e.target.value;
-    setSelected(filename);
-    setBattleData(null);
-    setError(null);
-    if (!filename) return;
-    try {
-      const res = await fetch(`/tournaments/${filename}`);
-      if (!res.ok) throw new Error('Failed to fetch battle log');
-      const data = await res.json();
-      setBattleData(data);
-    } catch {
-      setError('Failed to load battle log');
-    }
+  const handleTournamentCreated = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+    setViewMode('tournament');
   };
 
-  const formatBattleName = (filename: string) => {
-    return filename
-      .replace('.json', '')
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase())
-      .replace(/(\d{8})-(\d{6})/, (match, date, time) => {
-        const year = date.substring(0, 4);
-        const month = date.substring(4, 6);
-        const day = date.substring(6, 8);
-        const hour = time.substring(0, 2);
-        const minute = time.substring(2, 4);
-        return ` (${month}/${day}/${year} ${hour}:${minute})`;
-      });
+  const handleTournamentSelect = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+    setViewMode('tournament');
+  };
+
+  const handleTournamentUpdated = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+  };
+
+  const handleBackToList = () => {
+    setSelectedTournament(null);
+    setViewMode('list');
   };
 
   return (
-    <div className="w-full mx-auto py-10 px-4">
-      <div className="flex flex-col md:flex-row gap-8 min-h-[600px] ">
-        {/* Left Side: Hub, Dropdown, Tabs, Leaderboard */}
-        <div className="flex-1 w-full flex flex-col min-w-0">
-          <h1 className="text-3xl font-bold mb-6 text-center md:text-left">Tournament Hub</h1>
-          <div className="mb-6">
-            <label className="block mb-2 text-sm font-medium text-gray-700">Select a past battle:</label>
-            <div className="relative">
-              <Listbox value={selected} onChange={(value: string) => { setSelected(value); handleSelect({ target: { value } } as React.ChangeEvent<HTMLSelectElement>); }}>
-                <div className="relative">
-                  <Listbox.Button className="w-full p-3 border border-gray-300 rounded-lg mb-2 bg-white text-black font-semibold flex items-center justify-between">
-                    <span className="flex items-center">
-                      {selected && battleMeta[selected] ? (
-                        <>
-                          {battleMeta[selected].fighterA.imageUrl && (
-                            <img src={battleMeta[selected].fighterA.imageUrl} alt={battleMeta[selected].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
-                          )}
-                          <span className="mr-2">{battleMeta[selected].fighterA.name}</span>
-                          <span className="mx-1 text-gray-400">vs</span>
-                          <span className="mr-2">{battleMeta[selected].fighterB.name}</span>
-                          {battleMeta[selected].fighterB.imageUrl && (
-                            <img src={battleMeta[selected].fighterB.imageUrl} alt={battleMeta[selected].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-gray-400">-- Choose a battle --</span>
-                      )}
-                    </span>
-                    <span className="text-gray-500 ml-2">▼</span>
-                  </Listbox.Button>
-                  <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
-                    <Listbox.Option key="empty" value="">
-                      {({ active }) => (
-                        <span className={`block px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'}`}>-- Choose a battle --</span>
-                      )}
-                    </Listbox.Option>
-                    {battles.map(b => (
-                      <Listbox.Option key={b} value={b}>
-                        {({ selected: isSelected, active }) => (
-                          <div className={`flex items-center px-4 py-2 cursor-pointer ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'} ${isSelected ? 'font-bold' : ''}`}>
-                            {battleMeta[b]?.fighterA?.imageUrl && (
-                              <img src={battleMeta[b].fighterA.imageUrl} alt={battleMeta[b].fighterA.name} className="w-6 h-6 rounded-full mr-2" />
-                            )}
-                            <span>{battleMeta[b]?.fighterA?.name || ''}</span>
-                            <span className="mx-1 text-gray-400">vs</span>
-                            <span>{battleMeta[b]?.fighterB?.name || ''}</span>
-                            {battleMeta[b]?.fighterB?.imageUrl && (
-                              <img src={battleMeta[b].fighterB.imageUrl} alt={battleMeta[b].fighterB.name} className="w-6 h-6 rounded-full ml-2" />
-                            )}
-                            <span className="ml-2 text-xs text-gray-400">{formatBattleName(b)}</span>
-                          </div>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </div>
-              </Listbox>
-            </div>
-            {error && (
-              <div className="text-red-500 mb-2 p-2 bg-red-50 rounded-lg border border-red-200">
-                {error}
-              </div>
-            )}
-          </div>
-          {/* <div className="w-1/2  flex items-start justify-center min-h-[400px]"> */}
-          <Leaderboard />
-          {/* </div> */}
-        </div>
-        {/* Right Side: Battle Replay or Placeholder */}
-        <div className="w-1/2  flex items-start justify-center min-h-[400px]">
-          {battleData && battleData.metadata && battleData.battleLog ? (
-            <BattleViewer
-              fighterA={{ 
-                ...battleData.metadata.fighterA, 
-                id: battleData.metadata.fighterA.name,
-                visualAnalysis: undefined,
-                description: ''
-              }}
-              fighterB={{ 
-                ...battleData.metadata.fighterB, 
-                id: battleData.metadata.fighterB.name,
-                visualAnalysis: undefined,
-                description: ''
-              }}
-              scene={battleData.metadata.arena}
-              battleLog={battleData.battleLog}
-              mode="replay"
-            />
-          ) : (
-            <div className="flex items-center justify-center w-full h-full bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-              <div className="text-center">
-                <div className="text-gray-500 text-lg font-semibold mb-2">No Battle Selected</div>
-                <div className="text-gray-400 text-sm">Choose a battle from the dropdown to view the replay</div>
-              </div>
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Tournament System</h1>
+        <p className="text-gray-600">
+          Create and manage automated single-elimination tournaments with up to 8 fighters.
+        </p>
+      </div>
+
+      {/* Navigation */}
+      <div className="mb-6" data-testid="tournament-navigation">
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => setViewMode('list')}
+            variant={viewMode === 'list' ? 'default' : 'secondary'}
+            data-testid="tournament-list-btn"
+          >
+            Tournament List
+          </Button>
+          <Button
+            onClick={() => setViewMode('create')}
+            variant={viewMode === 'create' ? 'default' : 'secondary'}
+            data-testid="create-tournament-btn"
+          >
+            Create Tournament
+          </Button>
+          {selectedTournament && (
+            <Button
+              onClick={() => setViewMode('tournament')}
+              variant={viewMode === 'tournament' ? 'default' : 'secondary'}
+              data-testid="current-tournament-btn"
+            >
+              Current Tournament
+            </Button>
           )}
         </div>
       </div>
+
+      {/* Content */}
+      {viewMode === 'list' && (
+        <div data-testid="tournament-list-view">
+          <TournamentList onTournamentSelect={handleTournamentSelect} />
+        </div>
+      )}
+
+      {viewMode === 'create' && (
+        <div className="space-y-6" data-testid="tournament-create-view">
+          <TournamentCreator onTournamentCreated={handleTournamentCreated} />
+        </div>
+      )}
+
+      {viewMode === 'tournament' && selectedTournament && (
+        <div className="space-y-6" data-testid="tournament-detail-view">
+          {/* Tournament Header */}
+          <Card className="p-6" data-testid="tournament-header">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold" data-testid="tournament-name">{selectedTournament.name}</h2>
+                <p className="text-gray-600" data-testid="tournament-info">
+                  {selectedTournament.fighters.length} fighters • {selectedTournament.totalRounds} rounds
+                </p>
+              </div>
+              <Button onClick={handleBackToList} variant="secondary" data-testid="back-to-list-btn">
+                Back to List
+              </Button>
+            </div>
+          </Card>
+
+          {/* Tournament Controls */}
+          <div data-testid="tournament-controls">
+            <TournamentControls
+              tournament={selectedTournament}
+              onTournamentUpdated={handleTournamentUpdated}
+            />
+          </div>
+
+          {/* Tournament Bracket */}
+          <div data-testid="tournament-bracket">
+            <TournamentBracket tournament={selectedTournament} />
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default TournamentPage; 
+} 

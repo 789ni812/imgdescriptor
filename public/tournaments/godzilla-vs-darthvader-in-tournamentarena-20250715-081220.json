@@ -1,0 +1,126 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-15T08:12:20.424Z",
+    "fighterA": {
+      "name": "Godzilla",
+      "imageUrl": "/vs/fighters/download__3_-1752567080657-2cwj0v.jpg",
+      "stats": {
+        "health": 950,
+        "maxHealth": 950,
+        "strength": 180,
+        "luck": 20,
+        "agility": 30,
+        "defense": 90,
+        "age": 75000000,
+        "size": "large",
+        "build": "muscular"
+      },
+      "description": ""
+    },
+    "fighterB": {
+      "name": "Darth Vader",
+      "imageUrl": "/vs/fighters/Darth-1-1752567048176-b28mvt.jpg",
+      "stats": {
+        "health": 750,
+        "maxHealth": 750,
+        "strength": 85,
+        "luck": 20,
+        "agility": 40,
+        "defense": 90,
+        "age": 3000000,
+        "size": "large",
+        "build": "muscular"
+      },
+      "description": ""
+    },
+    "arena": {
+      "name": "Tournament Arena",
+      "imageUrl": "",
+      "description": "A neutral arena for tournament battles"
+    },
+    "winner": "Godzilla",
+    "totalRounds": 5,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Godzilla",
+      "defender": "Darth Vader",
+      "attackCommentary": "Vader attempts a decisive counter with the Force but gets overwhelmed! Godzilla unleashes a devastating Atomic Blast for 315 damage, staggering the dark lord in round one.",
+      "defenseCommentary": "Godzilla raises their guard against the incoming attack!",
+      "attackerDamage": 315,
+      "defenderDamage": 0,
+      "randomEvent": "Godzilla uses floor to enhance their attack!",
+      "arenaObjectsUsed": [
+        "floor"
+      ],
+      "healthAfter": {
+        "attacker": 950,
+        "defender": 435
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Darth Vader",
+      "defender": "Godzilla",
+      "attackCommentary": "Vader explodes into Godzilla's flank with a brutal Force-enhanced strike, connecting for a whopping 42 damage! Can this seismic blow push the King of Monsters off balance in round two.",
+      "defenseCommentary": "Round 2 is a test of resilience as Vader's focused Force attacks are met by Godzilla's atomic defiance. The clash leaves both relentless in their pursuit.",
+      "attackerDamage": 42,
+      "defenderDamage": 0,
+      "randomEvent": "Darth Vader narrowly dodges Godzilla's attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 435,
+        "defender": 908
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Godzilla",
+      "defender": "Darth Vader",
+      "attackCommentary": "Vader's force barrier gets STOMPED as Godzilla finishes with a devastating Atomic Blast, leaving the dark lord reeling from 304 damage in round three! This fight is far from over.",
+      "defenseCommentary": "Vader's deflecting flames with precision in round three! Can he withstand Godzilla's escalating atomic pressure, or will a new opening emerge from this defensive standoff.",
+      "attackerDamage": 304,
+      "defenderDamage": 0,
+      "randomEvent": "Godzilla uses walls to enhance their attack!",
+      "arenaObjectsUsed": [
+        "walls"
+      ],
+      "healthAfter": {
+        "attacker": 908,
+        "defender": 131
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "Darth Vader",
+      "defender": "Godzilla",
+      "attackCommentary": "Vader explodes with a Force-enhanced uppercut for 42 damage! The King of Monsters stumbles back, but this exchange could shift the momentum in the fight.  We're entering uncharted territory.",
+      "defenseCommentary": "Vader's force deflecting a volley of atomic fire is nothing short of SPECTACULAR. But can he withstand ROUND 4 and Godzilla's unrelenting rage for long.",
+      "attackerDamage": 42,
+      "defenderDamage": 0,
+      "randomEvent": "Darth Vader narrowly dodges Godzilla's attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 131,
+        "defender": 866
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Godzilla",
+      "defender": "Darth Vader",
+      "attackCommentary": "Vader's force barrier buckles under a kinetic assault as Godzilla explodes in with a devastating Atomic Breath, leaving the dark lord staggering at 146 damage. This is one for the.",
+      "defenseCommentary": "Vader's Force choke is relentless in round 5, but Godzilla sidesteps each one with atomic-fueled agility! This clash of titans hinges on their next moves.",
+      "attackerDamage": 146,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 866,
+        "defender": 0
+      }
+    }
+  ]
+}

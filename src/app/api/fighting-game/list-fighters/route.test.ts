@@ -72,17 +72,30 @@ describe('getFightersList', () => {
     expect(result.fighters[0]).toEqual({
       id: 'godzilla-1',
       name: 'Godzilla',
-      image: 'godzilla.jpg',
+      imageUrl: '/vs/fighters/godzilla.jpg',
+      description: '',
       stats: {
         health: 500,
+        maxHealth: 500,
         strength: 50,
         agility: 1,
         defense: 22,
-        luck: 8
+        luck: 8,
+        age: 25,
+        size: 'medium',
+        build: 'average'
       },
-      matchHistory: [
-        { opponentId: 'bruce-lee', result: 'win', date: '2025-01-27' }
-      ]
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'average',
+        appearance: [],
+        weapons: [],
+        armor: []
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: expect.any(String)
     });
   });
 

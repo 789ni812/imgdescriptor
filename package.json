@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "test": "npx --no jest",
-    "test:watch": "npx --no jest --watch"
+    "test:watch": "npx --no jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:install": "playwright install",
+    "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -45,6 +51,7 @@
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
+    "@types/node-fetch": "^2.6.12",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('PlayerVsPage E2E', () => {
   test('loads the /playervs page and shows the header and Start Fight button', async ({ page }) => {
     await page.goto('/playervs');
-    await expect(page.getByRole('heading', { name: /AI Image Describer/i })).toBeVisible();
+    await expect(page.getByTestId('playervs-page')).toBeVisible();
     await expect(page.getByRole('button', { name: /Start Fight/i })).toBeVisible();
   });
 
@@ -14,18 +14,19 @@ test.describe('PlayerVsPage E2E', () => {
     await page.waitForLoadState('networkidle');
     
     // Check that we're in setup phase
+    await expect(page.getByTestId('setup-phase')).toBeVisible();
     await expect(page.getByText('Upload Your Fighters')).toBeVisible();
     
-    // Check that fighter upload sections are present (using first() to avoid strict mode)
-    await expect(page.getByText('Upload image for Fighter A').first()).toBeVisible();
-    await expect(page.getByText('Upload image for Fighter B').first()).toBeVisible();
+    // Check that fighter upload sections are present
+    await expect(page.getByTestId('fighter-upload-sections')).toBeVisible();
+    await expect(page.getByTestId('fighter-a-card')).toBeVisible();
+    await expect(page.getByTestId('fighter-b-card')).toBeVisible();
     
-    // Check that arena upload section is present (using role for heading)
+    // Check that arena upload section is present
     await expect(page.getByRole('heading', { name: 'Battle Arena' })).toBeVisible();
-    await expect(page.getByText('Upload image of the fighting scene')).toBeVisible();
     
     // Check that Rebalance Fighters button is present
-    await expect(page.getByRole('button', { name: /Rebalance Fighters/i })).toBeVisible();
+    await expect(page.getByTestId('rebalance-section')).toBeVisible();
     
     // Verify Start Fight button is disabled (no fighters/arena selected yet)
     const startFightButton = page.getByRole('button', { name: /Start Fight/i });

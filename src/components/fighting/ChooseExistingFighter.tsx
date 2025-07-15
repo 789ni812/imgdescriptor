@@ -16,7 +16,7 @@ const ChooseExistingFighter: React.FC<ChooseExistingFighterProps> = ({ onSelect 
     const fetchFighters = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/fighting-game/list-fighters');
+        const response = await fetch('/api/fighting-game/list-fighters-metadata');
         const data = await response.json();
         
         if (data.success) {
@@ -71,11 +71,17 @@ const ChooseExistingFighter: React.FC<ChooseExistingFighterProps> = ({ onSelect 
             aria-label={`Select ${fighter.name}`}
           >
             <div className="text-center">
-              <img 
-                src={`/vs/fighters/${fighter.image}`}
-                alt={fighter.name}
-                className="w-16 h-16 mx-auto mb-2 rounded"
-              />
+              {fighter.image ? (
+                <img 
+                  src={`/vs/fighters/${fighter.image}`}
+                  alt={fighter.name}
+                  className="w-16 h-16 mx-auto mb-2 rounded object-cover"
+                />
+              ) : (
+                <div className="w-16 h-16 mx-auto mb-2 rounded bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                  No Image
+                </div>
+              )}
               <h3 className="font-semibold text-lg">{fighter.name}</h3>
               <div className="mt-2 text-sm text-gray-600">
                 <div>Health: {fighter.stats.health}</div>

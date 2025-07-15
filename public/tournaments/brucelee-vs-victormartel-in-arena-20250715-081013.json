@@ -1,0 +1,139 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-15T08:10:13.412Z",
+    "fighterA": {
+      "name": "Bruce Lee",
+      "imageUrl": "/vs/fighters/download-1752566878749-ponas6.webp",
+      "stats": {
+        "health": 680,
+        "maxHealth": 680,
+        "strength": 75,
+        "luck": 35,
+        "agility": 92,
+        "defense": 60,
+        "age": 48,
+        "size": "medium",
+        "build": "muscular"
+      },
+      "description": "a rain-slicked alleyway in a sprawling, neon-drenched city. the buildings are tall and imposing, constructed from dark grey concrete with flickering holographic advertisements projecting across their surfaces. puddles reflect the artificial light, creating distorted images. garbage litters the ground. rusted metal pipe discarded data pad broken bottle neon sign (blurred) wet pavement bruce lee (wounded fighter) shadowy figure (lurking) robotic street cleaner tense, desperate, and gritty. a sense of impending danger and urban decay. the shadowy figure is observing bruce lee with calculating eyes. a faint electronic signal emanates from the discarded data pad."
+    },
+    "fighterB": {
+      "name": "Victor Martel",
+      "imageUrl": "/vs/fighters/Stephen-Siegal-1752566915957-v1lljs.jpg",
+      "stats": {
+        "health": 450,
+        "maxHealth": 450,
+        "strength": 75,
+        "luck": 30,
+        "agility": 60,
+        "defense": 80,
+        "age": 42,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": "a dimly lit tavern interior, filled with the chatter of patrons and the smell of ale. wooden table empty tankard dice set worn leather armor victor martel gruff bartender two hooded figures suspicious and tense, with an undercurrent of danger. victor martel nervously clutches a small pouch. one of the hooded figures subtly observes the player's actions."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Bruce Lee",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "From the opening bell, Bruce Lee explodes with a lightning-fast combo! Victor Martel staggers back from the unexpected 70 damage, already on the defensive in this heated exchange.",
+      "defenseCommentary": "Martel opens with a measured defensive posture, reading Bruce Lee's lightning reflexes like a script he's studied. Can he weather the legendary flurry coming next.",
+      "attackerDamage": 70,
+      "defenderDamage": 0,
+      "randomEvent": "Bruce Lee uses undefined in their attack!",
+      "arenaObjectsUsed": [
+        null
+      ],
+      "healthAfter": {
+        "attacker": 680,
+        "defender": 380
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel presses hard with a lightning combo, testing Lee's legendary reflexes in round two. Will he break through the Dragon's Iron Fist or be caught in their whirlwind.",
+      "defenseCommentary": "Martel's on the defensive in round two, expertly countering Bruce Lee's relentless flurry with precise parries and calculated steps back. Can he weather this pressure to stage a comeback.",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "Bruce Lee successfully dodges the attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 380,
+        "defender": 680
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "Martel lands a vicious uppercut straight out of his Muay Thai arsenal, staggering Bruce Lee for 26 damage in round three! This is a turning point - can the Dragon.",
+      "defenseCommentary": "Martel's on the defensive in round three! Can Bruce Lee land a decisive combo against Victor's Ironclad defense? This clash of styles is heating up.",
+      "attackerDamage": 26,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 680,
+        "defender": 354
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel launches a lightning-fast combination, landing squarely on Lee with a punishing 49 damage! Can the Dragon withstand this resurgence in round four.",
+      "defenseCommentary": "Martel's on the ropes in round 4, but he expertly weaves and bobs under a relentless flurry from Lee's Jeet KsetDo style, showcasing incredible defensive prowess! The pressure is immense.",
+      "attackerDamage": 49,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 354,
+        "defender": 631
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "The Dragon's Fury erupts as Bruce Lee connects a devastating kick that sends Victor Martel reeling with 37 damage in this nail-biting fifth round.",
+      "defenseCommentary": "The pressure's on as Martel navigates Lee's relentless flurry. Can he weather this final assault in round 5 and turn the tide, or will Lee's legendary speed prove unstoppable.",
+      "attackerDamage": 37,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 631,
+        "defender": 317
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel goes on the offensive in round 6! A flurry of precise strikes leaves Bruce Lee reeling with a critical 43 damage taken. Can he recover?  We're at a.",
+      "defenseCommentary": "Martel's on the defensive in round 6, but don't be fooled - he's expertly countering every one of Lee's lightning-fast strikes with calculated precision. This seesaw of aggression and defense.",
+      "attackerDamage": 43,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 317,
+        "defender": 588
+      }
+    }
+  ]
+}

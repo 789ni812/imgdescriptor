@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-15T08:09:33.373Z",
+    "fighterA": {
+      "name": "Bruce Lee",
+      "imageUrl": "/vs/fighters/download-1752566878749-ponas6.webp",
+      "stats": {
+        "health": 680,
+        "maxHealth": 680,
+        "strength": 75,
+        "luck": 35,
+        "agility": 92,
+        "defense": 60,
+        "age": 48,
+        "size": "medium",
+        "build": "muscular"
+      },
+      "description": "a rain-slicked alleyway in a sprawling, neon-drenched city. the buildings are tall and imposing, constructed from dark grey concrete with flickering holographic advertisements projecting across their surfaces. puddles reflect the artificial light, creating distorted images. garbage litters the ground. rusted metal pipe discarded data pad broken bottle neon sign (blurred) wet pavement bruce lee (wounded fighter) shadowy figure (lurking) robotic street cleaner tense, desperate, and gritty. a sense of impending danger and urban decay. the shadowy figure is observing bruce lee with calculating eyes. a faint electronic signal emanates from the discarded data pad."
+    },
+    "fighterB": {
+      "name": "Victor Martel",
+      "imageUrl": "/vs/fighters/Stephen-Siegal-1752566915957-v1lljs.jpg",
+      "stats": {
+        "health": 450,
+        "maxHealth": 450,
+        "strength": 75,
+        "luck": 30,
+        "agility": 60,
+        "defense": 80,
+        "age": 42,
+        "size": "medium",
+        "build": "average"
+      },
+      "description": "a dimly lit tavern interior, filled with the chatter of patrons and the smell of ale. wooden table empty tankard dice set worn leather armor victor martel gruff bartender two hooded figures suspicious and tense, with an undercurrent of danger. victor martel nervously clutches a small pouch. one of the hooded figures subtly observes the player's actions."
+    },
+    "arena": {
+      "name": "Arena",
+      "imageUrl": "/vs/arena/goth-restaurant-1752500875803-8wls1o.webp",
+      "description": ""
+    },
+    "winner": "Bruce Lee",
+    "totalRounds": 6,
+    "maxRounds": 6
+  },
+  "battleLog": [
+    {
+      "round": 1,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "OUT OF THE STARTING GATE with a lightning-fast combination! Bruce Lee lands a punishing 80 damage right on Victor Martel's neutral line to immediately SHIFT the pressure in round one.",
+      "defenseCommentary": "Bruce Lee dodges and counters with precision!",
+      "attackerDamage": 80,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 680,
+        "defender": 370
+      }
+    },
+    {
+      "round": 2,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel explodes with a vicious combo, punishing Bruce's aggression and landing a solid 33-point hit! This round belongs to the master of speed.  We'll see if The Dragon can.",
+      "defenseCommentary": "Martel's on red alert as Bruce Lee presses their combo relentlessly! Can he weather this onslaught of Dragon lineage techniques in round two.",
+      "attackerDamage": 33,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 370,
+        "defender": 647
+      }
+    },
+    {
+      "round": 3,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "Ah, Bruce Lee opens with a lightning-fast combo! Victor's narrowly avoids maximum damage but that 26 hits hard and leaves their block depleted going into this climactic round.",
+      "defenseCommentary": "Martel's on the ropes in round 3, narrowly avoiding Bruce Lee's flurry of lightning-fast jabs. The pressure is immense as  Lee stalks his next opening.",
+      "attackerDamage": 26,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 647,
+        "defender": 344
+      }
+    },
+    {
+      "round": 4,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel lands a devastating flurry on Lee's counter, leaving Bruce reeling from that 52 damage in round four! The pressure is immense; can he recover.",
+      "defenseCommentary": "The pressure's on as Martel probes for a counter, but Lee flawlessly reads his intentions and repels with perfect defense. This round's tension is palpable.",
+      "attackerDamage": 52,
+      "defenderDamage": 0,
+      "randomEvent": "",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 344,
+        "defender": 595
+      }
+    },
+    {
+      "round": 5,
+      "attacker": "Bruce Lee",
+      "defender": "Victor Martel",
+      "attackCommentary": "Bruce explodes forward with a flurry of strikes, landing a punishing combo on Martel! The damage leaves Victor reeling as we head into this critical fifth round.",
+      "defenseCommentary": "Martel's on the ropes in round five, but he's showcasing a defiant defense as Bruce Lee relentlessly presses their intricate Jeet KDeleteBehavior. The pressure is intense.",
+      "attackerDamage": 45,
+      "defenderDamage": 0,
+      "randomEvent": "Bruce Lee lands a critical hit!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 595,
+        "defender": 299
+      }
+    },
+    {
+      "round": 6,
+      "attacker": "Victor Martel",
+      "defender": "Bruce Lee",
+      "attackCommentary": "Martel explodes forward with a devastating kick, forcing Bruce Lee on the defensive as he desperately looks for an opening in that relentless assault.",
+      "defenseCommentary": "Martel's on the defensive now as Lee presses with a relentless flurry. Can he weather this onslaught in round six, or will Bruce Lee break through and claim another crucial.",
+      "attackerDamage": 0,
+      "defenderDamage": 0,
+      "randomEvent": "Bruce Lee successfully dodges the attack!",
+      "arenaObjectsUsed": [],
+      "healthAfter": {
+        "attacker": 299,
+        "defender": 595
+      }
+    }
+  ]
+}

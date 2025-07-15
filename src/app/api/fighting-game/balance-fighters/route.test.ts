@@ -1,9 +1,10 @@
 // Polyfill global Request and Response for Jest (Node <18)
+import { Request, Response } from 'node-fetch';
 if (typeof global.Request === 'undefined') {
-  global.Request = require('node-fetch').Request;
+  global.Request = Request;
 }
 if (typeof global.Response === 'undefined') {
-  global.Response = require('node-fetch').Response;
+  global.Response = Response;
 }
 // Mock Next.js environment before importing the route
 jest.mock('next/server', () => ({
