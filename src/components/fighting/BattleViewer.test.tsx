@@ -1,17 +1,12 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import BattleViewer from './BattleViewer';
+import { act } from 'react-dom/test-utils';
 
 // Mock the child components
 jest.mock('./HealthBar', () => {
   return function MockHealthBar({ current, max, color }: { current: number; max: number; color: string }) {
     return <div data-testid={`health-bar-${color}`}>Health: {current}/{max}</div>;
-  };
-});
-
-jest.mock('./BattleStoryboard', () => {
-  return function MockBattleStoryboard() {
-    return <div data-testid="battle-storyboard">Battle Storyboard</div>;
   };
 });
 
@@ -181,5 +176,164 @@ describe('BattleViewer', () => {
 
     const fighterInfoContainer = screen.getByText('Godzilla').closest('.flex.items-center.justify-center');
     expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
+  });
+
+  describe('Text Visibility', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+    it('should render battle text with proper contrast styling', async () => {
+      const mockFighterA = {
+        id: 'fighter-1',
+        name: 'Fighter 1',
+        imageUrl: '/fighter1.jpg',
+        stats: {
+          health: 100,
+          maxHealth: 100,
+          strength: 80,
+          luck: 70,
+          agility: 75,
+          defense: 65,
+          age: 25,
+          size: 'medium' as const,
+          build: 'muscular' as const,
+        }
+      };
+      const mockFighterB = {
+        id: 'fighter-2',
+        name: 'Fighter 2',
+        imageUrl: '/fighter2.jpg',
+        stats: {
+          health: 100,
+          maxHealth: 100,
+          strength: 75,
+          luck: 80,
+          agility: 70,
+          defense: 70,
+          age: 28,
+          size: 'medium' as const,
+          build: 'average' as const,
+        }
+      };
+      const mockScene = {
+        name: 'Test Arena',
+        imageUrl: '/arena.jpg',
+        description: 'A mystical arena with ancient runes.'
+      };
+      const mockBattleLog = [
+        {
+          round: 1,
+          attacker: 'Fighter 1',
+          defender: 'Fighter 2',
+          attackCommentary: 'Fighter 1 launches a powerful punch!',
+          defenseCommentary: 'Fighter 2 attempts to block but takes damage!',
+          attackerDamage: 0,
+          defenderDamage: 15,
+          randomEvent: 'Critical hit!',
+          arenaObjectsUsed: null,
+          healthAfter: {
+            attacker: 100,
+            defender: 85
+          }
+        }
+      ];
+      render(
+        <BattleViewer
+          fighterA={mockFighterA}
+          fighterB={mockFighterB}
+          scene={mockScene}
+          battleLog={mockBattleLog}
+          mode="replay"
+        />
+      );
+      // Advance timers to skip round animation
+      await act(async () => {
+        jest.runAllTimers();
+      });
+      // Check that arena description has proper contrast styling
+      const arenaDescription = await screen.findByText(
+        (content, element) =>
+          element?.textContent === 'A mystical arena with ancient runes.'
+      );
+      expect(arenaDescription).toHaveClass('text-gray-200', 'italic');
+    });
+
+    it('should render health values with high contrast', () => {
+      const mockFighterA = {
+        id: 'fighter-1',
+        name: 'Fighter 1',
+        imageUrl: '/fighter1.jpg',
+        stats: {
+          health: 100,
+          maxHealth: 100,
+          strength: 80,
+          luck: 70,
+          agility: 75,
+          defense: 65,
+          age: 25,
+          size: 'medium' as const,
+          build: 'muscular' as const,
+        }
+      };
+
+      const mockFighterB = {
+        id: 'fighter-2',
+        name: 'Fighter 2',
+        imageUrl: '/fighter2.jpg',
+        stats: {
+          health: 100,
+          maxHealth: 100,
+          strength: 75,
+          luck: 80,
+          agility: 70,
+          defense: 70,
+          age: 28,
+          size: 'medium' as const,
+          build: 'average' as const,
+        }
+      };
+
+      const mockScene = {
+        name: 'Test Arena',
+        imageUrl: '/arena.jpg'
+      };
+
+      const mockBattleLog = [
+        {
+          round: 1,
+          attacker: 'Fighter 1',
+          defender: 'Fighter 2',
+          attackCommentary: 'Fighter 1 attacks!',
+          defenseCommentary: 'Fighter 2 defends!',
+          attackerDamage: 0,
+          defenderDamage: 15,
+          randomEvent: null,
+          arenaObjectsUsed: null,
+          healthAfter: {
+            attacker: 100,
+            defender: 85
+          }
+        }
+      ];
+
+      render(
+        <BattleViewer
+          fighterA={mockFighterA}
+          fighterB={mockFighterB}
+          scene={mockScene}
+          battleLog={mockBattleLog}
+          mode="replay"
+        />
+      );
+
+      // Check health values have proper contrast
+      const healthTexts = screen.getAllByText(/Health: 100 \/ 100/);
+      expect(healthTexts[0]).toHaveClass('text-green-400', 'font-bold');
+      expect(healthTexts[1]).toHaveClass('text-green-400', 'font-bold');
+    });
   });
 }); 
