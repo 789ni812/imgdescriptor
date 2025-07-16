@@ -20,11 +20,8 @@
   - button "Tournament List"
   - button "Create Tournament"
   - img
-  - text: Loading fighters...
+  - text: Loading tournaments...
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
-- alert
-- button "Open Next.js Dev Tools":
-  - img
 ```

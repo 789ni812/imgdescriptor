@@ -24,65 +24,71 @@
   - button "Remove Fighter"
   - heading "Debug Info (Combat):" [level=4]
   - text: "Game Phase: combat PreBattle Loading: false Battle Log Length: 2 Current Battle Index: 0 Show Round Anim: true Winner: Draw Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets It's a DRAW!"
-  - heading "Fighter Stats" [level=3]
   - img "Godzilla"
-  - heading "Godzilla" [level=4]
-  - paragraph: "Final Health: 490 / 500"
-  - text: "Health: 500 | Strength: 50 | Agility: 1 | Defense: 22 | Luck: 8"
+  - heading "Godzilla" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 500/500 Strength 50 Agility 1 Defense 22
   - img "Bruce Lee"
-  - heading "Bruce Lee" [level=4]
-  - paragraph: "Final Health: 90 / 120"
-  - text: "Health: 120 | Strength: 12 | Agility: 20 | Defense: 8 | Luck: 18"
+  - heading "Bruce Lee" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 120/120 Strength 12 Agility 20 Defense 8
   - heading "Battle Overview" [level=3]
-  - heading "Round 1" [level=4]
+  - 'heading "Arena: Tokyo City Streets" [level=4]'
+  - paragraph: A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - text: "Environmental Objects: skyscrapers, cars, street signs, neon lights, buildings, pavement"
+  - heading "Battle Summary" [level=4]
+  - text: Battle between Godzilla and Bruce Lee completed.
+  - heading "Round Details" [level=4]
+  - text: Round 1
   - img "Godzilla"
-  - text: "Godzilla: Godzilla smashes Bruce Lee with a mighty tail swipe!"
+  - text: "Godzilla attacks: Godzilla smashes Bruce Lee with a mighty tail swipe!"
   - img "Bruce Lee"
-  - text: "Bruce Lee: Bruce Lee dodges with lightning speed!"
+  - text: "Bruce Lee defends: Bruce Lee dodges with lightning speed!"
   - img "Godzilla"
-  - text: "0"
+  - text: Godzilla (-30) Bruce Lee (-0)
   - img "Bruce Lee"
-  - text: "-30"
-  - heading "Round 2" [level=4]
+  - text: Round 2
   - img "Bruce Lee"
-  - text: "Bruce Lee: Bruce Lee lands a flying kick on Godzilla!"
+  - text: "Bruce Lee attacks: Bruce Lee lands a flying kick on Godzilla!"
   - img "Godzilla"
-  - text: "Godzilla: Godzilla shrugs off the attack."
+  - text: "Godzilla defends: Godzilla shrugs off the attack."
   - img "Bruce Lee"
-  - text: "0"
+  - text: Bruce Lee (-10) Godzilla (-0)
   - img "Godzilla"
-  - text: "-10"
-  - button "Restart"
+  - button "Close"
   - text: It's a DRAW!
-  - heading "Fighter Stats" [level=3]
   - img "Godzilla"
-  - heading "Godzilla" [level=4]
-  - paragraph: "Final Health: 500 / 500"
-  - text: "Health: 500 | Strength: 50 | Agility: 1 | Defense: 22 | Luck: 8"
+  - heading "Godzilla" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 500/500 Strength 50 Agility 1 Defense 22
   - img "Bruce Lee"
-  - heading "Bruce Lee" [level=4]
-  - paragraph: "Final Health: 120 / 120"
-  - text: "Health: 120 | Strength: 12 | Agility: 20 | Defense: 8 | Luck: 18"
+  - heading "Bruce Lee" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 120/120 Strength 12 Agility 20 Defense 8
   - heading "Battle Overview" [level=3]
-  - heading "Round 1" [level=4]
+  - 'heading "Arena: Tokyo City Streets" [level=4]'
+  - paragraph: A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - text: "Environmental Objects: skyscrapers, cars, street signs, neon lights, buildings, pavement"
+  - heading "Battle Summary" [level=4]
+  - text: Godzilla and Bruce Lee engaged in an epic 2-round battle, with Draw emerging victorious.
+  - heading "Round Details" [level=4]
+  - text: Round 1
   - img "Godzilla"
-  - text: "Godzilla: Godzilla smashes Bruce Lee with a mighty tail swipe!"
+  - text: "Godzilla attacks: Godzilla smashes Bruce Lee with a mighty tail swipe!"
   - img "Bruce Lee"
-  - text: "Bruce Lee: Bruce Lee dodges with lightning speed!"
+  - text: "Bruce Lee defends: Bruce Lee dodges with lightning speed!"
   - img "Godzilla"
-  - text: "0"
+  - text: Godzilla (-30) Bruce Lee (-0)
   - img "Bruce Lee"
-  - text: "-30"
-  - heading "Round 2" [level=4]
+  - text: Round 2
   - img "Bruce Lee"
-  - text: "Bruce Lee: Bruce Lee lands a flying kick on Godzilla!"
+  - text: "Bruce Lee attacks: Bruce Lee lands a flying kick on Godzilla!"
   - img "Godzilla"
-  - text: "Godzilla: Godzilla shrugs off the attack."
+  - text: "Godzilla defends: Godzilla shrugs off the attack."
   - img "Bruce Lee"
-  - text: "0"
+  - text: Bruce Lee (-10) Godzilla (-0)
   - img "Godzilla"
-  - text: "-10"
-  - button "Restart"
+  - button "Close"
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:

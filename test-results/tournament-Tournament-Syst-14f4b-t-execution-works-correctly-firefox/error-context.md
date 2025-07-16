@@ -19,32 +19,16 @@
   - paragraph: Create and manage automated single-elimination tournaments with up to 8 fighters.
   - button "Tournament List"
   - button "Create Tournament"
-  - heading "Tournaments" [level=2]
-  - button "Refresh"
-  - heading "Tournament Jul 15, 2025 04:52 PM" [level=3]
-  - text: Ready to Start Fighters 2 Rounds 1 Progress 0 / 1 matches Created Jul 15, 2025, 04:52 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:52 PM" [level=3]
-  - text: Ready to Start Fighters 2 Rounds 1 Progress 0 / 1 matches Created Jul 15, 2025, 04:52 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:50 PM" [level=3]
-  - text: Ready to Start Fighters 2 Rounds 1 Progress 0 / 1 matches Created Jul 15, 2025, 04:50 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:50 PM" [level=3]
-  - text: Ready to Start Fighters 2 Rounds 1 Progress 0 / 1 matches Created Jul 15, 2025, 04:50 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:43 PM" [level=3]
-  - text: "Completed Fighters 4 Rounds 2 Progress 3 / 3 matches Created Jul 15, 2025, 04:43 PM 🏆 Champion: Darth Vader Click to view tournament details"
-  - heading "Tournament Jul 15, 2025 04:35 PM" [level=3]
-  - text: "Completed Fighters 6 Rounds 3 Progress 6 / 6 matches Created Jul 15, 2025, 04:35 PM 🏆 Champion: Godzilla Click to view tournament details"
-  - heading "Tournament Jul 15, 2025 04:31 PM" [level=3]
-  - text: "Completed Fighters 6 Rounds 3 Progress 6 / 6 matches Created Jul 15, 2025, 04:31 PM 🏆 Champion: Godzilla Click to view tournament details"
-  - heading "Tournament Jul 15, 2025 04:13 PM" [level=3]
-  - text: In Progress Fighters 6 Rounds 3 Progress 4 / 6 matches Created Jul 15, 2025, 04:13 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:02 PM" [level=3]
-  - text: In Progress Fighters 6 Rounds 3 Progress 4 / 6 matches Created Jul 15, 2025, 04:02 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 04:00 PM" [level=3]
-  - text: In Progress Fighters 6 Rounds 3 Progress 1 / 6 matches Created Jul 15, 2025, 04:00 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 03:58 PM" [level=3]
-  - text: In Progress Fighters 6 Rounds 3 Progress 4 / 6 matches Created Jul 15, 2025, 03:58 PM Click to view tournament details
-  - heading "Tournament Jul 15, 2025 03:26 PM" [level=3]
-  - text: "Completed Fighters 4 Rounds 2 Progress 3 / 3 matches Created Jul 15, 2025, 03:26 PM 🏆 Champion: Godzilla Click to view tournament details"
+  - heading "Create Tournament" [level=2]
+  - heading "Select Fighters (0/8)" [level=3]
+  - paragraph: Choose 2-8 fighters for your tournament. Single elimination bracket will be generated automatically.
+  - checkbox
+  - img "Ozzy Osbourne"
+  - text: "Ozzy Osbourne HP: 700 | STR: 130"
+  - checkbox
+  - img "Superman"
+  - text: "Superman HP: 950 | STR: 185"
+  - button "Create Tournament" [disabled]
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025

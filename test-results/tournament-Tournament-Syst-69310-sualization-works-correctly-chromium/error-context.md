@@ -19,8 +19,19 @@
   - paragraph: Create and manage automated single-elimination tournaments with up to 8 fighters.
   - button "Tournament List"
   - button "Create Tournament"
-  - img
-  - text: Loading tournaments...
+  - heading "Create Tournament" [level=2]
+  - heading "Select Fighters (2/8)" [level=3]
+  - paragraph: Choose 2-8 fighters for your tournament. Single elimination bracket will be generated automatically.
+  - text: "Tournament Structure: 2 fighters = 1 match (Final)"
+  - checkbox [checked]
+  - img "Ozzy Osbourne"
+  - text: "Ozzy Osbourne HP: 700 | STR: 130"
+  - checkbox [checked]
+  - img "Superman"
+  - text: "Superman HP: 950 | STR: 185 Tournament will have 1 rounds"
+  - button "Creating..." [disabled]:
+    - img
+    - text: Creating...
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025

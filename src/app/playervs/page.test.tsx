@@ -5,7 +5,7 @@ import PlayerVsPage from './page';
 import { renderHook, act } from '@testing-library/react';
 import { useFightingGameStore } from '@/lib/stores/fightingGameStore';
 import { ROUND_ANIMATION_DURATION_MS, BATTLE_ATTACK_DEFENSE_STEP_MS, ROUND_TRANSITION_PAUSE_MS } from '@/lib/constants';
-import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
+import type { Fighter, Scene } from '@/lib/stores/fightingGameStore';
 
 // Enable fake timers for timing tests
 jest.useFakeTimers();
@@ -69,11 +69,6 @@ describe('extractFighterName', () => {
   });
 });
 
-// Demo data for testing
-const demoFighterA = godzillaVSbruceleeDemo.fighterA;
-const demoFighterB = godzillaVSbruceleeDemo.fighterB;
-const demoScene = godzillaVSbruceleeDemo.scene;
-
 // Mock the fighting game store
 const mockSetFighter = jest.fn();
 const mockSetScene = jest.fn();
@@ -82,14 +77,77 @@ const mockSetShowRoundAnim = jest.fn();
 const mockUpdateHealthAndCommentary = jest.fn();
 const mockSetPreGeneratedBattleLog = jest.fn();
 
+// Replace mock fighters with correct type
+const mockFighterA: Fighter = {
+  id: 'fighterA',
+  name: 'Fighter A',
+  imageUrl: '',
+  description: 'A test fighter',
+  stats: {
+    health: 100,
+    maxHealth: 100,
+    strength: 20,
+    luck: 5,
+    agility: 10,
+    defense: 10,
+    age: 30,
+    size: 'large',
+    build: 'muscular',
+  },
+  visualAnalysis: {
+    age: '',
+    size: '',
+    build: '',
+    appearance: [],
+    weapons: [],
+    armor: [],
+  },
+  combatHistory: [],
+  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+  createdAt: new Date().toISOString(),
+};
+const mockFighterB: Fighter = {
+  id: 'fighterB',
+  name: 'Fighter B',
+  imageUrl: '',
+  description: 'Another test fighter',
+  stats: {
+    health: 100,
+    maxHealth: 100,
+    strength: 15,
+    luck: 7,
+    agility: 12,
+    defense: 8,
+    age: 28,
+    size: 'medium',
+    build: 'average',
+  },
+  visualAnalysis: {
+    age: '',
+    size: '',
+    build: '',
+    appearance: [],
+    weapons: [],
+    armor: [],
+  },
+  combatHistory: [],
+  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+  createdAt: new Date().toISOString(),
+};
+const mockScene: Scene = {
+  id: 'scene1',
+  name: 'Test Arena',
+  imageUrl: '',
+  description: 'A test arena',
+  environmentalObjects: [],
+  createdAt: new Date().toISOString(),
+};
+
 jest.mock('@/lib/stores/fightingGameStore', () => ({
   useFightingGameStore: jest.fn(() => ({
     gamePhase: 'setup',
-    fighters: { 
-      fighterA: godzillaVSbruceleeDemo.fighterA,
-      fighterB: godzillaVSbruceleeDemo.fighterB
-    },
-    scene: godzillaVSbruceleeDemo.scene,
+    fighters: { fighterA: null, fighterB: null },
+    scene: null,
     combatLog: [],
     currentRound: 0,
     maxRounds: 6,
@@ -198,9 +256,9 @@ describe('Battle Timing Synchronization', () => {
     
     // Setup fighters and scene
     act(() => {
-      result.current.setFighter('fighterA', demoFighterA);
-      result.current.setFighter('fighterB', demoFighterB);
-      result.current.setScene(demoScene);
+      result.current.setFighter('fighterA', mockFighterA);
+      result.current.setFighter('fighterB', mockFighterB);
+      result.current.setScene(mockScene);
       result.current.setGamePhase('combat');
       result.current.setCurrentRound(1);
       result.current.setShowRoundAnim(true);
@@ -216,8 +274,8 @@ describe('Battle Timing Synchronization', () => {
 
     // Start the first round
     act(() => {
-      result.current.setFighterHealth(demoFighterA.id, demoFighterA.stats.health);
-      result.current.setFighterHealth(demoFighterB.id, demoFighterB.stats.health);
+      result.current.setFighterHealth('fighterA', 100);
+      result.current.setFighterHealth('fighterB', 100);
     });
 
     // Simulate round animation and transitions
@@ -233,8 +291,8 @@ describe('Battle Timing Synchronization', () => {
     await act(async () => {
       // Simulate round completion
       result.current.updateHealthAndCommentary({
-        attackerId: demoFighterA.id,
-        defenderId: demoFighterB.id,
+        attackerId: 'fighterA',
+        defenderId: 'fighterB',
         attackerDamage: 10,
         defenderDamage: 5,
         attackCommentary: 'Godzilla swings his massive tail with force!',
@@ -245,8 +303,8 @@ describe('Battle Timing Synchronization', () => {
 
     // Verify the updateHealthAndCommentary was called
     expect(mockUpdateHealthAndCommentary).toHaveBeenCalledWith({
-      attackerId: demoFighterA.id,
-      defenderId: demoFighterB.id,
+      attackerId: 'fighterA',
+      defenderId: 'fighterB',
       attackerDamage: 10,
       defenderDamage: 5,
       attackCommentary: 'Godzilla swings his massive tail with force!',
@@ -260,9 +318,9 @@ describe('Battle Timing Synchronization', () => {
     
     // Setup initial state
     act(() => {
-      result.current.setFighter('fighterA', demoFighterA);
-      result.current.setFighter('fighterB', demoFighterB);
-      result.current.setScene(demoScene);
+      result.current.setFighter('fighterA', mockFighterA);
+      result.current.setFighter('fighterB', mockFighterB);
+      result.current.setScene(mockScene);
       result.current.setGamePhase('combat');
       result.current.setCurrentRound(1);
       result.current.setShowRoundAnim(true);
@@ -280,8 +338,8 @@ describe('Battle Timing Synchronization', () => {
     // Complete round 1
     await act(async () => {
       result.current.updateHealthAndCommentary({
-        attackerId: demoFighterA.id,
-        defenderId: demoFighterB.id,
+        attackerId: 'fighterA',
+        defenderId: 'fighterB',
         attackerDamage: 10,
         defenderDamage: 5,
         attackCommentary: 'Round 1 attack commentary',
@@ -292,8 +350,8 @@ describe('Battle Timing Synchronization', () => {
 
     // Verify updateHealthAndCommentary was called for round 1
     expect(mockUpdateHealthAndCommentary).toHaveBeenCalledWith({
-      attackerId: demoFighterA.id,
-      defenderId: demoFighterB.id,
+      attackerId: 'fighterA',
+      defenderId: 'fighterB',
       attackerDamage: 10,
       defenderDamage: 5,
       attackCommentary: 'Round 1 attack commentary',

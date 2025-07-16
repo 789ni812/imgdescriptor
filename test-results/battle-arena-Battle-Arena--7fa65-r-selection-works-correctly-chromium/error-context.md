@@ -25,30 +25,32 @@
   - heading "Debug Info:" [level=4]
   - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
   - button "Rebalance Fighters"
-  - heading "Upload Your Fighters" [level=2]
-  - paragraph: Upload images of two fighters and a battle arena
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter A
-  - paragraph: Drag & drop or click to select an image
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter B
-  - paragraph: Drag & drop or click to select an image
+  - heading "Set Up Your Battle" [level=2]
+  - paragraph: First choose your arena, then select your fighters
+  - text: "1"
   - heading "Battle Arena" [level=3]
   - button "Upload New"
   - button "Choose Existing"
   - button "Choose File"
   - paragraph: Upload image of the fighting scene
   - paragraph: Drag & drop or click to select an image
+  - text: "2"
+  - heading "Fighter A" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
+  - text: "3"
+  - heading "Fighter B" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
   - button "Start Fight" [disabled]
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
-- alert
-- button "Open Next.js Dev Tools":
-  - img
 ```

@@ -15,40 +15,104 @@
   - slider "Volume": "0.5"
   - button "Mute"
 - main:
-  - button "Choose File"
-  - paragraph: Upload image for Fighter A
-  - paragraph: Drag & drop or click to select an image
+  - img "Godzilla"
+  - text: "Godzilla Health: 500 / 500 Health: 500 / 500"
+  - button "Remove Fighter"
   - text: vs
-  - button "Choose File"
-  - paragraph: Upload image for Fighter B
-  - paragraph: Drag & drop or click to select an image
-  - heading "Debug Info:" [level=4]
-  - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
-  - button "Rebalance Fighters"
-  - heading "Upload Your Fighters" [level=2]
-  - paragraph: Upload images of two fighters and a battle arena
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter A
-  - paragraph: Drag & drop or click to select an image
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter B
-  - paragraph: Drag & drop or click to select an image
-  - heading "Battle Arena" [level=3]
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image of the fighting scene
-  - paragraph: Drag & drop or click to select an image
-  - button "Start Fight" [disabled]
+  - img "Bruce Lee"
+  - text: "Bruce Lee Health: 120 / 120 Health: 120 / 120"
+  - button "Remove Fighter"
+  - heading "Debug Info (Combat):" [level=4]
+  - text: "Game Phase: combat PreBattle Loading: false Battle Log Length: 3 Current Battle Index: 0 Show Round Anim: true Winner: Draw Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets It's a DRAW!"
+  - img "Godzilla"
+  - heading "Godzilla" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 500/500 Strength 50 Agility 1 Defense 22
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 120/120 Strength 12 Agility 20 Defense 8
+  - heading "Battle Overview" [level=3]
+  - 'heading "Arena: Tokyo City Streets" [level=4]'
+  - paragraph: A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - text: "Environmental Objects: skyscrapers, cars, street signs, neon lights, buildings, pavement"
+  - heading "Battle Summary" [level=4]
+  - text: Battle between Godzilla and Bruce Lee completed.
+  - heading "Round Details" [level=4]
+  - text: Round 1
+  - img "Godzilla"
+  - text: "Godzilla attacks: but a desperate counter ends with an EX FINISHER from Bruce - it's brutal, ending in a bone-crunching upward HURT! ROUND ENDS WITH THE FIERCEST OF CLATERS AND A."
+  - img "Bruce Lee"
+  - text: "Bruce Lee defends: 's lightning kicks with bone-crunching UPPERCUTS, turning the TEMPLE into a COLLAPSING FIERY RUIN! The stage itself is in PERIL as both forces clash! Round SETUP: A DESOLATION of pillars."
+  - img "Godzilla"
+  - text: Godzilla (-63) Bruce Lee (-0)
+  - img "Bruce Lee"
+  - text: Round 2
+  - img "Bruce Lee"
+  - text: "Bruce Lee attacks: with a flurry of lightning-fast jabs, testing the ancient titan's defenses while he recovers from a devastating Dragon Kick! <KEEP_ COMMENTuxxxx> HIS ENERGY DRAINING FAST as SHELV SHELLEY SUMMONS A WALL."
+  - img "Godzilla"
+  - text: "Godzilla defends: 's ground onslaught with pinpoint Dragon Kicks, but a PROTOMATIC FLARE blinds his counter - SHE OLD HIS BLOCKAGE FOR NOTHING! The King of Kaiju EXPLODES FORWARD WITH A TAILWHIRL."
+  - img "Bruce Lee"
+  - text: Bruce Lee (-6) Godzilla (-0)
+  - img "Godzilla"
+  - text: Round 3
+  - img "Godzilla"
+  - text: "Godzilla attacks: with a groundshaking Lariat, but The Little Dragon retaliates with A THOUSAND FISTS OF CLAWING DESTINY - a flurry of untouchable jabs that leaves THE KING SLAGGED in DEFLECTION! This."
+  - img "Bruce Lee"
+  - text: "Bruce Lee defends: 's lightning kicks with SHEER atomic force, but a PRECISE DRAGON SLAVE throws HIM OFF BALANCE! The King of Monsters reels as THE FIST OF ZEUS CR EXPLODES in his."
+  - img "Godzilla"
+  - text: Godzilla (-59) Bruce Lee (-0)
+  - img "Bruce Lee"
+  - button "Close"
+  - text: It's a DRAW!
+  - img "Godzilla"
+  - heading "Godzilla" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 500/500 Strength 50 Agility 1 Defense 22
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=3]
+  - paragraph: Defeated but Alive
+  - text: Health 120/120 Strength 12 Agility 20 Defense 8
+  - heading "Battle Overview" [level=3]
+  - 'heading "Arena: Tokyo City Streets" [level=4]'
+  - paragraph: A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - text: "Environmental Objects: skyscrapers, cars, street signs, neon lights, buildings, pavement"
+  - heading "Battle Summary" [level=4]
+  - text: Godzilla and Bruce Lee engaged in an epic 3-round battle, with Draw emerging victorious.
+  - heading "Round Details" [level=4]
+  - text: Round 1
+  - img "Godzilla"
+  - text: "Godzilla attacks: but a desperate counter ends with an EX FINISHER from Bruce - it's brutal, ending in a bone-crunching upward HURT! ROUND ENDS WITH THE FIERCEST OF CLATERS AND A."
+  - img "Bruce Lee"
+  - text: "Bruce Lee defends: 's lightning kicks with bone-crunching UPPERCUTS, turning the TEMPLE into a COLLAPSING FIERY RUIN! The stage itself is in PERIL as both forces clash! Round SETUP: A DESOLATION of pillars."
+  - img "Godzilla"
+  - text: Godzilla (-63) Bruce Lee (-0)
+  - img "Bruce Lee"
+  - text: Round 2
+  - img "Bruce Lee"
+  - text: "Bruce Lee attacks: with a flurry of lightning-fast jabs, testing the ancient titan's defenses while he recovers from a devastating Dragon Kick! <KEEP_ COMMENTuxxxx> HIS ENERGY DRAINING FAST as SHELV SHELLEY SUMMONS A WALL."
+  - img "Godzilla"
+  - text: "Godzilla defends: 's ground onslaught with pinpoint Dragon Kicks, but a PROTOMATIC FLARE blinds his counter - SHE OLD HIS BLOCKAGE FOR NOTHING! The King of Kaiju EXPLODES FORWARD WITH A TAILWHIRL."
+  - img "Bruce Lee"
+  - text: Bruce Lee (-6) Godzilla (-0)
+  - img "Godzilla"
+  - text: Round 3
+  - img "Godzilla"
+  - text: "Godzilla attacks: with a groundshaking Lariat, but The Little Dragon retaliates with A THOUSAND FISTS OF CLAWING DESTINY - a flurry of untouchable jabs that leaves THE KING SLAGGED in DEFLECTION! This."
+  - img "Bruce Lee"
+  - text: "Bruce Lee defends: 's lightning kicks with SHEER atomic force, but a PRECISE DRAGON SLAVE throws HIM OFF BALANCE! The King of Monsters reels as THE FIST OF ZEUS CR EXPLODES in his."
+  - img "Godzilla"
+  - text: Godzilla (-59) Bruce Lee (-0)
+  - img "Bruce Lee"
+  - button "Close"
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
 - alert
 - button "Open Next.js Dev Tools":
+  - img
+- button "Open issues overlay": 1 Issue
+- button "Collapse issues badge":
   - img
 ```

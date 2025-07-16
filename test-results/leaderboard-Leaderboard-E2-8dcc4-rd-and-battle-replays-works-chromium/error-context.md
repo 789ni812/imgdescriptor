@@ -19,14 +19,8 @@
   - paragraph: View fighter statistics and replay epic battles from the arena.
   - button "Leaderboard"
   - button "Battle Replays"
-  - heading "Battle Replays" [level=2]
-  - button "Refresh"
-  - img
-  - text: Loading battle replays...
+  - text: Loading leaderboard...
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
-- alert
-- button "Open Next.js Dev Tools":
-  - img
 ```

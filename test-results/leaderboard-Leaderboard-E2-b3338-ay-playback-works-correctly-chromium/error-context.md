@@ -22,7 +22,7 @@
   - heading "Battle Replays" [level=2]
   - button "Refresh"
   - img "Bruce Lee"
-  - text: vs
+  - text: VS
   - img "Victor Moreau"
   - text: "Bruce Lee vs Victor Moreau Winner: Victor Moreau 7/15/2025 • 1 rounds Click to replay"
 - region "Notifications alt+T"

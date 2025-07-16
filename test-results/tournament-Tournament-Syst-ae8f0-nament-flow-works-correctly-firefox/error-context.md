@@ -19,22 +19,8 @@
   - paragraph: Create and manage automated single-elimination tournaments with up to 8 fighters.
   - button "Tournament List"
   - button "Create Tournament"
-  - button "Current Tournament"
-  - heading "Tournament Jul 15, 2025 04:52 PM" [level=2]
-  - paragraph: 2 fighters • 1 rounds
-  - button "Back to List"
-  - heading "Tournament Controls" [level=2]
-  - text: 0 / 1 matches completed Tournament Status Ready to begin Progress 0% complete Next Match Donkey Kong vs Darth Vader
-  - button "Execute Next Match"
-  - button "Automate Match Execution"
-  - heading "Tournament Bracket" [level=2]
-  - text: 2 fighters • 1 rounds
-  - heading "Finals" [level=3]
-  - text: 0 / 1 completed Match 1-1 Pending
-  - img "Donkey Kong"
-  - text: Donkey Kong
-  - img "Darth Vader"
-  - text: Darth Vader
+  - img
+  - text: Loading fighters...
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025

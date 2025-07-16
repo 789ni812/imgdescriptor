@@ -15,44 +15,40 @@
   - slider "Volume": "0.5"
   - button "Mute"
 - main:
-  - img "Godzilla"
-  - text: "Godzilla Health: 0 / 500 Health: / 500"
-  - button "Remove Fighter"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
   - text: vs
-  - img "Bruce Lee"
-  - text: "Bruce Lee Health: 0 / 120 Health: / 120"
-  - button "Remove Fighter"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
   - heading "Debug Info:" [level=4]
-  - text: "Game Phase: setup PreBattle Loading: true Battle Log Length: 0 Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets"
+  - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
   - button "Rebalance Fighters"
-  - heading "Upload Your Fighters" [level=2]
-  - paragraph: Upload images of two fighters and a battle arena
-  - img "Godzilla"
-  - heading "Godzilla" [level=4]
-  - text: "Health: 500 Strength: 50 Luck: 8 Agility: 1 Defense: 22 Size: large"
-  - paragraph:
-    - strong: "Build:"
-    - text: heavy
-  - paragraph:
-    - strong: "Age:"
-    - text: ancient
-  - button "Remove Fighter"
-  - img "Bruce Lee"
-  - heading "Bruce Lee" [level=4]
-  - text: "Health: 120 Strength: 12 Luck: 18 Agility: 20 Defense: 8 Size: medium"
-  - paragraph:
-    - strong: "Build:"
-    - text: muscular
-  - paragraph:
-    - strong: "Age:"
-    - text: adult
-  - button "Remove Fighter"
+  - heading "Set Up Your Battle" [level=2]
+  - paragraph: First choose your arena, then select your fighters
+  - text: "1"
   - heading "Battle Arena" [level=3]
-  - img "Tokyo City Streets"
-  - text: Tokyo City Streets A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
-  - button "Remove Arena"
-  - button "Generating Battle..." [disabled]
-  - text: Generating Battle...
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image of the fighting scene
+  - paragraph: Drag & drop or click to select an image
+  - text: "2"
+  - heading "Fighter A" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
+  - text: "3"
+  - heading "Fighter B" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
+  - button "Start Fight" [disabled]
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:

@@ -14,15 +14,9 @@ import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import { Fighter, Scene, CombatEvent } from '@/lib/stores/fightingGameStore';
 import { generateBattleCommentary, generateBattleSummary } from '@/lib/lmstudio-client';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
-import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
 
 // Type alias to avoid conflicts with other BattleRound interfaces
 type WinnerAnimationBattleRound = PreGeneratedBattleRound;
-
-// Helper: demo fighters and scene
-const demoFighterA = godzillaVSbruceleeDemo.fighterA;
-const demoFighterB = godzillaVSbruceleeDemo.fighterB;
-const demoScene = godzillaVSbruceleeDemo.scene;
 
 function mapPreGeneratedToBattleRound(
   log: PreGeneratedBattleRound[]
@@ -336,16 +330,6 @@ export default function PlayerVsPage() {
     }));
   };
 
-  // Add a Reset to Demo button
-  const handleResetToDemo = () => {
-    resetGame();
-    setFighter('fighterA', demoFighterA);
-    setFighter('fighterB', demoFighterB);
-    setScene(demoScene);
-    setGamePhase('setup');
-  };
-
-
   // New: Start fight with pre-generated battle log
   const handleBeginCombat = async () => {
     console.log('handleBeginCombat: Starting...');
@@ -460,24 +444,20 @@ export default function PlayerVsPage() {
     }
   }, [gamePhase, preGeneratedBattleLog, currentBattleIndex, showRoundAnim]);
 
-  // Auto-populate demo fighters and scene on mount
+  // Reset combat state on new game
   useEffect(() => {
-    // This useEffect is now handled by the React.useEffect below
-  }, []);
-
-  // Populate demo data on mount
-  React.useEffect(() => {
-    // Always populate demo data on mount if not already set
-    if (!fighters.fighterA) {
-      setFighter('fighterA', demoFighterA);
+    if (gamePhase === 'setup') {
+      // Only reset combat state, not demo fighters
+      setPreGeneratedBattleLog([]);
+      setCurrentRound(1);
+      setWinner(null);
+      setShowRoundAnim(false);
+      setRoundStep('attack');
+      setBattleSummary(null);
+      setBattleError(null);
+      setIsPreBattleLoading(false);
     }
-    if (!fighters.fighterB) {
-      setFighter('fighterB', demoFighterB);
-    }
-    if (!scene) {
-      setScene(demoScene);
-    }
-  }, []);
+  }, [gamePhase, setPreGeneratedBattleLog, setCurrentRound, setWinner, setShowRoundAnim, setRoundStep]);
 
   // Generate DM intro when phase changes to introduction
   React.useEffect(() => {
@@ -587,8 +567,8 @@ export default function PlayerVsPage() {
               <RebalanceFightersButton />
             </div>
             <div className="text-center" data-testid="setup-instructions">
-              <h2 className="text-2xl font-semibold mb-4">Set Up Your Battle</h2>
-              <p className="text-gray-300">First choose your arena, then select your fighters</p>
+              <h2 className="text-2xl font-semibold mb-4" data-testid="setup-title">Set Up Your Battle</h2>
+              <p className="text-gray-300" data-testid="setup-description">First choose your arena, then select your fighters</p>
             </div>
 
             {/* Step 1: Battle Arena Upload */}
@@ -839,7 +819,6 @@ export default function PlayerVsPage() {
           />
         )}
       </div>
-      <button onClick={handleResetToDemo} className="fixed top-4 right-4 z-50 px-4 py-2 bg-blue-700 text-white rounded shadow">Reset to Demo</button>
     </div>
   );
 }

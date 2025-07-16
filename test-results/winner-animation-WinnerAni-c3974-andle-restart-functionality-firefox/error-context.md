@@ -15,37 +15,46 @@
   - slider "Volume": "0.5"
   - button "Mute"
 - main:
-  - button "Choose File"
-  - paragraph: Upload image for Fighter A
-  - paragraph: Drag & drop or click to select an image
+  - img "Godzilla"
+  - text: "Godzilla Health: 0 / 500 Health: / 500"
+  - button "Remove Fighter"
   - text: vs
-  - button "Choose File"
-  - paragraph: Upload image for Fighter B
-  - paragraph: Drag & drop or click to select an image
+  - img "Bruce Lee"
+  - text: "Bruce Lee Health: 0 / 120 Health: / 120"
+  - button "Remove Fighter"
   - heading "Debug Info:" [level=4]
-  - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
+  - text: "Game Phase: setup PreBattle Loading: true Battle Log Length: 0 Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets"
   - button "Rebalance Fighters"
-  - heading "Upload Your Fighters" [level=2]
-  - paragraph: Upload images of two fighters and a battle arena
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter A
-  - paragraph: Drag & drop or click to select an image
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image for Fighter B
-  - paragraph: Drag & drop or click to select an image
+  - heading "Set Up Your Battle" [level=2]
+  - paragraph: First choose your arena, then select your fighters
+  - text: "1"
   - heading "Battle Arena" [level=3]
-  - button "Upload New"
-  - button "Choose Existing"
-  - button "Choose File"
-  - paragraph: Upload image of the fighting scene
-  - paragraph: Drag & drop or click to select an image
-  - button "Start Fight" [disabled]
+  - img "Tokyo City Streets"
+  - text: Tokyo City Streets A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
+  - button "Remove Arena"
+  - text: "2"
+  - heading "Fighter A" [level=3]
+  - img "Godzilla"
+  - heading "Godzilla" [level=3]
+  - text: "A massive prehistoric monster, towering over buildings with thick scaly skin, powerful tail, and atomic breath.... large • heavy • Age: 200000000"
+  - heading "Basic Stats" [level=4]
+  - text: "Health: 500 Strength: 50 Agility: 1 Defense: 22 Luck: 8"
+  - button "Remove Fighter"
+  - text: "3"
+  - heading "Fighter B" [level=3]
+  - img "Bruce Lee"
+  - heading "Bruce Lee" [level=3]
+  - text: "A legendary martial artist with incredible speed, precision, and fighting technique. Master of multiple martial arts... medium • muscular • Age: 32"
+  - heading "Basic Stats" [level=4]
+  - text: "Health: 120 Strength: 12 Agility: 20 Defense: 8 Luck: 18"
+  - button "Remove Fighter"
+  - button "Generating Battle..." [disabled]
+  - text: Generating Battle...
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
+- alert
+- button "Open Next.js Dev Tools":
+  - img
 ```

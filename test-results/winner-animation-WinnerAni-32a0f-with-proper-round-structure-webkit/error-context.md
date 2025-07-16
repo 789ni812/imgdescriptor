@@ -27,7 +27,7 @@
   - img "Godzilla"
   - text: "Godzilla Health: 500 / 500 Health: 500 / 500 vs"
   - img "Bruce Lee"
-  - text: "Bruce Lee Health: 120 / 120 Health: 120 / 120 Round 1"
+  - text: "Bruce Lee Health: 0 / 120 Health: 0 / 120 Round 2"
   - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:
