@@ -7,6 +7,36 @@
 ## UI/UX & Rendering Logic: Turn Order
 The list of turns is rendered in reverse order (latest first) for improved usability. This is achieved by reversing the turns array before mapping over it in the UI.
 
+## Tournament UI Dark Theme & Visual Design (2025-01-27)
+
+### Overview
+The tournament system has been enhanced with a modern dark theme and improved layout inspired by the battle results modal, creating a cohesive visual experience across all fighting game pages.
+
+### Design System
+- **Color Palette**: Dark background with vibrant purple/blue accent colors
+- **Typography**: Improved font hierarchy and spacing for better readability
+- **Layout**: Enhanced spacing and visual separation between components
+- **Responsive Design**: Better mobile and desktop layout optimization
+
+### Component Architecture
+- **TournamentBracket**: Dark theme with improved fighter card styling and hover effects
+- **TournamentControls**: Enhanced button styling with modern hover states
+- **TournamentList**: Better table styling with improved readability and contrast
+- **TournamentCreator**: Modern form styling with better visual feedback and validation
+
+### Technical Implementation
+- **CSS Variables**: Consistent color scheme using CSS custom properties
+- **Component Styling**: Updated all tournament components with dark theme classes
+- **Responsive Grid**: Improved layout using CSS Grid for better space utilization
+- **Hover States**: Enhanced interactive elements with smooth transitions
+
+### Benefits
+- **Consistency**: Unified design language across all fighting game pages
+- **Accessibility**: Better contrast ratios and improved readability
+- **Modern Feel**: Contemporary UI that matches current design trends
+- **User Experience**: Improved visual hierarchy and intuitive navigation flow
+- **Professional Appearance**: Polished interface suitable for production use
+
 ## Game Dynamics: Good vs Bad (Yin/Yang) System
 Dungeon Master config now includes a "Bad" profile picture and definition. These are stored in the template/session and passed to the LLM for prompt generation. The DM can use this info to create richer, more dynamic stories with a clear antagonist or opposing force.
 
@@ -235,6 +265,11 @@ Enhanced character store tests with proper type validation:
    - Performance and responsiveness
    - Cross-browser compatibility
 
+4. **Visual Regression Testing**
+   - Screenshot comparison to detect UI changes
+   - Baseline creation and change detection
+   - Manual review process for intentional changes
+
 #### Best Practices
 - **Reliable Selectors**: Use `data-testid` attributes for stable element selection
 - **Proper Timing**: Wait for network idle and element visibility before assertions
@@ -258,6 +293,9 @@ npx playwright test --project=chromium
 
 # Generate test report
 npx playwright show-report
+
+# Run visual regression tests only
+npx playwright test --grep "visual regression"
 ```
 
 #### Integration with TDD
@@ -266,6 +304,44 @@ npx playwright show-report
 - **Post-Implementation**: Use E2E tests for regression testing and quality assurance
 - **CI/CD**: Include E2E tests in automated testing pipeline
    - Test in browser for visual verification (`npm run dev`)
+
+### Playwright E2E Testing & Visual Regression System (2025-01-27)
+
+#### Overview
+A comprehensive Playwright testing system has been implemented to ensure UI consistency, prevent accidental removals, and maintain visual quality across all fighting game pages.
+
+#### Test Coverage
+- **e2e/playervs.spec.ts**: PlayerVs page functionality, fighter upload, battle flow, and visual regression
+- **e2e/battle-arena.spec.ts**: Battle Arena page functionality, fighter creation, and visual regression  
+- **e2e/tournament.spec.ts**: Tournament system functionality, bracket management, and visual regression
+- **e2e/leaderboard.spec.ts**: Leaderboard functionality, fighter details, and visual regression
+
+#### Key Features
+- **Visual Regression Testing**: Screenshot comparison to detect UI changes
+- **State Testing**: Comprehensive coverage of different app states (empty, with data, error states)
+- **User Flow Testing**: Complete user journeys from setup to completion
+- **Cross-Browser Testing**: Tests run on Chromium, Firefox, and WebKit
+- **Automated CI Integration**: Tests run automatically on pull requests
+
+#### Test Categories
+1. **Functional Tests**: Verify all UI elements are present and interactive
+2. **State Tests**: Test different app states (loading, error, success, empty)
+3. **User Flow Tests**: Complete workflows (upload → battle → results)
+4. **Visual Regression Tests**: Screenshot comparison for UI consistency
+5. **Error Handling Tests**: Graceful handling of edge cases and failures
+
+#### Visual Regression Workflow
+1. **Baseline Creation**: First run creates baseline screenshots
+2. **Change Detection**: Subsequent runs compare against baseline
+3. **Review Process**: Manual review of diffs before updating baselines
+4. **Intentional Changes**: Update baselines for deliberate UI improvements
+
+#### Benefits
+- **Prevents Accidental Removals**: Catches when UI elements disappear
+- **Ensures Consistency**: Maintains visual quality across updates
+- **Automated Quality Gate**: CI/CD integration prevents regressions
+- **Cross-Browser Compatibility**: Tests ensure consistent behavior
+- **Documentation**: Tests serve as living documentation of expected behavior
 
 ### Test Strategy Best Practices
 

@@ -18,10 +18,12 @@
 1. **Write/Update the Test** (make it fail if needed)
    - **Unit Tests**: Write Jest tests for component logic, hooks, and utilities
    - **E2E Tests**: Write Playwright tests for critical user flows and integration scenarios
+   - **Visual Regression**: Include screenshot tests for UI components
 2. **Implement the Code** (make the test pass)
 3. **Run All Relevant Tests** (ensure everything passes)
    - **Unit Tests**: `npm test` (Jest)
    - **E2E Tests**: `npx playwright test` (Playwright)
+   - **Visual Regression**: `npx playwright test --grep "visual regression"`
 4. **Run `npm run build`** (ensure the build is successful)
 5. **Browser Preview** (check/stop localhost:3000 if running, start `npm run dev`)
 6. **Update `spec.md`** (mark the task as complete)
@@ -133,6 +135,59 @@ This process can be applied to future features by:
    - Run `npx playwright test` for E2E tests
    - Run `npm run build` for production build verification
 5. **Documenting the process** for future reference
+
+## Playwright E2E Testing & Visual Regression System (2025-01-27)
+
+### Overview
+A comprehensive Playwright testing system has been implemented to ensure UI consistency, prevent accidental removals, and maintain visual quality across all fighting game pages.
+
+### Test Coverage
+- **e2e/playervs.spec.ts**: PlayerVs page functionality, fighter upload, battle flow, and visual regression
+- **e2e/battle-arena.spec.ts**: Battle Arena page functionality, fighter creation, and visual regression  
+- **e2e/tournament.spec.ts**: Tournament system functionality, bracket management, and visual regression
+- **e2e/leaderboard.spec.ts**: Leaderboard functionality, fighter details, and visual regression
+
+### Key Features
+- **Visual Regression Testing**: Screenshot comparison to detect UI changes
+- **State Testing**: Comprehensive coverage of different app states (empty, with data, error states)
+- **User Flow Testing**: Complete user journeys from setup to completion
+- **Cross-Browser Testing**: Tests run on Chromium, Firefox, and WebKit
+- **Automated CI Integration**: Tests run automatically on pull requests
+
+### Test Categories
+1. **Functional Tests**: Verify all UI elements are present and interactive
+2. **State Tests**: Test different app states (loading, error, success, empty)
+3. **User Flow Tests**: Complete workflows (upload → battle → results)
+4. **Visual Regression Tests**: Screenshot comparison for UI consistency
+5. **Error Handling Tests**: Graceful handling of edge cases and failures
+
+### Running Tests
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run with UI for debugging
+npm run test:e2e:ui
+
+# Run specific test file
+npx playwright test e2e/playervs.spec.ts
+
+# Run visual regression tests only
+npx playwright test --grep "visual regression"
+```
+
+### Visual Regression Workflow
+1. **Baseline Creation**: First run creates baseline screenshots
+2. **Change Detection**: Subsequent runs compare against baseline
+3. **Review Process**: Manual review of diffs before updating baselines
+4. **Intentional Changes**: Update baselines for deliberate UI improvements
+
+### Benefits
+- **Prevents Accidental Removals**: Catches when UI elements disappear
+- **Ensures Consistency**: Maintains visual quality across updates
+- **Automated Quality Gate**: CI/CD integration prevents regressions
+- **Cross-Browser Compatibility**: Tests ensure consistent behavior
+- **Documentation**: Tests serve as living documentation of expected behavior
 
 ## Codebase Review and Quality Assessment (2025-01-27)
 
@@ -7220,4 +7275,43 @@ The battle UI has several usability issues that need to be addressed to provide 
   - [ ] Position stats below fighter images and names
   - [ ] Ensure stats update in real-time during battle
   - [ ] Test stats display in both live battles and replays
-  - [ ] **Commit:** `feat(ui): add live fighter stats display during battle viewing`
+- [ ] **Commit:** `feat(ui): add live fighter stats display during battle viewing`
+
+---
+
+## Tournament UI Dark Theme & Visual Improvements (2025-01-27)
+
+### Overview
+The tournament system has been enhanced with a modern dark theme and improved layout inspired by the battle results modal, creating a cohesive visual experience across all fighting game pages.
+
+### Visual Design Updates
+- **Dark Theme**: Consistent dark background with vibrant purple/blue accent colors
+- **Color Scheme**: Unified palette matching the battle modal aesthetic
+- **Typography**: Improved font hierarchy and spacing for better readability
+- **Layout**: Enhanced spacing and visual separation between components
+- **Responsive Design**: Better mobile and desktop layout optimization
+
+### Component Updates
+- **TournamentBracket**: Dark theme with improved fighter card styling and hover effects
+- **TournamentControls**: Enhanced button styling with modern hover states
+- **TournamentList**: Better table styling with improved readability and contrast
+- **TournamentCreator**: Modern form styling with better visual feedback and validation
+
+### Benefits
+- **Consistency**: Unified design language across all fighting game pages
+- **Accessibility**: Better contrast ratios and improved readability
+- **Modern Feel**: Contemporary UI that matches current design trends
+- **User Experience**: Improved visual hierarchy and intuitive navigation flow
+- **Professional Appearance**: Polished interface suitable for production use
+
+### Technical Implementation
+- **CSS Variables**: Consistent color scheme using CSS custom properties
+- **Component Styling**: Updated all tournament components with dark theme classes
+- **Responsive Grid**: Improved layout using CSS Grid for better space utilization
+- **Hover States**: Enhanced interactive elements with smooth transitions
+
+### Testing & Quality Assurance
+- **Visual Regression**: Playwright tests ensure UI consistency across updates
+- **Cross-Browser Compatibility**: Tests run on Chromium, Firefox, and WebKit
+- **Responsive Testing**: Automated testing across different screen sizes
+- **Accessibility**: Improved contrast ratios and keyboard navigation
