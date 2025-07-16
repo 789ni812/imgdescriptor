@@ -6970,6 +6970,216 @@ The enhanced WinnerAnimation is automatically used in:
 - **User Experience**: Focus on providing maximum value to users with comprehensive battle context
  
 
+## Enhanced Battle Completion Modal Features (2025-01-27)
+
+### Overview
+The WinnerAnimation component will be enhanced with additional sections to provide comprehensive battle context and improve the user experience for battle replays and tournament matches.
+
+### New Features to Implement
+
+#### 1. Tournament Overview Section
+**Location:** Between fighter stats and battle overview sections
+
+**Purpose:** Provide tournament context and arena information for battle replays
+
+**Content:**
+- Tournament date and time
+- Arena name, image, and description
+- Tournament highlights and context leading to this battle
+- Arena tactical implications and environmental features
+
+**Implementation:**
+- [ ] **1.1: Tournament Overview Component**
+  - [ ] Write failing test for TournamentOverview component
+  - [ ] Create `src/components/fighting/TournamentOverview.tsx` component
+  - [ ] Display tournament metadata (date, arena, context)
+  - [ ] Show arena image and description
+  - [ ] Generate tournament highlights using LLM
+  - [ ] **Commit:** `feat(ui): add TournamentOverview component for battle context`
+
+- [ ] **1.2: Tournament Overview LLM Prompt**
+  - [ ] Write failing test for tournament overview generation
+  - [ ] Add `generateTournamentOverview` function to `src/lib/lmstudio-client.ts`
+  - [ ] Create prompt for generating tournament context and highlights
+  - [ ] Integrate with battle completion flow
+  - [ ] **Commit:** `feat(prompts): add tournament overview generation prompt`
+
+#### 2. Battle Summary Section
+**Location:** Between tournament overview and battle overview sections
+
+**Purpose:** Provide a narrative summary of the battle highlights and key moments
+
+**Content:**
+- Battle narrative summary (2-3 sentences)
+- Key turning points and notable moments
+- Special abilities used and critical events
+- Overall battle flow and dramatic highlights
+
+**Implementation:**
+- [ ] **2.1: Battle Summary Component**
+  - [ ] Write failing test for BattleSummary component
+  - [ ] Create `src/components/fighting/BattleSummary.tsx` component
+  - [ ] Display battle narrative summary
+  - [ ] Highlight key moments and special events
+  - [ ] Show battle flow and outcome summary
+  - [ ] **Commit:** `feat(ui): add BattleSummary component for battle highlights`
+
+- [ ] **2.2: Battle Summary LLM Prompt**
+  - [ ] Write failing test for battle summary generation
+  - [ ] Add `generateBattleSummary` function to `src/lib/lmstudio-client.ts`
+  - [ ] Create prompt for generating battle summary from battle log
+  - [ ] Extract key moments from battle log (critical hits, special events)
+  - [ ] **Commit:** `feat(prompts): add battle summary generation prompt`
+
+#### 3. KO Status in Fighter Stats
+**Location:** Top-right corner of each fighter stat card
+
+**Purpose:** Clearly indicate battle outcome for each fighter
+
+**Logic:**
+- Show "KO!" for winner if health ≤ 0 (knockout victory)
+- Show "DRAW" for both fighters if it's a draw
+- Show nothing for loser (normal defeat)
+
+**Implementation:**
+- [ ] **3.1: KO Status Display**
+  - [ ] Write failing test for KO status logic and display
+  - [ ] Add KO status logic to determine display text
+  - [ ] Update fighter stat cards to show status in top-right corner
+  - [ ] Style consistently with existing design
+  - [ ] Handle all win/lose/draw combinations
+  - [ ] **Commit:** `feat(ui): add KO status display to fighter stat cards`
+
+#### 4. Enhanced WinnerAnimation Integration
+**Location:** Update existing WinnerAnimation component
+
+**Purpose:** Integrate all new sections into the modal layout
+
+**Implementation:**
+- [ ] **4.1: WinnerAnimation Props Extension**
+  - [ ] Write failing test for extended props
+  - [ ] Extend WinnerAnimationProps to include tournament/arena data
+  - [ ] Add battle summary data to props
+  - [ ] Update component interface and TypeScript types
+  - [ ] **Commit:** `feat(types): extend WinnerAnimation props for new features`
+
+- [ ] **4.2: Modal Layout Integration**
+  - [ ] Write failing test for new modal layout
+  - [ ] Integrate TournamentOverview component into modal
+  - [ ] Integrate BattleSummary component into modal
+  - [ ] Update fighter stat cards with KO status
+  - [ ] Ensure proper spacing and visual hierarchy
+  - [ ] **Commit:** `feat(ui): integrate new sections into WinnerAnimation modal`
+
+#### 5. Battle Generation Integration
+**Location:** Update battle generation API
+
+**Purpose:** Generate tournament overview and battle summary during battle completion
+
+**Implementation:**
+- [ ] **5.1: Battle Generation API Updates**
+  - [ ] Write failing test for enhanced battle generation
+  - [ ] Update `src/app/api/fighting-game/generate-battle/route.ts`
+  - [ ] Add tournament overview generation to battle completion
+  - [ ] Add battle summary generation to battle completion
+  - [ ] Include new data in battle response
+  - [ ] **Commit:** `feat(api): add tournament overview and battle summary to battle generation`
+
+### Technical Requirements
+
+#### LLM Prompts Needed
+
+**1. Tournament Overview Prompt:**
+```typescript
+const tournamentOverviewPrompt = `
+You are a sports commentator analyzing a fighting tournament. 
+Generate a brief tournament overview for this battle including:
+- Tournament context and significance
+- Arena description and tactical implications
+- Any notable highlights leading to this battle
+
+Keep it concise (2-3 sentences) and exciting.
+Return ONLY the overview text, no JSON formatting.
+`;
+```
+
+**2. Battle Summary Prompt:**
+```typescript
+const battleSummaryPrompt = `
+You are a sports commentator summarizing a fighting match.
+Based on the battle log, create a 2-3 sentence summary highlighting:
+- Key turning points
+- Notable attacks or defenses
+- Special events or abilities used
+- Overall battle flow and outcome
+
+Make it exciting and capture the drama of the fight.
+Return ONLY the summary text, no JSON formatting.
+`;
+```
+
+#### Data Structures
+
+**Extended WinnerAnimationProps:**
+```typescript
+interface WinnerAnimationProps {
+  winner: string | null;
+  onDone?: () => void;
+  onClose?: () => void;
+  fighterAHealth?: number;
+  fighterBHealth?: number;
+  fighterA?: Fighter;
+  fighterB?: Fighter;
+  battleLog?: BattleRound[];
+  // New props
+  tournamentOverview?: string;
+  battleSummary?: string;
+  arena?: {
+    name: string;
+    imageUrl: string;
+    description: string;
+  };
+  battleDate?: string;
+}
+```
+
+### Testing Strategy
+
+#### Unit Tests
+- **TournamentOverview Component**: Test rendering, data display, and LLM integration
+- **BattleSummary Component**: Test rendering, battle log parsing, and summary generation
+- **KO Status Logic**: Test all win/lose/draw combinations and health conditions
+- **WinnerAnimation Integration**: Test new sections and layout
+
+#### Integration Tests
+- **Battle Generation Flow**: Test complete flow from battle to enhanced modal
+- **LLM Integration**: Test tournament overview and battle summary generation
+- **Data Flow**: Test data passing from battle generation to modal display
+
+#### E2E Tests
+- **Complete User Flow**: Test battle completion with new features
+- **Battle Replay Flow**: Test enhanced modal in replay scenarios
+- **Tournament Integration**: Test new features in tournament context
+
+### Success Criteria
+- [ ] Tournament overview provides meaningful context for battle replays
+- [ ] Battle summary captures key moments and battle flow
+- [ ] KO status clearly indicates battle outcome for each fighter
+- [ ] All new sections maintain consistent styling with existing modal
+- [ ] LLM prompts generate high-quality, relevant content
+- [ ] Performance remains acceptable with additional LLM calls
+- [ ] All tests pass and build succeeds
+- [ ] User experience is enhanced with better battle context
+
+### Future Enhancements
+- **Arena Environmental Effects**: Show environmental interactions in battle summaries
+- **Fighter Unique Abilities**: Highlight special abilities used in battle summaries
+- **Tournament Brackets**: Show tournament progression and fighter paths
+- **Battle Statistics**: Include damage dealt, rounds survived, etc.
+- **Export Functionality**: Allow users to export enhanced battle summaries
+
+---
+
 ## Battle UI Improvements (2025-01-27)
 
 ### Overview

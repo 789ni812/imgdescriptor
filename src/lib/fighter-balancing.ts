@@ -263,20 +263,30 @@ Important: Respect the type guidelines and ensure logical relationships (e.g., a
           messages: [
             {
               role: 'system',
-              content: `You are an expert at generating balanced fighter statistics for a fighting game. 
-              Based on the fighter description and type guidelines, generate realistic and balanced stats.
-              
-              Return ONLY a JSON object with these fields:
-              - strength: number (within the specified range)
-              - agility: number (within the specified range) 
-              - health: number (within the specified range)
-              - defense: number (within the specified range)
-              - luck: number (within the specified range)
-              - age: number (1-1000000)
-              - size: "small" | "medium" | "large"
-              - build: "thin" | "average" | "muscular" | "heavy"
-              
-              Ensure stats are logical and respect the fighter type guidelines.`,
+              content: `You are an expert fighting game balance designer specializing in creating fair, competitive, and engaging fighter statistics.
+
+CRITICAL REQUIREMENTS:
+- Respect the fighter type guidelines while maintaining character authenticity
+- Ensure stats are logically consistent with the fighter's characteristics
+- Create balanced stats that allow for competitive gameplay
+- Consider the fighter's size, build, and apparent abilities when adjusting stats
+- Maintain the fighter's unique identity while improving balance
+
+BALANCING PRINCIPLES:
+- Larger fighters should generally have higher health and strength
+- Smaller fighters should have higher agility and potentially luck
+- Muscular builds should favor strength and health
+- Thin builds should favor agility and potentially intelligence
+- Equipment and apparent abilities should influence relevant stats
+- Ensure no single stat dominates the fighter's profile
+
+STAT VALIDATION:
+- All stats must fall within the specified type ranges
+- Maintain logical relationships between stats
+- Consider the fighter's visual characteristics and apparent skills
+- Ensure the fighter remains competitive and fun to play
+
+Return ONLY a valid JSON object with the exact field names specified above. All numbers must be integers within the provided ranges.`,
             },
             {
               role: 'user',

@@ -273,24 +273,37 @@ export const generateFighterStats = async (
         messages: [
           {
             role: 'system',
-            content: `You are an expert at analyzing images and generating balanced fighter statistics for a fighting game. 
-            Based on the image description and fighter label, generate realistic but balanced stats.
-            
-            Return ONLY a JSON object with these fields:
-            - strength: number (1-200)
-            - agility: number (1-100) 
-            - health: number (20-1000)
-            - defense: number (1-100)
-            - luck: number (1-50)
-            - age: number (1-1000000)
-            - size: "small" | "medium" | "large"
-            - build: "thin" | "average" | "muscular" | "heavy"
-            - magic: number (0-100, only if character has supernatural powers)
-            - ranged: number (0-100, only if character has ranged attacks)
-            - intelligence: number (1-100)
-            - uniqueAbilities: string[] (2-4 special abilities based on character type)
-            
-            Consider the fighter's characteristics when generating stats. Only include magic/ranged if appropriate.`,
+            content: `You are an expert fighting game designer and character analyst specializing in creating balanced, engaging fighter statistics.
+
+CRITICAL REQUIREMENTS:
+- Analyze the fighter's visual characteristics, equipment, and apparent abilities
+- Generate stats that reflect the fighter's appearance and potential combat style
+- Ensure logical relationships between stats (e.g., large muscular fighters should have higher strength)
+- Create unique abilities that match the fighter's theme and characteristics
+- Balance stats for competitive gameplay while maintaining character authenticity
+
+STAT GUIDELINES:
+- strength: 1-200 (physical power, influenced by size, build, and equipment)
+- agility: 1-100 (speed, reflexes, and maneuverability)
+- health: 20-1000 (endurance and vitality, consider size and apparent toughness)
+- defense: 1-100 (damage resistance and blocking ability)
+- luck: 1-50 (random chance factors, critical hits, evasive maneuvers)
+- age: 1-1000000 (character age, affects experience and wisdom)
+- size: "small" | "medium" | "large" (physical stature)
+- build: "thin" | "average" | "muscular" | "heavy" (body composition)
+- magic: 0-100 (supernatural powers, only if character clearly has magical abilities)
+- ranged: 0-100 (projectile attacks, weapons, or ranged abilities)
+- intelligence: 1-100 (tactical thinking, strategy, and problem-solving)
+- uniqueAbilities: string[] (2-4 special moves or abilities that define the fighter's style)
+
+ABILITY CREATION RULES:
+- Each ability should be specific and thematic to the fighter
+- Avoid generic abilities like "strong punch" or "dodge"
+- Consider the fighter's equipment, appearance, and apparent skills
+- Make abilities sound exciting and unique
+- Examples: "Lightsaber Mastery", "Force Choke", "Predator Cloak", "Kangaroo Boxing"
+
+Return ONLY a valid JSON object with the exact field names specified above. All numbers must be integers.`,
           },
           {
             role: 'user',
@@ -383,21 +396,32 @@ export const generateBattleCommentary = async (
 
   try {
     const action = isAttack ? 'attack' : 'defense';
-    const prompt = `Generate a concise, exciting, and readable battle commentary for a fighting game round.
+    const prompt = `Generate an exciting, dynamic battle commentary for this fighting game round.
 
-Fighter A: ${fighterA}
-Fighter B: ${fighterB}
-Round: ${round}
-Action: ${action}${_damage ? ` (Damage: ${_damage})` : ''}
+FIGHTERS:
+- Fighter A: ${fighterA} (attacking)
+- Fighter B: ${fighterB} (defending)
+- Round: ${round}
+- Action: ${action}${_damage ? ` - Damage dealt: ${_damage}` : ''}
 
-Requirements:
-- 1 to 2 sentences, maximum 30 words total
-- Use normal sentence casing (no all-caps, only capitalize proper nouns or dramatic effect)
-- Make it clear, exciting, and easy to read
-- Avoid awkward or nonsensical phrases
-- Do not use repetitive language
-- Do not use markdown, formatting, or JSON—just the commentary text
-`;
+COMMENTARY REQUIREMENTS:
+- Create vivid, action-packed commentary that captures the moment
+- Describe the specific action and its impact on the battle
+- Use varied, exciting language that builds tension
+- Keep it concise: 1-2 sentences, maximum 30 words total
+- Use natural sentence casing (capitalize only proper nouns and dramatic emphasis)
+- Make the commentary feel authentic and engaging
+- Avoid repetitive or generic phrases
+- Focus on the current action and its significance
+
+STYLE GUIDELINES:
+- Use dynamic verbs and descriptive language
+- Include specific details about the fighters when relevant
+- Create narrative flow that enhances the battle experience
+- Balance action description with emotional impact
+- Make each round feel unique and memorable
+
+Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
@@ -409,7 +433,32 @@ Requirements:
         messages: [
           {
             role: 'system',
-            content: 'You are an expert fighting game commentator. Generate concise, exciting, and readable battle commentary. Use normal sentence casing, never all-caps.',
+            content: `You are an expert fighting game commentator with a dynamic, exciting style that captures the intensity and drama of combat.
+
+COMMENTARY STYLE:
+- Use vivid, action-packed language that brings the fight to life
+- Vary your commentary style to avoid repetition
+- Include specific details about the fighters and their actions
+- Create tension and excitement through your word choice
+- Use natural sentence casing (no all-caps except for dramatic emphasis)
+- Make each round feel unique and memorable
+
+COMMENTARY TECHNIQUES:
+- Describe the impact and effectiveness of attacks
+- Highlight the fighters' unique characteristics and abilities
+- Create narrative flow that builds excitement
+- Use varied vocabulary to avoid repetitive phrases
+- Include tactical insights when appropriate
+- Balance action description with emotional impact
+
+QUALITY REQUIREMENTS:
+- Keep commentary concise (1-2 sentences, max 30 words)
+- Ensure clarity and readability
+- Avoid awkward or nonsensical phrases
+- Make the commentary feel authentic and engaging
+- Focus on the current action and its impact
+
+Return ONLY the commentary text - no formatting, no JSON, no additional text.`,
           },
           {
             role: 'user',
@@ -580,3 +629,192 @@ function createFallbackStory(description: string) {
     consequences: ['Your choices will determine your fate', 'The adventure continues']
   };
 } 
+
+// ============================================================================
+// NEW: Tournament Overview Generation
+// ============================================================================
+
+export const generateTournamentOverview = async (
+  tournamentName: string,
+  arenaName: string,
+  arenaDescription: string,
+  currentRound: number,
+  totalRounds: number
+): Promise<string> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const prompt = `Generate an exciting tournament overview for this fighting match.
+
+TOURNAMENT CONTEXT:
+- Tournament: ${tournamentName}
+- Arena: ${arenaName}
+- Arena Description: ${arenaDescription}
+- Current Round: ${currentRound} of ${totalRounds}
+- Tournament Progress: ${Math.round((currentRound / totalRounds) * 100)}% complete
+
+OVERVIEW REQUIREMENTS:
+- Create a brief, exciting overview (2-3 sentences)
+- Highlight the tournament's significance and current stage
+- Describe the arena's tactical implications and atmosphere
+- Include any notable context about this specific battle
+- Make it feel like a major sporting event
+- Use dynamic, engaging language
+
+STYLE GUIDELINES:
+- Use sports commentator style language
+- Create excitement and anticipation
+- Include specific details about the arena and tournament
+- Make the battle feel important and consequential
+- Balance information with entertainment value
+
+Return ONLY the overview text - no formatting, no JSON, no additional text.`;
+
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert sports commentator specializing in fighting tournaments. Generate exciting, informative tournament overviews that capture the drama and significance of each match.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 150,
+        top_p: 0.85,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio tournament overview API response error: ${response.status} ${errorBody}`);
+      return `The ${tournamentName} tournament continues in the ${arenaName} arena. This is round ${currentRound} of ${totalRounds}.`;
+    }
+
+    const data = await response.json();
+    const overview = data.choices[0]?.message?.content?.trim();
+    
+    return overview || `The ${tournamentName} tournament continues in the ${arenaName} arena. This is round ${currentRound} of ${totalRounds}.`;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio tournament overview error:', error);
+    return `The ${tournamentName} tournament continues in the ${arenaName} arena. This is round ${currentRound} of ${totalRounds}.`;
+  }
+};
+
+// ============================================================================
+// NEW: Battle Summary Generation
+// ============================================================================
+
+export const generateBattleSummary = async (
+  fighterA: string,
+  fighterB: string,
+  winner: string,
+  battleLog: Array<{
+    attackCommentary?: string;
+    defenseCommentary?: string;
+    round?: number;
+    attacker?: string;
+    defender?: string;
+    attackerDamage?: number;
+    defenderDamage?: number;
+    randomEvent?: string;
+    arenaObjectsUsed?: string[];
+    healthAfter?: { [key: string]: number };
+  }>,
+  totalRounds: number
+): Promise<string> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    // Extract key battle highlights
+    const keyEvents = battleLog
+      .filter(round => round.attackCommentary || round.defenseCommentary)
+      .slice(-3) // Last 3 rounds for context
+      .map(round => `${round.attackCommentary} ${round.defenseCommentary}`)
+      .join(' ');
+
+    const prompt = `Generate an exciting battle summary for this completed fight.
+
+BATTLE CONTEXT:
+- Fighter A: ${fighterA}
+- Fighter B: ${fighterB}
+- Winner: ${winner}
+- Total Rounds: ${totalRounds}
+- Key Battle Events: ${keyEvents}
+
+SUMMARY REQUIREMENTS:
+- Create a compelling 2-3 sentence summary of the entire battle
+- Highlight the most dramatic moments and turning points
+- Describe the overall flow and intensity of the fight
+- Include the final outcome and its significance
+- Make it feel like a sports highlight reel
+
+STYLE GUIDELINES:
+- Use dynamic, action-packed language
+- Create narrative tension and excitement
+- Include specific details about key moments
+- Balance action description with emotional impact
+- Make the summary feel like professional sports commentary
+
+Return ONLY the summary text - no formatting, no JSON, no additional text.`;
+
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert sports commentator specializing in post-fight analysis. Generate exciting, comprehensive battle summaries that capture the drama and significance of each match.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 200,
+        top_p: 0.85,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio battle summary API response error: ${response.status} ${errorBody}`);
+      return `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+    }
+
+    const data = await response.json();
+    const summary = data.choices[0]?.message?.content?.trim();
+    
+    return summary || `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio battle summary error:', error);
+    return `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+  }
+}; 

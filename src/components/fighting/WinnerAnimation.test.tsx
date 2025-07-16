@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import WinnerAnimation from './WinnerAnimation';
 
 // Mock fighter data
@@ -381,5 +381,264 @@ describe('WinnerAnimation', () => {
       const zeroElements = screen.getAllByText('0');
       expect(zeroElements.length).toBeGreaterThan(0);
     });
+  });
+
+  it('should display KO! for the loser and WIN for the winner in a KO victory', () => {
+    const mockFighterA = {
+      id: 'fighter-a',
+      name: 'Fighter A',
+      imageUrl: '/test-image-a.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 50,
+        luck: 20,
+        agility: 30,
+        defense: 25,
+        age: 25,
+        size: 'medium' as const,
+        build: 'average' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'average',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    const mockFighterB = {
+      id: 'fighter-b',
+      name: 'Fighter B',
+      imageUrl: '/test-image-b.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 45,
+        luck: 15,
+        agility: 35,
+        defense: 20,
+        age: 30,
+        size: 'medium' as const,
+        build: 'muscular' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'muscular',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    // Test KO victory - Fighter A wins, Fighter B at 0 health
+    render(
+      <WinnerAnimation
+        winner="Fighter A"
+        fighterA={mockFighterA}
+        fighterB={mockFighterB}
+        fighterAHealth={50}
+        fighterBHealth={0}
+        onDone={jest.fn()}
+        onClose={jest.fn()}
+      />
+    );
+
+    // Winner gets WIN, loser gets KO!
+    const fighterACard = screen.getByText('Fighter A').closest('.bg-gray-800') as HTMLElement;
+    const fighterBCard = screen.getByText('Fighter B').closest('.bg-gray-800') as HTMLElement;
+    expect(fighterACard).toBeInTheDocument();
+    expect(fighterBCard).toBeInTheDocument();
+
+    const winStatusA = within(fighterACard).getByText('WIN');
+    expect(winStatusA).toBeInTheDocument();
+    expect(winStatusA).toHaveClass('text-green-400', 'font-bold');
+
+    const koStatusB = within(fighterBCard).getByText('KO!');
+    expect(koStatusB).toBeInTheDocument();
+    expect(koStatusB).toHaveClass('text-red-500', 'font-bold');
+  });
+
+  it('should display DRAW status for both fighters in a draw', () => {
+    const mockFighterA = {
+      id: 'fighter-a',
+      name: 'Fighter A',
+      imageUrl: '/test-image-a.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 50,
+        luck: 20,
+        agility: 30,
+        defense: 25,
+        age: 25,
+        size: 'medium' as const,
+        build: 'average' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'average',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    const mockFighterB = {
+      id: 'fighter-b',
+      name: 'Fighter B',
+      imageUrl: '/test-image-b.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 45,
+        luck: 15,
+        agility: 35,
+        defense: 20,
+        age: 30,
+        size: 'medium' as const,
+        build: 'muscular' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'muscular',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    // Test draw scenario
+    render(
+      <WinnerAnimation
+        winner="Draw"
+        fighterA={mockFighterA}
+        fighterB={mockFighterB}
+        fighterAHealth={25}
+        fighterBHealth={25}
+        onDone={jest.fn()}
+        onClose={jest.fn()}
+      />
+    );
+
+    // Check that DRAW status is displayed for both fighters
+    const fighterACard = screen.getByText('Fighter A').closest('.bg-gray-800') as HTMLElement;
+    const fighterBCard = screen.getByText('Fighter B').closest('.bg-gray-800') as HTMLElement;
+    
+    expect(fighterACard).toBeInTheDocument();
+    expect(fighterBCard).toBeInTheDocument();
+
+    const drawStatusA = within(fighterACard).getByText('DRAW');
+    const drawStatusB = within(fighterBCard).getByText('DRAW');
+    
+    expect(drawStatusA).toBeInTheDocument();
+    expect(drawStatusB).toBeInTheDocument();
+    expect(drawStatusA).toHaveClass('text-yellow-500', 'font-bold');
+    expect(drawStatusB).toHaveClass('text-yellow-500', 'font-bold');
+  });
+
+  it('should not display status for normal victory (no KO)', () => {
+    const mockFighterA = {
+      id: 'fighter-a',
+      name: 'Fighter A',
+      imageUrl: '/test-image-a.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 50,
+        luck: 20,
+        agility: 30,
+        defense: 25,
+        age: 25,
+        size: 'medium' as const,
+        build: 'average' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'average',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    const mockFighterB = {
+      id: 'fighter-b',
+      name: 'Fighter B',
+      imageUrl: '/test-image-b.jpg',
+      stats: {
+        health: 100,
+        maxHealth: 100,
+        strength: 45,
+        luck: 15,
+        agility: 35,
+        defense: 20,
+        age: 30,
+        size: 'medium' as const,
+        build: 'muscular' as const,
+      },
+      visualAnalysis: {
+        age: 'adult',
+        size: 'medium',
+        build: 'muscular',
+        appearance: [],
+        weapons: [],
+        armor: [],
+      },
+      combatHistory: [],
+      winLossRecord: { wins: 0, losses: 0, draws: 0 },
+      createdAt: '2025-01-27T00:00:00Z',
+    };
+
+    // Test normal victory - Fighter A wins but Fighter B still has health
+    render(
+      <WinnerAnimation
+        winner="Fighter A"
+        fighterA={mockFighterA}
+        fighterB={mockFighterB}
+        fighterAHealth={30}
+        fighterBHealth={5}
+        onDone={jest.fn()}
+        onClose={jest.fn()}
+      />
+    );
+
+    // Check that no status is displayed for either fighter in normal victory
+    const fighterACard = screen.getByText('Fighter A').closest('.bg-gray-800') as HTMLElement;
+    const fighterBCard = screen.getByText('Fighter B').closest('.bg-gray-800') as HTMLElement;
+    
+    expect(fighterACard).toBeInTheDocument();
+    expect(fighterBCard).toBeInTheDocument();
+
+    const koStatusA = within(fighterACard).queryByText('KO!');
+    const koStatusB = within(fighterBCard).queryByText('KO!');
+    const drawStatusA = within(fighterACard).queryByText('DRAW');
+    const drawStatusB = within(fighterBCard).queryByText('DRAW');
+    
+    expect(koStatusA).not.toBeInTheDocument();
+    expect(koStatusB).not.toBeInTheDocument();
+    expect(drawStatusA).not.toBeInTheDocument();
+    expect(drawStatusB).not.toBeInTheDocument();
   });
 }); 

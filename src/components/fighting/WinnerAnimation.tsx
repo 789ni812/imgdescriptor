@@ -61,18 +61,35 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
   battleLog = []
 }) => {
   let displayText = '';
-  let showKO = false;
   if (winner === 'Draw') {
     displayText = "It's a DRAW!";
   } else if (winner) {
     displayText = `${winner} wins the battle!`;
-    // KO logic: show KO if either fighter's health is 0 or less and not a draw
-    if ((fighterAHealth !== undefined && fighterAHealth <= 0) || (fighterBHealth !== undefined && fighterBHealth <= 0)) {
-      showKO = true;
-    }
   } else {
     displayText = "It's a DRAW !!!";
   }
+
+  // Helper function to determine fighter status
+  const getFighterStatus = (fighterName: string, fighterHealth: number | undefined): string | null => {
+    if (winner === 'Draw') {
+      return 'DRAW';
+    }
+    if (winner === fighterName && fighterHealth !== undefined && fighterHealth > 0) {
+      return 'WIN';
+    }
+    if (winner !== 'Draw' && winner !== fighterName && fighterHealth !== undefined && fighterHealth <= 0) {
+      return 'KO!';
+    }
+    return null;
+  };
+
+  // Helper function for status color classes
+  const getFighterStatusClass = (status: string) => {
+    if (status === 'WIN') return 'text-green-400 bg-green-900/20 border border-green-500/30 font-bold';
+    if (status === 'KO!') return 'text-red-500 bg-red-900/20 border border-red-500/30 font-bold';
+    if (status === 'DRAW') return 'text-yellow-500 bg-yellow-900/20 border border-yellow-500/30 font-bold';
+    return '';
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-auto bg-black/60">
@@ -83,9 +100,7 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
           <div className="text-green-400 text-6xl font-extrabold mb-6 text-center">
             {displayText}
           </div>
-          {showKO && winner !== 'Draw' && (
-            <div className="text-red-500 text-5xl font-extrabold mb-6 text-center">KO!</div>
-          )}
+          {/* KO banner removed: KO/Win/Draw now shown per fighter card only */}
           
           {/* Fighter Stats Section */}
           {fighterA && fighterB && (
@@ -93,7 +108,13 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
               <h3 className="text-2xl font-bold text-white mb-4 text-center">Fighter Stats</h3>
               <div className="grid grid-cols-2 gap-6">
                 {/* Fighter A Stats */}
-                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg">
+                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg relative">
+                  {/* Fighter Status */}
+                  {(() => { const status = getFighterStatus(fighterA.name, fighterAHealth); return status ? (
+                    <div className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${getFighterStatusClass(status)}`}>
+                      {status}
+                    </div>
+                  ) : null; })()}
                   <div className="flex items-center mb-3">
                     {fighterA.imageUrl ? (
                       <img src={fighterA.imageUrl} alt={fighterA.name} className="w-16 h-16 object-cover rounded-lg mr-3 border-2 border-gray-500" />
@@ -127,7 +148,13 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                 </div>
 
                 {/* Fighter B Stats */}
-                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg">
+                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg relative">
+                  {/* Fighter Status */}
+                  {(() => { const status = getFighterStatus(fighterB.name, fighterBHealth); return status ? (
+                    <div className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${getFighterStatusClass(status)}`}>
+                      {status}
+                    </div>
+                  ) : null; })()}
                   <div className="flex items-center mb-3">
                     {fighterB.imageUrl ? (
                       <img src={fighterB.imageUrl} alt={fighterB.name} className="w-16 h-16 object-cover rounded-lg mr-3 border-2 border-gray-500" />
