@@ -58,7 +58,7 @@ const ChooseExistingFighter: React.FC<ChooseExistingFighterProps> = ({ onSelect 
           <div
             key={fighter.id}
             data-testid="fighter-card"
-            className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors bg-white shadow-sm"
             onClick={() => onSelect(fighter)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -75,21 +75,67 @@ const ChooseExistingFighter: React.FC<ChooseExistingFighterProps> = ({ onSelect 
                 <img 
                   src={`/vs/fighters/${fighter.image}`}
                   alt={fighter.name}
-                  className="w-16 h-16 mx-auto mb-2 rounded object-cover"
+                  className="w-16 h-16 mx-auto mb-2 rounded object-cover border-2 border-gray-200"
                 />
               ) : (
-                <div className="w-16 h-16 mx-auto mb-2 rounded bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                <div className="w-16 h-16 mx-auto mb-2 rounded bg-gray-300 flex items-center justify-center text-gray-600 text-xs border-2 border-gray-200">
                   No Image
                 </div>
               )}
-              <h3 className="font-semibold text-lg">{fighter.name}</h3>
-              <div className="mt-2 text-sm text-gray-600">
-                <div>Health: {fighter.stats.health}</div>
-                <div>Strength: {fighter.stats.strength}</div>
-                <div>Agility: {fighter.stats.agility}</div>
-                <div>Defense: {fighter.stats.defense}</div>
-                <div>Luck: {fighter.stats.luck}</div>
+              <h3 className="font-semibold text-lg mb-3 text-gray-800">{fighter.name}</h3>
+              
+              {/* Basic Stats */}
+              <div className="mb-3">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Basic Stats</h4>
+                <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                  <div>Health: {fighter.stats.health}</div>
+                  <div>Strength: {fighter.stats.strength}</div>
+                  <div>Agility: {fighter.stats.agility}</div>
+                  <div>Defense: {fighter.stats.defense}</div>
+                  <div>Luck: {fighter.stats.luck}</div>
+                </div>
               </div>
+
+              {/* Special Stats (if any) */}
+              {(fighter.stats.magic !== undefined || fighter.stats.ranged !== undefined || fighter.stats.intelligence !== undefined) && (
+                <div className="mb-3">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Special Stats</h4>
+                  <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                    {fighter.stats.magic !== undefined && <div>Magic: {fighter.stats.magic}</div>}
+                    {fighter.stats.ranged !== undefined && <div>Ranged: {fighter.stats.ranged}</div>}
+                    {fighter.stats.intelligence !== undefined && <div>Intelligence: {fighter.stats.intelligence}</div>}
+                  </div>
+                </div>
+              )}
+
+              {/* Unique Abilities (if any) */}
+              {fighter.stats.uniqueAbilities && fighter.stats.uniqueAbilities.length > 0 && (
+                <div className="mb-3">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Abilities</h4>
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {fighter.stats.uniqueAbilities.map((ability, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full font-medium"
+                      >
+                        {ability}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Physical Characteristics */}
+              {(fighter.stats.size || fighter.stats.build || fighter.stats.age) && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Characteristics</h4>
+                  <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                    {fighter.stats.size && <div>Size: {fighter.stats.size}</div>}
+                    {fighter.stats.build && <div>Build: {fighter.stats.build}</div>}
+                    {fighter.stats.age && <div>Age: {fighter.stats.age}</div>}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

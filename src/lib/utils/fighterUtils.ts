@@ -16,6 +16,10 @@ export interface FighterMetadata {
     age?: number;
     size?: string;
     build?: string;
+    magic?: number;
+    ranged?: number;
+    intelligence?: number;
+    uniqueAbilities?: string[];
   };
   matchHistory?: Array<{
     opponentId: string;

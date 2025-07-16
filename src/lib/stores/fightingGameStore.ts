@@ -18,6 +18,10 @@ export interface Fighter {
     age: number;
     size: 'small' | 'medium' | 'large';
     build: 'thin' | 'average' | 'muscular' | 'heavy';
+    magic?: number;
+    ranged?: number;
+    intelligence?: number;
+    uniqueAbilities?: string[];
   };
   visualAnalysis: {
     age: string;

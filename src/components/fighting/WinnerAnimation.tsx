@@ -106,14 +106,18 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                     )}
                   </div>
                 </div>
-                <div className="text-sm text-gray-300 leading-relaxed">
+                <div className="text-sm text-gray-300 leading-relaxed mb-2">
                   Health: {fighterA.stats.health} | Strength: {fighterA.stats.strength} | Agility: {fighterA.stats.agility} | Defense: {fighterA.stats.defense} | Luck: {fighterA.stats.luck}
-                  {fighterA.stats.magic !== undefined && ` | Magic: ${fighterA.stats.magic}`}
-                  {fighterA.stats.ranged !== undefined && ` | Ranged: ${fighterA.stats.ranged}`}
-                  {fighterA.stats.intelligence !== undefined && ` | Intelligence: ${fighterA.stats.intelligence}`}
                 </div>
+                {(fighterA.stats.magic !== undefined || fighterA.stats.ranged !== undefined || fighterA.stats.intelligence !== undefined) && (
+                  <div className="text-xs text-gray-400 leading-relaxed mb-2">
+                    {(fighterA.stats.magic !== undefined ? `Magic: ${fighterA.stats.magic}` : '') + 
+                     (fighterA.stats.ranged !== undefined ? (fighterA.stats.magic !== undefined ? ' | ' : '') + `Ranged: ${fighterA.stats.ranged}` : '') + 
+                     (fighterA.stats.intelligence !== undefined ? ((fighterA.stats.magic !== undefined || fighterA.stats.ranged !== undefined) ? ' | ' : '') + `Intelligence: ${fighterA.stats.intelligence}` : '')}
+                  </div>
+                )}
                 {fighterA.uniqueAbilities && fighterA.uniqueAbilities.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-2">
                     <div className="text-xs text-purple-400">Abilities: {fighterA.uniqueAbilities.join(', ')}</div>
                   </div>
                 )}
@@ -136,14 +140,18 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                     )}
                   </div>
                 </div>
-                <div className="text-sm text-gray-300 leading-relaxed">
+                <div className="text-sm text-gray-300 leading-relaxed mb-2">
                   Health: {fighterB.stats.health} | Strength: {fighterB.stats.strength} | Agility: {fighterB.stats.agility} | Defense: {fighterB.stats.defense} | Luck: {fighterB.stats.luck}
-                  {fighterB.stats.magic !== undefined && ` | Magic: ${fighterB.stats.magic}`}
-                  {fighterB.stats.ranged !== undefined && ` | Ranged: ${fighterB.stats.ranged}`}
-                  {fighterB.stats.intelligence !== undefined && ` | Intelligence: ${fighterB.stats.intelligence}`}
                 </div>
+                {(fighterB.stats.magic !== undefined || fighterB.stats.ranged !== undefined || fighterB.stats.intelligence !== undefined) && (
+                  <div className="text-xs text-gray-400 leading-relaxed mb-2">
+                    {(fighterB.stats.magic !== undefined ? `Magic: ${fighterB.stats.magic}` : '') + 
+                     (fighterB.stats.ranged !== undefined ? (fighterB.stats.magic !== undefined ? ' | ' : '') + `Ranged: ${fighterB.stats.ranged}` : '') + 
+                     (fighterB.stats.intelligence !== undefined ? ((fighterB.stats.magic !== undefined || fighterB.stats.ranged !== undefined) ? ' | ' : '') + `Intelligence: ${fighterB.stats.intelligence}` : '')}
+                  </div>
+                )}
                 {fighterB.uniqueAbilities && fighterB.uniqueAbilities.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-2">
                     <div className="text-xs text-purple-400">Abilities: {fighterB.uniqueAbilities.join(', ')}</div>
                   </div>
                 )}

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { balanceAllFighters, type FighterData } from '@/lib/fighter-balancing';
+import { balanceAllFightersWithLLM, type FighterData } from '@/lib/fighter-balancing';
 
 export async function POST() {
   // Artificial delay for E2E test reliability
@@ -28,8 +28,12 @@ export async function POST() {
       }, { status: 404 });
     }
     
-    // Balance all fighters
-    const result = balanceAllFighters(fighters);
+    console.log(`Starting LLM-powered balancing for ${fighters.length} fighters...`);
+    
+    // Balance all fighters using LLM (with rule-based fallback)
+    const result = await balanceAllFightersWithLLM(fighters);
+    
+    console.log(`Balancing complete: ${result.llmCount} LLM-balanced, ${result.ruleBasedCount} rule-based`);
     
     // Write updated fighter files
     for (const { balancedFighter } of result.results) {
@@ -39,8 +43,10 @@ export async function POST() {
     
     return NextResponse.json({
       success: true,
-      message: `Balanced ${result.results.length} fighters`,
-      results: result.results
+      message: result.message,
+      results: result.results,
+      llmCount: result.llmCount,
+      ruleBasedCount: result.ruleBasedCount
     });
   } catch (error) {
     console.error('Error balancing fighters:', error);

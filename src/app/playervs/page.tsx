@@ -62,19 +62,23 @@ function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
     description: '',
     stats: {
       health: meta.stats.health,
-      maxHealth: meta.stats.health, // No maxHealth in metadata, use health
+      maxHealth: meta.stats.maxHealth || meta.stats.health, // Use maxHealth if available, otherwise use health
       strength: meta.stats.strength,
       luck: meta.stats.luck,
       agility: meta.stats.agility,
       defense: meta.stats.defense,
-      age: 30, // Default/placeholder
-      size: 'medium', // Default/placeholder
-      build: 'average', // Default/placeholder
+      age: meta.stats.age || 30, // Use age from metadata if available
+      size: (meta.stats.size as 'small' | 'medium' | 'large') || 'medium', // Use size from metadata if available
+      build: (meta.stats.build as 'thin' | 'average' | 'muscular' | 'heavy') || 'average', // Use build from metadata if available
+      magic: meta.stats.magic, // Include magic if available
+      ranged: meta.stats.ranged, // Include ranged if available
+      intelligence: meta.stats.intelligence, // Include intelligence if available
+      uniqueAbilities: meta.stats.uniqueAbilities, // Include unique abilities if available
     },
     visualAnalysis: {
-      age: '',
-      size: '',
-      build: '',
+      age: meta.stats.age?.toString() || '',
+      size: meta.stats.size || '',
+      build: meta.stats.build || '',
       appearance: [],
       weapons: [],
       armor: [],

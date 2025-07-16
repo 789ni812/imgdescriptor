@@ -216,3 +216,201 @@ export function balanceAllFighters(fighters: FighterData[]): {
     message: `Balanced ${results.length} fighters`
   };
 } 
+
+export async function balanceFighterWithLLM(fighterData: FighterData): Promise<{ 
+  name: string; 
+  type: string; 
+  oldStats: FighterData['stats']; 
+  newStats: FighterData['stats']; 
+  balancedFighter: FighterData;
+  method: 'llm' | 'rule-based';
+}> {
+  try {
+    // First, classify the fighter to get context
+    const fighterTypeKey = classifyFighter(fighterData.name);
+    const typeConfig = FIGHTER_TYPES[fighterTypeKey];
+    
+    // Create a context-aware prompt that includes fighter type information
+    const contextPrompt = `Generate balanced stats for a fighting game character.
+
+Fighter: ${fighterData.name}
+Type: ${typeConfig.name}
+Size: ${fighterData.stats.size}
+Build: ${fighterData.stats.build}
+
+Type Guidelines:
+- ${typeConfig.name}: Health ${typeConfig.healthRange[0]}-${typeConfig.healthRange[1]}, Strength ${typeConfig.strengthRange[0]}-${typeConfig.strengthRange[1]}, Agility ${typeConfig.agilityRange[0]}-${typeConfig.agilityRange[1]}, Defense ${typeConfig.defenseRange[0]}-${typeConfig.defenseRange[1]}, Luck ${typeConfig.luckRange[0]}-${typeConfig.luckRange[1]}
+${typeConfig.magicRange ? `- Magic: ${typeConfig.magicRange[0]}-${typeConfig.magicRange[1]}` : ''}
+${typeConfig.rangedRange ? `- Ranged: ${typeConfig.rangedRange[0]}-${typeConfig.rangedRange[1]}` : ''}
+${typeConfig.intelligenceRange ? `- Intelligence: ${typeConfig.intelligenceRange[0]}-${typeConfig.intelligenceRange[1]}` : ''}
+
+Important: Respect the type guidelines and ensure logical relationships (e.g., a mouse should have much lower strength than a Sith Lord).`;
+    
+    console.log(`Attempting LLM-based balancing for ${fighterData.name} (${typeConfig.name})...`);
+    
+    // Use a custom prompt instead of the generic generateFighterStats
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+    try {
+      const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'local-model', // Use the same model as other functions
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert at generating balanced fighter statistics for a fighting game. 
+              Based on the fighter description and type guidelines, generate realistic and balanced stats.
+              
+              Return ONLY a JSON object with these fields:
+              - strength: number (within the specified range)
+              - agility: number (within the specified range) 
+              - health: number (within the specified range)
+              - defense: number (within the specified range)
+              - luck: number (within the specified range)
+              - age: number (1-1000000)
+              - size: "small" | "medium" | "large"
+              - build: "thin" | "average" | "muscular" | "heavy"
+              
+              Ensure stats are logical and respect the fighter type guidelines.`,
+            },
+            {
+              role: 'user',
+              content: contextPrompt,
+            },
+          ],
+          temperature: 0.3, // Lower temperature for more consistent results
+          max_tokens: 512,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`LM Studio fighter balancing API response error: ${response.status} ${errorBody}`);
+        throw new Error(`API Error: ${response.status} - ${errorBody}`);
+      }
+
+      const data = await response.json();
+      const rawContent = data.choices[0]?.message?.content;
+      if (!rawContent) {
+        throw new Error('The model did not return fighter stats.');
+      }
+
+      // Try to parse the JSON object
+      try {
+        // Remove markdown/code block wrappers if present
+        const cleaned = rawContent.replace(/```json|```/gi, '').trim();
+        const parsed = JSON.parse(cleaned);
+        
+        // Validate required fields
+        if (
+          typeof parsed.strength === 'number' &&
+          typeof parsed.agility === 'number' &&
+          typeof parsed.health === 'number' &&
+          typeof parsed.defense === 'number' &&
+          typeof parsed.luck === 'number' &&
+          typeof parsed.age === 'number' &&
+          typeof parsed.size === 'string' &&
+          typeof parsed.build === 'string'
+        ) {
+          // Validate that stats are within the type's ranges
+          const isValidHealth = parsed.health >= typeConfig.healthRange[0] && parsed.health <= typeConfig.healthRange[1];
+          const isValidStrength = parsed.strength >= typeConfig.strengthRange[0] && parsed.strength <= typeConfig.strengthRange[1];
+          const isValidAgility = parsed.agility >= typeConfig.agilityRange[0] && parsed.agility <= typeConfig.agilityRange[1];
+          const isValidDefense = parsed.defense >= typeConfig.defenseRange[0] && parsed.defense <= typeConfig.defenseRange[1];
+          const isValidLuck = parsed.luck >= typeConfig.luckRange[0] && parsed.luck <= typeConfig.luckRange[1];
+          
+          if (isValidHealth && isValidStrength && isValidAgility && isValidDefense && isValidLuck) {
+            console.log(`LLM successfully balanced ${fighterData.name}:`, parsed);
+            
+            // Convert LLM stats to our FighterData format
+            const balancedStats = {
+              health: parsed.health,
+              maxHealth: parsed.health,
+              strength: parsed.strength,
+              agility: parsed.agility,
+              defense: parsed.defense,
+              luck: parsed.luck,
+              age: parsed.age,
+              size: parsed.size,
+              build: parsed.build,
+              magic: fighterData.stats.magic, // Preserve existing magic if any
+              ranged: fighterData.stats.ranged, // Preserve existing ranged if any
+              intelligence: fighterData.stats.intelligence, // Preserve existing intelligence if any
+              uniqueAbilities: fighterData.stats.uniqueAbilities // Preserve existing abilities
+            };
+            
+            const balancedFighter: FighterData = {
+              ...fighterData,
+              stats: balancedStats
+            };
+            
+            return {
+              name: fighterData.name,
+              type: `${typeConfig.name} (LLM Balanced)`,
+              oldStats: fighterData.stats,
+              newStats: balancedStats,
+              balancedFighter,
+              method: 'llm'
+            };
+          } else {
+            console.log(`LLM stats for ${fighterData.name} outside valid ranges, falling back to rule-based`);
+            throw new Error('Stats outside valid ranges');
+          }
+        } else {
+          throw new Error('Missing required fields in fighter stats JSON.');
+        }
+      } catch (e) {
+        console.error('Failed to parse fighter stats JSON:', rawContent, e);
+        throw new Error('Failed to parse fighter stats JSON.');
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  } catch (error) {
+    console.log(`Falling back to rule-based balancing for ${fighterData.name}:`, error instanceof Error ? error.message : 'Unknown error');
+    // Fall back to rule-based balancing
+    const ruleBasedResult = balanceFighter(fighterData);
+    return {
+      ...ruleBasedResult,
+      method: 'rule-based'
+    };
+  }
+}
+
+export async function balanceAllFightersWithLLM(fighters: FighterData[]): Promise<{
+  results: Array<{ name: string; type: string; oldStats: FighterData['stats']; newStats: FighterData['stats']; balancedFighter: FighterData; method: 'llm' | 'rule-based' }>;
+  message: string;
+  llmCount: number;
+  ruleBasedCount: number;
+}> {
+  const results = [];
+  let llmCount = 0;
+  let ruleBasedCount = 0;
+  
+  for (const fighter of fighters) {
+    const result = await balanceFighterWithLLM(fighter);
+    results.push(result);
+    
+    if (result.method === 'llm') {
+      llmCount++;
+    } else {
+      ruleBasedCount++;
+    }
+  }
+  
+  return {
+    results,
+    message: `Balanced ${results.length} fighters (${llmCount} LLM, ${ruleBasedCount} rule-based)`,
+    llmCount,
+    ruleBasedCount
+  };
+} 
