@@ -1,0 +1,165 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "AI Image Describer":
+    - /url: /
+    - heading "AI Image Describer" [level=1]
+  - navigation:
+    - link "Tournament":
+      - /url: /tournament
+    - link "Leaderboard":
+      - /url: /leaderboard
+    - link "Battle Arena":
+      - /url: /playervs
+  - slider "Volume": "0.5"
+  - button "Mute"
+- main:
+  - heading "Battle Leaderboard" [level=1]
+  - paragraph: View fighter statistics and replay epic battles from the arena.
+  - button "Leaderboard"
+  - button "Battle Replays"
+  - heading "Tournament Leaderboard" [level=2]
+  - paragraph: "16 total battles • Last updated: Jul 16, 05:59 PM"
+  - button "Refresh"
+  - table:
+    - rowgroup:
+      - row "Rank Fighter Win Rate ↓ Record Avg Damage Dealt Avg Damage Taken Avg Rounds Stats Last Battle":
+        - cell "Rank"
+        - cell "Fighter"
+        - cell "Win Rate ↓"
+        - cell "Record"
+        - cell "Avg Damage Dealt"
+        - cell "Avg Damage Taken"
+        - cell "Avg Rounds"
+        - cell "Stats"
+        - cell "Last Battle"
+    - rowgroup:
+      - 'row "🥇 Darth Vader Darth Vader 4 opponents • 2 arenas 100.0% 4W-0L 526.3 0.0 6.0 STR: 185 AGI: 40 LUK: 15 DEF: 85 Jul 16, 05:30 PM"':
+        - cell "🥇"
+        - cell "Darth Vader Darth Vader 4 opponents • 2 arenas":
+          - img "Darth Vader"
+          - text: Darth Vader 4 opponents • 2 arenas
+        - cell "100.0%"
+        - cell "4W-0L"
+        - cell "526.3"
+        - cell "0.0"
+        - cell "6.0"
+        - 'cell "STR: 185 AGI: 40 LUK: 15 DEF: 85"'
+        - cell "Jul 16, 05:30 PM"
+      - 'row "🥈 Great White Shark Great White Shark 1 opponents • 1 arenas 100.0% 2W-0L 467.0 0.0 6.0 STR: 180 AGI: 65 LUK: 30 DEF: 75 Jul 16, 05:53 PM"':
+        - cell "🥈"
+        - cell "Great White Shark Great White Shark 1 opponents • 1 arenas":
+          - img "Great White Shark"
+          - text: Great White Shark 1 opponents • 1 arenas
+        - cell "100.0%"
+        - cell "2W-0L"
+        - cell "467.0"
+        - cell "0.0"
+        - cell "6.0"
+        - 'cell "STR: 180 AGI: 65 LUK: 30 DEF: 75"'
+        - cell "Jul 16, 05:53 PM"
+      - 'row "🥉 xenomorph xenomorph 4 opponents • 2 arenas 75.0% 3W-1L 429.5 0.0 5.3 STR: 185 AGI: 90 LUK: 30 DEF: 45 Jul 16, 05:30 PM"':
+        - cell "🥉"
+        - cell "xenomorph xenomorph 4 opponents • 2 arenas":
+          - img "xenomorph"
+          - text: xenomorph 4 opponents • 2 arenas
+        - cell "75.0%"
+        - cell "3W-1L"
+        - cell "429.5"
+        - cell "0.0"
+        - cell "5.3"
+        - 'cell "STR: 185 AGI: 90 LUK: 30 DEF: 45"'
+        - cell "Jul 16, 05:30 PM"
+      - 'row "4 Godzilla Godzilla 3 opponents • 2 arenas 75.0% 3W-1L 300.0 0.0 5.5 STR: 200 AGI: 30 LUK: 10 DEF: 80 Jul 16, 05:28 PM"':
+        - cell "4"
+        - cell "Godzilla Godzilla 3 opponents • 2 arenas":
+          - img "Godzilla"
+          - text: Godzilla 3 opponents • 2 arenas
+        - cell "75.0%"
+        - cell "3W-1L"
+        - cell "300.0"
+        - cell "0.0"
+        - cell "5.5"
+        - 'cell "STR: 200 AGI: 30 LUK: 10 DEF: 80"'
+        - cell "Jul 16, 05:28 PM"
+      - 'row "5 Predator Predator 3 opponents • 2 arenas 66.7% 2W-1L 477.0 0.0 5.3 STR: 185 AGI: 90 LUK: 30 DEF: 85 Jul 16, 05:29 PM"':
+        - cell "5"
+        - cell "Predator Predator 3 opponents • 2 arenas":
+          - img "Predator"
+          - text: Predator 3 opponents • 2 arenas
+        - cell "66.7%"
+        - cell "2W-1L"
+        - cell "477.0"
+        - cell "0.0"
+        - cell "5.3"
+        - 'cell "STR: 185 AGI: 90 LUK: 30 DEF: 85"'
+        - cell "Jul 16, 05:29 PM"
+      - 'row "6 Large kangaroo Large kangaroo 3 opponents • 2 arenas 33.3% 1W-2L 404.0 0.0 6.0 STR: 175 AGI: 90 LUK: 35 DEF: 80 Jul 16, 05:30 PM"':
+        - cell "6"
+        - cell "Large kangaroo Large kangaroo 3 opponents • 2 arenas":
+          - img "Large kangaroo"
+          - text: Large kangaroo 3 opponents • 2 arenas
+        - cell "33.3%"
+        - cell "1W-2L"
+        - cell "404.0"
+        - cell "0.0"
+        - cell "6.0"
+        - 'cell "STR: 175 AGI: 90 LUK: 35 DEF: 80"'
+        - cell "Jul 16, 05:30 PM"
+      - 'row "7 African savanna African savanna 2 opponents • 2 arenas 0.0% 0W-2L 590.5 0.0 6.0 STR: 130 AGI: 95 LUK: 30 DEF: 40 Jul 16, 05:29 PM"':
+        - cell "7"
+        - cell "African savanna African savanna 2 opponents • 2 arenas":
+          - img "African savanna"
+          - text: African savanna 2 opponents • 2 arenas
+        - cell "0.0%"
+        - cell "0W-2L"
+        - cell "590.5"
+        - cell "0.0"
+        - cell "6.0"
+        - 'cell "STR: 130 AGI: 95 LUK: 30 DEF: 40"'
+        - cell "Jul 16, 05:29 PM"
+      - 'row "8 Bruce Lee Bruce Lee 3 opponents • 2 arenas 0.0% 0W-4L 334.3 0.0 5.5 STR: 180 AGI: 95 LUK: 30 DEF: 50 Jul 16, 05:28 PM"':
+        - cell "8"
+        - cell "Bruce Lee Bruce Lee 3 opponents • 2 arenas":
+          - img "Bruce Lee"
+          - text: Bruce Lee 3 opponents • 2 arenas
+        - cell "0.0%"
+        - cell "0W-4L"
+        - cell "334.3"
+        - cell "0.0"
+        - cell "5.5"
+        - 'cell "STR: 180 AGI: 95 LUK: 30 DEF: 50"'
+        - cell "Jul 16, 05:28 PM"
+      - 'row "9 Ozzy Osbourne Ozzy Osbourne 1 opponents • 1 arenas 0.0% 0W-2L 333.5 0.0 6.0 STR: 175 AGI: 80 LUK: 35 DEF: 45 Jul 16, 05:53 PM"':
+        - cell "9"
+        - cell "Ozzy Osbourne Ozzy Osbourne 1 opponents • 1 arenas":
+          - img "Ozzy Osbourne"
+          - text: Ozzy Osbourne 1 opponents • 1 arenas
+        - cell "0.0%"
+        - cell "0W-2L"
+        - cell "333.5"
+        - cell "0.0"
+        - cell "6.0"
+        - 'cell "STR: 175 AGI: 80 LUK: 35 DEF: 45"'
+        - cell "Jul 16, 05:53 PM"
+      - 'row "10 mouse mouse 2 opponents • 2 arenas 0.0% 0W-2L 22.5 0.0 3.5 STR: 30 AGI: 95 LUK: 40 DEF: 40 Jul 16, 05:28 PM"':
+        - cell "10"
+        - cell "mouse mouse 2 opponents • 2 arenas":
+          - img "mouse"
+          - text: mouse 2 opponents • 2 arenas
+        - cell "0.0%"
+        - cell "0W-2L"
+        - cell "22.5"
+        - cell "0.0"
+        - cell "3.5"
+        - 'cell "STR: 30 AGI: 95 LUK: 40 DEF: 40"'
+        - cell "Jul 16, 05:28 PM"
+  - text: 16 Total Battles 10 Active Fighters 4 Most Wins 590.5 Highest Avg Damage
+- region "Notifications alt+T"
+- contentinfo:
+  - paragraph: © 2025
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

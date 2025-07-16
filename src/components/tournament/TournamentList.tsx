@@ -48,26 +48,26 @@ export const TournamentList: React.FC<TournamentListProps> = ({ onTournamentSele
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-600 text-white border-green-500 shadow-lg';
       case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-600 text-white border-yellow-500 shadow-lg';
       case 'setup':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-600 text-white border-blue-500 shadow-lg';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-600 text-gray-200 border-gray-500';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'Completed';
+        return '🏆 Completed';
       case 'in_progress':
-        return 'In Progress';
+        return '⚡ In Progress';
       case 'setup':
-        return 'Ready to Start';
+        return '🟢 Ready to Start';
       default:
-        return 'Unknown';
+        return '❓ Unknown';
     }
   };
 
@@ -83,33 +83,41 @@ export const TournamentList: React.FC<TournamentListProps> = ({ onTournamentSele
 
   if (isLoading) {
     return (
-      <Card className="p-6">
-        <div className="flex items-center justify-center">
+      <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-8">
+        <div className="flex items-center justify-center text-white">
           <LoadingSpinner />
-          <span className="ml-2">Loading tournaments...</span>
+          <span className="ml-3 text-lg">Loading tournaments...</span>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Tournaments</h2>
-        <Button onClick={loadTournaments} variant="secondary" size="sm">
-          Refresh
+    <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white flex items-center">
+          <span className="mr-3">📋</span>
+          Tournaments
+        </h2>
+        <Button 
+          onClick={loadTournaments} 
+          variant="secondary" 
+          size="sm"
+          className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 px-4 py-2 font-semibold transition-all duration-200"
+        >
+          🔄 Refresh
         </Button>
       </div>
 
       {error && <ErrorMessage message={error} />}
 
       {tournaments.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <div className="text-lg font-medium mb-2">No tournaments found</div>
+        <div className="text-center py-12 text-gray-400">
+          <div className="text-xl font-medium mb-3">No tournaments found</div>
           <div className="text-sm">Create your first tournament to get started!</div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {tournaments.map((tournament) => {
             // Skip invalid tournaments
             if (!tournament || !tournament.id) {
@@ -124,44 +132,44 @@ export const TournamentList: React.FC<TournamentListProps> = ({ onTournamentSele
             return (
               <div
                 key={tournament.id}
-                className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                className="bg-gray-700 border-2 border-gray-600 rounded-xl p-6 hover:bg-gray-600 hover:border-gray-500 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
                 onClick={() => onTournamentSelect(tournament)}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold">{tournament.name}</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white">{tournament.name}</h3>
                   <Badge className={getStatusColor(tournament.status)}>
                     {getStatusText(tournament.status)}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
-                  <div>
-                    <div className="font-medium">Fighters</div>
-                    <div>{tournament.fighters?.length || 0}</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-600">
+                    <div className="font-bold text-gray-300 mb-1">👥 Fighters</div>
+                    <div className="text-white font-semibold">{tournament.fighters?.length || 0}</div>
                   </div>
-                  <div>
-                    <div className="font-medium">Rounds</div>
-                    <div>{tournament.totalRounds || 0}</div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-600">
+                    <div className="font-bold text-gray-300 mb-1">🥊 Rounds</div>
+                    <div className="text-white font-semibold">{tournament.totalRounds || 0}</div>
                   </div>
-                  <div>
-                    <div className="font-medium">Progress</div>
-                    <div>{completedMatches} / {totalMatches} matches</div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-600">
+                    <div className="font-bold text-gray-300 mb-1">📊 Progress</div>
+                    <div className="text-white font-semibold">{completedMatches} / {totalMatches} matches</div>
                   </div>
-                  <div>
-                    <div className="font-medium">Created</div>
-                    <div>{tournament.createdAt ? formatDate(tournament.createdAt) : 'Unknown'}</div>
+                  <div className="bg-gray-800 rounded-lg p-3 border border-gray-600">
+                    <div className="font-bold text-gray-300 mb-1">📅 Created</div>
+                    <div className="text-white font-semibold">{tournament.createdAt ? formatDate(tournament.createdAt) : 'Unknown'}</div>
                   </div>
                 </div>
 
                 {tournament.status === 'completed' && tournament.winner && (
-                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-center">
-                    <div className="text-sm font-medium text-yellow-800">
+                  <div className="mt-4 p-4 bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 border-2 border-yellow-500 rounded-xl text-center">
+                    <div className="text-sm font-bold text-yellow-400">
                       🏆 Champion: {tournament.winner.name}
                     </div>
                   </div>
                 )}
 
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-4 text-xs text-gray-400 text-center">
                   Click to view tournament details
                 </div>
               </div>

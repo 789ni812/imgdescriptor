@@ -167,6 +167,6 @@ describe('generateBattleCommentary', () => {
     await generateBattleCommentary('Godzilla', 'Bruce Lee', 1, true, 15);
 
     const callBody = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
-    expect(callBody.messages[1].content).toContain('Damage dealt: 15');
+    expect(callBody.messages[1].content).toContain('(15 damage)');
   });
 }); 

@@ -15,34 +15,40 @@
   - slider "Volume": "0.5"
   - button "Mute"
 - main:
-  - img "Godzilla"
-  - text: "Godzilla Health: 500 / 500 Health: 500 / 500"
-  - button "Remove Fighter"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
   - text: vs
-  - img "Bruce Lee"
-  - text: "Bruce Lee Health: 120 / 120 Health: 120 / 120"
-  - button "Remove Fighter"
-  - heading "Debug Info (Combat):" [level=4]
-  - text: "Game Phase: combat PreBattle Loading: false Battle Log Length: 4 Current Battle Index: 0 Show Round Anim: true Winner: null Fighter A: Godzilla Fighter B: Bruce Lee Scene: Tokyo City Streets"
-  - img "Godzilla"
-  - text: "Godzilla Health: 500 / 500 Health: 500 / 500 vs"
-  - img "Bruce Lee"
-  - text: "Bruce Lee Health: 0 / 120 Health: 0 / 120 Tokyo City Streets"
-  - img "Tokyo City Streets"
-  - text: Round 3 A bustling Tokyo cityscape with skyscrapers, neon lights, and urban infrastructure. Cars, buildings, and city elements provide tactical opportunities.
-  - img "Godzilla"
-  - text: Godzilla with a kinetic force like a tidal wave, but Lee's Iron Fist deflects it! Now, both on the offensive... 💥 ROUND NOT OVER YET LINGERS IN THE BALANCE!!! The Force.
-  - img "Bruce Lee"
-  - text: Bruce Lee
-  - img "Godzilla"
-  - text: "Godzilla: with atomic breath, scorching the air! Can Dragon contend against KING of all MONSTERS' raw power? It's a whirlwind of primal fury VS calculated speed - THIS ROUND BELONGS TO."
-  - img "Bruce Lee"
-  - text: "Bruce Lee: 's lightning kicks with ATOMIC BARS, pushing THE BEAST back! This primal standoff could DECIMATE either world VIEWER BELOVED IN SECONDS."
-  - img "Bruce Lee"
-  - text: "Bruce Lee: with a flurry of Dragon Punishes, while the King's enraged atomic breath attempts to incinerate! Can this legendary combo hold against nature's ultimate weapon?! **COMMEDIATEY:** Godzilla staggers but roars back,."
-  - img "Godzilla"
-  - text: "Godzilla: 's raging LASER FISTS with lightning-fast Dragon kicks, but a single OVERHEAD BONE CRUNCH leaves him FLOOLED! The temple explodes in chaos as SHEERG FORCE BUCKS Bruce into THE OBLIVIONEYE."
-  - button "Reset to Demo"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
+  - heading "Debug Info:" [level=4]
+  - text: "Game Phase: setup PreBattle Loading: false Battle Log Length: 0 Fighter A: null Fighter B: null Scene: null"
+  - button "Rebalance Fighters"
+  - heading "Set Up Your Battle" [level=2]
+  - paragraph: First choose your arena, then select your fighters
+  - text: "1"
+  - heading "Battle Arena" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image of the fighting scene
+  - paragraph: Drag & drop or click to select an image
+  - text: "2"
+  - heading "Fighter A" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter A
+  - paragraph: Drag & drop or click to select an image
+  - text: "3"
+  - heading "Fighter B" [level=3]
+  - button "Upload New"
+  - button "Choose Existing"
+  - button "Choose File"
+  - paragraph: Upload image for Fighter B
+  - paragraph: Drag & drop or click to select an image
+  - button "Start Fight" [disabled]
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025

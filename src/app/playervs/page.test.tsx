@@ -179,17 +179,18 @@ jest.mock('@/lib/stores/fightingGameStore', () => ({
 describe('PlayerVsPage', () => {
   it('renders the setup phase heading', () => {
     render(<PlayerVsPage />);
-    expect(screen.getByRole('heading', { name: /Upload Your Fighters/i, level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Set Up Your Battle/i, level: 2 })).toBeInTheDocument();
   });
 
-  it('shows summary card for Fighter A (Godzilla)', () => {
+  it('shows setup instructions for fighters', () => {
     render(<PlayerVsPage />);
-    expect(screen.getAllByText(/Godzilla/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/First choose your arena, then select your fighters/i)).toBeInTheDocument();
   });
 
-  it('shows summary card for Fighter B (Bruce Lee)', () => {
+  it('displays fighter upload sections', () => {
     render(<PlayerVsPage />);
-    expect(screen.getAllByText(/Bruce Lee/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Fighter A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Fighter B/i)).toBeInTheDocument();
   });
 
   it('displays scene upload section', () => {

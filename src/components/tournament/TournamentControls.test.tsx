@@ -463,7 +463,7 @@ describe('TournamentControls', () => {
       />
     );
 
-    expect(screen.getByText('Next Match')).toBeInTheDocument();
+    expect(screen.getByText('⚔️ Next Match')).toBeInTheDocument();
     expect(screen.getByText('Fighter A vs Fighter B')).toBeInTheDocument();
   });
 

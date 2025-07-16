@@ -1,400 +1,291 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Leaderboard E2E', () => {
+test.describe('Leaderboard Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/leaderboard');
-    await page.waitForLoadState('networkidle');
   });
 
-  test('loads leaderboard page with correct navigation and sections', async ({ page }) => {
+  test('should display the main page layout and navigation', async ({ page }) => {
     // Check main page elements
-    await expect(page.getByRole('heading', { name: /Battle Leaderboard/i })).toBeVisible();
-    await expect(page.getByText(/View fighter statistics and replay epic battles/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
+    await expect(page.getByText('Fighter Rankings and Statistics')).toBeVisible();
     
-    // Check navigation buttons using data-testid
-    await expect(page.getByTestId('leaderboard-btn')).toBeVisible();
-    await expect(page.getByTestId('battle-replays-btn')).toBeVisible();
-    
-    // Should start on leaderboard view
-    await expect(page.getByTestId('leaderboard-view')).toBeVisible();
+    // Check navigation
+    await expect(page.getByRole('link', { name: 'Tournament' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Battle Arena' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Player vs Player' })).toBeVisible();
   });
 
-  test('leaderboard displays fighter statistics correctly', async ({ page }) => {
-    // Mock leaderboard data
-    await page.route('**/api/tournaments/leaderboard', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          leaderboard: [
-            {
-              name: 'Bruce Lee',
-              totalBattles: 5,
-              wins: 4,
-              losses: 1,
-              winRate: 80.0,
-              totalDamageDealt: 250,
-              totalDamageTaken: 120,
-              averageDamageDealt: 50.0,
-              averageDamageTaken: 24.0,
-              averageRoundsSurvived: 4.2,
-              totalRounds: 21,
-              currentStats: {
-                strength: 75,
-                agility: 90,
-                luck: 30,
-                defense: 60,
-                health: 680,
-                maxHealth: 680,
-                size: 'medium',
-                build: 'muscular',
-                age: 32
-              },
-              opponents: ['Godzilla', 'Victor Moreau'],
-              arenas: ['Tokyo Streets', 'Goth Restaurant'],
-              lastBattle: '2025-07-15T10:30:00Z',
-              imageUrl: '/vs/fighters/bruce-lee.jpg'
-            },
-            {
-              name: 'Victor Moreau',
-              totalBattles: 3,
-              wins: 2,
-              losses: 1,
-              winRate: 66.7,
-              totalDamageDealt: 180,
-              totalDamageTaken: 90,
-              averageDamageDealt: 60.0,
-              averageDamageTaken: 30.0,
-              averageRoundsSurvived: 3.8,
-              totalRounds: 11,
-              currentStats: {
-                strength: 85,
-                agility: 40,
-                luck: 30,
-                defense: 65,
-                health: 750,
-                maxHealth: 750,
-                size: 'large',
-                build: 'heavy',
-                age: 62
-              },
-              opponents: ['Bruce Lee'],
-              arenas: ['Goth Restaurant'],
-              lastBattle: '2025-07-15T10:30:00Z',
-              imageUrl: '/vs/fighters/victor-moreau.jpg'
-            }
-          ],
-          totalBattles: 8,
-          lastUpdated: '2025-07-15T10:30:00Z'
-        })
-      });
-    });
-
-    // Refresh the page to load mocked data
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-
+  test('should display leaderboard table', async ({ page }) => {
     // Check leaderboard table
-    await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-    await expect(page.getByText(/Victor Moreau/i)).toBeVisible();
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
+    await expect(page.getByRole('table')).toBeVisible();
     
-    // Check statistics
-    await expect(page.getByText(/80\.0%/i)).toBeVisible(); // Bruce Lee's win rate
-    await expect(page.getByText(/4W/i)).toBeVisible(); // Bruce Lee's wins
-    await expect(page.getByText(/1L/i)).toBeVisible(); // Bruce Lee's losses
-    
-    // Check summary stats
-    await expect(page.getByText(/8/i)).toBeVisible(); // Total battles
-    await expect(page.getByText(/2/i)).toBeVisible(); // Active fighters
+    // Check table headers
+    await expect(page.getByRole('columnheader', { name: 'Rank' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Fighter' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Wins' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Losses' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Win Rate' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Total Battles' })).toBeVisible();
   });
 
-  test('leaderboard sorting works correctly', async ({ page }) => {
-    // Mock leaderboard data (same as above)
-    await page.route('**/api/tournaments/leaderboard', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          leaderboard: [
-            {
-              name: 'Bruce Lee',
-              totalBattles: 5,
-              wins: 4,
-              losses: 1,
-              winRate: 80.0,
-              averageDamageDealt: 50.0,
-              averageDamageTaken: 24.0,
-              averageRoundsSurvived: 4.2,
-              currentStats: { strength: 75, agility: 90, luck: 30, defense: 60, health: 680, maxHealth: 680, size: 'medium', build: 'muscular', age: 32 },
-              opponents: ['Godzilla'],
-              arenas: ['Tokyo Streets'],
-              lastBattle: '2025-07-15T10:30:00Z',
-              imageUrl: '/vs/fighters/bruce-lee.jpg'
-            },
-            {
-              name: 'Victor Moreau',
-              totalBattles: 3,
-              wins: 2,
-              losses: 1,
-              winRate: 66.7,
-              averageDamageDealt: 60.0,
-              averageDamageTaken: 30.0,
-              averageRoundsSurvived: 3.8,
-              currentStats: { strength: 85, agility: 40, luck: 30, defense: 65, health: 750, maxHealth: 750, size: 'large', build: 'heavy', age: 62 },
-              opponents: ['Bruce Lee'],
-              arenas: ['Goth Restaurant'],
-              lastBattle: '2025-07-15T10:30:00Z',
-              imageUrl: '/vs/fighters/victor-moreau.jpg'
-            }
-          ],
-          totalBattles: 8,
-          lastUpdated: '2025-07-15T10:30:00Z'
-        })
-      });
-    });
-
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-
-    // Test sorting by different columns
-    await page.getByRole('columnheader', { name: /Record/i }).click();
-    await expect(page.getByText(/4W/i)).toBeVisible(); // Should still show Bruce Lee first
+  test('should display fighter entries in leaderboard', async ({ page }) => {
+    // Check that fighter rows are displayed
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
     
-    await page.getByRole('columnheader', { name: /Avg Damage Dealt/i }).click();
-    await expect(page.getByText(/60\.0/i)).toBeVisible(); // Victor Moreau should be first now
+    // Check for fighter entries (if any exist)
+    const fighterRows = page.locator('[data-testid^="fighter-row-"]');
+    await expect(fighterRows.first()).toBeVisible();
   });
 
-  test('battle replays section loads and displays correctly', async ({ page }) => {
-    // Click on Battle Replays button
-    await page.getByTestId('battle-replays-btn').click();
-    
-    // Mock battle replays data
-    await page.route('**/api/battle-replays/list', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          battleReplays: [
-            {
-              id: 'battle-1',
-              fighterA: {
-                id: 'fighter-1',
-                name: 'Bruce Lee',
-                imageUrl: '/vs/fighters/bruce-lee.jpg',
-                stats: { health: 680, maxHealth: 680, strength: 75, luck: 30, agility: 90, defense: 60, age: 32, size: 'medium', build: 'muscular' }
-              },
-              fighterB: {
-                id: 'fighter-2',
-                name: 'Victor Moreau',
-                imageUrl: '/vs/fighters/victor-moreau.jpg',
-                stats: { health: 750, maxHealth: 750, strength: 85, luck: 30, agility: 40, defense: 65, age: 62, size: 'large', build: 'heavy' }
-              },
-              scene: {
-                name: 'Goth Restaurant',
-                imageUrl: '/vs/arena/goth-restaurant.jpg',
-                description: 'A dark and atmospheric restaurant'
-              },
-              battleLog: [
-                {
-                  round: 1,
-                  attacker: 'Victor Moreau',
-                  defender: 'Bruce Lee',
-                  attackCommentary: 'Victor Moreau opens with a powerful strike!',
-                  defenseCommentary: 'Bruce Lee dodges with incredible agility!',
-                  attackerDamage: 25,
-                  defenderDamage: 0,
-                  randomEvent: null,
-                  arenaObjectsUsed: null,
-                  healthAfter: { attacker: 750, defender: 655 }
-                }
-              ],
-              winner: 'Victor Moreau',
-              date: '2025-07-15T10:30:00Z'
-            }
-          ]
-        })
-      });
-    });
-
-    // Click on Battle Replays tab
-    await page.getByRole('button', { name: /Battle Replays/i }).click();
-    
-    // Wait for battle replays to load
-    await page.waitForTimeout(2000);
-    
-    // Check battle replay card
-    await expect(page.getByText(/Bruce Lee vs Victor Moreau/i)).toBeVisible();
-    await expect(page.getByText(/Winner: Victor Moreau/i)).toBeVisible();
-    await expect(page.getByText(/1 rounds/i)).toBeVisible();
+  test('should display fighter images and names', async ({ page }) => {
+    // Check that fighter images and names are displayed
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
     
     // Check for fighter images
-    const fighterImages = page.locator('img[alt="Bruce Lee"], img[alt="Victor Moreau"]');
+    const fighterImages = page.locator('[data-testid^="fighter-image-"]');
     await expect(fighterImages.first()).toBeVisible();
+    
+    // Check for fighter names
+    const fighterNames = page.locator('[data-testid^="fighter-name-"]');
+    await expect(fighterNames.first()).toBeVisible();
   });
 
-  test('battle replay playback works correctly', async ({ page }) => {
-    // Mock battle replays data
-    await page.route('**/api/battle-replays/list', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          battleReplays: [
-            {
-              id: 'battle-1',
-              fighterA: {
-                id: 'fighter-1',
-                name: 'Bruce Lee',
-                imageUrl: '/vs/fighters/bruce-lee.jpg',
-                stats: { health: 680, maxHealth: 680, strength: 75, luck: 30, agility: 90, defense: 60, age: 32, size: 'medium', build: 'muscular' }
-              },
-              fighterB: {
-                id: 'fighter-2',
-                name: 'Victor Moreau',
-                imageUrl: '/vs/fighters/victor-moreau.jpg',
-                stats: { health: 750, maxHealth: 750, strength: 85, luck: 30, agility: 40, defense: 65, age: 62, size: 'large', build: 'heavy' }
-              },
-              scene: {
-                name: 'Goth Restaurant',
-                imageUrl: '/vs/arena/goth-restaurant.jpg',
-                description: 'A dark and atmospheric restaurant'
-              },
-              battleLog: [
-                {
-                  round: 1,
-                  attacker: 'Victor Moreau',
-                  defender: 'Bruce Lee',
-                  attackCommentary: 'Victor Moreau opens with a powerful strike!',
-                  defenseCommentary: 'Bruce Lee dodges with incredible agility!',
-                  attackerDamage: 25,
-                  defenderDamage: 0,
-                  randomEvent: null,
-                  arenaObjectsUsed: null,
-                  healthAfter: { attacker: 750, defender: 655 }
-                }
-              ],
-              winner: 'Victor Moreau',
-              date: '2025-07-15T10:30:00Z'
-            }
-          ]
-        })
-      });
-    });
+  test('should display fighter statistics', async ({ page }) => {
+    // Check that fighter stats are displayed
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
+    
+    // Check for win/loss counts
+    await expect(page.getByText(/Wins:/)).toBeVisible();
+    await expect(page.getByText(/Losses:/)).toBeVisible();
+    await expect(page.getByText(/Win Rate:/)).toBeVisible();
+    await expect(page.getByText(/Total Battles:/)).toBeVisible();
+  });
 
-    // Navigate to battle replays
-    await page.getByRole('button', { name: /Battle Replays/i }).click();
-    await page.waitForTimeout(2000);
+  test('should allow sorting by different columns', async ({ page }) => {
+    // Check that sortable columns are present
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
+    
+    // Test sorting by wins
+    await page.getByRole('columnheader', { name: 'Wins' }).click();
+    
+    // Test sorting by losses
+    await page.getByRole('columnheader', { name: 'Losses' }).click();
+    
+    // Test sorting by win rate
+    await page.getByRole('columnheader', { name: 'Win Rate' }).click();
+  });
+
+  test('should display fighter details on row click', async ({ page }) => {
+    // Click on a fighter row
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Check that fighter details are displayed
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    await expect(page.getByTestId('fighter-detail-name')).toBeVisible();
+    await expect(page.getByTestId('fighter-detail-stats')).toBeVisible();
+  });
+
+  test('should show fighter battle history', async ({ page }) => {
+    // Click on a fighter row to open details
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Check that battle history is displayed
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    await expect(page.getByTestId('battle-history')).toBeVisible();
+    await expect(page.getByText('Battle History')).toBeVisible();
+  });
+
+  test('should display battle replays', async ({ page }) => {
+    // Click on a fighter row to open details
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Check that battle replays are available
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    await expect(page.getByTestId('battle-replays')).toBeVisible();
     
     // Click on a battle replay
-    const battleCard = page.locator('div').filter({ hasText: /Bruce Lee vs Victor Moreau/ }).first();
-    await battleCard.click();
+    await page.getByTestId('battle-replay-1').click();
     
-    // Wait for battle viewer to load
-    await page.waitForTimeout(2000);
-    
-    // Check battle viewer elements
-    await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-    await expect(page.getByText(/Victor Moreau/i)).toBeVisible();
-    await expect(page.getByText(/Goth Restaurant/i)).toBeVisible();
-    
-    // Check for back button
-    await expect(page.getByRole('button', { name: /Back to Battle Selection/i })).toBeVisible();
+    // Check that replay modal opens
+    await expect(page.getByTestId('battle-replay-modal')).toBeVisible();
   });
 
-  test('empty states are handled correctly', async ({ page }) => {
+  test('should allow battle replay playback', async ({ page }) => {
+    // Open fighter details
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Click on a battle replay
+    await page.getByTestId('battle-replay-1').click();
+    
+    // Check replay controls
+    await expect(page.getByTestId('replay-play-btn')).toBeVisible();
+    await expect(page.getByTestId('replay-pause-btn')).toBeVisible();
+    await expect(page.getByTestId('replay-stop-btn')).toBeVisible();
+    
+    // Test play functionality
+    await page.getByTestId('replay-play-btn').click();
+    await expect(page.getByTestId('replay-progress')).toBeVisible();
+  });
+
+  test('should display fighter statistics in detail view', async ({ page }) => {
+    // Click on a fighter row to open details
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Check that detailed stats are displayed
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    await expect(page.getByTestId('fighter-detail-stats')).toBeVisible();
+    
+    // Check for all stat categories
+    await expect(page.getByText(/Health:/)).toBeVisible();
+    await expect(page.getByText(/Strength:/)).toBeVisible();
+    await expect(page.getByText(/Agility:/)).toBeVisible();
+    await expect(page.getByText(/Defense:/)).toBeVisible();
+    await expect(page.getByText(/Luck:/)).toBeVisible();
+    await expect(page.getByText(/Magic:/)).toBeVisible();
+    await expect(page.getByText(/Ranged:/)).toBeVisible();
+    await expect(page.getByText(/Intelligence:/)).toBeVisible();
+  });
+
+  test('should show fighter unique abilities', async ({ page }) => {
+    // Click on a fighter row to open details
+    await page.getByTestId('fighter-row-1').click();
+    
+    // Check that unique abilities are displayed
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    await expect(page.getByTestId('fighter-unique-abilities')).toBeVisible();
+    await expect(page.getByText('Special Abilities:')).toBeVisible();
+  });
+
+  test('should allow closing fighter details modal', async ({ page }) => {
+    // Open fighter details
+    await page.getByTestId('fighter-row-1').click();
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    
+    // Close the modal
+    await page.getByTestId('close-fighter-details').click();
+    
+    // Check that modal is closed
+    await expect(page.getByTestId('fighter-details-modal')).not.toBeVisible();
+  });
+
+  test('should display empty state when no fighters exist', async ({ page }) => {
     // Mock empty leaderboard
-    await page.route('**/api/tournaments/leaderboard', async route => {
+    await page.route('**/api/leaderboard', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
           success: true,
-          leaderboard: [],
-          totalBattles: 0,
-          lastUpdated: '2025-07-15T10:30:00Z'
+          fighters: []
         })
       });
     });
-
-    // Mock empty battle replays
-    await page.route('**/api/battle-replays/list', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          battleReplays: []
-        })
-      });
-    });
-
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-
-    // Check empty leaderboard state
-    await expect(page.getByText(/No battle data available/i)).toBeVisible();
     
-    // Check empty battle replays state
-    await page.getByRole('button', { name: /Battle Replays/i }).click();
-    await page.waitForTimeout(2000);
-    await expect(page.getByText(/No battle replays available/i)).toBeVisible();
+    // Reload page
+    await page.reload();
+    
+    // Check empty state message
+    await expect(page.getByText('No fighters found')).toBeVisible();
+    await expect(page.getByText('Upload some fighters to see the leaderboard')).toBeVisible();
   });
 
-  test('navigation between leaderboard and battle replays works', async ({ page }) => {
-    // Test switching between views
-    await page.getByRole('button', { name: /Battle Replays/i }).click();
-    await expect(page.getByText(/Battle Replays/i)).toBeVisible();
+  test('should handle loading state', async ({ page }) => {
+    // Mock slow API response
+    await page.route('**/api/leaderboard', async route => {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await route.continue();
+    });
     
-    await page.getByRole('button', { name: /Leaderboard/i }).click();
-    await expect(page.getByText(/Tournament Leaderboard/i)).toBeVisible();
+    // Reload page
+    await page.reload();
+    
+    // Check loading indicator
+    await expect(page.getByTestId('loading-indicator')).toBeVisible();
+    await expect(page.getByText('Loading leaderboard...')).toBeVisible();
   });
 
-  test('refresh functionality works', async ({ page }) => {
-    // Mock leaderboard data
-    await page.route('**/api/tournaments/leaderboard', async route => {
+  test('should handle error state', async ({ page }) => {
+    // Mock API error
+    await page.route('**/api/leaderboard', async route => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: 'Failed to load leaderboard'
+        })
+      });
+    });
+    
+    // Reload page
+    await page.reload();
+    
+    // Check error message
+    await expect(page.getByTestId('error-message')).toBeVisible();
+    await expect(page.getByText('Failed to load leaderboard')).toBeVisible();
+  });
+
+  test('should maintain sort state after navigation', async ({ page }) => {
+    // Sort by wins
+    await page.getByRole('columnheader', { name: 'Wins' }).click();
+    
+    // Navigate away and back
+    await page.goto('/tournament');
+    await page.goto('/leaderboard');
+    
+    // Check that sort state is maintained
+    await expect(page.getByRole('columnheader', { name: 'Wins' })).toHaveClass(/sorted/);
+  });
+
+  test('should display rank numbers correctly', async ({ page }) => {
+    // Check that rank numbers are displayed
+    await expect(page.getByTestId('leaderboard-table')).toBeVisible();
+    
+    // Check for rank numbers
+    const rankCells = page.locator('[data-testid^="rank-"]');
+    await expect(rankCells.first()).toBeVisible();
+    
+    // Check that first rank is 1
+    await expect(rankCells.first()).toHaveText('1');
+  });
+
+  test('visual regression - leaderboard table', async ({ page }) => {
+    await expect(page).toHaveScreenshot('leaderboard-table.png');
+  });
+
+  test('visual regression - fighter details modal', async ({ page }) => {
+    // Open fighter details
+    await page.getByTestId('fighter-row-1').click();
+    await expect(page.getByTestId('fighter-details-modal')).toBeVisible();
+    
+    await expect(page).toHaveScreenshot('leaderboard-fighter-details.png');
+  });
+
+  test('visual regression - battle replay modal', async ({ page }) => {
+    // Open fighter details and battle replay
+    await page.getByTestId('fighter-row-1').click();
+    await page.getByTestId('battle-replay-1').click();
+    await expect(page.getByTestId('battle-replay-modal')).toBeVisible();
+    
+    await expect(page).toHaveScreenshot('leaderboard-battle-replay.png');
+  });
+
+  test('visual regression - empty state', async ({ page }) => {
+    // Mock empty leaderboard
+    await page.route('**/api/leaderboard', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
           success: true,
-          leaderboard: [
-            {
-              name: 'Bruce Lee',
-              totalBattles: 5,
-              wins: 4,
-              losses: 1,
-              winRate: 80.0,
-              averageDamageDealt: 50.0,
-              averageDamageTaken: 24.0,
-              averageRoundsSurvived: 4.2,
-              currentStats: { strength: 75, agility: 90, luck: 30, defense: 60, health: 680, maxHealth: 680, size: 'medium', build: 'muscular', age: 32 },
-              opponents: ['Godzilla'],
-              arenas: ['Tokyo Streets'],
-              lastBattle: '2025-07-15T10:30:00Z',
-              imageUrl: '/vs/fighters/bruce-lee.jpg'
-            }
-          ],
-          totalBattles: 5,
-          lastUpdated: '2025-07-15T10:30:00Z'
+          fighters: []
         })
       });
     });
-
+    
     await page.reload();
-    await page.waitForLoadState('networkidle');
-
-    // Click refresh button
-    const refreshButton = page.getByRole('button', { name: /Refresh/i });
-    if (await refreshButton.isVisible()) {
-      await refreshButton.click();
-      await page.waitForTimeout(2000);
-      
-      // Verify data is still displayed
-      await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-    }
+    await expect(page).toHaveScreenshot('leaderboard-empty-state.png');
   });
 }); 

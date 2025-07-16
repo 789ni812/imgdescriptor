@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
-import { BattleRound, BattleViewerMode, RoundStep } from '@/lib/types/battle';
+import { BattleRound, BattleViewerMode } from '@/lib/types/battle';
 import WinnerAnimation from './WinnerAnimation';
 import BattleStoryboard from './BattleStoryboard';
 import RoundStartAnimation from './RoundStartAnimation';
@@ -110,19 +110,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
     }
   }, [showRoundAnim, currentRoundIdx, battleLog.length, winner]);
 
-  // Add restart handler for replay mode
-  const handleRestart = () => {
-    if (mode === 'replay') {
-      setCurrentRoundIdx(0);
-      setWinner(null);
-      setShowRoundAnim(true);
-      setHealth({
-        [fighterA.id]: fighterA.stats.health,
-        [fighterB.id]: fighterB.stats.health,
-      });
-      setRoundStep('attack');
-    }
-  };
+
 
   if (!battleLog.length) return <div>No battle log available.</div>;
 

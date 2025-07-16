@@ -49,11 +49,7 @@
   - paragraph: Upload image for Fighter B
   - paragraph: Drag & drop or click to select an image
   - button "Start Fight" [disabled]
-  - button "Reset to Demo"
 - region "Notifications alt+T"
 - contentinfo:
   - paragraph: © 2025
-- alert
-- button "Open Next.js Dev Tools":
-  - img
 ```

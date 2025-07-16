@@ -77,17 +77,7 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
     return tooltips[stat] || '';
   };
 
-  const renderTooltip = (content: string, tooltip: string | undefined) => {
-    if (!tooltip) return content;
-    return (
-      <span className="group relative">
-        {content}
-        <span className="absolute bottom-full mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 whitespace-nowrap">
-          {tooltip}
-        </span>
-      </span>
-    );
-  };
+
 
   const renderStat = (label: string, value: number, statKey: string) => (
     <div 

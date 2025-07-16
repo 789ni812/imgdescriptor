@@ -11,8 +11,8 @@ import FighterStatDisplay from '@/components/fighting/FighterStatDisplay';
 import BattleViewer from '@/components/fighting/BattleViewer';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
-import { Fighter, Scene, CombatEvent } from '@/lib/stores/fightingGameStore';
-import { generateBattleCommentary, generateBattleSummary } from '@/lib/lmstudio-client';
+import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
+import { generateBattleSummary } from '@/lib/lmstudio-client';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 
 // Type alias to avoid conflicts with other BattleRound interfaces

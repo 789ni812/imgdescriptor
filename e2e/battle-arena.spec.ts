@@ -1,420 +1,221 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Battle Arena E2E', () => {
+test.describe('Battle Arena Page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/playervs');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/battle-arena');
   });
 
-  test('loads battle arena page with correct setup phase', async ({ page }) => {
+  test('should display the main page layout and navigation', async ({ page }) => {
     // Check main page elements
-    await expect(page.getByRole('heading', { name: /AI Image Describer/i })).toBeVisible();
-    await expect(page.getByText(/Upload Your Fighters/i)).toBeVisible();
-    await expect(page.getByText(/Upload images of two fighters and a battle arena/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Battle Arena' })).toBeVisible();
+    await expect(page.getByText('Upload an image to create a fighter')).toBeVisible();
     
-    // Check fighter upload sections
-    await expect(page.getByText(/Upload image for Fighter A/i)).toBeVisible();
-    await expect(page.getByText(/Upload image for Fighter B/i)).toBeVisible();
-    
-    // Check arena upload section
-    await expect(page.getByRole('heading', { name: /Battle Arena/i })).toBeVisible();
-    await expect(page.getByText(/Upload image of the fighting scene/i)).toBeVisible();
-    
-    // Check Start Fight button is disabled initially
-    const startFightButton = page.getByRole('button', { name: /Start Fight/i });
-    await expect(startFightButton).toBeDisabled();
+    // Check navigation
+    await expect(page.getByRole('link', { name: 'Tournament' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Leaderboard' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Player vs Player' })).toBeVisible();
   });
 
-  test('fighter selection modes work correctly', async ({ page }) => {
-    // Test Fighter A selection modes
-    const fighterASection = page.locator('div').filter({ hasText: /Fighter A/i }).first();
-    
-    // Check for mode selection buttons
-    await expect(fighterASection.getByRole('button', { name: /Upload New/i })).toBeVisible();
-    await expect(fighterASection.getByRole('button', { name: /Choose Existing/i })).toBeVisible();
-    
-    // Test switching to Choose Existing mode
-    await fighterASection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(1000);
-    
-    // Should show fighter selection interface
-    await expect(page.getByText(/Choose a Fighter/i)).toBeVisible();
+  test('should display image upload interface', async ({ page }) => {
+    // Check upload area
+    await expect(page.getByTestId('image-upload-area')).toBeVisible();
+    await expect(page.getByTestId('upload-button')).toBeVisible();
+    await expect(page.getByText('Drag and drop an image here, or click to select')).toBeVisible();
   });
 
-  test('existing fighter selection works correctly', async ({ page }) => {
-    // Mock fighter list API
-    await page.route('**/api/fighting-game/list-fighters-metadata', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          fighters: [
-            {
-              id: 'fighter-1',
-              name: 'Bruce Lee',
-              image: 'bruce-lee.jpg',
-              stats: {
-                health: 680,
-                strength: 75,
-                agility: 90,
-                defense: 60,
-                luck: 30,
-                age: 32,
-                size: 'medium',
-                build: 'muscular'
-              }
-            },
-            {
-              id: 'fighter-2',
-              name: 'Victor Moreau',
-              image: 'victor-moreau.jpg',
-              stats: {
-                health: 750,
-                strength: 85,
-                agility: 40,
-                defense: 65,
-                luck: 30,
-                age: 62,
-                size: 'large',
-                build: 'heavy'
-              }
-            }
-          ]
-        })
-      });
-    });
-
-    // Switch to Choose Existing mode for Fighter A
-    const fighterASection = page.locator('div').filter({ hasText: /Fighter A/i }).first();
-    await fighterASection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(2000);
+  test('should allow image upload and display fighter creation', async ({ page }) => {
+    // Upload an image
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
     
-    // Select a fighter
-    const fighterCard = page.locator('[data-testid="fighter-card"]').first();
-    if (await fighterCard.isVisible()) {
-      await fighterCard.click();
-      await page.waitForTimeout(1000);
-      
-      // Check that fighter is selected
-      await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-      await expect(page.getByText(/Health: 680/i)).toBeVisible();
-    }
+    // Wait for image to be processed
+    await expect(page.getByTestId('image-preview')).toBeVisible();
+    await expect(page.getByTestId('analyzing-indicator')).toBeVisible();
+    
+    // Wait for fighter to be created
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    await expect(page.getByTestId('fighter-name')).toBeVisible();
+    await expect(page.getByTestId('fighter-image')).toBeVisible();
   });
 
-  test('arena selection works correctly', async ({ page }) => {
-    // Mock arena list API
-    await page.route('**/api/fighting-game/list-arenas', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          arenas: [
-            {
-              id: 'arena-1',
-              name: 'Goth Restaurant',
-              image: 'goth-restaurant.jpg',
-              description: 'A dark and atmospheric restaurant'
-            },
-            {
-              id: 'arena-2',
-              name: 'Tokyo Streets',
-              image: 'tokyo-streets.jpg',
-              description: 'Rain-slicked streets of Tokyo'
-            }
-          ]
-        })
-      });
-    });
-
-    // Switch to Choose Existing mode for Arena
-    const arenaSection = page.locator('div').filter({ hasText: /Battle Arena/i }).first();
-    await arenaSection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(2000);
+  test('should display fighter stats after creation', async ({ page }) => {
+    // Upload an image and wait for fighter creation
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
     
-    // Select an arena
-    const arenaCard = page.locator('[data-testid="arena-card"]').first();
-    if (await arenaCard.isVisible()) {
-      await arenaCard.click();
-      await page.waitForTimeout(1000);
-      
-      // Check that arena is selected
-      await expect(page.getByText(/Goth Restaurant/i)).toBeVisible();
-    }
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    
+    // Check that all stats are displayed
+    await expect(page.getByTestId('fighter-stats')).toBeVisible();
+    await expect(page.getByText(/Health:/)).toBeVisible();
+    await expect(page.getByText(/Strength:/)).toBeVisible();
+    await expect(page.getByText(/Agility:/)).toBeVisible();
+    await expect(page.getByText(/Defense:/)).toBeVisible();
+    await expect(page.getByText(/Luck:/)).toBeVisible();
+    await expect(page.getByText(/Magic:/)).toBeVisible();
+    await expect(page.getByText(/Ranged:/)).toBeVisible();
+    await expect(page.getByText(/Intelligence:/)).toBeVisible();
+    await expect(page.getByText(/Unique Abilities:/)).toBeVisible();
   });
 
-  test('complete battle setup and execution flow', async ({ page }) => {
-    // Mock all necessary APIs
-    await page.route('**/api/fighting-game/list-fighters-metadata', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          fighters: [
-            {
-              id: 'fighter-1',
-              name: 'Bruce Lee',
-              image: 'bruce-lee.jpg',
-              stats: { health: 680, strength: 75, agility: 90, defense: 60, luck: 30, age: 32, size: 'medium', build: 'muscular' }
-            },
-            {
-              id: 'fighter-2',
-              name: 'Victor Moreau',
-              image: 'victor-moreau.jpg',
-              stats: { health: 750, strength: 85, agility: 40, defense: 65, luck: 30, age: 62, size: 'large', build: 'heavy' }
-            }
-          ]
-        })
-      });
-    });
-
-    await page.route('**/api/fighting-game/list-arenas', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          arenas: [
-            {
-              id: 'arena-1',
-              name: 'Goth Restaurant',
-              image: 'goth-restaurant.jpg',
-              description: 'A dark and atmospheric restaurant'
-            }
-          ]
-        })
-      });
-    });
-
-    await page.route('**/api/fighting-game/generate-battle', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          battleLog: [
-            {
-              round: 1,
-              attacker: 'Bruce Lee',
-              defender: 'Victor Moreau',
-              attackCommentary: 'Bruce Lee launches a lightning-fast kick!',
-              defenseCommentary: 'Victor Moreau blocks with his massive frame!',
-              attackerDamage: 20,
-              defenderDamage: 0,
-              randomEvent: null,
-              arenaObjectsUsed: null,
-              healthAfter: { attacker: 680, defender: 730 }
-            },
-            {
-              round: 2,
-              attacker: 'Victor Moreau',
-              defender: 'Bruce Lee',
-              attackCommentary: 'Victor Moreau counters with a powerful strike!',
-              defenseCommentary: 'Bruce Lee dodges with incredible agility!',
-              attackerDamage: 15,
-              defenderDamage: 0,
-              randomEvent: null,
-              arenaObjectsUsed: null,
-              healthAfter: { attacker: 665, defender: 680 }
-            }
-          ]
-        })
-      });
-    });
-
-    // Set up fighters
-    const fighterASection = page.locator('div').filter({ hasText: /Fighter A/i }).first();
-    await fighterASection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(2000);
+  test('should allow removing created fighter', async ({ page }) => {
+    // Upload an image and create fighter
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
     
-    const fighterCards = page.locator('[data-testid="fighter-card"]');
-    if (await fighterCards.count() >= 2) {
-      await fighterCards.nth(0).click(); // Select Bruce Lee for Fighter A
-      await page.waitForTimeout(1000);
-      
-      const fighterBSection = page.locator('div').filter({ hasText: /Fighter B/i }).first();
-      await fighterBSection.getByRole('button', { name: /Choose Existing/i }).click();
-      await page.waitForTimeout(2000);
-      await fighterCards.nth(1).click(); // Select Victor Moreau for Fighter B
-      await page.waitForTimeout(1000);
-    }
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
     
-    // Set up arena
-    const arenaSection = page.locator('div').filter({ hasText: /Battle Arena/i }).first();
-    await arenaSection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(2000);
+    // Remove the fighter
+    await page.getByTestId('remove-fighter-btn').click();
     
-    const arenaCards = page.locator('[data-testid="arena-card"]');
-    if (await arenaCards.count() > 0) {
-      await arenaCards.first().click();
-      await page.waitForTimeout(1000);
-    }
-    
-    // Start the fight
-    const startFightButton = page.getByRole('button', { name: /Start Fight/i });
-    await expect(startFightButton).toBeEnabled();
-    await startFightButton.click();
-    
-    // Wait for battle to start
-    await page.waitForTimeout(3000);
-    
-    // Check for battle elements
-    await expect(page.getByText(/Bruce Lee launches a lightning-fast kick!/i)).toBeVisible();
-    await expect(page.getByText(/Victor Moreau counters with a powerful strike!/i)).toBeVisible();
+    // Check that fighter is removed and upload area is back
+    await expect(page.getByTestId('fighter-creation-complete')).not.toBeVisible();
+    await expect(page.getByTestId('image-upload-area')).toBeVisible();
   });
 
-  test('rebalance fighters functionality works', async ({ page }) => {
-    // Mock rebalance API
-    await page.route('**/api/fighting-game/balance-fighters', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          message: 'Successfully rebalanced fighters',
-          fighters: [
-            { name: 'Bruce Lee', health: 700, strength: 80 },
-            { name: 'Victor Moreau', health: 800, strength: 90 }
-          ]
-        })
-      });
-    });
-
-    // Click rebalance button
-    const rebalanceButton = page.getByRole('button', { name: /Rebalance Fighters/i });
-    await rebalanceButton.click();
+  test('should handle drag and drop upload', async ({ page }) => {
+    // Create a file input for drag and drop
+    await page.setInputFiles('input[type="file"]', 'public/imgRepository/test-fighter.jpg');
     
-    // Wait for loading state
-    await expect(page.getByRole('button', { name: /Rebalancing Fighters\.\.\./i })).toBeVisible();
+    // Wait for image to be processed
+    await expect(page.getByTestId('image-preview')).toBeVisible();
+    await expect(page.getByTestId('analyzing-indicator')).toBeVisible();
     
-    // Wait for completion
-    await page.waitForTimeout(3000);
-    
-    // Check for success message
-    await expect(page.getByText(/Successfully rebalanced/i)).toBeVisible();
+    // Wait for fighter to be created
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
   });
 
-  test('fighter removal works correctly', async ({ page }) => {
-    // Mock fighter data
-    await page.route('**/api/fighting-game/list-fighters-metadata', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          fighters: [
-            {
-              id: 'fighter-1',
-              name: 'Bruce Lee',
-              image: 'bruce-lee.jpg',
-              stats: { health: 680, strength: 75, agility: 90, defense: 60, luck: 30, age: 32, size: 'medium', build: 'muscular' }
-            }
-          ]
-        })
-      });
-    });
-
-    // Select a fighter
-    const fighterASection = page.locator('div').filter({ hasText: /Fighter A/i }).first();
-    await fighterASection.getByRole('button', { name: /Choose Existing/i }).click();
-    await page.waitForTimeout(2000);
+  test('should display fighter description', async ({ page }) => {
+    // Upload an image and create fighter
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
     
-    const fighterCard = page.locator('[data-testid="fighter-card"]').first();
-    if (await fighterCard.isVisible()) {
-      await fighterCard.click();
-      await page.waitForTimeout(1000);
-      
-      // Check fighter is selected
-      await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-      
-      // Remove fighter
-      const removeButton = page.getByRole('button', { name: /Remove Fighter/i });
-      await removeButton.click();
-      
-      // Check fighter is removed
-      await expect(page.getByText(/Bruce Lee/i)).not.toBeVisible();
-      await expect(page.getByText(/Upload image for Fighter A/i)).toBeVisible();
-    }
-  });
-
-  test('demo mode works correctly', async ({ page }) => {
-    // Check for demo fighters
-    await expect(page.getByText(/Godzilla/i)).toBeVisible();
-    await expect(page.getByText(/Bruce Lee/i)).toBeVisible();
-    await expect(page.getByText(/Tokyo City Streets/i)).toBeVisible();
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
     
-    // Check Start Fight button is enabled with demo data
-    const startFightButton = page.getByRole('button', { name: /Start Fight/i });
-    await expect(startFightButton).toBeEnabled();
+    // Check that description is displayed
+    await expect(page.getByTestId('fighter-description')).toBeVisible();
+    await expect(page.getByText(/Description:/)).toBeVisible();
   });
 
-  test('error handling works correctly', async ({ page }) => {
-    // Mock API error
-    await page.route('**/api/fighting-game/generate-battle', async route => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: false,
-          error: 'Failed to generate battle'
-        })
-      });
-    });
-
-    // Try to start a fight (should fail)
-    const startFightButton = page.getByRole('button', { name: /Start Fight/i });
-    if (await startFightButton.isEnabled()) {
-      await startFightButton.click();
-      await page.waitForTimeout(3000);
-      
-      // Check for error message
-      await expect(page.getByText(/Failed to generate battle/i)).toBeVisible();
-    }
+  test('should handle multiple fighter uploads', async ({ page }) => {
+    // Upload first fighter
+    const fileChooserPromise1 = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser1 = await fileChooserPromise1;
+    await fileChooser1.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    
+    // Remove first fighter
+    await page.getByTestId('remove-fighter-btn').click();
+    
+    // Upload second fighter
+    const fileChooserPromise2 = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser2 = await fileChooserPromise2;
+    await fileChooser2.setFiles('public/imgRepository/test-fighter-2.jpg');
+    
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
   });
 
-  test('health bars and battle UI elements work correctly', async ({ page }) => {
-    // Mock battle generation
-    await page.route('**/api/fighting-game/generate-battle', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          battleLog: [
-            {
-              round: 1,
-              attacker: 'Bruce Lee',
-              defender: 'Victor Moreau',
-              attackCommentary: 'Bruce Lee attacks!',
-              defenseCommentary: 'Victor Moreau defends!',
-              attackerDamage: 25,
-              defenderDamage: 0,
-              randomEvent: null,
-              arenaObjectsUsed: null,
-              healthAfter: { attacker: 680, defender: 725 }
-            }
-          ]
-        })
-      });
-    });
+  test('should handle error states gracefully', async ({ page }) => {
+    // Try to upload an invalid file
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('package.json'); // Invalid file
+    
+    // Check that error message is displayed
+    await expect(page.getByTestId('upload-error')).toBeVisible();
+  });
 
-    // Start a battle
-    const startFightButton = page.getByRole('button', { name: /Start Fight/i });
-    if (await startFightButton.isEnabled()) {
-      await startFightButton.click();
-      await page.waitForTimeout(3000);
-      
-      // Check for health bars
-      const healthBars = page.locator('[data-testid="health-bar"]');
-      await expect(healthBars.first()).toBeVisible();
-      
-      // Check for round information
-      await expect(page.getByText(/Round 1/i)).toBeVisible();
-      
-      // Check for battle commentary
-      await expect(page.getByText(/Bruce Lee attacks!/i)).toBeVisible();
-    }
+  test('should show loading state during analysis', async ({ page }) => {
+    // Upload an image
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    // Check that loading state is shown
+    await expect(page.getByTestId('analyzing-indicator')).toBeVisible();
+    await expect(page.getByText(/Analyzing image.../)).toBeVisible();
+  });
+
+  test('should maintain page state after navigation', async ({ page }) => {
+    // Upload an image and create fighter
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    
+    // Navigate away and back
+    await page.goto('/tournament');
+    await page.goto('/battle-arena');
+    
+    // Check that fighter is still there
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+  });
+
+  test('should display unique abilities correctly', async ({ page }) => {
+    // Upload an image and create fighter
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    
+    // Check that unique abilities are displayed
+    await expect(page.getByTestId('unique-abilities')).toBeVisible();
+    await expect(page.getByText(/Special Abilities:/)).toBeVisible();
+  });
+
+  test('should handle large image files', async ({ page }) => {
+    // Upload a larger image file
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/large-test-image.jpg');
+    
+    // Wait for processing to complete
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+  });
+
+  test('visual regression - empty state', async ({ page }) => {
+    await expect(page).toHaveScreenshot('battle-arena-empty-state.png');
+  });
+
+  test('visual regression - with fighter created', async ({ page }) => {
+    // Upload an image and create fighter
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    await expect(page.getByTestId('fighter-creation-complete')).toBeVisible();
+    
+    await expect(page).toHaveScreenshot('battle-arena-with-fighter.png');
+  });
+
+  test('visual regression - during analysis', async ({ page }) => {
+    // Upload an image
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.getByTestId('upload-button').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('public/imgRepository/test-fighter.jpg');
+    
+    // Take screenshot during analysis
+    await expect(page.getByTestId('analyzing-indicator')).toBeVisible();
+    await expect(page).toHaveScreenshot('battle-arena-analyzing.png');
   });
 }); 

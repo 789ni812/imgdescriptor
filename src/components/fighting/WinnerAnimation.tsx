@@ -166,29 +166,20 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                   <div className="text-gray-400 text-xs font-medium">Age</div>
                   <div className="text-white font-bold">{fighterA?.stats?.age || 0}</div>
                 </div>
-                
-                {/* Special Stats - Always show if they exist */}
-                <div className="bg-purple-700/50 rounded-lg p-3">
-                  <div className="text-purple-300 text-xs font-medium">Magic</div>
-                  <div className="text-white font-bold">{fighterA?.stats?.magic || 0}</div>
-                </div>
-                <div className="bg-blue-700/50 rounded-lg p-3">
-                  <div className="text-blue-300 text-xs font-medium">Ranged</div>
-                  <div className="text-white font-bold">{fighterA?.stats?.ranged || 0}</div>
-                </div>
-                <div className="bg-indigo-700/50 rounded-lg p-3">
-                  <div className="text-indigo-300 text-xs font-medium">Intelligence</div>
-                  <div className="text-white font-bold">{fighterA?.stats?.intelligence || 0}</div>
-                </div>
-                
-                {/* Physical Stats - Always show */}
-                <div className="bg-orange-700/50 rounded-lg p-3">
-                  <div className="text-orange-300 text-xs font-medium">Size</div>
-                  <div className="text-white font-bold">{fighterA?.stats?.size || 'N/A'}</div>
-                </div>
-                <div className="bg-yellow-700/50 rounded-lg p-3">
-                  <div className="text-yellow-300 text-xs font-medium">Build</div>
-                  <div className="text-white font-bold">{fighterA?.stats?.build || 'N/A'}</div>
+              </div>
+              
+              {/* Compact Secondary Stats - All on one line */}
+              <div className="mt-3 bg-gray-700/50 rounded-lg p-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-4">
+                    <span className="text-purple-300">Magic: <span className="text-white font-bold">{fighterA?.stats?.magic || 0}</span></span>
+                    <span className="text-blue-300">Ranged: <span className="text-white font-bold">{fighterA?.stats?.ranged || 0}</span></span>
+                    <span className="text-indigo-300">Intelligence: <span className="text-white font-bold">{fighterA?.stats?.intelligence || 0}</span></span>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-orange-300">Size: <span className="text-white font-bold">{fighterA?.stats?.size || 'N/A'}</span></span>
+                    <span className="text-yellow-300">Build: <span className="text-white font-bold">{fighterA?.stats?.build || 'N/A'}</span></span>
+                  </div>
                 </div>
               </div>
               
@@ -271,29 +262,20 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                   <div className="text-gray-400 text-xs font-medium">Age</div>
                   <div className="text-white font-bold">{fighterB?.stats?.age || 0}</div>
                 </div>
-                
-                {/* Special Stats - Always show if they exist */}
-                <div className="bg-purple-700/50 rounded-lg p-3">
-                  <div className="text-purple-300 text-xs font-medium">Magic</div>
-                  <div className="text-white font-bold">{fighterB?.stats?.magic || 0}</div>
-                </div>
-                <div className="bg-blue-700/50 rounded-lg p-3">
-                  <div className="text-blue-300 text-xs font-medium">Ranged</div>
-                  <div className="text-white font-bold">{fighterB?.stats?.ranged || 0}</div>
-                </div>
-                <div className="bg-indigo-700/50 rounded-lg p-3">
-                  <div className="text-indigo-300 text-xs font-medium">Intelligence</div>
-                  <div className="text-white font-bold">{fighterB?.stats?.intelligence || 0}</div>
-                </div>
-                
-                {/* Physical Stats - Always show */}
-                <div className="bg-orange-700/50 rounded-lg p-3">
-                  <div className="text-orange-300 text-xs font-medium">Size</div>
-                  <div className="text-white font-bold">{fighterB?.stats?.size || 'N/A'}</div>
-                </div>
-                <div className="bg-yellow-700/50 rounded-lg p-3">
-                  <div className="text-yellow-300 text-xs font-medium">Build</div>
-                  <div className="text-white font-bold">{fighterB?.stats?.build || 'N/A'}</div>
+              </div>
+              
+              {/* Compact Secondary Stats - All on one line */}
+              <div className="mt-3 bg-gray-700/50 rounded-lg p-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-4">
+                    <span className="text-purple-300">Magic: <span className="text-white font-bold">{fighterB?.stats?.magic || 0}</span></span>
+                    <span className="text-blue-300">Ranged: <span className="text-white font-bold">{fighterB?.stats?.ranged || 0}</span></span>
+                    <span className="text-indigo-300">Intelligence: <span className="text-white font-bold">{fighterB?.stats?.intelligence || 0}</span></span>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-orange-300">Size: <span className="text-white font-bold">{fighterB?.stats?.size || 'N/A'}</span></span>
+                    <span className="text-yellow-300">Build: <span className="text-white font-bold">{fighterB?.stats?.build || 'N/A'}</span></span>
+                  </div>
                 </div>
               </div>
               
@@ -321,18 +303,58 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
             Battle Overview
           </h3>
           
-          {/* Arena Info */}
-          <div className="bg-gray-800 rounded-xl p-6 mb-6 border border-gray-700">
-            <h4 className="text-xl font-semibold text-white mb-3 flex items-center">
-              <span className="mr-2">🏟️</span>
-              Arena: {scene?.name || 'Unknown Arena'}
-            </h4>
-            <p className="text-gray-300 text-sm mb-3 leading-relaxed">{scene?.description || 'No description available.'}</p>
-            {scene?.environmentalObjects && scene.environmentalObjects.length > 0 && (
-              <div className="text-sm text-gray-400">
-                <span className="font-medium">Environmental Objects:</span> {scene.environmentalObjects.join(', ')}
+          {/* Enhanced Arena Info */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 mb-6 border border-gray-700 shadow-lg">
+            <div className="flex items-start space-x-6">
+              {/* Arena Image */}
+              <div className="flex-shrink-0">
+                {scene?.imageUrl ? (
+                  <img
+                    src={scene.imageUrl}
+                    alt={scene?.name || 'Arena'}
+                    className="w-32 h-24 object-cover rounded-lg border-2 border-gray-600 shadow-md"
+                  />
+                ) : (
+                  <div className="w-32 h-24 bg-gray-700 rounded-lg border-2 border-gray-600 shadow-md flex items-center justify-center">
+                    <span className="text-gray-400 text-2xl">🏟️</span>
+                  </div>
+                )}
               </div>
-            )}
+              
+              {/* Arena Details */}
+              <div className="flex-1">
+                <h4 className="text-2xl font-bold text-white mb-2 flex items-center">
+                  <span className="mr-3 text-3xl">⚔️</span>
+                  {scene?.name || 'Unknown Arena'}
+                </h4>
+                
+                {scene?.description ? (
+                  <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                    {scene.description}
+                  </p>
+                ) : (
+                  <div className="bg-gray-700/50 rounded-lg p-3 mb-3">
+                    <p className="text-gray-400 text-sm italic">
+                      This legendary battleground awaits the clash of warriors. 
+                      The arena&apos;s atmosphere crackles with anticipation as fighters prepare for combat.
+                    </p>
+                  </div>
+                )}
+                
+                {scene?.environmentalObjects && scene.environmentalObjects.length > 0 && (
+                  <div className="text-sm text-gray-400">
+                    <span className="font-medium text-yellow-400">Environmental Features:</span>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {scene.environmentalObjects.map((object, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded-full">
+                          {object}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Battle Summary */}

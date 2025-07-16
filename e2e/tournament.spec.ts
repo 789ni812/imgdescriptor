@@ -1,227 +1,253 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Tournament System E2E', () => {
+test.describe('Tournament Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/tournament');
-    await page.waitForLoadState('networkidle');
   });
 
-  test('loads tournament page with correct navigation and sections', async ({ page }) => {
-    // Check main navigation
-    await expect(page.getByRole('heading', { name: /Tournament System/i })).toBeVisible();
-    await expect(page.getByText(/Create and manage automated single-elimination tournaments/i)).toBeVisible();
+  test('should display the main page layout and navigation', async ({ page }) => {
+    // Check main page elements
+    await expect(page.getByRole('heading', { name: '🏆 Tournament System' })).toBeVisible();
+    await expect(page.getByText('Create and manage automated single-elimination tournaments with up to 8 fighters.')).toBeVisible();
     
-    // Check navigation buttons using data-testid
+    // Check navigation buttons
     await expect(page.getByTestId('tournament-list-btn')).toBeVisible();
     await expect(page.getByTestId('create-tournament-btn')).toBeVisible();
   });
 
-  test('tournament list shows existing tournaments', async ({ page }) => {
-    // Click on Tournament List button
-    await page.getByTestId('tournament-list-btn').click();
-    
-    // Wait for tournaments to load
-    await page.waitForTimeout(2000);
-    
-    // Check if any tournaments are displayed (might be empty initially)
-    const tournamentCards = page.locator('[data-testid="tournament-card"]');
-    const count = await tournamentCards.count();
-    
-    if (count > 0) {
-      // If tournaments exist, verify they have expected content
-      await expect(tournamentCards.first()).toBeVisible();
-      await expect(page.getByText(/fighters/i)).toBeVisible();
-    } else {
-      // If no tournaments, check for empty state message
-      await expect(page.getByText(/No tournaments found/i)).toBeVisible();
-      await expect(page.getByText(/Create your first tournament to get started!/i)).toBeVisible();
-    }
+  test('should show tournament list by default', async ({ page }) => {
+    // Check that tournament list view is shown
+    await expect(page.getByTestId('tournament-list-view')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '📋 Tournaments' })).toBeVisible();
+    await expect(page.getByTestId('tournament-list-btn')).toHaveClass(/bg-blue-600/);
   });
 
-  test('create tournament flow works correctly', async ({ page }) => {
-    // Click on Create Tournament button
+  test('should navigate to create tournament view', async ({ page }) => {
+    // Click create tournament button
     await page.getByTestId('create-tournament-btn').click();
     
-    // Check tournament creation form
-    await expect(page.getByTestId('tournament-creator')).toBeVisible();
+    // Check that create view is shown
+    await expect(page.getByTestId('tournament-create-view')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '➕ Create Tournament' })).toBeVisible();
+    await expect(page.getByTestId('create-tournament-btn')).toHaveClass(/bg-green-600/);
+  });
+
+  test('should display fighter selection in create view', async ({ page }) => {
+    // Navigate to create view
+    await page.getByTestId('create-tournament-btn').click();
+    
+    // Check fighter selection interface
     await expect(page.getByTestId('fighter-selection')).toBeVisible();
-    
-    // Wait for fighters to load
-    await page.waitForTimeout(2000);
-    
-    // Select fighters (if available)
-    const fighterCards = page.locator('[data-testid^="fighter-card-"]');
-    const fighterCount = await fighterCards.count();
-    
-    if (fighterCount >= 2) {
-      // Select first two fighters
-      await fighterCards.nth(0).click();
-      await fighterCards.nth(1).click();
-      
-      // Check that fighters are selected
-      await expect(page.getByText(/2\/8/)).toBeVisible();
-      
-      // Create tournament
-      const createButton = page.getByTestId('create-tournament-submit-btn');
-      await expect(createButton).toBeEnabled();
-      await createButton.click();
-      
-      // Wait for tournament creation
-      await page.waitForTimeout(3000);
-      
-      // Should be redirected to current tournament view
-      await expect(page.getByTestId('tournament-detail-view')).toBeVisible();
-      await expect(page.getByTestId('tournament-controls')).toBeVisible();
-    }
+    await expect(page.getByTestId('fighter-selection-title')).toBeVisible();
+    await expect(page.getByTestId('fighter-grid')).toBeVisible();
   });
 
-  test('tournament execution works correctly', async ({ page }) => {
-    // Mock the tournament execution API to return a successful battle
-    await page.route('**/api/tournaments/execute', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          match: {
-            id: 'match-1-1',
-            fighterA: { name: 'Bruce Lee', health: 680 },
-            fighterB: { name: 'Victor Moreau', health: 750 },
-            winner: { name: 'Victor Moreau' },
-            status: 'completed',
-            battleLog: [
-              {
-                round: 1,
-                attacker: 'Victor Moreau',
-                defender: 'Bruce Lee',
-                attackCommentary: 'Victor Moreau opens with a powerful strike!',
-                defenseCommentary: 'Bruce Lee dodges with incredible agility!',
-                attackerDamage: 25,
-                defenderDamage: 0,
-                healthAfter: { attacker: 750, defender: 655 }
-              }
-            ]
-          },
-          tournament: {
-            status: 'completed',
-            winner: { name: 'Victor Moreau' }
-          },
-          message: 'Battle completed: Victor Moreau wins!'
-        })
-      });
-    });
-
-    // Navigate to a tournament (create one if needed)
+  test('should allow fighter selection for tournament', async ({ page }) => {
+    // Navigate to create view
     await page.getByTestId('create-tournament-btn').click();
-    await page.waitForTimeout(2000);
     
-    // Create a simple tournament for testing
-    const fighterCards = page.locator('[data-testid^="fighter-card-"]');
-    const fighterCount = await fighterCards.count();
+    // Select fighters
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
     
-    if (fighterCount >= 2) {
-      await fighterCards.nth(0).click();
-      await fighterCards.nth(1).click();
-      
-      await page.getByTestId('create-tournament-submit-btn').click();
-      await page.waitForTimeout(3000);
-    }
+    // Check that create button is enabled
+    await expect(page.getByTestId('create-tournament-submit-btn')).toBeEnabled();
+  });
+
+  test('should create tournament successfully', async ({ page }) => {
+    // Navigate to create view
+    await page.getByTestId('create-tournament-btn').click();
+    
+    // Select fighters
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    
+    // Create tournament
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Check that tournament detail view is shown
+    await expect(page.getByTestId('tournament-detail-view')).toBeVisible();
+    await expect(page.getByTestId('current-tournament-btn')).toBeVisible();
+  });
+
+  test('should display tournament controls', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Check tournament controls
+    await expect(page.getByTestId('tournament-controls')).toBeVisible();
+    await expect(page.getByTestId('tournament-controls-title')).toBeVisible();
+    await expect(page.getByTestId('execute-next-match-btn')).toBeVisible();
+    await expect(page.getByTestId('automate-match-execution-btn')).toBeVisible();
+  });
+
+  test('should display tournament bracket', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Check tournament bracket
+    await expect(page.getByTestId('tournament-bracket')).toBeVisible();
+    await expect(page.getByText('🏆 Tournament Bracket')).toBeVisible();
+  });
+
+  test('should execute next match', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
     
     // Execute next match
-    const executeButton = page.getByTestId('execute-next-match-btn');
-    if (await executeButton.isEnabled()) {
-      await executeButton.click();
-      
-      // Wait for execution to complete
-      await page.waitForTimeout(5000);
-      
-      // Check for success message
-      await expect(page.getByText(/Battle completed/i)).toBeVisible();
-      
-      // Check that match is marked as completed
-      await expect(page.getByText(/completed/i)).toBeVisible();
-    }
+    await page.getByTestId('execute-next-match-btn').click();
+    
+    // Check that match completion notification appears
+    await expect(page.getByTestId('match-completed-notification')).toBeVisible();
   });
 
-  test('tournament bracket visualization works correctly', async ({ page }) => {
-    // First create a tournament to have something to view
+  test('should automate match execution', async ({ page }) => {
+    // Create a tournament first
     await page.getByTestId('create-tournament-btn').click();
-    await page.waitForTimeout(2000);
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
     
-    // Select some fighters if available
-    const fighterCards = page.locator('[data-testid^="fighter-card-"]');
-    const fighterCount = await fighterCards.count();
+    // Start automation
+    await page.getByTestId('automate-match-execution-btn').click();
     
-    if (fighterCount >= 2) {
-      await fighterCards.nth(0).click();
-      await fighterCards.nth(1).click();
-      
-      // Create the tournament
-      await page.getByTestId('create-tournament-submit-btn').click();
-      await page.waitForTimeout(3000);
-      
-      // Now check bracket section
-      await expect(page.getByTestId('tournament-bracket')).toBeVisible();
-      
-      // Check for bracket visualization elements
-      const bracketMatches = page.locator('[data-testid="bracket-match"]');
-      const matchCount = await bracketMatches.count();
-      
-      if (matchCount > 0) {
-        // Verify bracket structure
-        await expect(bracketMatches.first()).toBeVisible();
-      }
-    }
+    // Check that automation is running
+    await expect(page.getByTestId('automating-status')).toBeVisible();
+    await expect(page.getByTestId('cancel-automation-btn')).toBeVisible();
   });
 
-  test('tournament completion shows champion correctly', async ({ page }) => {
-    // Mock a completed tournament
-    await page.route('**/api/tournaments/list', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          tournaments: [{
-            id: 'test-tournament',
-            name: 'Test Tournament',
-            status: 'completed',
-            winner: { name: 'Victor Moreau' },
-            fighters: [
-              { name: 'Bruce Lee' },
-              { name: 'Victor Moreau' }
-            ],
-            brackets: []
-          }]
-        })
-      });
-    });
-
-    // Navigate to tournament list
-    await page.getByTestId('tournament-list-btn').click();
-    await page.waitForTimeout(2000);
-    
-    // Click on completed tournament
-    const tournamentCard = page.locator('[data-testid="tournament-card"]').first();
-    if (await tournamentCard.isVisible()) {
-      await tournamentCard.click();
-      await page.waitForTimeout(2000);
-      
-      // Check for champion announcement
-      await expect(page.getByText(/Tournament Champion/i)).toBeVisible();
-      await expect(page.getByText(/Victor Moreau/i)).toBeVisible();
-    }
-  });
-
-  test('tournament navigation and state management works', async ({ page }) => {
-    // Test navigation between tabs
-    await page.getByRole('tab', { name: /Tournament List/i }).click();
-    await expect(page.getByText(/Tournament List/i)).toBeVisible();
-    
+  test('should show tournament completion', async ({ page }) => {
+    // Create and complete a tournament
     await page.getByTestId('create-tournament-btn').click();
-    await expect(page.getByText(/Select Fighters/i)).toBeVisible();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
     
-    await page.getByRole('tab', { name: /Current Tournament/i }).click();
-    await expect(page.getByText(/Tournament Controls/i)).toBeVisible();
+    // Complete all matches
+    await page.getByTestId('automate-match-execution-btn').click();
+    
+    // Wait for tournament completion
+    await expect(page.getByTestId('tournament-complete')).toBeVisible();
+    await expect(page.getByText('🏆 Tournament Complete! 🏆')).toBeVisible();
+  });
+
+  test('should display tournament champion', async ({ page }) => {
+    // Create and complete a tournament
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Complete all matches
+    await page.getByTestId('automate-match-execution-btn').click();
+    
+    // Check champion display
+    await expect(page.getByTestId('tournament-champion')).toBeVisible();
+    await expect(page.getByText('🏆 Tournament Champion 🏆')).toBeVisible();
+  });
+
+  test('should navigate back to tournament list', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Go back to list
+    await page.getByTestId('back-to-list-btn').click();
+    
+    // Check that list view is shown
+    await expect(page.getByTestId('tournament-list-view')).toBeVisible();
+  });
+
+  test('should display existing tournaments in list', async ({ page }) => {
+    // Check that tournament list is displayed
+    await expect(page.getByTestId('tournament-list-view')).toBeVisible();
+    
+    // Check for tournament cards (if any exist)
+    const tournamentCards = page.locator('[data-testid^="tournament-card-"]');
+    await expect(tournamentCards.first()).toBeVisible();
+  });
+
+  test('should show tournament status badges', async ({ page }) => {
+    // Check that status badges are displayed
+    await expect(page.getByText('🏆 Completed')).toBeVisible();
+    await expect(page.getByText('⚡ In Progress')).toBeVisible();
+    await expect(page.getByText('🟢 Ready to Start')).toBeVisible();
+  });
+
+  test('should handle tournament selection from list', async ({ page }) => {
+    // Click on a tournament in the list
+    await page.getByTestId('tournament-card-1').click();
+    
+    // Check that tournament detail view is shown
+    await expect(page.getByTestId('tournament-detail-view')).toBeVisible();
+    await expect(page.getByTestId('current-tournament-btn')).toBeVisible();
+  });
+
+  test('should display match progress', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Check progress display
+    await expect(page.getByTestId('matches-progress')).toBeVisible();
+    await expect(page.getByText(/matches completed/)).toBeVisible();
+  });
+
+  test('should show next match information', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Check next match display
+    await expect(page.getByText('⚔️ Next Match')).toBeVisible();
+  });
+
+  test('visual regression - tournament list view', async ({ page }) => {
+    await expect(page).toHaveScreenshot('tournament-list-view.png');
+  });
+
+  test('visual regression - create tournament view', async ({ page }) => {
+    await page.getByTestId('create-tournament-btn').click();
+    await expect(page).toHaveScreenshot('tournament-create-view.png');
+  });
+
+  test('visual regression - tournament detail view', async ({ page }) => {
+    // Create a tournament first
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    await expect(page).toHaveScreenshot('tournament-detail-view.png');
+  });
+
+  test('visual regression - completed tournament', async ({ page }) => {
+    // Create and complete a tournament
+    await page.getByTestId('create-tournament-btn').click();
+    await page.getByTestId('fighter-checkbox-1').click();
+    await page.getByTestId('fighter-checkbox-2').click();
+    await page.getByTestId('create-tournament-submit-btn').click();
+    
+    // Complete all matches
+    await page.getByTestId('automate-match-execution-btn').click();
+    
+    // Wait for completion and take screenshot
+    await expect(page.getByTestId('tournament-complete')).toBeVisible();
+    await expect(page).toHaveScreenshot('tournament-completed.png');
   });
 }); 

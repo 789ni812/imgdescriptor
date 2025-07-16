@@ -151,10 +151,13 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
   const nextPendingMatchEvenIfInvalid = getNextPendingMatchEvenIfInvalid();
 
   return (
-    <Card className="p-6" data-testid="tournament-controls">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold" data-testid="tournament-controls-title">Tournament Controls</h2>
-        <div className="text-sm text-gray-600" data-testid="matches-progress">
+    <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-8" data-testid="tournament-controls">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white flex items-center" data-testid="tournament-controls-title">
+          <span className="mr-3">⚙️</span>
+          Tournament Controls
+        </h2>
+        <div className="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded-lg" data-testid="matches-progress">
           {completedMatches} / {totalMatches} matches completed
         </div>
       </div>
@@ -163,60 +166,60 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
 
       {/* Show a user-friendly message if the next pending match is missing a fighter */}
       {!nextMatch && nextPendingMatchEvenIfInvalid && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm" data-testid="tournament-missing-fighter-warning">
-          Cannot execute next match: missing fighter(s). Please check your tournament setup.
+        <div className="mb-6 p-4 bg-red-900/30 border-2 border-red-600 rounded-xl text-red-300 text-sm" data-testid="tournament-missing-fighter-warning">
+          ⚠️ Cannot execute next match: missing fighter(s). Please check your tournament setup.
         </div>
       )}
 
       {currentMatch && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg" data-testid="match-completed-notification">
-          <div className="text-sm text-green-800">
-            <strong>Match completed:</strong> {currentMatch.fighterA?.name ?? 'Unknown'} vs {currentMatch.fighterB?.name ?? 'Unknown'}
+        <div className="mb-6 p-4 bg-green-900/30 border-2 border-green-600 rounded-xl" data-testid="match-completed-notification">
+          <div className="text-sm text-green-300">
+            <strong>✅ Match completed:</strong> {currentMatch.fighterA?.name ?? 'Unknown'} vs {currentMatch.fighterB?.name ?? 'Unknown'}
           </div>
-          <div className="text-xs text-green-600 mt-1" data-testid="match-winner">
-            Winner: {currentMatch.winner?.name}
+          <div className="text-xs text-green-400 mt-2 font-semibold" data-testid="match-winner">
+            🏆 Winner: {currentMatch.winner?.name}
           </div>
         </div>
       )}
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium">Tournament Status</div>
-            <div className="text-xs text-gray-600">
-              {tournament.status === 'setup' && 'Ready to begin'}
-              {tournament.status === 'in_progress' && `Round ${tournament.currentRound} in progress`}
-              {tournament.status === 'completed' && 'Tournament completed'}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gray-700 rounded-xl p-4 border border-gray-600">
+            <div className="text-sm font-bold text-gray-300 mb-1">Tournament Status</div>
+            <div className="text-xs text-gray-400">
+              {tournament.status === 'setup' && '🟢 Ready to begin'}
+              {tournament.status === 'in_progress' && `🟡 Round ${tournament.currentRound} in progress`}
+              {tournament.status === 'completed' && '🏆 Tournament completed'}
             </div>
           </div>
           
-          <div className="text-right">
-            <div className="text-sm font-medium">Progress</div>
-            <div className="text-xs text-gray-600">
+          <div className="bg-gray-700 rounded-xl p-4 border border-gray-600">
+            <div className="text-sm font-bold text-gray-300 mb-1">Progress</div>
+            <div className="text-xs text-gray-400">
               {Math.round((completedMatches / totalMatches) * 100)}% complete
             </div>
           </div>
         </div>
 
         {nextMatch && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="text-sm font-medium text-blue-800">Next Match</div>
-            <div className="text-xs text-blue-600">
+          <div className="p-4 bg-blue-900/30 border-2 border-blue-600 rounded-xl">
+            <div className="text-sm font-bold text-blue-300 mb-1">⚔️ Next Match</div>
+            <div className="text-xs text-blue-200">
               {nextMatch.fighterA?.name ?? 'Unknown'} vs {nextMatch.fighterB?.name ?? 'Unknown'}
             </div>
             {nextMatch.fighterA && nextMatch.fighterB && nextMatch.fighterA.id === nextMatch.fighterB.id && (
-              <div className="text-xs text-blue-500 mt-1">
-                (Bye - {nextMatch.fighterA?.name ?? 'Unknown'} advances automatically)
+              <div className="text-xs text-blue-300 mt-2">
+                🚶 (Bye - {nextMatch.fighterA?.name ?? 'Unknown'} advances automatically)
               </div>
             )}
           </div>
         )}
 
-        <div className="flex space-x-3" data-testid="tournament-controls-actions">
+        <div className="flex space-x-4" data-testid="tournament-controls-actions">
           <Button
             onClick={handleExecuteNextMatch}
             disabled={isCompleted || !nextMatch || isExecuting || isAutomating}
-            className="flex-1"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-500 px-6 py-3 font-semibold transition-all duration-200 shadow-lg"
             data-testid="execute-next-match-btn"
           >
             {isExecuting ? (
@@ -225,14 +228,14 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
                 <span className="ml-2">Executing...</span>
               </>
             ) : (
-              'Execute Next Match'
+              '⚔️ Execute Next Match'
             )}
           </Button>
           
           <Button
             onClick={handleAutomateMatches}
             disabled={isCompleted || !nextMatch || isExecuting || isAutomating}
-            className="flex-1"
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white border-2 border-green-500 px-6 py-3 font-semibold transition-all duration-200 shadow-lg"
             data-testid="automate-match-execution-btn"
           >
             {isAutomating ? (
@@ -241,31 +244,31 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
                 <span className="ml-2" data-testid="automating-status">Automating...</span>
               </>
             ) : (
-              'Automate Match Execution'
+              '🚀 Automate Match Execution'
             )}
           </Button>
         </div>
 
         {isAutomating && (
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-6">
             <Button
               onClick={handleCancelAutomation}
               variant="outline"
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white border-2 border-red-500 px-6 py-3 font-semibold transition-all duration-200 shadow-lg"
               data-testid="cancel-automation-btn"
             >
-              Cancel Automation
+              ❌ Cancel Automation
             </Button>
           </div>
         )}
 
         {isCompleted && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center" data-testid="tournament-complete">
-            <div className="text-sm font-medium text-yellow-800">
+          <div className="p-6 bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 border-2 border-yellow-500 rounded-2xl text-center shadow-xl" data-testid="tournament-complete">
+            <div className="text-xl font-bold text-yellow-400 mb-2 drop-shadow-lg">
               🏆 Tournament Complete! 🏆
             </div>
-            <div className="text-xs text-yellow-600 mt-1" data-testid="tournament-champion">
-              Champion: {tournament.winner?.name}
+            <div className="text-sm text-yellow-300 font-semibold" data-testid="tournament-champion">
+              🥇 Champion: {tournament.winner?.name}
             </div>
           </div>
         )}
