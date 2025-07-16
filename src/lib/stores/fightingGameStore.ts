@@ -259,6 +259,19 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
     let newFighterAHealth = currentFighterAHealth;
     let newFighterBHealth = currentFighterBHealth;
     
+    console.log('Store: Health calculation debug', {
+      round,
+      attackerId,
+      defenderId,
+      fighterAId: fighterA.id,
+      fighterBId: fighterB.id,
+      currentFighterAHealth,
+      currentFighterBHealth,
+      attackerDamage,
+      defenderDamage,
+      fighterAIsAttacker: fighterA.id === attackerId
+    });
+    
     // Apply damage based on which fighter is attacking
     if (fighterA.id === attackerId) {
       newFighterBHealth = Math.max(0, currentFighterBHealth - attackerDamage);
@@ -267,6 +280,13 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
       newFighterAHealth = Math.max(0, currentFighterAHealth - attackerDamage);
       newFighterBHealth = Math.max(0, currentFighterBHealth - defenderDamage);
     }
+    
+    console.log('Store: New health values', {
+      newFighterAHealth,
+      newFighterBHealth,
+      fighterAName: fighterA.name,
+      fighterBName: fighterB.name
+    });
     
     // Determine winner
     let winner = null;
@@ -277,6 +297,8 @@ export const useFightingGameStore = create<FightingGameState>((set, get) => ({
     } else if (newFighterBHealth <= 0) {
       winner = fighterA.name;
     }
+    
+    console.log('Store: Winner determination', { winner, newFighterAHealth, newFighterBHealth });
     
     // Create combat log entry
     const combatEntry: CombatLogEntry = {

@@ -448,6 +448,15 @@ export default function PlayerVsPage() {
       // Animate the round
       const roundData = preGeneratedBattleLog[currentBattleIndex];
       console.log('Playervs: Animating round', roundData.round);
+      console.log('Playervs: Fighter names comparison', {
+        fighterAName: fighters.fighterA?.name,
+        fighterBName: fighters.fighterB?.name,
+        roundAttacker: roundData.attacker,
+        roundDefender: roundData.defender,
+        fighterAId: fighters.fighterA?.id,
+        fighterBId: fighters.fighterB?.id
+      });
+      
       // Update health and commentary
       updateHealthAndCommentary({
         attackerId: fighters.fighterA?.name === roundData.attacker
