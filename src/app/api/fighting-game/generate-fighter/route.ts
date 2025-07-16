@@ -32,11 +32,47 @@ async function findExistingFighterStats(fighterName: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { imageDescription, fighterId, fighterLabel, imageUrl } = await req.json();
+  const { imageDescription, fighterId, fighterLabel, imageUrl, arenaContext } = await req.json();
 
   // Generate mock stats based on description keywords
   function randomStat(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Extract arena characteristics for context
+  let arenaType = 'neutral';
+  let arenaHazards: string[] = [];
+  let arenaAdvantages: string[] = [];
+  
+  if (arenaContext) {
+    const arenaDesc = (arenaContext.description || '').toLowerCase();
+    
+    // Determine arena type and characteristics
+    if (arenaDesc.includes('water') || arenaDesc.includes('ocean') || arenaDesc.includes('underwater')) {
+      arenaType = 'aquatic';
+      arenaHazards = ['drowning', 'limited mobility'];
+      arenaAdvantages = ['swimming', 'water breathing'];
+    } else if (arenaDesc.includes('fire') || arenaDesc.includes('volcano') || arenaDesc.includes('lava')) {
+      arenaType = 'fire';
+      arenaHazards = ['burning', 'heat damage'];
+      arenaAdvantages = ['fire resistance', 'heat tolerance'];
+    } else if (arenaDesc.includes('ice') || arenaDesc.includes('snow') || arenaDesc.includes('frozen')) {
+      arenaType = 'ice';
+      arenaHazards = ['slipping', 'freezing'];
+      arenaAdvantages = ['ice resistance', 'cold tolerance'];
+    } else if (arenaDesc.includes('high') || arenaDesc.includes('sky') || arenaDesc.includes('flying')) {
+      arenaType = 'aerial';
+      arenaHazards = ['falling', 'wind resistance'];
+      arenaAdvantages = ['flight', 'wind control'];
+    } else if (arenaDesc.includes('underground') || arenaDesc.includes('cave') || arenaDesc.includes('tunnel')) {
+      arenaType = 'underground';
+      arenaHazards = ['limited visibility', 'confined space'];
+      arenaAdvantages = ['dark vision', 'tunnel expertise'];
+    } else if (arenaDesc.includes('urban') || arenaDesc.includes('city') || arenaDesc.includes('street')) {
+      arenaType = 'urban';
+      arenaHazards = ['obstacles', 'civilian risk'];
+      arenaAdvantages = ['urban combat', 'environmental awareness'];
+    }
   }
 
   // Improved logic using score sheet system
@@ -80,7 +116,13 @@ export async function POST(req: NextRequest) {
     uniqueAbilities = existingStats.uniqueAbilities || [];
   } else {
     // Try to generate stats using LLM
-    const llmResult = await generateFighterStats(descString, fighterLabel);
+    const llmResult = await generateFighterStats(descString, fighterLabel, arenaContext ? {
+      name: arenaContext.name || 'Unknown Arena',
+      description: arenaContext.description || '',
+      type: arenaType,
+      hazards: arenaHazards,
+      advantages: arenaAdvantages
+    } : undefined);
     
     if (llmResult.success && llmResult.stats) {
       // Use LLM-generated stats
@@ -96,6 +138,35 @@ export async function POST(req: NextRequest) {
       ranged = llmResult.stats.ranged || 0;
       intelligence = llmResult.stats.intelligence || 20;
       uniqueAbilities = llmResult.stats.uniqueAbilities || [];
+      
+      // Apply arena-specific adjustments
+      if (arenaType !== 'neutral') {
+        // Add arena-appropriate abilities if not already present
+        const arenaAbilities = [];
+        if (arenaType === 'aquatic' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('water') || ability.toLowerCase().includes('swim'))) {
+          arenaAbilities.push('Aquatic Adaptation');
+        }
+        if (arenaType === 'fire' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('fire') || ability.toLowerCase().includes('heat'))) {
+          arenaAbilities.push('Heat Resistance');
+        }
+        if (arenaType === 'ice' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('ice') || ability.toLowerCase().includes('cold'))) {
+          arenaAbilities.push('Cold Resistance');
+        }
+        if (arenaType === 'aerial' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('flight') || ability.toLowerCase().includes('wind'))) {
+          arenaAbilities.push('Wind Mastery');
+        }
+        if (arenaType === 'underground' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('dark') || ability.toLowerCase().includes('tunnel'))) {
+          arenaAbilities.push('Dark Vision');
+        }
+        if (arenaType === 'urban' && !uniqueAbilities.some(ability => ability.toLowerCase().includes('urban') || ability.toLowerCase().includes('environment'))) {
+          arenaAbilities.push('Urban Combat');
+        }
+        
+        // Add arena abilities (limit to 4 total)
+        if (arenaAbilities.length > 0 && uniqueAbilities.length < 4) {
+          uniqueAbilities.push(...arenaAbilities.slice(0, 4 - uniqueAbilities.length));
+        }
+      }
     } else {
       // Fallback to basic stat generation
       if (label.includes('superman') || label.includes('super')) {
@@ -182,7 +253,7 @@ export async function POST(req: NextRequest) {
         size = isLarge ? 'large' : isSmall ? 'small' : 'medium';
         build = isMuscular ? 'muscular' : randomStat(0, 1) ? 'average' : 'thin';
         magic = isMagic ? randomStat(50, 90) : 0;
-        ranged = isRanged ? randomStat(60, 90) : randomStat(10, 40);
+        ranged = isRanged || hasWeapon ? randomStat(60, 90) : randomStat(10, 40);
         intelligence = randomStat(30, 80);
         
         // Generate basic unique abilities based on characteristics

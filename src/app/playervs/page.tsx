@@ -209,6 +209,14 @@ export default function PlayerVsPage() {
   // Upload handlers now update Zustand store and replace the correct slot
   const handleFighterAUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
     const fighterName = extractFighterName(analysis, 'Fighter A');
+    
+    // Prepare arena context if available
+    const arenaContext = scene ? {
+      name: scene.name,
+      description: scene.description || '',
+      environmentalObjects: scene.environmentalObjects || []
+    } : undefined;
+    
     const genRes = await fetch('/api/fighting-game/generate-fighter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -217,6 +225,7 @@ export default function PlayerVsPage() {
         fighterId: 'fighterA',
         fighterLabel: fighterName,
         imageUrl: url,
+        arenaContext,
       }),
     });
     if (!genRes.ok) {
@@ -246,6 +255,14 @@ export default function PlayerVsPage() {
   };
   const handleFighterBUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
     const fighterName = extractFighterName(analysis, 'Fighter B');
+    
+    // Prepare arena context if available
+    const arenaContext = scene ? {
+      name: scene.name,
+      description: scene.description || '',
+      environmentalObjects: scene.environmentalObjects || []
+    } : undefined;
+    
     const genRes = await fetch('/api/fighting-game/generate-fighter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -254,6 +271,7 @@ export default function PlayerVsPage() {
         fighterId: 'fighterB',
         fighterLabel: fighterName,
         imageUrl: url,
+        arenaContext,
       }),
     });
     if (!genRes.ok) {
@@ -575,80 +593,16 @@ export default function PlayerVsPage() {
               <RebalanceFightersButton />
             </div>
             <div className="text-center" data-testid="setup-instructions">
-              <h2 className="text-2xl font-semibold mb-4">Upload Your Fighters</h2>
-              <p className="text-gray-300">Upload images of two fighters and a battle arena</p>
+              <h2 className="text-2xl font-semibold mb-4">Set Up Your Battle</h2>
+              <p className="text-gray-300">First choose your arena, then select your fighters</p>
             </div>
 
-            {/* Fighter Upload Sections */}
-            <div className="grid md:grid-cols-2 gap-8 mb-8" data-testid="fighter-upload-sections">
-              {/* Fighter A Card */}
-              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-a-card">
-                {!fighterA ? (
-                  <>
-                    <div className="flex gap-2 mb-2" data-testid="fighter-a-select-mode">
-                      <button
-                        className={`px-3 py-1 rounded ${fighterASelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
-                        onClick={() => setFighterASelectMode('upload')}
-                        data-testid="fighter-a-upload-btn"
-                      >
-                        Upload New
-                      </button>
-                      <button
-                        className={`px-3 py-1 rounded ${fighterASelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
-                        onClick={() => setFighterASelectMode('choose')}
-                        data-testid="fighter-a-choose-btn"
-                      >
-                        Choose Existing
-                      </button>
-                    </div>
-                    {fighterASelectMode === 'upload' ? (
-                      <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" data-testid="fighter-a-upload-component" />
-                    ) : (
-                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} data-testid="fighter-a-choose-component" />
-                    )}
-                  </>
-                ) : (
-                  // Existing fighter summary UI for Fighter A
-                  <FighterStatDisplay fighter={fighterA} onRemove={() => removeFighter('fighterA')} />
-                )}
+            {/* Step 1: Battle Arena Upload */}
+            <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-8">
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</div>
+                <h3 className="text-xl font-semibold">Battle Arena</h3>
               </div>
-
-              {/* Fighter B Card */}
-              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-b-card">
-                {!fighterB ? (
-                  <>
-                    <div className="flex gap-2 mb-2" data-testid="fighter-b-select-mode">
-                      <button
-                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
-                        onClick={() => setFighterBSelectMode('upload')}
-                        data-testid="fighter-b-upload-btn"
-                      >
-                        Upload New
-                      </button>
-                      <button
-                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
-                        onClick={() => setFighterBSelectMode('choose')}
-                        data-testid="fighter-b-choose-btn"
-                      >
-                        Choose Existing
-                      </button>
-                    </div>
-                    {fighterBSelectMode === 'upload' ? (
-                      <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" data-testid="fighter-b-upload-component" />
-                    ) : (
-                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} data-testid="fighter-b-choose-component" />
-                    )}
-                  </>
-                ) : (
-                  // Existing fighter summary UI for Fighter B
-                  <FighterStatDisplay fighter={fighterB} onRemove={() => removeFighter('fighterB')} />
-                )}
-              </div>
-            </div>
-
-            {/* Battle Arena Upload */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20 mt-8">
-              <h3 className="text-xl font-semibold mb-4">Battle Arena</h3>
               {!scene ? (
                 <>
                   <div className="flex gap-2 mb-2">
@@ -686,6 +640,81 @@ export default function PlayerVsPage() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Step 2: Fighter Upload Sections */}
+            <div className="grid md:grid-cols-2 gap-8 mb-8" data-testid="fighter-upload-sections">
+              {/* Fighter A Card */}
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-a-card">
+                <div className="flex items-center mb-4">
+                  <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</div>
+                  <h3 className="text-lg font-semibold">Fighter A</h3>
+                </div>
+                {!fighterA ? (
+                  <>
+                    <div className="flex gap-2 mb-2" data-testid="fighter-a-select-mode">
+                      <button
+                        className={`px-3 py-1 rounded ${fighterASelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterASelectMode('upload')}
+                        data-testid="fighter-a-upload-btn"
+                      >
+                        Upload New
+                      </button>
+                      <button
+                        className={`px-3 py-1 rounded ${fighterASelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterASelectMode('choose')}
+                        data-testid="fighter-a-choose-btn"
+                      >
+                        Choose Existing
+                      </button>
+                    </div>
+                    {fighterASelectMode === 'upload' ? (
+                      <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" data-testid="fighter-a-upload-component" />
+                    ) : (
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} data-testid="fighter-a-choose-component" />
+                    )}
+                  </>
+                ) : (
+                  // Existing fighter summary UI for Fighter A
+                  <FighterStatDisplay fighter={fighterA} onRemove={() => removeFighter('fighterA')} />
+                )}
+              </div>
+
+              {/* Fighter B Card */}
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/20" data-testid="fighter-b-card">
+                <div className="flex items-center mb-4">
+                  <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</div>
+                  <h3 className="text-lg font-semibold">Fighter B</h3>
+                </div>
+                {!fighterB ? (
+                  <>
+                    <div className="flex gap-2 mb-2" data-testid="fighter-b-select-mode">
+                      <button
+                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'upload' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterBSelectMode('upload')}
+                        data-testid="fighter-b-upload-btn"
+                      >
+                        Upload New
+                      </button>
+                      <button
+                        className={`px-3 py-1 rounded ${fighterBSelectMode === 'choose' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
+                        onClick={() => setFighterBSelectMode('choose')}
+                        data-testid="fighter-b-choose-btn"
+                      >
+                        Choose Existing
+                      </button>
+                    </div>
+                    {fighterBSelectMode === 'upload' ? (
+                      <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" data-testid="fighter-b-upload-component" />
+                    ) : (
+                      <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} data-testid="fighter-b-choose-component" />
+                    )}
+                  </>
+                ) : (
+                  // Existing fighter summary UI for Fighter B
+                  <FighterStatDisplay fighter={fighterB} onRemove={() => removeFighter('fighterB')} />
+                )}
+              </div>
             </div>
 
             {/* Start Fight Button */}

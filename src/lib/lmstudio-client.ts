@@ -7,6 +7,7 @@ import {
 } from './constants';
 import type { GameTemplate } from '@/lib/types/template';
 import { jsonrepair } from 'jsonrepair';
+import { OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT } from './prompts/optimized-prompts';
 
 const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
@@ -257,7 +258,14 @@ export const generateStory = async (
 
 export const generateFighterStats = async (
   imageDescription: string,
-  fighterLabel: string
+  fighterLabel: string,
+  arenaContext?: {
+    name: string;
+    description: string;
+    type?: string;
+    hazards?: string[];
+    advantages?: string[];
+  }
 ): Promise<{ success: boolean; stats?: FighterStats; error?: string }> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
@@ -273,45 +281,18 @@ export const generateFighterStats = async (
         messages: [
           {
             role: 'system',
-            content: `You are an expert fighting game designer and character analyst specializing in creating balanced, engaging fighter statistics.
-
-CRITICAL REQUIREMENTS:
-- Analyze the fighter's visual characteristics, equipment, and apparent abilities
-- Generate stats that reflect the fighter's appearance and potential combat style
-- Ensure logical relationships between stats (e.g., large muscular fighters should have higher strength)
-- Create unique abilities that match the fighter's theme and characteristics
-- Balance stats for competitive gameplay while maintaining character authenticity
-
-STAT GUIDELINES:
-- strength: 1-200 (physical power, influenced by size, build, and equipment)
-- agility: 1-100 (speed, reflexes, and maneuverability)
-- health: 20-1000 (endurance and vitality, consider size and apparent toughness)
-- defense: 1-100 (damage resistance and blocking ability)
-- luck: 1-50 (random chance factors, critical hits, evasive maneuvers)
-- age: 1-1000000 (character age, affects experience and wisdom)
-- size: "small" | "medium" | "large" (physical stature)
-- build: "thin" | "average" | "muscular" | "heavy" (body composition)
-- magic: 0-100 (supernatural powers, only if character clearly has magical abilities)
-- ranged: 0-100 (projectile attacks, weapons, or ranged abilities)
-- intelligence: 1-100 (tactical thinking, strategy, and problem-solving)
-- uniqueAbilities: string[] (2-4 special moves or abilities that define the fighter's style)
-
-ABILITY CREATION RULES:
-- Each ability should be specific and thematic to the fighter
-- Avoid generic abilities like "strong punch" or "dodge"
-- Consider the fighter's equipment, appearance, and apparent skills
-- Make abilities sound exciting and unique
-- Examples: "Lightsaber Mastery", "Force Choke", "Predator Cloak", "Kangaroo Boxing"
-
-Return ONLY a valid JSON object with the exact field names specified above. All numbers must be integers.`,
+            content: OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: `Generate stats for: ${fighterLabel}\nImage description: ${imageDescription}`,
+            content: OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT(fighterLabel, imageDescription, arenaContext),
           },
         ],
         temperature: 0.7,
-        max_tokens: 512,
+        max_tokens: 300, // Reduced from 500
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1,
       }),
       signal: controller.signal,
     });
