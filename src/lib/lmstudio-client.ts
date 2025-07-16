@@ -7,7 +7,7 @@ import {
 } from './constants';
 import type { GameTemplate } from '@/lib/types/template';
 import { jsonrepair } from 'jsonrepair';
-import { OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT } from './prompts/optimized-prompts';
+import { OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT, OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT, OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT, OPTIMIZED_TOURNAMENT_OVERVIEW_SYSTEM_PROMPT, OPTIMIZED_TOURNAMENT_OVERVIEW_USER_PROMPT, OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT, OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT, OPTIMIZED_FIGHTER_DESCRIPTION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_DESCRIPTION_USER_PROMPT } from './prompts/optimized-prompts';
 
 const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
@@ -376,34 +376,6 @@ export const generateBattleCommentary = async (
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
   try {
-    const action = isAttack ? 'attack' : 'defense';
-    const prompt = `Generate an exciting, dynamic battle commentary for this fighting game round.
-
-FIGHTERS:
-- Fighter A: ${fighterA} (attacking)
-- Fighter B: ${fighterB} (defending)
-- Round: ${round}
-- Action: ${action}${_damage ? ` - Damage dealt: ${_damage}` : ''}
-
-COMMENTARY REQUIREMENTS:
-- Create vivid, action-packed commentary that captures the moment
-- Describe the specific action and its impact on the battle
-- Use varied, exciting language that builds tension
-- Keep it concise: 1-2 sentences, maximum 30 words total
-- Use natural sentence casing (capitalize only proper nouns and dramatic emphasis)
-- Make the commentary feel authentic and engaging
-- Avoid repetitive or generic phrases
-- Focus on the current action and its significance
-
-STYLE GUIDELINES:
-- Use dynamic verbs and descriptive language
-- Include specific details about the fighters when relevant
-- Create narrative flow that enhances the battle experience
-- Balance action description with emotional impact
-- Make each round feel unique and memorable
-
-Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
-
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -414,40 +386,15 @@ Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: `You are an expert fighting game commentator with a dynamic, exciting style that captures the intensity and drama of combat.
-
-COMMENTARY STYLE:
-- Use vivid, action-packed language that brings the fight to life
-- Vary your commentary style to avoid repetition
-- Include specific details about the fighters and their actions
-- Create tension and excitement through your word choice
-- Use natural sentence casing (no all-caps except for dramatic emphasis)
-- Make each round feel unique and memorable
-
-COMMENTARY TECHNIQUES:
-- Describe the impact and effectiveness of attacks
-- Highlight the fighters' unique characteristics and abilities
-- Create narrative flow that builds excitement
-- Use varied vocabulary to avoid repetitive phrases
-- Include tactical insights when appropriate
-- Balance action description with emotional impact
-
-QUALITY REQUIREMENTS:
-- Keep commentary concise (1-2 sentences, max 30 words)
-- Ensure clarity and readability
-- Avoid awkward or nonsensical phrases
-- Make the commentary feel authentic and engaging
-- Focus on the current action and its impact
-
-Return ONLY the commentary text - no formatting, no JSON, no additional text.`,
+            content: OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: prompt,
+            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterA, fighterB, round, isAttack, _damage),
           },
         ],
         temperature: 0.7,
-        max_tokens: 100,
+        max_tokens: 60, // Reduced from 100
         top_p: 0.85,
         frequency_penalty: 0.3,
         presence_penalty: 0.2,
@@ -460,17 +407,17 @@ Return ONLY the commentary text - no formatting, no JSON, no additional text.`,
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`LM Studio battle commentary API response error: ${response.status} ${errorBody}`);
-      // Fallback to template-based commentary
       return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
     }
 
-    let commentary = response && (await response.json()).choices[0]?.message?.content?.trim();
+    const data = await response.json();
+    const commentary = data.choices[0]?.message?.content?.trim();
+    
     if (!commentary) {
       return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
     }
 
-    commentary = postProcessCommentary(commentary);
-    return commentary;
+    return postProcessCommentary(commentary);
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle commentary error:', error);
@@ -626,32 +573,6 @@ export const generateTournamentOverview = async (
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
-    const prompt = `Generate an exciting tournament overview for this fighting match.
-
-TOURNAMENT CONTEXT:
-- Tournament: ${tournamentName}
-- Arena: ${arenaName}
-- Arena Description: ${arenaDescription}
-- Current Round: ${currentRound} of ${totalRounds}
-- Tournament Progress: ${Math.round((currentRound / totalRounds) * 100)}% complete
-
-OVERVIEW REQUIREMENTS:
-- Create a brief, exciting overview (2-3 sentences)
-- Highlight the tournament's significance and current stage
-- Describe the arena's tactical implications and atmosphere
-- Include any notable context about this specific battle
-- Make it feel like a major sporting event
-- Use dynamic, engaging language
-
-STYLE GUIDELINES:
-- Use sports commentator style language
-- Create excitement and anticipation
-- Include specific details about the arena and tournament
-- Make the battle feel important and consequential
-- Balance information with entertainment value
-
-Return ONLY the overview text - no formatting, no JSON, no additional text.`;
-
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -662,15 +583,15 @@ Return ONLY the overview text - no formatting, no JSON, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: `You are an expert sports commentator specializing in fighting tournaments. Generate exciting, informative tournament overviews that capture the drama and significance of each match.`,
+            content: OPTIMIZED_TOURNAMENT_OVERVIEW_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: prompt,
+            content: OPTIMIZED_TOURNAMENT_OVERVIEW_USER_PROMPT(tournamentName, arenaName, currentRound, totalRounds),
           },
         ],
         temperature: 0.7,
-        max_tokens: 150,
+        max_tokens: 80, // Reduced from 150
         top_p: 0.85,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,
@@ -730,31 +651,6 @@ export const generateBattleSummary = async (
       .map(round => `${round.attackCommentary} ${round.defenseCommentary}`)
       .join(' ');
 
-    const prompt = `Generate an exciting battle summary for this completed fight.
-
-BATTLE CONTEXT:
-- Fighter A: ${fighterA}
-- Fighter B: ${fighterB}
-- Winner: ${winner}
-- Total Rounds: ${totalRounds}
-- Key Battle Events: ${keyEvents}
-
-SUMMARY REQUIREMENTS:
-- Create a compelling 2-3 sentence summary of the entire battle
-- Highlight the most dramatic moments and turning points
-- Describe the overall flow and intensity of the fight
-- Include the final outcome and its significance
-- Make it feel like a sports highlight reel
-
-STYLE GUIDELINES:
-- Use dynamic, action-packed language
-- Create narrative tension and excitement
-- Include specific details about key moments
-- Balance action description with emotional impact
-- Make the summary feel like professional sports commentary
-
-Return ONLY the summary text - no formatting, no JSON, no additional text.`;
-
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -765,15 +661,15 @@ Return ONLY the summary text - no formatting, no JSON, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: `You are an expert sports commentator specializing in post-fight analysis. Generate exciting, comprehensive battle summaries that capture the drama and significance of each match.`,
+            content: OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: prompt,
+            content: OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT(fighterA, fighterB, winner, keyEvents, totalRounds),
           },
         ],
         temperature: 0.7,
-        max_tokens: 200,
+        max_tokens: 120, // Reduced from 256
         top_p: 0.85,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,
@@ -786,17 +682,17 @@ Return ONLY the summary text - no formatting, no JSON, no additional text.`;
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`LM Studio battle summary API response error: ${response.status} ${errorBody}`);
-      return `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+      return `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
     }
 
     const data = await response.json();
     const summary = data.choices[0]?.message?.content?.trim();
     
-    return summary || `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+    return summary || `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle summary error:', error);
-    return `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
+    return `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
   }
 }; 
 
@@ -845,58 +741,23 @@ export const generateFighterDescription = async (
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
-    // Calculate some derived stats for the description
-    const totalFights = (fighter.winLossRecord?.wins || 0) + (fighter.winLossRecord?.losses || 0) + (fighter.winLossRecord?.draws || 0);
-    const winRate = totalFights > 0 ? Math.round(((fighter.winLossRecord?.wins || 0) / totalFights) * 100) : 0;
-    const isVeteran = totalFights > 10;
-    const isRookie = totalFights <= 3;
-    const hasStreak = (fighter.winLossRecord?.wins || 0) >= 3 || (fighter.winLossRecord?.losses || 0) >= 3;
+    // Calculate fighter statistics
+    const totalFights = fighter.winLossRecord ? 
+      fighter.winLossRecord.wins + fighter.winLossRecord.losses + fighter.winLossRecord.draws : 0;
+    const winRate = totalFights > 0 ? 
+      Math.round((fighter.winLossRecord!.wins / totalFights) * 100) : 0;
     
-    // Get recent performance (last 3 fights)
-    const recentFights = fighter.combatHistory?.slice(-3) || [];
-    const recentWins = recentFights.filter(fight => 
-      fight.attacker === fighter.name && fight.damage > 0
-    ).length;
-    const isHotStreak = recentWins >= 2;
-    const isSlumping = recentWins === 0 && recentFights.length >= 2;
-
-    const prompt = `Generate a compelling, character-specific description for a fighting game fighter.
-
-FIGHTER DATA:
-- Name: ${fighter.name}
-- Stats: Health ${fighter.stats.health}, Strength ${fighter.stats.strength}, Agility ${fighter.stats.agility}, Defense ${fighter.stats.defense}, Luck ${fighter.stats.luck}
-- Special Stats: Magic ${fighter.stats.magic || 0}, Ranged ${fighter.stats.ranged || 0}, Intelligence ${fighter.stats.intelligence || 0}
-- Unique Abilities: ${fighter.stats.uniqueAbilities?.join(', ') || 'None'}
-- Physical: ${fighter.stats.size} ${fighter.stats.build}, Age ${fighter.stats.age}
-- Equipment: ${fighter.visualAnalysis?.weapons?.join(', ') || 'None'}, ${fighter.visualAnalysis?.armor?.join(', ') || 'No armor'}
-- Appearance: ${fighter.visualAnalysis?.appearance?.join(', ') || 'Standard'}
-
-COMBAT HISTORY:
-- Total Fights: ${totalFights}
-- Record: ${fighter.winLossRecord?.wins || 0}W-${fighter.winLossRecord?.losses || 0}L-${fighter.winLossRecord?.draws || 0}D
-- Win Rate: ${winRate}%
-- Status: ${isVeteran ? 'Veteran' : isRookie ? 'Rookie' : 'Experienced'} fighter
-- Recent Form: ${isHotStreak ? 'Hot streak' : isSlumping ? 'Slumping' : 'Mixed results'}
-- Notable: ${hasStreak ? 'Has a winning/losing streak' : 'No significant streaks'}
-
-DESCRIPTION REQUIREMENTS:
-- Create a compelling 2-3 sentence description that captures the fighter's personality and fighting style
-- Reference their stats, abilities, and combat history when relevant
-- Make it sound exciting and battle-ready
-- Include specific details about their approach to combat
-- Mention any notable achievements or characteristics
-- Use action-oriented, dynamic language
-- Keep it concise but impactful (max 200 characters)
-
-STYLE GUIDELINES:
-- Focus on what makes this fighter unique and formidable
-- Emphasize their strengths and fighting philosophy
-- Create a sense of their reputation and experience
-- Make it sound like a fighting game character bio
-- Use varied, exciting vocabulary
-- Balance technical details with personality
-
-Return ONLY the description text - no formatting, no JSON, no additional text.`;
+    // Determine fighter status
+    const isVeteran = totalFights >= 10;
+    const isRookie = totalFights <= 2;
+    const isHotStreak = fighter.winLossRecord && fighter.winLossRecord.wins >= 3 && 
+      (fighter.winLossRecord.wins / Math.max(totalFights, 1)) > 0.7;
+    const isSlumping = fighter.winLossRecord && fighter.winLossRecord.losses >= 3 && 
+      (fighter.winLossRecord.losses / Math.max(totalFights, 1)) > 0.7;
+    const hasStreak = fighter.winLossRecord && 
+      (fighter.winLossRecord.wins >= 3 || fighter.winLossRecord.losses >= 3);
+    
+    const status = isVeteran ? 'Veteran' : isRookie ? 'Rookie' : 'Experienced';
 
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
@@ -908,33 +769,15 @@ Return ONLY the description text - no formatting, no JSON, no additional text.`;
         messages: [
           {
             role: 'system',
-            content: `You are an expert fighting game writer specializing in creating compelling character descriptions that capture the essence and fighting style of each fighter.
-
-DESCRIPTION STYLE:
-- Create vivid, action-packed descriptions that bring fighters to life
-- Emphasize unique characteristics and fighting approaches
-- Reference stats and abilities in a natural, engaging way
-- Build excitement and anticipation for upcoming battles
-- Use dynamic, varied language that avoids repetition
-- Make each fighter feel distinct and memorable
-
-QUALITY REQUIREMENTS:
-- Keep descriptions concise (2-3 sentences, max 200 characters)
-- Focus on combat-relevant characteristics
-- Include personality and fighting philosophy
-- Reference achievements and experience when available
-- Create a sense of the fighter's reputation
-- Use action-oriented, exciting language
-
-Make each description feel like it belongs in a professional fighting game.`,
+            content: OPTIMIZED_FIGHTER_DESCRIPTION_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: prompt,
+            content: OPTIMIZED_FIGHTER_DESCRIPTION_USER_PROMPT(fighter, totalFights, winRate, status),
           },
         ],
         temperature: 0.8,
-        max_tokens: 256,
+        max_tokens: 150, // Reduced from 256
       }),
       signal: controller.signal,
     });
@@ -949,11 +792,19 @@ Make each description feel like it belongs in a professional fighting game.`,
 
     const data = await response.json();
     const rawContent = data.choices[0]?.message?.content;
+    
     if (!rawContent) {
       return `A formidable ${fighter.stats.size} ${fighter.stats.build} fighter with ${fighter.stats.strength} strength and ${fighter.stats.agility} agility.`;
     }
 
-    return rawContent.trim();
+    const description = cleanStoryText(rawContent);
+    
+    // Ensure description is within character limit
+    if (description.length > 180) {
+      return description.substring(0, 177) + '...';
+    }
+    
+    return description;
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio fighter description error:', error);

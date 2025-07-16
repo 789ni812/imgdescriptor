@@ -1,3 +1,5 @@
+import { OPTIMIZED_FIGHTER_BALANCING_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_BALANCING_USER_PROMPT } from './prompts/optimized-prompts';
+
 export interface FighterData {
   id: string;
   name: string;
@@ -230,22 +232,6 @@ export async function balanceFighterWithLLM(fighterData: FighterData): Promise<{
     const fighterTypeKey = classifyFighter(fighterData.name);
     const typeConfig = FIGHTER_TYPES[fighterTypeKey];
     
-    // Create a context-aware prompt that includes fighter type information
-    const contextPrompt = `Generate balanced stats for a fighting game character.
-
-Fighter: ${fighterData.name}
-Type: ${typeConfig.name}
-Size: ${fighterData.stats.size}
-Build: ${fighterData.stats.build}
-
-Type Guidelines:
-- ${typeConfig.name}: Health ${typeConfig.healthRange[0]}-${typeConfig.healthRange[1]}, Strength ${typeConfig.strengthRange[0]}-${typeConfig.strengthRange[1]}, Agility ${typeConfig.agilityRange[0]}-${typeConfig.agilityRange[1]}, Defense ${typeConfig.defenseRange[0]}-${typeConfig.defenseRange[1]}, Luck ${typeConfig.luckRange[0]}-${typeConfig.luckRange[1]}
-${typeConfig.magicRange ? `- Magic: ${typeConfig.magicRange[0]}-${typeConfig.magicRange[1]}` : ''}
-${typeConfig.rangedRange ? `- Ranged: ${typeConfig.rangedRange[0]}-${typeConfig.rangedRange[1]}` : ''}
-${typeConfig.intelligenceRange ? `- Intelligence: ${typeConfig.intelligenceRange[0]}-${typeConfig.intelligenceRange[1]}` : ''}
-
-Important: Respect the type guidelines and ensure logical relationships (e.g., a mouse should have much lower strength than a Sith Lord).`;
-    
     console.log(`Attempting LLM-based balancing for ${fighterData.name} (${typeConfig.name})...`);
     
     // Use a custom prompt instead of the generic generateFighterStats
@@ -263,38 +249,15 @@ Important: Respect the type guidelines and ensure logical relationships (e.g., a
           messages: [
             {
               role: 'system',
-              content: `You are an expert fighting game balance designer specializing in creating fair, competitive, and engaging fighter statistics.
-
-CRITICAL REQUIREMENTS:
-- Respect the fighter type guidelines while maintaining character authenticity
-- Ensure stats are logically consistent with the fighter's characteristics
-- Create balanced stats that allow for competitive gameplay
-- Consider the fighter's size, build, and apparent abilities when adjusting stats
-- Maintain the fighter's unique identity while improving balance
-
-BALANCING PRINCIPLES:
-- Larger fighters should generally have higher health and strength
-- Smaller fighters should have higher agility and potentially luck
-- Muscular builds should favor strength and health
-- Thin builds should favor agility and potentially intelligence
-- Equipment and apparent abilities should influence relevant stats
-- Ensure no single stat dominates the fighter's profile
-
-STAT VALIDATION:
-- All stats must fall within the specified type ranges
-- Maintain logical relationships between stats
-- Consider the fighter's visual characteristics and apparent skills
-- Ensure the fighter remains competitive and fun to play
-
-Return ONLY a valid JSON object with the exact field names specified above. All numbers must be integers within the provided ranges.`,
+              content: OPTIMIZED_FIGHTER_BALANCING_SYSTEM_PROMPT,
             },
             {
               role: 'user',
-              content: contextPrompt,
+              content: OPTIMIZED_FIGHTER_BALANCING_USER_PROMPT(fighterData.name, typeConfig, fighterData.stats.size, fighterData.stats.build),
             },
           ],
           temperature: 0.3, // Lower temperature for more consistent results
-          max_tokens: 512,
+          max_tokens: 250, // Reduced from 512
         }),
         signal: controller.signal,
       });

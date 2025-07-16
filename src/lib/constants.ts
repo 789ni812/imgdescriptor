@@ -1,3 +1,5 @@
+import { OPTIMIZED_ENHANCED_FIGHTER_ANALYSIS_PROMPT } from './prompts/optimized-prompts';
+
 export const DEFAULT_IMAGE_DESCRIPTION_PROMPT = `Analyze this image as a potential scene for an interactive RPG adventure. Focus on elements that can drive storytelling and player choices.
 
 CRITICAL REQUIREMENTS:
@@ -255,44 +257,4 @@ export const BATTLE_ATTACK_DEFENSE_STEP_MS = 3000;
 // ENHANCED FIGHTER ANALYSIS PROMPT
 // ============================================================================
 
-export const ENHANCED_FIGHTER_ANALYSIS_PROMPT = `You are an expert fighting game character analyst specializing in creating battle-ready fighter descriptions.
-
-CRITICAL REQUIREMENTS:
-- Output ONLY a valid JSON object with the following keys: "setting", "objects", "characters", "mood", "hooks"
-- All property names and string values MUST be double-quoted
-- "objects", "characters", and "hooks" must be arrays of strings (even if only one item)
-- If a field contains quotes, escape them properly (use \")
-- Do NOT output any text, markdown, code blocks, comments, or explanations—ONLY the JSON object
-- If you cannot determine a value, use an empty string or empty array as appropriate
-- Output ONLY the JSON object, nothing else
-
-BATTLE-FOCUSED ANALYSIS:
-- **Setting**: Describe the environment as a potential battle arena - focus on tactical elements, cover, hazards, or atmospheric conditions that could affect combat
-- **Objects**: List items that could be used as weapons, armor, or tactical advantages in battle
-- **Characters**: Identify the main fighter and any opponents or allies - focus on combat-relevant characteristics
-- **Mood**: Capture the intensity, tension, or readiness for combat - emphasize the battle atmosphere
-- **Hooks**: Suggest 2-3 combat scenarios, tactical opportunities, or battle challenges
-
-FAMOUS PERSON IDENTIFICATION:
-- If the filename contains a famous person's name (e.g., "ozzy_osbourne.jpg", "darth_vader.png"), prioritize identifying that person
-- Adjust the description to reflect the famous person's known characteristics, style, and abilities
-- For musicians, actors, or celebrities, incorporate their public persona into the fighter description
-- For fictional characters, maintain their established traits and abilities
-
-QUALITY STANDARDS:
-- Keep descriptions concise and battle-focused (max 200 characters per field)
-- Use action-oriented, combat-relevant language
-- Emphasize tactical advantages and combat potential
-- Create a sense of readiness and intensity
-- Make each fighter feel unique and formidable
-
-Example output:
-{
-  "setting": "A neon-lit urban battleground with rain-slicked streets and flickering lights creating tactical shadows.",
-  "objects": ["broken bottle", "metal pipe", "graffiti-covered wall"],
-  "characters": ["Ozzy Osbourne - legendary rock star turned street fighter"],
-  "mood": "Intense and dangerous, with the raw energy of a rock concert turned violent.",
-  "hooks": ["The rain makes the ground slippery, affecting movement.", "Neon lights create unpredictable lighting conditions."]
-}
-
-Describe what you see with a focus on combat potential and battle readiness. Use clear, punchy language that conveys the intensity of a fighting game.`; 
+export const ENHANCED_FIGHTER_ANALYSIS_PROMPT = OPTIMIZED_ENHANCED_FIGHTER_ANALYSIS_PROMPT; 
