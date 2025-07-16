@@ -438,8 +438,32 @@ export default function PlayerVsPage() {
     
     // Check if battle has ended
     if (currentBattleIndex >= preGeneratedBattleLog.length) {
-      // Battle is over - winner should already be set by updateHealthAndCommentary
+      // Battle is over - ensure winner is correctly set
       console.log('Playervs: Battle ended, winner from store:', winner);
+      console.log('Playervs: Final health values:', { fighterAHealth, fighterBHealth });
+      
+      // Fallback winner determination if store winner is not set correctly
+      if (!winner && fighterA && fighterB) {
+        const finalHealthA = fighterAHealth ?? fighterA.stats.health;
+        const finalHealthB = fighterBHealth ?? fighterB.stats.health;
+        
+        console.log('Playervs: Fallback winner determination:', { finalHealthA, finalHealthB });
+        
+        let fallbackWinner = null;
+        if (finalHealthA <= 0 && finalHealthB <= 0) {
+          fallbackWinner = 'Draw';
+        } else if (finalHealthA <= 0) {
+          fallbackWinner = fighterB.name;
+        } else if (finalHealthB <= 0) {
+          fallbackWinner = fighterA.name;
+        }
+        
+        if (fallbackWinner && fallbackWinner !== winner) {
+          console.log('Playervs: Setting fallback winner:', fallbackWinner);
+          setWinner(fallbackWinner);
+        }
+      }
+      
       setShowRoundAnim(true);
       return;
     }
@@ -457,14 +481,34 @@ export default function PlayerVsPage() {
         fighterBId: fighters.fighterB?.id
       });
       
+      // More robust fighter name matching - check if names contain each other
+      const getFighterIdByName = (name: string) => {
+        if (!fighters.fighterA || !fighters.fighterB) return '';
+        
+        // Exact match first
+        if (fighters.fighterA.name === name) return fighters.fighterA.id;
+        if (fighters.fighterB.name === name) return fighters.fighterB.id;
+        
+        // Partial match (case insensitive)
+        const lowerName = name.toLowerCase();
+        if (fighters.fighterA.name.toLowerCase().includes(lowerName) || 
+            lowerName.includes(fighters.fighterA.name.toLowerCase())) {
+          return fighters.fighterA.id;
+        }
+        if (fighters.fighterB.name.toLowerCase().includes(lowerName) || 
+            lowerName.includes(fighters.fighterB.name.toLowerCase())) {
+          return fighters.fighterB.id;
+        }
+        
+        // Fallback: assume first fighter is attacker if names don't match
+        console.warn('Fighter name not found, using fallback logic:', name);
+        return fighters.fighterA.id;
+      };
+      
       // Update health and commentary
       updateHealthAndCommentary({
-        attackerId: fighters.fighterA?.name === roundData.attacker
-          ? fighters.fighterA?.id ?? ''
-          : fighters.fighterB?.id ?? '',
-        defenderId: fighters.fighterA?.name === roundData.defender
-          ? fighters.fighterA?.id ?? ''
-          : fighters.fighterB?.id ?? '',
+        attackerId: getFighterIdByName(roundData.attacker),
+        defenderId: getFighterIdByName(roundData.defender),
         attackerDamage: roundData.attackerDamage,
         defenderDamage: roundData.defenderDamage,
         attackCommentary: roundData.attackCommentary,
