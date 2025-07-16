@@ -155,33 +155,7 @@ export default function PlayerVsPage() {
   // Helper: can start fight
   const canStartFight = fighterA && fighterB && scene;
 
-  // Helper: determine winner based on remaining health
-  const determineWinner = () => {
-    if (!fighterA || !fighterB) return null;
-    
-    const healthA = fighterAHealth ?? fighterA.stats.health;
-    const healthB = fighterBHealth ?? fighterB.stats.health;
-    
-    if (healthA <= 0 && healthB <= 0) {
-      return 'Draw';
-    } else if (healthA <= 0) {
-      return fighterB.name;
-    } else if (healthB <= 0) {
-      return fighterA.name;
-    } else {
-      // Battle ended without knockout - determine winner by remaining health percentage
-      const healthPercentA = (healthA / fighterA.stats.maxHealth) * 100;
-      const healthPercentB = (healthB / fighterB.stats.maxHealth) * 100;
-      
-      if (Math.abs(healthPercentA - healthPercentB) < 5) {
-        return 'Draw'; // Very close - it's a draw
-      } else if (healthPercentA > healthPercentB) {
-        return fighterA.name;
-      } else {
-        return fighterB.name;
-      }
-    }
-  };
+
 
   function extractFighterName(analysis: Record<string, unknown>, fallback: string) {
     let name = fallback;
@@ -464,10 +438,8 @@ export default function PlayerVsPage() {
     
     // Check if battle has ended
     if (currentBattleIndex >= preGeneratedBattleLog.length) {
-      // Battle is over - determine winner and show animation
-      const battleWinner = determineWinner();
-      console.log('Playervs: Battle ended, winner:', battleWinner);
-      setWinner(battleWinner);
+      // Battle is over - winner should already be set by updateHealthAndCommentary
+      console.log('Playervs: Battle ended, winner from store:', winner);
       setShowRoundAnim(true);
       return;
     }
