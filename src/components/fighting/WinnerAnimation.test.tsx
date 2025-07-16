@@ -182,8 +182,8 @@ describe('WinnerAnimation', () => {
 
     // Check for images in the stats section (larger images)
     const statsSection = screen.getByText('Fighter Stats').closest('div');
-    const godzillaStatsImage = statsSection?.querySelector('img[alt="Godzilla"][class*="w-16"]');
-    const bruceStatsImage = statsSection?.querySelector('img[alt="Bruce Lee"][class*="w-16"]');
+    const godzillaStatsImage = statsSection?.querySelector('img[alt="Godzilla"][class*="w-20"]');
+    const bruceStatsImage = statsSection?.querySelector('img[alt="Bruce Lee"][class*="w-20"]');
 
     expect(godzillaStatsImage).toBeInTheDocument();
     expect(bruceStatsImage).toBeInTheDocument();

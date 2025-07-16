@@ -106,21 +106,22 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Battle Leaderboard</h1>
-        <p className="text-gray-600">
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-3 text-gray-800">Battle Leaderboard</h1>
+        <p className="text-lg text-gray-600">
           View fighter statistics and replay epic battles from the arena.
         </p>
       </div>
 
       {/* Navigation */}
-      <div className="mb-6" data-testid="leaderboard-navigation">
-        <div className="flex space-x-2">
+      <div className="mb-8" data-testid="leaderboard-navigation">
+        <div className="flex space-x-4">
           <Button
             onClick={() => setViewMode('leaderboard')}
             variant={viewMode === 'leaderboard' ? 'default' : 'secondary'}
             data-testid="leaderboard-btn"
+            className="px-6 py-3 text-base"
           >
             Leaderboard
           </Button>
@@ -131,6 +132,7 @@ export default function LeaderboardPage() {
             }}
             variant={viewMode === 'battle-replay' ? 'default' : 'secondary'}
             data-testid="battle-replays-btn"
+            className="px-6 py-3 text-base"
           >
             Battle Replays
           </Button>
@@ -165,10 +167,10 @@ export default function LeaderboardPage() {
               />
             </div>
           ) : (
-            <Card className="p-6" data-testid="battle-replays-list">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold" data-testid="battle-replays-title">Battle Replays</h2>
-                <Button onClick={loadBattleReplays} variant="secondary" size="sm" data-testid="refresh-battles-btn">
+            <Card className="p-8" data-testid="battle-replays-list">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800" data-testid="battle-replays-title">Battle Replays</h2>
+                <Button onClick={loadBattleReplays} variant="secondary" size="sm" data-testid="refresh-battles-btn" className="px-4 py-2">
                   Refresh
                 </Button>
               </div>
@@ -188,53 +190,53 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="battle-replays-grid">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="battle-replays-grid">
                   {availableBattles.map((battle) => (
                     <div
                       key={battle.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="border rounded-lg p-6 hover:bg-gray-50 cursor-pointer transition-colors shadow-sm hover:shadow-md"
                       onClick={() => handleBattleSelect(battle)}
                       data-testid={`battle-replay-${battle.id}`}
                     >
-                      <div className="flex items-center space-x-3 mb-3">
+                      <div className="flex items-center justify-center space-x-4 mb-4">
                         {battle.fighterA.imageUrl ? (
                           <img
                             src={battle.fighterA.imageUrl}
                             alt={battle.fighterA.name}
-                            className="w-8 h-8 rounded object-cover"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                          <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600 border-2 border-gray-200">
                             ?
                           </div>
                         )}
-                        <span className="text-sm font-medium">vs</span>
+                        <span className="text-lg font-bold text-gray-600">VS</span>
                         {battle.fighterB.imageUrl ? (
                           <img
                             src={battle.fighterB.imageUrl}
                             alt={battle.fighterB.name}
-                            className="w-8 h-8 rounded object-cover"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                          <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600 border-2 border-gray-200">
                             ?
                           </div>
                         )}
                       </div>
                       
-                      <div className="text-sm font-medium">
+                      <div className="text-base font-semibold text-center mb-3">
                         {battle.fighterA.name} vs {battle.fighterB.name}
                       </div>
                       
-                      <div className="text-xs text-gray-500 mt-1">
-                        Winner: <span className="font-semibold">{battle.winner}</span>
+                      <div className="text-sm text-gray-600 mb-2 text-center">
+                        Winner: <span className="font-bold text-green-600">{battle.winner}</span>
                       </div>
                       
-                      <div className="text-xs text-gray-400 mt-1">
+                      <div className="text-xs text-gray-500 mb-4 text-center">
                         {new Date(battle.date).toLocaleDateString()} • {battle.battleLog.length} rounds
                       </div>
                       
-                      <div className="text-xs text-blue-600 mt-2">
+                      <div className="text-sm text-blue-600 text-center font-medium hover:text-blue-800 transition-colors">
                         Click to replay
                       </div>
                     </div>

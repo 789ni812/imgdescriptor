@@ -87,63 +87,63 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
         {/* Fighter Stats Section */}
         {fighterA && fighterB && (
           <div className="w-full mb-8">
-            <h3 className="text-2xl font-bold text-white mb-4 text-center">Fighter Stats</h3>
-            <div className="grid grid-cols-2 gap-6">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Fighter Stats</h3>
+            <div className="grid grid-cols-2 gap-8">
               {/* Fighter A Stats */}
-              <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center mb-3">
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-600 shadow-lg">
+                <div className="flex items-center mb-4">
                   {fighterA.imageUrl ? (
-                    <img src={fighterA.imageUrl} alt={fighterA.name} className="w-16 h-16 object-cover rounded-lg mr-3" />
+                    <img src={fighterA.imageUrl} alt={fighterA.name} className="w-20 h-20 object-cover rounded-lg mr-4 border-2 border-gray-500" />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-600 rounded-lg mr-3 flex items-center justify-center text-gray-400 text-xs">
+                    <div className="w-20 h-20 bg-gray-600 rounded-lg mr-4 flex items-center justify-center text-gray-400 text-sm border-2 border-gray-500">
                       No Image
                     </div>
                   )}
                   <div>
-                    <h4 className="text-xl font-bold text-white">{fighterA.name}</h4>
+                    <h4 className="text-xl font-bold text-white mb-1">{fighterA.name}</h4>
                     {fighterAHealth !== undefined && (
                       <p className="text-sm text-gray-300">Final Health: {fighterAHealth} / {fighterA.stats.maxHealth}</p>
                     )}
                   </div>
                 </div>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-gray-300 leading-relaxed">
                   Health: {fighterA.stats.health} | Strength: {fighterA.stats.strength} | Agility: {fighterA.stats.agility} | Defense: {fighterA.stats.defense} | Luck: {fighterA.stats.luck}
                   {fighterA.stats.magic !== undefined && ` | Magic: ${fighterA.stats.magic}`}
                   {fighterA.stats.ranged !== undefined && ` | Ranged: ${fighterA.stats.ranged}`}
                   {fighterA.stats.intelligence !== undefined && ` | Intelligence: ${fighterA.stats.intelligence}`}
                 </div>
                 {fighterA.uniqueAbilities && fighterA.uniqueAbilities.length > 0 && (
-                  <div className="mt-2">
+                  <div className="mt-3">
                     <div className="text-xs text-purple-400">Abilities: {fighterA.uniqueAbilities.join(', ')}</div>
                   </div>
                 )}
               </div>
 
               {/* Fighter B Stats */}
-              <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center mb-3">
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-600 shadow-lg">
+                <div className="flex items-center mb-4">
                   {fighterB.imageUrl ? (
-                    <img src={fighterB.imageUrl} alt={fighterB.name} className="w-16 h-16 object-cover rounded-lg mr-3" />
+                    <img src={fighterB.imageUrl} alt={fighterB.name} className="w-20 h-20 object-cover rounded-lg mr-4 border-2 border-gray-500" />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-600 rounded-lg mr-3 flex items-center justify-center text-gray-400 text-xs">
+                    <div className="w-20 h-20 bg-gray-600 rounded-lg mr-4 flex items-center justify-center text-gray-400 text-sm border-2 border-gray-500">
                       No Image
                     </div>
                   )}
                   <div>
-                    <h4 className="text-xl font-bold text-white">{fighterB.name}</h4>
+                    <h4 className="text-xl font-bold text-white mb-1">{fighterB.name}</h4>
                     {fighterBHealth !== undefined && (
                       <p className="text-sm text-gray-300">Final Health: {fighterBHealth} / {fighterB.stats.maxHealth}</p>
                     )}
                   </div>
                 </div>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-gray-300 leading-relaxed">
                   Health: {fighterB.stats.health} | Strength: {fighterB.stats.strength} | Agility: {fighterB.stats.agility} | Defense: {fighterB.stats.defense} | Luck: {fighterB.stats.luck}
                   {fighterB.stats.magic !== undefined && ` | Magic: ${fighterB.stats.magic}`}
                   {fighterB.stats.ranged !== undefined && ` | Ranged: ${fighterB.stats.ranged}`}
                   {fighterB.stats.intelligence !== undefined && ` | Intelligence: ${fighterB.stats.intelligence}`}
                 </div>
                 {fighterB.uniqueAbilities && fighterB.uniqueAbilities.length > 0 && (
-                  <div className="mt-2">
+                  <div className="mt-3">
                     <div className="text-xs text-purple-400">Abilities: {fighterB.uniqueAbilities.join(', ')}</div>
                   </div>
                 )}
@@ -155,8 +155,8 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
         {/* Battle Overview Section */}
         {battleLog.length > 0 && (
           <div className="w-full mb-8">
-            <h3 className="text-2xl font-bold text-white mb-4 text-center">Battle Overview</h3>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Battle Overview</h3>
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-600 shadow-lg">
               {battleLog.map((round) => {
                 // Find fighter objects for attacker and defender
                 const attackerFighter = round.attacker === fighterA?.name ? fighterA : fighterB;
@@ -189,59 +189,63 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                 }
                 
                 return (
-                  <div key={round.round} className="mb-3 pb-3 border-b border-gray-600 last:border-b-0">
-                    <h4 className="text-lg font-semibold text-yellow-400 mb-2">Round {round.round}</h4>
+                  <div key={round.round} className="mb-6 pb-4 border-b border-gray-600 last:border-b-0 last:mb-0">
+                    <h4 className="text-lg font-semibold text-yellow-400 mb-3">Round {round.round}</h4>
                     
-                    <div className="space-y-1 text-sm">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-start gap-3 p-3 bg-gray-700 rounded-lg">
                         {attackerFighter?.imageUrl ? (
-                          <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-6 h-6 object-cover rounded-full border border-gray-400" />
+                          <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-8 h-8 object-cover rounded-full border border-gray-400 flex-shrink-0 mt-0.5" />
                         ) : (
-                          <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
+                          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs flex-shrink-0 mt-0.5">?</div>
                         )}
-                        <span className="text-blue-400 font-medium mr-1">{round.attacker}:</span>
-                        <span className="text-gray-300">{round.attackCommentary}</span>
+                        <div className="flex-1">
+                          <span className="text-blue-400 font-medium mr-2">{round.attacker}:</span>
+                          <span className="text-gray-300 leading-relaxed">{round.attackCommentary}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-3 p-3 bg-gray-700 rounded-lg">
                         {defenderFighter?.imageUrl ? (
-                          <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-6 h-6 object-cover rounded-full border border-gray-400" />
+                          <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-8 h-8 object-cover rounded-full border border-gray-400 flex-shrink-0 mt-0.5" />
                         ) : (
-                          <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
+                          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs flex-shrink-0 mt-0.5">?</div>
                         )}
-                        <span className="text-red-400 font-medium mr-1">{round.defender}:</span>
-                        <span className="text-gray-300">{round.defenseCommentary}</span>
+                        <div className="flex-1">
+                          <span className="text-red-400 font-medium mr-2">{round.defender}:</span>
+                          <span className="text-gray-300 leading-relaxed">{round.defenseCommentary}</span>
+                        </div>
                       </div>
                       {/* Only show Special Event if it is a non-empty, non-undefined, non-null string */}
                       {round.randomEvent && typeof round.randomEvent === 'string' && round.randomEvent.trim() !== '' && round.randomEvent !== 'undefined' && (
-                        <div className="text-purple-400 text-xs italic">Special Event: {round.randomEvent}</div>
+                        <div className="text-purple-400 text-xs italic p-2 bg-purple-900/20 rounded border border-purple-500/30">Special Event: {round.randomEvent}</div>
                       )}
                       {/* Only show Arena Used if it is a non-empty, non-undefined, non-null string */}
                       {round.arenaObjectsUsed && typeof round.arenaObjectsUsed === 'string' && round.arenaObjectsUsed.trim() !== '' && round.arenaObjectsUsed !== 'undefined' && (
-                        <div className="text-green-400 text-xs italic">Arena Used: {round.arenaObjectsUsed}</div>
+                        <div className="text-green-400 text-xs italic p-2 bg-green-900/20 rounded border border-green-500/30">Arena Used: {round.arenaObjectsUsed}</div>
                       )}
                       
                       {/* Stat Changes Display */}
-                      <div className="flex justify-center items-center gap-4 mt-2 pt-2 border-t border-gray-700">
+                      <div className="flex justify-center items-center gap-6 mt-4 pt-3 border-t border-gray-700">
                         {attackerFighter && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             {attackerFighter.imageUrl ? (
-                              <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-4 h-4 object-cover rounded-full border border-gray-400" />
+                              <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-5 h-5 object-cover rounded-full border border-gray-400" />
                             ) : (
-                              <div className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
+                              <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
                             )}
-                            <span className={`text-xs ${attackerHealthChange < 0 ? 'text-red-400' : attackerHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                            <span className={`text-sm font-medium ${attackerHealthChange < 0 ? 'text-red-400' : attackerHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
                               {attackerHealthChange < 0 ? `-${Math.abs(attackerHealthChange)}` : attackerHealthChange > 0 ? `+${attackerHealthChange}` : '0'}
                             </span>
                           </div>
                         )}
                         {defenderFighter && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             {defenderFighter.imageUrl ? (
-                              <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-4 h-4 object-cover rounded-full border border-gray-400" />
+                              <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-5 h-5 object-cover rounded-full border border-gray-400" />
                             ) : (
-                              <div className="w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
+                              <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
                             )}
-                            <span className={`text-xs ${defenderHealthChange < 0 ? 'text-red-400' : defenderHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                            <span className={`text-sm font-medium ${defenderHealthChange < 0 ? 'text-red-400' : defenderHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
                               {defenderHealthChange < 0 ? `-${Math.abs(defenderHealthChange)}` : defenderHealthChange > 0 ? `+${defenderHealthChange}` : '0'}
                             </span>
                           </div>
