@@ -16,6 +16,7 @@ import { Fighter } from '@/lib/stores/fightingGameStore';
 import { Scene } from '@/lib/stores/fightingGameStore';
 import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
 import RebalanceFightersButton from '@/components/fighting/RebalanceFightersButton';
+import FighterStatDisplay from '@/components/fighting/FighterStatDisplay';
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
@@ -574,31 +575,7 @@ export default function PlayerVsPage() {
                   </>
                 ) : (
                   // Existing fighter summary UI for Fighter A
-                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30" data-testid="fighter-a-summary">
-                    {fighterA.imageUrl && (
-                      <img src={fighterA.imageUrl} alt={fighterA.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" data-testid="fighter-a-summary-image" />
-                    )}
-                    <h4 className="text-lg font-semibold text-green-400 mb-3" data-testid="fighter-a-summary-name">{fighterA.name}</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm" data-testid="fighter-a-summary-stats">
-                      <div>Health: {fighterA.stats.health}</div>
-                      <div>Strength: {fighterA.stats.strength}</div>
-                      <div>Luck: {fighterA.stats.luck}</div>
-                      <div>Agility: {fighterA.stats.agility}</div>
-                      <div>Defense: {fighterA.stats.defense}</div>
-                      <div>Size: {fighterA.stats.size}</div>
-                    </div>
-                    <div className="mt-3 text-xs text-gray-300">
-                      <p><strong>Build:</strong> {fighterA.stats.build}</p>
-                      <p><strong>Age:</strong> {fighterA.visualAnalysis.age}</p>
-                    </div>
-                    <button
-                      onClick={() => removeFighter('fighterA')}
-                      className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
-                      data-testid="fighter-a-summary-remove-btn"
-                    >
-                      Remove Fighter
-                    </button>
-                  </div>
+                  <FighterStatDisplay fighter={fighterA} onRemove={() => removeFighter('fighterA')} />
                 )}
               </div>
 
@@ -630,31 +607,7 @@ export default function PlayerVsPage() {
                   </>
                 ) : (
                   // Existing fighter summary UI for Fighter B
-                  <div className="bg-green-900/20 backdrop-blur-sm rounded-lg p-4 border border-green-500/30" data-testid="fighter-b-summary">
-                    {fighterB.imageUrl && (
-                      <img src={fighterB.imageUrl} alt={fighterB.name} className="w-32 h-32 object-cover rounded border-2 border-green-400 mb-2" data-testid="fighter-b-summary-image" />
-                    )}
-                    <h4 className="text-lg font-semibold text-green-400 mb-3" data-testid="fighter-b-summary-name">{fighterB.name}</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm" data-testid="fighter-b-summary-stats">
-                      <div>Health: {fighterB.stats.health}</div>
-                      <div>Strength: {fighterB.stats.strength}</div>
-                      <div>Luck: {fighterB.stats.luck}</div>
-                      <div>Agility: {fighterB.stats.agility}</div>
-                      <div>Defense: {fighterB.stats.defense}</div>
-                      <div>Size: {fighterB.stats.size}</div>
-                    </div>
-                    <div className="mt-3 text-xs text-gray-300">
-                      <p><strong>Build:</strong> {fighterB.stats.build}</p>
-                      <p><strong>Age:</strong> {fighterB.visualAnalysis.age}</p>
-                    </div>
-                    <button
-                      onClick={() => removeFighter('fighterB')}
-                      className="mt-3 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs"
-                      data-testid="fighter-b-summary-remove-btn"
-                    >
-                      Remove Fighter
-                    </button>
-                  </div>
+                  <FighterStatDisplay fighter={fighterB} onRemove={() => removeFighter('fighterB')} />
                 )}
               </div>
             </div>

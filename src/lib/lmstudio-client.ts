@@ -285,8 +285,12 @@ export const generateFighterStats = async (
             - age: number (1-1000000)
             - size: "small" | "medium" | "large"
             - build: "thin" | "average" | "muscular" | "heavy"
+            - magic: number (0-100, only if character has supernatural powers)
+            - ranged: number (0-100, only if character has ranged attacks)
+            - intelligence: number (1-100)
+            - uniqueAbilities: string[] (2-4 special abilities based on character type)
             
-            Consider the fighter's characteristics when generating stats.`,
+            Consider the fighter's characteristics when generating stats. Only include magic/ranged if appropriate.`,
           },
           {
             role: 'user',
@@ -330,6 +334,12 @@ export const generateFighterStats = async (
         typeof parsed.size === 'string' &&
         typeof parsed.build === 'string'
       ) {
+        // Ensure optional fields have default values if not provided
+        if (typeof parsed.magic !== 'number') parsed.magic = 0;
+        if (typeof parsed.ranged !== 'number') parsed.ranged = 0;
+        if (typeof parsed.intelligence !== 'number') parsed.intelligence = 20;
+        if (!Array.isArray(parsed.uniqueAbilities)) parsed.uniqueAbilities = [];
+        
         return { success: true, stats: parsed };
       } else {
         throw new Error('Missing required fields in fighter stats JSON.');
@@ -355,6 +365,10 @@ interface FighterStats {
   age: number;
   size: 'small' | 'medium' | 'large';
   build: 'thin' | 'average' | 'muscular' | 'heavy';
+  magic?: number;
+  ranged?: number;
+  intelligence?: number;
+  uniqueAbilities?: string[];
 }
 
 export const generateBattleCommentary = async (

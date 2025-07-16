@@ -30,6 +30,7 @@ interface FighterStatDisplayProps {
   showTooltips?: boolean;
   size?: 'compact' | 'detailed' | 'full';
   comparisonMode?: boolean;
+  onRemove?: () => void;
 }
 
 const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
@@ -38,6 +39,7 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
   showTooltips = false,
   size = 'full',
   comparisonMode = false,
+  onRemove,
 }) => {
   const getStatColor = (stat: string, value: number): string => {
     const maxValues: Record<string, number> = {
@@ -262,6 +264,17 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
       </div>
 
       {renderUniqueAbilities()}
+      
+      {onRemove && (
+        <div className="mt-4 pt-4 border-t border-gray-600">
+          <button
+            onClick={onRemove}
+            className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded font-medium transition-colors"
+          >
+            Remove Fighter
+          </button>
+        </div>
+      )}
     </div>
   );
 };

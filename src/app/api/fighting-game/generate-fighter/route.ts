@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   // First, check if we have existing stats for this fighter
   const existingStats = await findExistingFighterStats(fighterLabel);
   
-  let strength, health, luck, agility, defense, age, size, build;
+  let strength, health, luck, agility, defense, age, size, build, magic, ranged, intelligence, uniqueAbilities;
 
   if (existingStats) {
     // Use existing balanced stats
@@ -75,6 +75,10 @@ export async function POST(req: NextRequest) {
     age = existingStats.age;
     size = existingStats.size;
     build = existingStats.build;
+    magic = existingStats.magic || 0;
+    ranged = existingStats.ranged || 0;
+    intelligence = existingStats.intelligence || 20;
+    uniqueAbilities = existingStats.uniqueAbilities || [];
   } else {
     // Try to use LLM for intelligent stat generation first
     try {
@@ -91,6 +95,10 @@ export async function POST(req: NextRequest) {
         age = llmResult.stats.age;
         size = llmResult.stats.size;
         build = llmResult.stats.build;
+        magic = llmResult.stats.magic || 0;
+        ranged = llmResult.stats.ranged || 0;
+        intelligence = llmResult.stats.intelligence || 20;
+        uniqueAbilities = llmResult.stats.uniqueAbilities || [];
       } else {
         console.log('LLM stat generation failed, falling back to score sheet:', llmResult.error);
         throw new Error('LLM generation failed');
@@ -126,6 +134,16 @@ export async function POST(req: NextRequest) {
         age = creatureType.name === 'kaiju' ? randomStat(1000, 200000000) :
               creatureType.name === 'human' ? randomStat(18, 80) :
               randomStat(1, 50);
+        
+        // Set special stats based on creature type
+        magic = creatureType.name === 'kaiju' ? randomStat(0, 50) : 0;
+        ranged = creatureType.name === 'kaiju' ? randomStat(50, 100) : randomStat(0, 10);
+        intelligence = creatureType.name === 'human' ? randomStat(20, 40) :
+                      creatureType.name === 'kaiju' ? randomStat(8, 25) :
+                      randomStat(2, 15);
+        
+        // Generate abilities based on creature type
+        uniqueAbilities = generateAbilitiesForType(creatureType.name, descString, label);
       } else {
         // Fallback to existing logic for unrecognized creatures
         // Small animal archetype
@@ -138,6 +156,10 @@ export async function POST(req: NextRequest) {
           age = randomStat(1, 5);
           size = 'small';
           build = 'thin';
+          magic = 0;
+          ranged = 0;
+          intelligence = randomStat(2, 5);
+          uniqueAbilities = ['Quick Escape'];
         }
         // Giant monster archetype
         else if (/godzilla|t-rex|dinosaur|giant|monster|kaiju/.test(descString) || /godzilla|t-rex|dinosaur|giant|monster|kaiju/.test(label)) {
@@ -150,6 +172,10 @@ export async function POST(req: NextRequest) {
           age = randomStat(1000, 200000000);
           size = 'large';
           build = 'heavy';
+          magic = randomStat(0, 50);
+          ranged = randomStat(50, 100);
+          intelligence = randomStat(8, 25);
+          uniqueAbilities = ['Atomic Breath', 'Tail Whip', 'Monster Strength'];
         }
         // Default balanced stats
         else {
@@ -161,6 +187,10 @@ export async function POST(req: NextRequest) {
           age = randomStat(18, 80);
           size = 'medium';
           build = 'average';
+          magic = 0;
+          ranged = randomStat(0, 10);
+          intelligence = randomStat(20, 40);
+          uniqueAbilities = generateAbilitiesForType('regular_human', descString, label);
         }
       }
     }
@@ -181,6 +211,10 @@ export async function POST(req: NextRequest) {
       age,
       size: size as 'small' | 'medium' | 'large',
       build: build as 'thin' | 'average' | 'muscular' | 'heavy',
+      magic,
+      ranged,
+      intelligence,
+      uniqueAbilities,
     },
     visualAnalysis: {
       age: age < 25 ? 'young' : age > 50 ? 'old' : 'adult',
@@ -196,4 +230,45 @@ export async function POST(req: NextRequest) {
   };
 
   return NextResponse.json({ fighter });
+}
+
+// Helper function to generate abilities based on creature type and description
+function generateAbilitiesForType(creatureType: string, descString: string, label: string): string[] {
+  const abilities: string[] = [];
+  
+  switch (creatureType) {
+    case 'kaiju':
+      abilities.push('Atomic Breath', 'Tail Whip', 'Monster Strength');
+      break;
+    case 'human':
+      if (/martial|karate|kung|judo|aikido|boxing|wrestling/.test(descString) || /martial|karate|kung|judo|aikido|boxing|wrestling/.test(label)) {
+        abilities.push('Martial Arts', 'Combat Training', 'Disciplined Strike');
+      } else {
+        abilities.push('Basic Combat', 'Human Endurance', 'Adaptive Fighting');
+      }
+      break;
+    case 'rodent':
+      abilities.push('Quick Escape', 'Agile Movement', 'Stealth Attack');
+      break;
+    case 'large_animal':
+      if (/bear|tiger|lion/.test(descString) || /bear|tiger|lion/.test(label)) {
+        abilities.push('Claw Attack', 'Feral Strength', 'Predator Instinct');
+      } else {
+        abilities.push('Natural Weapons', 'Animal Strength', 'Wild Combat');
+      }
+      break;
+    default:
+      // Generate abilities based on description keywords
+      if (/sword|blade|weapon/.test(descString) || /sword|blade|weapon/.test(label)) {
+        abilities.push('Weapon Mastery', 'Precise Strike', 'Combat Experience');
+      } else if (/armor|shield|protection/.test(descString) || /armor|shield|protection/.test(label)) {
+        abilities.push('Defensive Stance', 'Armor Mastery', 'Shield Block');
+      } else if (/magic|spell|wizard|mage/.test(descString) || /magic|spell|wizard|mage/.test(label)) {
+        abilities.push('Magic Casting', 'Spell Mastery', 'Arcane Knowledge');
+      } else {
+        abilities.push('Basic Combat', 'Fighter Instinct', 'Battle Experience');
+      }
+  }
+  
+  return abilities;
 } 
