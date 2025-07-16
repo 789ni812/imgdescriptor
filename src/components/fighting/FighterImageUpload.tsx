@@ -1,11 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { ENHANCED_FIGHTER_ANALYSIS_PROMPT } from '@/lib/constants';
 
 interface FighterImageUploadProps {
-  onUploadComplete: (result: { url: string; analysis: Record<string, unknown>; file: File }) => void;
+  onUploadComplete: (data: { url: string; analysis: any; file: File }) => void;
   disabled?: boolean;
   label?: string;
-  category?: 'fighter' | 'arena';
+  category?: string;
 }
 
 export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
@@ -41,10 +42,17 @@ export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
       reader.onload = async () => {
         try {
           const base64Image = (reader.result as string).split(',')[1];
+          
+          // Create enhanced prompt that includes filename for famous person identification
+          const enhancedPrompt = `${ENHANCED_FIGHTER_ANALYSIS_PROMPT}
+
+FILENAME CONTEXT: ${file.name}
+If this filename contains a famous person's name, prioritize identifying them in your analysis.`;
+          
           const res = await fetch('/api/analyze-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64Image, prompt: 'Describe this fighter.' }),
+            body: JSON.stringify({ image: base64Image, prompt: enhancedPrompt }),
           });
           if (!res.ok) throw new Error('Analysis failed');
           const analysis: Record<string, unknown> = await res.json();
@@ -68,11 +76,11 @@ export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
     }
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0 && !disabled) {
       handleFileSelected(acceptedFiles[0]);
     }
-  }, [disabled, handleFileSelected]);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

@@ -818,3 +818,164 @@ Return ONLY the summary text - no formatting, no JSON, no additional text.`;
     return `${fighterA} and ${fighterB} engaged in an intense ${totalRounds}-round battle. ${winner} emerged victorious after a hard-fought contest.`;
   }
 }; 
+
+// ============================================================================
+// ENHANCED FIGHTER DESCRIPTION GENERATION
+// ============================================================================
+
+export const generateFighterDescription = async (
+  fighter: {
+    name: string;
+    stats: {
+      health: number;
+      strength: number;
+      agility: number;
+      defense: number;
+      luck: number;
+      magic?: number;
+      ranged?: number;
+      intelligence?: number;
+      uniqueAbilities?: string[];
+      size: string;
+      build: string;
+      age: number;
+    };
+    visualAnalysis?: {
+      age: string;
+      size: string;
+      build: string;
+      appearance: string[];
+      weapons: string[];
+      armor: string[];
+    };
+    combatHistory?: Array<{
+      round: number;
+      attacker: string;
+      defender: string;
+      damage: number;
+      narrative: string;
+      timestamp: string;
+    }>;
+    winLossRecord?: { wins: number; losses: number; draws: number };
+    createdAt?: string;
+  }
+): Promise<string> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    // Calculate some derived stats for the description
+    const totalFights = (fighter.winLossRecord?.wins || 0) + (fighter.winLossRecord?.losses || 0) + (fighter.winLossRecord?.draws || 0);
+    const winRate = totalFights > 0 ? Math.round(((fighter.winLossRecord?.wins || 0) / totalFights) * 100) : 0;
+    const isVeteran = totalFights > 10;
+    const isRookie = totalFights <= 3;
+    const hasStreak = (fighter.winLossRecord?.wins || 0) >= 3 || (fighter.winLossRecord?.losses || 0) >= 3;
+    
+    // Get recent performance (last 3 fights)
+    const recentFights = fighter.combatHistory?.slice(-3) || [];
+    const recentWins = recentFights.filter(fight => 
+      fight.attacker === fighter.name && fight.damage > 0
+    ).length;
+    const isHotStreak = recentWins >= 2;
+    const isSlumping = recentWins === 0 && recentFights.length >= 2;
+
+    const prompt = `Generate a compelling, character-specific description for a fighting game fighter.
+
+FIGHTER DATA:
+- Name: ${fighter.name}
+- Stats: Health ${fighter.stats.health}, Strength ${fighter.stats.strength}, Agility ${fighter.stats.agility}, Defense ${fighter.stats.defense}, Luck ${fighter.stats.luck}
+- Special Stats: Magic ${fighter.stats.magic || 0}, Ranged ${fighter.stats.ranged || 0}, Intelligence ${fighter.stats.intelligence || 0}
+- Unique Abilities: ${fighter.stats.uniqueAbilities?.join(', ') || 'None'}
+- Physical: ${fighter.stats.size} ${fighter.stats.build}, Age ${fighter.stats.age}
+- Equipment: ${fighter.visualAnalysis?.weapons?.join(', ') || 'None'}, ${fighter.visualAnalysis?.armor?.join(', ') || 'No armor'}
+- Appearance: ${fighter.visualAnalysis?.appearance?.join(', ') || 'Standard'}
+
+COMBAT HISTORY:
+- Total Fights: ${totalFights}
+- Record: ${fighter.winLossRecord?.wins || 0}W-${fighter.winLossRecord?.losses || 0}L-${fighter.winLossRecord?.draws || 0}D
+- Win Rate: ${winRate}%
+- Status: ${isVeteran ? 'Veteran' : isRookie ? 'Rookie' : 'Experienced'} fighter
+- Recent Form: ${isHotStreak ? 'Hot streak' : isSlumping ? 'Slumping' : 'Mixed results'}
+- Notable: ${hasStreak ? 'Has a winning/losing streak' : 'No significant streaks'}
+
+DESCRIPTION REQUIREMENTS:
+- Create a compelling 2-3 sentence description that captures the fighter's personality and fighting style
+- Reference their stats, abilities, and combat history when relevant
+- Make it sound exciting and battle-ready
+- Include specific details about their approach to combat
+- Mention any notable achievements or characteristics
+- Use action-oriented, dynamic language
+- Keep it concise but impactful (max 200 characters)
+
+STYLE GUIDELINES:
+- Focus on what makes this fighter unique and formidable
+- Emphasize their strengths and fighting philosophy
+- Create a sense of their reputation and experience
+- Make it sound like a fighting game character bio
+- Use varied, exciting vocabulary
+- Balance technical details with personality
+
+Return ONLY the description text - no formatting, no JSON, no additional text.`;
+
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert fighting game writer specializing in creating compelling character descriptions that capture the essence and fighting style of each fighter.
+
+DESCRIPTION STYLE:
+- Create vivid, action-packed descriptions that bring fighters to life
+- Emphasize unique characteristics and fighting approaches
+- Reference stats and abilities in a natural, engaging way
+- Build excitement and anticipation for upcoming battles
+- Use dynamic, varied language that avoids repetition
+- Make each fighter feel distinct and memorable
+
+QUALITY REQUIREMENTS:
+- Keep descriptions concise (2-3 sentences, max 200 characters)
+- Focus on combat-relevant characteristics
+- Include personality and fighting philosophy
+- Reference achievements and experience when available
+- Create a sense of the fighter's reputation
+- Use action-oriented, exciting language
+
+Make each description feel like it belongs in a professional fighting game.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 256,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio fighter description API response error: ${response.status} ${errorBody}`);
+      return `A formidable ${fighter.stats.size} ${fighter.stats.build} fighter with ${fighter.stats.strength} strength and ${fighter.stats.agility} agility.`;
+    }
+
+    const data = await response.json();
+    const rawContent = data.choices[0]?.message?.content;
+    if (!rawContent) {
+      return `A formidable ${fighter.stats.size} ${fighter.stats.build} fighter with ${fighter.stats.strength} strength and ${fighter.stats.agility} agility.`;
+    }
+
+    return rawContent.trim();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio fighter description error:', error);
+    return `A formidable ${fighter.stats.size} ${fighter.stats.build} fighter with ${fighter.stats.strength} strength and ${fighter.stats.agility} agility.`;
+  }
+}; 

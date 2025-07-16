@@ -218,7 +218,7 @@ describe('/api/fighting-game/balance-fighters', () => {
     const result = await response.json();
 
     expect(result.success).toBe(true);
-    expect(result.message).toBe('Balanced 2 fighters'); // Only JSON files processed
+    expect(result.message).toBe('Balanced 2 fighters (0 LLM, 2 rule-based)'); // Only JSON files processed
     expect(result.results).toHaveLength(2);
   });
 }); 

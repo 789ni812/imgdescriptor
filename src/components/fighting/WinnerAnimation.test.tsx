@@ -48,8 +48,8 @@ const mockBattleLog = [
     defenseCommentary: 'Bruce Lee dodges with incredible speed!',
     attackerDamage: 0,
     defenderDamage: 25,
-    randomEvent: null,
-    arenaObjectsUsed: null,
+    randomEvent: undefined,
+    arenaObjectsUsed: undefined,
     healthAfter: { attacker: 800, defender: 95 },
   },
   {
@@ -60,8 +60,8 @@ const mockBattleLog = [
     defenseCommentary: 'Godzilla barely feels the impact!',
     attackerDamage: 5,
     defenderDamage: 0,
-    randomEvent: null,
-    arenaObjectsUsed: null,
+    randomEvent: undefined,
+    arenaObjectsUsed: undefined,
     healthAfter: { attacker: 795, defender: 95 },
   },
 ];
@@ -79,7 +79,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -94,7 +93,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Draw"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -109,7 +107,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterAHealth={800}
         fighterBHealth={0}
         fighterA={mockFighterA}
@@ -126,7 +123,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -149,7 +145,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -173,7 +168,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -182,8 +176,8 @@ describe('WinnerAnimation', () => {
 
     // Check for images in the stats section (larger images)
     const statsSection = screen.getByText('Fighter Stats').closest('div');
-    const godzillaStatsImage = statsSection?.querySelector('img[alt="Godzilla"][class*="w-20"]');
-    const bruceStatsImage = statsSection?.querySelector('img[alt="Bruce Lee"][class*="w-20"]');
+    const godzillaStatsImage = statsSection?.querySelector('img[alt="Godzilla"][class*="w-16"]');
+    const bruceStatsImage = statsSection?.querySelector('img[alt="Bruce Lee"][class*="w-16"]');
 
     expect(godzillaStatsImage).toBeInTheDocument();
     expect(bruceStatsImage).toBeInTheDocument();
@@ -196,7 +190,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={mockFighterA}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -207,23 +200,7 @@ describe('WinnerAnimation', () => {
     expect(mockOnDone).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when close button is clicked', () => {
-    render(
-      <WinnerAnimation
-        winner="Godzilla"
-        onDone={mockOnDone}
-        onClose={mockOnClose}
-        fighterA={mockFighterA}
-        fighterB={mockFighterB}
-        battleLog={mockBattleLog}
-      />
-    );
-
-    fireEvent.click(screen.getByText('Close'));
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not show close button when onClose is not provided', () => {
+  it('only shows restart button (close button was removed)', () => {
     render(
       <WinnerAnimation
         winner="Godzilla"
@@ -234,6 +211,7 @@ describe('WinnerAnimation', () => {
       />
     );
 
+    expect(screen.getByText('Restart')).toBeInTheDocument();
     expect(screen.queryByText('Close')).not.toBeInTheDocument();
   });
 
@@ -244,7 +222,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterA={fighterWithoutImage}
         fighterB={mockFighterB}
         battleLog={mockBattleLog}
@@ -259,7 +236,6 @@ describe('WinnerAnimation', () => {
       <WinnerAnimation
         winner="Godzilla"
         onDone={mockOnDone}
-        onClose={mockOnClose}
         fighterAHealth={795}
         fighterBHealth={95}
         fighterA={mockFighterA}
@@ -283,8 +259,8 @@ describe('WinnerAnimation', () => {
           defenseCommentary: 'Fighter 2 defends!',
           attackerDamage: 15,
           defenderDamage: 0,
-          randomEvent: null,
-          arenaObjectsUsed: null,
+          randomEvent: undefined,
+          arenaObjectsUsed: undefined,
           healthAfter: { attacker: 100, defender: 85 }
         },
         {
@@ -295,8 +271,8 @@ describe('WinnerAnimation', () => {
           defenseCommentary: 'Fighter 1 defends!',
           attackerDamage: 20,
           defenderDamage: 0,
-          randomEvent: null,
-          arenaObjectsUsed: null,
+          randomEvent: undefined,
+          arenaObjectsUsed: undefined,
           healthAfter: { attacker: 80, defender: 85 }
         }
       ];
@@ -304,6 +280,7 @@ describe('WinnerAnimation', () => {
       render(
         <WinnerAnimation
           winner="Fighter 2"
+          onDone={mockOnDone}
           fighterA={mockFighterA}
           fighterB={mockFighterB}
           battleLog={mockBattleLog}
@@ -333,7 +310,7 @@ describe('WinnerAnimation', () => {
           attackerDamage: -5, // Healing
           defenderDamage: 0,
           randomEvent: 'Fighter 2 uses healing potion!',
-          arenaObjectsUsed: null,
+          arenaObjectsUsed: undefined,
           healthAfter: { attacker: 100, defender: 105 }
         }
       ];

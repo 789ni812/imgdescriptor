@@ -17,6 +17,7 @@ import { Scene } from '@/lib/stores/fightingGameStore';
 import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
 import RebalanceFightersButton from '@/components/fighting/RebalanceFightersButton';
 import FighterStatDisplay from '@/components/fighting/FighterStatDisplay';
+import { generateTournamentOverview, generateBattleSummary } from '@/lib/lmstudio-client';
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
@@ -140,6 +141,9 @@ export default function PlayerVsPage() {
   // New: Pre-generated battle playback state
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
   const [battleError, setBattleError] = React.useState<string | null>(null);
+
+  const [tournamentOverview, setTournamentOverview] = React.useState<string | null>(null);
+  const [battleSummary, setBattleSummary] = React.useState<string | null>(null);
 
 
   // Helper: get fighterA/fighterB from store
@@ -471,6 +475,36 @@ export default function PlayerVsPage() {
     }
   }, [combatLog.length, gamePhase]);
 
+  // When winner is set, generate tournament overview and battle summary
+  React.useEffect(() => {
+    async function generateSummaries() {
+      if (winner && fighterA && fighterB && scene && preGeneratedBattleLog.length > 0) {
+        // Tournament Overview
+        const overview = await generateTournamentOverview(
+          'Exhibition Tournament', // TODO: Replace with real tournament name if available
+          scene.name,
+          scene.description || '',
+          1, // TODO: Replace with real current round if available
+          1  // TODO: Replace with real total rounds if available
+        );
+        setTournamentOverview(overview);
+        // Battle Summary
+        const summary = await generateBattleSummary(
+          fighterA.name,
+          fighterB.name,
+          winner,
+          mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB),
+          preGeneratedBattleLog.length
+        );
+        setBattleSummary(summary);
+      } else {
+        setTournamentOverview(null);
+        setBattleSummary(null);
+      }
+    }
+    generateSummaries();
+  }, [winner, fighterA, fighterB, scene, preGeneratedBattleLog]);
+
   // Combat round logic
   // const handleNextRound = () => {
   //   if (!fighterA || !fighterB || !fighterAHealth || !fighterBHealth || isCombatOver) return;
@@ -778,6 +812,8 @@ export default function PlayerVsPage() {
             fighterA={fighterA}
             fighterB={fighterB}
             battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
+            tournamentOverview={tournamentOverview}
+            battleSummary={battleSummary}
           />
         )}
       </div>

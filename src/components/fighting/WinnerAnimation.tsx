@@ -40,25 +40,38 @@ interface BattleRound {
 }
 
 interface WinnerAnimationProps {
-  winner: string | null;
-  onDone?: () => void;
-  onClose?: () => void;
+  winner: string;
+  onDone: () => void;
   fighterAHealth?: number;
   fighterBHealth?: number;
-  fighterA?: Fighter;
-  fighterB?: Fighter;
-  battleLog?: BattleRound[];
+  fighterA: Fighter;
+  fighterB: Fighter;
+  battleLog: Array<{
+    attackCommentary?: string;
+    defenseCommentary?: string;
+    round?: number;
+    attacker?: string;
+    defender?: string;
+    attackerDamage?: number;
+    defenderDamage?: number;
+    randomEvent?: string;
+    arenaObjectsUsed?: string[];
+    healthAfter?: { [key: string]: number };
+  }>;
+  tournamentOverview?: string | null;
+  battleSummary?: string | null;
 }
 
 const WinnerAnimation: React.FC<WinnerAnimationProps> = ({ 
   winner, 
   onDone, 
-  onClose, 
   fighterAHealth, 
   fighterBHealth,
   fighterA,
   fighterB,
-  battleLog = []
+  battleLog = [],
+  tournamentOverview,
+  battleSummary
 }) => {
   let displayText = '';
   if (winner === 'Draw') {
@@ -189,6 +202,18 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
               </div>
             </div>
           )}
+          {tournamentOverview && (
+            <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700 shadow">
+              <h3 className="text-xl font-bold text-blue-300 mb-2">Tournament Overview</h3>
+              <div className="text-gray-200 text-base leading-relaxed">{tournamentOverview}</div>
+            </div>
+          )}
+          {battleSummary && (
+            <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700 shadow">
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Battle Summary</h3>
+              <div className="text-gray-200 text-base leading-relaxed">{battleSummary}</div>
+            </div>
+          )}
         </div>
 
         {/* Scrollable Battle Overview Section */}
@@ -208,7 +233,7 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                   
                   // Use the actual damage values from the battle log
                   // In battle mechanics, only the defender takes damage from the attacker
-                  attackerHealthChange = 0; // Attacker health never changes (no counter-damage)
+                  const attackerDamage = typeof round.attackerDamage === 'number' ? round.attackerDamage : 0;
                   
                   // Check for healing powerup
                   const hasHealing = round.randomEvent && 
@@ -217,15 +242,15 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                      round.randomEvent.toLowerCase().includes('restore') ||
                      round.randomEvent.toLowerCase().includes('potion'));
                   
-                  if (hasHealing && round.attackerDamage < 0) {
+                  if (hasHealing && attackerDamage < 0) {
                     // With healing powerup, show positive healing
-                    defenderHealthChange = +Math.abs(round.attackerDamage);
-                  } else if (!hasHealing && round.attackerDamage < 0) {
+                    defenderHealthChange = +Math.abs(attackerDamage);
+                  } else if (!hasHealing && attackerDamage < 0) {
                     // No healing allowed without powerup
                     defenderHealthChange = 0;
                   } else {
                     // Normal damage
-                    defenderHealthChange = -Math.abs(round.attackerDamage);
+                    defenderHealthChange = -Math.abs(attackerDamage);
                   }
                   
                   return (
@@ -310,15 +335,7 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
             >
               Restart
             </button>
-            {onClose && (
-              <button
-                className="px-8 py-4 rounded-lg font-bold text-2xl bg-gray-700/40 hover:bg-gray-700/60 text-gray-300 border border-gray-500 shadow-sm"
-                onClick={onClose}
-                type="button"
-              >
-                Close
-              </button>
-            )}
+            {/* Removed onClose button */}
           </div>
         </div>
       </div>

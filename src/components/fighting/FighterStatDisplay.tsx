@@ -1,4 +1,5 @@
 import React from 'react';
+import TruncatedDescription from '@/components/ui/TruncatedDescription';
 
 interface FighterStats {
   health: number;
@@ -21,7 +22,7 @@ interface Fighter {
   imageUrl: string;
   stats: FighterStats;
   uniqueAbilities?: string[];
-  description?: string;
+  description?: any; // Changed to any to support both string and object descriptions
 }
 
 interface FighterStatDisplayProps {
@@ -193,10 +194,17 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
           No Image
         </div>
       )}
-      <div>
+      <div className="flex-1">
         <h3 className="text-xl font-bold text-white">{fighter.name}</h3>
         {fighter.description && (
-          <p className="text-sm text-gray-300">{fighter.description}</p>
+          <div className="text-sm text-gray-300 mt-1">
+            <TruncatedDescription 
+              description={fighter.description} 
+              maxLength={120}
+              className="leading-relaxed"
+              showTooltip={true}
+            />
+          </div>
         )}
         <div className="text-xs text-gray-400 mt-1">
           {fighter.stats.size} • {fighter.stats.build} • Age: {fighter.stats.age}
