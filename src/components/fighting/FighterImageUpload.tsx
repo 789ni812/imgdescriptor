@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { ENHANCED_FIGHTER_ANALYSIS_PROMPT } from '@/lib/constants';
 
 interface FighterImageUploadProps {
-  onUploadComplete: (data: { url: string; analysis: any; file: File }) => void;
+  onUploadComplete: (data: { url: string; analysis: Record<string, unknown>; file: File }) => void;
   disabled?: boolean;
   label?: string;
   category?: string;

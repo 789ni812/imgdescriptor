@@ -70,15 +70,25 @@ export const analyzeImage = async (
       // Remove markdown/code block wrappers if present
       const cleaned = rawContent.replace(/```json|```/gi, '').trim();
       const parsed = JSON.parse(cleaned);
+      
+      // Normalize the response to handle cases where LLM returns arrays instead of strings
+      const normalized = {
+        setting: Array.isArray(parsed.setting) ? parsed.setting.join(', ') : parsed.setting,
+        objects: Array.isArray(parsed.objects) ? parsed.objects : [],
+        characters: Array.isArray(parsed.characters) ? parsed.characters : [],
+        mood: Array.isArray(parsed.mood) ? parsed.mood.join(', ') : parsed.mood,
+        hooks: Array.isArray(parsed.hooks) ? parsed.hooks : []
+      };
+      
       // Validate required fields
       if (
-        typeof parsed.setting === 'string' &&
-        Array.isArray(parsed.objects) &&
-        Array.isArray(parsed.characters) &&
-        typeof parsed.mood === 'string' &&
-        Array.isArray(parsed.hooks)
+        typeof normalized.setting === 'string' &&
+        Array.isArray(normalized.objects) &&
+        Array.isArray(normalized.characters) &&
+        typeof normalized.mood === 'string' &&
+        Array.isArray(normalized.hooks)
       ) {
-        return { success: true, description: parsed };
+        return { success: true, description: normalized };
       } else {
         throw new Error('Missing required fields in image description JSON.');
       }

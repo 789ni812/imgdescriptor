@@ -3,21 +3,21 @@
 import React, { useEffect } from 'react';
 import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 import HealthBar from '@/components/fighting/HealthBar';
-import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
-import WinnerAnimation from '@/components/fighting/WinnerAnimation';
-
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
-import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
-import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
-import BattleViewer from '@/components/fighting/BattleViewer';
 import ChooseExistingFighter from '@/components/fighting/ChooseExistingFighter';
-import { FighterMetadata } from '@/lib/utils/fighterUtils';
-import { Fighter } from '@/lib/stores/fightingGameStore';
-import { Scene } from '@/lib/stores/fightingGameStore';
 import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
 import RebalanceFightersButton from '@/components/fighting/RebalanceFightersButton';
 import FighterStatDisplay from '@/components/fighting/FighterStatDisplay';
-import { generateTournamentOverview, generateBattleSummary } from '@/lib/lmstudio-client';
+import BattleViewer from '@/components/fighting/BattleViewer';
+import WinnerAnimation from '@/components/fighting/WinnerAnimation';
+import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
+import { Fighter, Scene, CombatEvent } from '@/lib/stores/fightingGameStore';
+import { generateBattleCommentary, generateBattleSummary } from '@/lib/lmstudio-client';
+import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
+import { godzillaVSbruceleeDemo } from '../../../public/vs/godzillaVSbrucelee/demoData';
+
+// Type alias to avoid conflicts with other BattleRound interfaces
+type WinnerAnimationBattleRound = PreGeneratedBattleRound;
 
 // Helper: demo fighters and scene
 const demoFighterA = godzillaVSbruceleeDemo.fighterA;
@@ -25,69 +25,74 @@ const demoFighterB = godzillaVSbruceleeDemo.fighterB;
 const demoScene = godzillaVSbruceleeDemo.scene;
 
 function mapPreGeneratedToBattleRound(
-  log: PreGeneratedBattleRound[],
-  fighterA: Fighter,
-  fighterB: Fighter
-) {
-  let healthA = fighterA?.stats?.health ?? 0;
-  let healthB = fighterB?.stats?.health ?? 0;
+  log: PreGeneratedBattleRound[]
+): WinnerAnimationBattleRound[] {
+  let healthA = 0;
+  let healthB = 0;
+  
   return log.map((r) => {
-    // Apply damage to defender
-    const attacker = r.attacker === fighterA.name ? 'A' : 'B';
-    const defender = attacker === 'A' ? 'B' : 'A';
-    if (attacker === 'A') {
-      healthB = Math.max(0, healthB - (r.attackerDamage ?? 0));
+    // Calculate health after this round
+    if (r.attacker === 'Fighter A' || r.attacker === 'fighterA') {
+      healthB = Math.max(0, healthB - (r.attackerDamage || 0));
+      healthA = Math.max(0, healthA - (r.defenderDamage || 0));
     } else {
-      healthA = Math.max(0, healthA - (r.attackerDamage ?? 0));
+      healthA = Math.max(0, healthA - (r.attackerDamage || 0));
+      healthB = Math.max(0, healthB - (r.defenderDamage || 0));
     }
+    
     return {
-      ...r,
-      randomEvent: null,
-      arenaObjectsUsed: null,
+      round: r.round,
+      attacker: r.attacker,
+      defender: r.defender,
+      attackCommentary: r.attackCommentary,
+      defenseCommentary: r.defenseCommentary,
+      attackerDamage: r.attackerDamage,
+      defenderDamage: r.defenderDamage,
+      randomEvent: null, // PreGeneratedBattleRound doesn't have this field
+      arenaObjectsUsed: null, // PreGeneratedBattleRound doesn't have this field
       healthAfter: {
-        attacker: attacker === 'A' ? healthA : healthB,
-        defender: defender === 'A' ? healthA : healthB,
+        attacker: healthA,
+        defender: healthB,
       },
     };
   });
 }
 
-function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
+function mapFighterMetadataToFighter(meta: any): Fighter {
   // Ensure we have a valid image filename
   const imageFilename = meta.image && meta.image.trim() !== '' ? meta.image : null;
-  const imageUrl = imageFilename ? `/vs/fighters/${imageFilename}` : '';
   
   return {
     id: meta.id,
     name: meta.name,
-    imageUrl: imageUrl,
-    description: '',
+    imageUrl: imageFilename ? `/imgRepository/${imageFilename}` : '',
+    description: meta.description || '',
     stats: {
       health: meta.stats.health,
-      maxHealth: meta.stats.maxHealth || meta.stats.health, // Use maxHealth if available, otherwise use health
+      maxHealth: meta.stats.maxHealth,
       strength: meta.stats.strength,
       luck: meta.stats.luck,
       agility: meta.stats.agility,
       defense: meta.stats.defense,
-      age: meta.stats.age || 30, // Use age from metadata if available
-      size: (meta.stats.size as 'small' | 'medium' | 'large') || 'medium', // Use size from metadata if available
-      build: (meta.stats.build as 'thin' | 'average' | 'muscular' | 'heavy') || 'average', // Use build from metadata if available
-      magic: meta.stats.magic, // Include magic if available
-      ranged: meta.stats.ranged, // Include ranged if available
-      intelligence: meta.stats.intelligence, // Include intelligence if available
-      uniqueAbilities: meta.stats.uniqueAbilities, // Include unique abilities if available
+      age: meta.stats.age,
+      size: meta.stats.size,
+      build: meta.stats.build,
+      magic: meta.stats.magic,
+      ranged: meta.stats.ranged,
+      intelligence: meta.stats.intelligence,
+      uniqueAbilities: meta.stats.uniqueAbilities,
     },
-    visualAnalysis: {
-      age: meta.stats.age?.toString() || '',
-      size: meta.stats.size || '',
-      build: meta.stats.build || '',
+    visualAnalysis: meta.visualAnalysis || {
+      age: '',
+      size: '',
+      build: '',
       appearance: [],
       weapons: [],
-      armor: [],
+      armor: []
     },
-    combatHistory: [],
-    winLossRecord: { wins: 0, losses: 0, draws: 0 },
-    createdAt: new Date().toISOString(),
+    combatHistory: meta.combatHistory || [],
+    winLossRecord: meta.winLossRecord || { wins: 0, losses: 0, draws: 0 },
+    createdAt: meta.createdAt || new Date().toISOString()
   };
 }
 
@@ -142,7 +147,6 @@ export default function PlayerVsPage() {
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
   const [battleError, setBattleError] = React.useState<string | null>(null);
 
-  const [tournamentOverview, setTournamentOverview] = React.useState<string | null>(null);
   const [battleSummary, setBattleSummary] = React.useState<string | null>(null);
 
 
@@ -497,26 +501,16 @@ export default function PlayerVsPage() {
   React.useEffect(() => {
     async function generateSummaries() {
       if (winner && fighterA && fighterB && scene && preGeneratedBattleLog.length > 0) {
-        // Tournament Overview
-        const overview = await generateTournamentOverview(
-          'Exhibition Tournament', // TODO: Replace with real tournament name if available
-          scene.name,
-          scene.description || '',
-          1, // TODO: Replace with real current round if available
-          1  // TODO: Replace with real total rounds if available
-        );
-        setTournamentOverview(overview);
         // Battle Summary
         const summary = await generateBattleSummary(
           fighterA.name,
           fighterB.name,
           winner,
-          mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB),
+          mapPreGeneratedToBattleRound(preGeneratedBattleLog),
           preGeneratedBattleLog.length
         );
         setBattleSummary(summary);
       } else {
-        setTournamentOverview(null);
         setBattleSummary(null);
       }
     }
@@ -809,7 +803,7 @@ export default function PlayerVsPage() {
               fighterA={fighterA}
               fighterB={fighterB}
               scene={scene}
-              battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
+              battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog)}
               mode="live"
               onBattleEnd={setWinner}
             />
@@ -832,17 +826,16 @@ export default function PlayerVsPage() {
         )}
 
         {/* Winner Animation */}
-        {winner && fighterA && fighterB && (
+        {winner && fighterA && fighterB && scene && (
           <WinnerAnimation 
-            winner={winner} 
-            onDone={() => { resetGame(); setGamePhase('setup'); }}
-            fighterAHealth={fighterAHealth ?? undefined}
-            fighterBHealth={fighterBHealth ?? undefined}
+            isOpen={true}
+            onClose={() => { resetGame(); setGamePhase('setup'); }}
+            winner={winner}
             fighterA={fighterA}
             fighterB={fighterB}
-            battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog, fighterA, fighterB)}
-            tournamentOverview={tournamentOverview}
-            battleSummary={battleSummary}
+            scene={scene}
+            battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog)}
+            battleSummary={battleSummary || 'Battle completed.'}
           />
         )}
       </div>

@@ -1,108 +1,63 @@
-import React from 'react';
-
-interface Fighter {
-  id: string;
-  name: string;
-  imageUrl: string;
-  stats: {
-    health: number;
-    maxHealth: number;
-    strength: number;
-    luck: number;
-    agility: number;
-    defense: number;
-    magic?: number;
-    ranged?: number;
-    intelligence?: number;
-    age: number;
-    size: 'small' | 'medium' | 'large';
-    build: 'thin' | 'average' | 'muscular' | 'heavy';
-  };
-  uniqueAbilities?: string[];
-  visualAnalysis?: unknown;
-  description?: string;
-}
-
-interface BattleRound {
-  round: number;
-  attacker: string;
-  defender: string;
-  attackCommentary: string;
-  defenseCommentary: string;
-  attackerDamage: number;
-  defenderDamage: number;
-  randomEvent: string | null;
-  arenaObjectsUsed: string | null;
-  healthAfter: {
-    attacker: number;
-    defender: number;
-  };
-}
+import React, { useState, useEffect } from 'react';
+import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
+import { BattleRound } from '@/lib/types/battle';
+import TruncatedDescription from '../ui/TruncatedDescription';
 
 interface WinnerAnimationProps {
-  winner: string;
-  onDone: () => void;
-  fighterAHealth?: number;
-  fighterBHealth?: number;
+  isOpen: boolean;
+  onClose: () => void;
+  winner: string | null;
   fighterA: Fighter;
   fighterB: Fighter;
-  battleLog: Array<{
-    attackCommentary?: string;
-    defenseCommentary?: string;
-    round?: number;
-    attacker?: string;
-    defender?: string;
-    attackerDamage?: number;
-    defenderDamage?: number;
-    randomEvent?: string;
-    arenaObjectsUsed?: string[];
-    healthAfter?: { [key: string]: number };
-  }>;
-  tournamentOverview?: string | null;
-  battleSummary?: string | null;
+  scene: Scene;
+  battleLog?: BattleRound[];
+  battleSummary: string;
 }
 
-const WinnerAnimation: React.FC<WinnerAnimationProps> = ({ 
-  winner, 
-  onDone, 
-  fighterAHealth, 
-  fighterBHealth,
+const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
+  isOpen,
+  onClose,
+  winner,
   fighterA,
   fighterB,
+  scene,
   battleLog = [],
-  tournamentOverview,
   battleSummary
 }) => {
-  let displayText = '';
-  if (winner === 'Draw') {
-    displayText = "It's a DRAW!";
-  } else if (winner) {
-    displayText = `${winner} wins the battle!`;
-  } else {
-    displayText = "It's a DRAW !!!";
-  }
+  const [displayText, setDisplayText] = useState('');
+
+  useEffect(() => {
+    if (winner === 'Draw') {
+      setDisplayText("It's a DRAW!");
+    } else if (winner) {
+      setDisplayText(`${winner} wins the battle!`);
+    } else {
+      setDisplayText("It's a DRAW !!!");
+    }
+  }, [winner]);
 
   // Helper function to determine fighter status
-  const getFighterStatus = (fighterName: string, fighterHealth: number | undefined): string | null => {
-    if (winner === 'Draw') {
-      return 'DRAW';
+  const getFighterStatus = (fighter: Fighter | null | undefined, isWinner: boolean) => {
+    if (!fighter || !fighter.stats) {
+      return isWinner ? 'Victorious' : 'Defeated';
     }
-    if (winner === fighterName && fighterHealth !== undefined && fighterHealth > 0) {
-      return 'WIN';
+    
+    const healthPercentage = (fighter.stats.health / fighter.stats.maxHealth) * 100;
+    
+    if (isWinner) {
+      if (healthPercentage > 80) return 'Victorious';
+      if (healthPercentage > 50) return 'Barely Standing';
+      return 'Battered but Victorious';
+    } else {
+      if (healthPercentage > 50) return 'Defeated but Alive';
+      if (healthPercentage > 20) return 'Severely Wounded';
+      return 'Knocked Out';
     }
-    if (winner !== 'Draw' && winner !== fighterName && fighterHealth !== undefined && fighterHealth <= 0) {
-      return 'KO!';
-    }
-    return null;
   };
 
-  // Helper function for status color classes
-  const getFighterStatusClass = (status: string) => {
-    if (status === 'WIN') return 'text-green-400 bg-green-900/20 border border-green-500/30 font-bold';
-    if (status === 'KO!') return 'text-red-500 bg-red-900/20 border border-red-500/30 font-bold';
-    if (status === 'DRAW') return 'text-yellow-500 bg-yellow-900/20 border border-yellow-500/30 font-bold';
-    return '';
-  };
+  const showKO = winner !== 'Draw' && winner !== null;
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-auto bg-black/60">
@@ -113,229 +68,261 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
           <div className="text-green-400 text-6xl font-extrabold mb-6 text-center">
             {displayText}
           </div>
-          {/* KO banner removed: KO/Win/Draw now shown per fighter card only */}
+          {showKO && winner !== 'Draw' && (
+            <div className="text-red-500 text-5xl font-extrabold mb-6 text-center">KO!</div>
+          )}
           
           {/* Fighter Stats Section */}
-          {fighterA && fighterB && (
-            <div className="w-full">
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">Fighter Stats</h3>
-              <div className="grid grid-cols-2 gap-6">
-                {/* Fighter A Stats */}
-                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg relative">
-                  {/* Fighter Status */}
-                  {(() => { const status = getFighterStatus(fighterA.name, fighterAHealth); return status ? (
-                    <div className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${getFighterStatusClass(status)}`}>
-                      {status}
-                    </div>
-                  ) : null; })()}
-                  <div className="flex items-center mb-3">
-                    {fighterA.imageUrl ? (
-                      <img src={fighterA.imageUrl} alt={fighterA.name} className="w-16 h-16 object-cover rounded-lg mr-3 border-2 border-gray-500" />
-                    ) : (
-                      <div className="w-16 h-16 bg-gray-600 rounded-lg mr-3 flex items-center justify-center text-gray-400 text-sm border-2 border-gray-500">
-                        No Image
-                      </div>
-                    )}
-                    <div>
-                      <h4 className="text-lg font-bold text-white mb-1">{fighterA.name}</h4>
-                      {fighterAHealth !== undefined && (
-                        <p className="text-sm text-gray-300">Final Health: {fighterAHealth} / {fighterA.stats.maxHealth}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-300 leading-relaxed mb-2">
-                    Health: {fighterA.stats.health} | Strength: {fighterA.stats.strength} | Agility: {fighterA.stats.agility} | Defense: {fighterA.stats.defense} | Luck: {fighterA.stats.luck}
-                  </div>
-                  {(fighterA.stats.magic !== undefined || fighterA.stats.ranged !== undefined || fighterA.stats.intelligence !== undefined) && (
-                    <div className="text-xs text-gray-400 leading-relaxed mb-2">
-                      {(fighterA.stats.magic !== undefined ? `Magic: ${fighterA.stats.magic}` : '') + 
-                       (fighterA.stats.ranged !== undefined ? (fighterA.stats.magic !== undefined ? ' | ' : '') + `Ranged: ${fighterA.stats.ranged}` : '') + 
-                       (fighterA.stats.intelligence !== undefined ? ((fighterA.stats.magic !== undefined || fighterA.stats.ranged !== undefined) ? ' | ' : '') + `Intelligence: ${fighterA.stats.intelligence}` : '')}
-                    </div>
-                  )}
-                  {fighterA.uniqueAbilities && fighterA.uniqueAbilities.length > 0 && (
-                    <div className="mt-2">
-                      <div className="text-xs text-purple-400">Abilities: {fighterA.uniqueAbilities.join(', ')}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Fighter B Stats */}
-                <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg relative">
-                  {/* Fighter Status */}
-                  {(() => { const status = getFighterStatus(fighterB.name, fighterBHealth); return status ? (
-                    <div className={`absolute top-2 right-2 px-2 py-1 rounded text-sm ${getFighterStatusClass(status)}`}>
-                      {status}
-                    </div>
-                  ) : null; })()}
-                  <div className="flex items-center mb-3">
-                    {fighterB.imageUrl ? (
-                      <img src={fighterB.imageUrl} alt={fighterB.name} className="w-16 h-16 object-cover rounded-lg mr-3 border-2 border-gray-500" />
-                    ) : (
-                      <div className="w-16 h-16 bg-gray-600 rounded-lg mr-3 flex items-center justify-center text-gray-400 text-sm border-2 border-gray-500">
-                        No Image
-                      </div>
-                    )}
-                    <div>
-                      <h4 className="text-lg font-bold text-white mb-1">{fighterB.name}</h4>
-                      {fighterBHealth !== undefined && (
-                        <p className="text-sm text-gray-300">Final Health: {fighterBHealth} / {fighterB.stats.maxHealth}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-300 leading-relaxed mb-2">
-                    Health: {fighterB.stats.health} | Strength: {fighterB.stats.strength} | Agility: {fighterB.stats.agility} | Defense: {fighterB.stats.defense} | Luck: {fighterB.stats.luck}
-                  </div>
-                  {(fighterB.stats.magic !== undefined || fighterB.stats.ranged !== undefined || fighterB.stats.intelligence !== undefined) && (
-                    <div className="text-xs text-gray-400 leading-relaxed mb-2">
-                      {(fighterB.stats.magic !== undefined ? `Magic: ${fighterB.stats.magic}` : '') + 
-                       (fighterB.stats.ranged !== undefined ? (fighterB.stats.magic !== undefined ? ' | ' : '') + `Ranged: ${fighterB.stats.ranged}` : '') + 
-                       (fighterB.stats.intelligence !== undefined ? ((fighterB.stats.magic !== undefined || fighterB.stats.ranged !== undefined) ? ' | ' : '') + `Intelligence: ${fighterB.stats.intelligence}` : '')}
-                    </div>
-                  )}
-                  {fighterB.uniqueAbilities && fighterB.uniqueAbilities.length > 0 && (
-                    <div className="mt-2">
-                      <div className="text-xs text-purple-400">Abilities: {fighterB.uniqueAbilities.join(', ')}</div>
-                    </div>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Fighter A */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center mb-4">
+                <img
+                  src={fighterA?.imageUrl || ''}
+                  alt={fighterA?.name || 'Fighter A'}
+                  className="w-16 h-16 object-cover rounded-lg mr-4 border-2 border-gray-600"
+                />
+                <div>
+                  <h3 className="text-xl font-bold text-white">{fighterA?.name || 'Fighter A'}</h3>
+                  <p className="text-sm text-gray-300 font-medium">
+                    {getFighterStatus(fighterA, winner === fighterA?.name)}
+                  </p>
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Health</div>
+                  <div className="text-white font-medium">{fighterA?.stats?.health || 0}/{fighterA?.stats?.maxHealth || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Strength</div>
+                  <div className="text-white font-medium">{fighterA?.stats?.strength || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Agility</div>
+                  <div className="text-white font-medium">{fighterA?.stats?.agility || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Defense</div>
+                  <div className="text-white font-medium">{fighterA?.stats?.defense || 0}</div>
+                </div>
+                {fighterA?.stats?.magic !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Magic</div>
+                    <div className="text-white font-medium">{fighterA.stats.magic}</div>
+                  </div>
+                )}
+                {fighterA?.stats?.ranged !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Ranged</div>
+                    <div className="text-white font-medium">{fighterA.stats.ranged}</div>
+                  </div>
+                )}
+                {fighterA?.stats?.intelligence !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Intelligence</div>
+                    <div className="text-white font-medium">{fighterA.stats.intelligence}</div>
+                  </div>
+                )}
+              </div>
+              {fighterA?.stats?.uniqueAbilities && fighterA.stats.uniqueAbilities.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-gray-700">
+                  <div className="text-xs text-gray-400 mb-2 font-medium">Abilities:</div>
+                  <div className="flex flex-wrap gap-1">
+                    {fighterA.stats.uniqueAbilities.map((ability, index) => (
+                      <span key={index} className="px-2 py-1 bg-purple-600 text-white text-xs rounded font-medium">
+                        {ability}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-          {tournamentOverview && (
-            <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700 shadow">
-              <h3 className="text-xl font-bold text-blue-300 mb-2">Tournament Overview</h3>
-              <div className="text-gray-200 text-base leading-relaxed">{tournamentOverview}</div>
+
+            {/* Fighter B */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center mb-4">
+                <img
+                  src={fighterB?.imageUrl || ''}
+                  alt={fighterB?.name || 'Fighter B'}
+                  className="w-16 h-16 object-cover rounded-lg mr-4 border-2 border-gray-600"
+                />
+                <div>
+                  <h3 className="text-xl font-bold text-white">{fighterB?.name || 'Fighter B'}</h3>
+                  <p className="text-sm text-gray-300 font-medium">
+                    {getFighterStatus(fighterB, winner === fighterB?.name)}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Health</div>
+                  <div className="text-white font-medium">{fighterB?.stats?.health || 0}/{fighterB?.stats?.maxHealth || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Strength</div>
+                  <div className="text-white font-medium">{fighterB?.stats?.strength || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Agility</div>
+                  <div className="text-white font-medium">{fighterB?.stats?.agility || 0}</div>
+                </div>
+                <div className="bg-gray-700 rounded p-2">
+                  <div className="text-gray-400 text-xs">Defense</div>
+                  <div className="text-white font-medium">{fighterB?.stats?.defense || 0}</div>
+                </div>
+                {fighterB?.stats?.magic !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Magic</div>
+                    <div className="text-white font-medium">{fighterB.stats.magic}</div>
+                  </div>
+                )}
+                {fighterB?.stats?.ranged !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Ranged</div>
+                    <div className="text-white font-medium">{fighterB.stats.ranged}</div>
+                  </div>
+                )}
+                {fighterB?.stats?.intelligence !== undefined && (
+                  <div className="bg-gray-700 rounded p-2">
+                    <div className="text-gray-400 text-xs">Intelligence</div>
+                    <div className="text-white font-medium">{fighterB.stats.intelligence}</div>
+                  </div>
+                )}
+              </div>
+              {fighterB?.stats?.uniqueAbilities && fighterB.stats.uniqueAbilities.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-gray-700">
+                  <div className="text-xs text-gray-400 mb-2 font-medium">Abilities:</div>
+                  <div className="flex flex-wrap gap-1">
+                    {fighterB.stats.uniqueAbilities.map((ability, index) => (
+                      <span key={index} className="px-2 py-1 bg-purple-600 text-white text-xs rounded font-medium">
+                        {ability}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-          {battleSummary && (
-            <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700 shadow">
-              <h3 className="text-xl font-bold text-yellow-300 mb-2">Battle Summary</h3>
-              <div className="text-gray-200 text-base leading-relaxed">{battleSummary}</div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Scrollable Battle Overview Section */}
-        {battleLog.length > 0 && (
-          <div className="flex-1 overflow-y-auto border-t border-gray-700">
-            <div className="p-6">
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">Battle Overview</h3>
-              <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg">
-                {battleLog.map((round) => {
-                  // Find fighter objects for attacker and defender
-                  const attackerFighter = round.attacker === fighterA?.name ? fighterA : fighterB;
-                  const defenderFighter = round.defender === fighterA?.name ? fighterA : fighterB;
+        <div className="flex-1 overflow-y-auto px-8 pb-4">
+          <h3 className="text-xl font-bold text-white mb-4">Battle Overview</h3>
+          
+          {/* Arena Info */}
+          <div className="bg-gray-800 rounded-lg p-4 mb-4">
+            <h4 className="text-lg font-semibold text-white mb-2">Arena: {scene?.name || 'Unknown Arena'}</h4>
+            <p className="text-gray-300 text-sm mb-2">{scene?.description || 'No description available.'}</p>
+            {scene?.environmentalObjects && scene.environmentalObjects.length > 0 && (
+              <div className="text-sm text-gray-400">
+                <span className="font-medium">Environmental Objects:</span> {scene.environmentalObjects.join(', ')}
+              </div>
+            )}
+          </div>
+
+          {/* Battle Summary */}
+          <div className="bg-gray-800 rounded-lg p-4 mb-4">
+            <h4 className="text-lg font-semibold text-white mb-2">Battle Summary</h4>
+            <div className="text-gray-300 text-sm leading-relaxed">
+              <TruncatedDescription 
+                description={battleSummary} 
+                maxLength={500}
+                className="leading-relaxed"
+                showTooltip={true}
+              />
+            </div>
+          </div>
+
+          {/* Round-by-Round Log */}
+          <div className="bg-gray-800 rounded-lg p-4">
+            <h4 className="text-lg font-semibold text-white mb-3">Round Details</h4>
+            <div className="space-y-4 max-h-64 overflow-y-auto">
+              {battleLog && battleLog.length > 0 ? (
+                battleLog.map((round, index) => {
+                  const attackerHealthChange = round.attackerDamage;
+                  const defenderHealthChange = round.defenderDamage;
                   
-                  // Calculate health changes for this round
-                  let attackerHealthChange = 0;
-                  let defenderHealthChange = 0;
-                  
-                  // Use the actual damage values from the battle log
-                  // In battle mechanics, only the defender takes damage from the attacker
-                  const attackerDamage = typeof round.attackerDamage === 'number' ? round.attackerDamage : 0;
-                  
-                  // Check for healing powerup
-                  const hasHealing = round.randomEvent && 
-                    (round.randomEvent.toLowerCase().includes('heal') || 
-                     round.randomEvent.toLowerCase().includes('recover') ||
-                     round.randomEvent.toLowerCase().includes('restore') ||
-                     round.randomEvent.toLowerCase().includes('potion'));
-                  
-                  if (hasHealing && attackerDamage < 0) {
-                    // With healing powerup, show positive healing
-                    defenderHealthChange = +Math.abs(attackerDamage);
-                  } else if (!hasHealing && attackerDamage < 0) {
-                    // No healing allowed without powerup
-                    defenderHealthChange = 0;
-                  } else {
-                    // Normal damage
-                    defenderHealthChange = -Math.abs(attackerDamage);
-                  }
+                  // Determine which fighter is attacker and defender
+                  const isAttackerA = round.attacker === fighterA?.name;
+                  const attackerFighter = isAttackerA ? fighterA : fighterB;
+                  const defenderFighter = isAttackerA ? fighterB : fighterA;
                   
                   return (
-                    <div key={round.round} className="mb-4 pb-4 border-b border-gray-600 last:border-b-0 last:mb-0">
-                      <h4 className="text-lg font-semibold text-yellow-400 mb-3">Round {round.round}</h4>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-start gap-3 p-3 bg-gray-700 rounded-lg">
-                          {attackerFighter?.imageUrl ? (
-                            <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-8 h-8 object-cover rounded-full border border-gray-400 flex-shrink-0 mt-0.5" />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs flex-shrink-0 mt-0.5">?</div>
-                          )}
+                    <div key={index} className="border-l-2 border-gray-600 pl-4">
+                      <div className="text-sm font-medium text-white mb-2">
+                        Round {round.round}
+                      </div>
+                      <div className="text-xs text-gray-300 space-y-2">
+                        {/* Attack */}
+                        <div className="flex items-start space-x-2">
+                          <img
+                            src={attackerFighter?.imageUrl || ''}
+                            alt={attackerFighter?.name || 'Attacker'}
+                            className="w-6 h-6 object-cover rounded flex-shrink-0 mt-0.5"
+                          />
                           <div className="flex-1">
-                            <span className="text-blue-400 font-medium mr-2">{round.attacker}:</span>
-                            <span className="text-gray-300 leading-relaxed">{round.attackCommentary}</span>
+                            <span className="font-medium text-blue-300">{round.attacker}</span> attacks: {round.attackCommentary}
                           </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-gray-700 rounded-lg">
-                          {defenderFighter?.imageUrl ? (
-                            <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-8 h-8 object-cover rounded-full border border-gray-400 flex-shrink-0 mt-0.5" />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs flex-shrink-0 mt-0.5">?</div>
-                          )}
-                          <div className="flex-1">
-                            <span className="text-red-400 font-medium mr-2">{round.defender}:</span>
-                            <span className="text-gray-300 leading-relaxed">{round.defenseCommentary}</span>
-                          </div>
-                        </div>
-                        {/* Only show Special Event if it is a non-empty, non-undefined, non-null string */}
-                        {round.randomEvent && typeof round.randomEvent === 'string' && round.randomEvent.trim() !== '' && round.randomEvent !== 'undefined' && (
-                          <div className="text-purple-400 text-xs italic p-2 bg-purple-900/20 rounded border border-purple-500/30">Special Event: {round.randomEvent}</div>
-                        )}
-                        {/* Only show Arena Used if it is a non-empty, non-undefined, non-null string */}
-                        {round.arenaObjectsUsed && typeof round.arenaObjectsUsed === 'string' && round.arenaObjectsUsed.trim() !== '' && round.arenaObjectsUsed !== 'undefined' && (
-                          <div className="text-green-400 text-xs italic p-2 bg-green-900/20 rounded border border-green-500/30">Arena Used: {round.arenaObjectsUsed}</div>
-                        )}
                         
-                        {/* Stat Changes Display */}
-                        <div className="flex justify-center items-center gap-6 mt-4 pt-3 border-t border-gray-700">
-                          {attackerFighter && (
-                            <div className="flex items-center gap-2">
-                              {attackerFighter.imageUrl ? (
-                                <img src={attackerFighter.imageUrl} alt={attackerFighter.name} className="w-5 h-5 object-cover rounded-full border border-gray-400" />
-                              ) : (
-                                <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
-                              )}
-                              <span className={`text-sm font-medium ${attackerHealthChange < 0 ? 'text-red-400' : attackerHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
-                                {attackerHealthChange < 0 ? `-${Math.abs(attackerHealthChange)}` : attackerHealthChange > 0 ? `+${attackerHealthChange}` : '0'}
-                              </span>
-                            </div>
-                          )}
-                          {defenderFighter && (
-                            <div className="flex items-center gap-2">
-                              {defenderFighter.imageUrl ? (
-                                <img src={defenderFighter.imageUrl} alt={defenderFighter.name} className="w-5 h-5 object-cover rounded-full border border-gray-400" />
-                              ) : (
-                                <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-xs">?</div>
-                              )}
-                              <span className={`text-sm font-medium ${defenderHealthChange < 0 ? 'text-red-400' : defenderHealthChange > 0 ? 'text-green-400' : 'text-gray-400'}`}>
-                                {defenderHealthChange < 0 ? `-${Math.abs(defenderHealthChange)}` : defenderHealthChange > 0 ? `+${defenderHealthChange}` : '0'}
-                              </span>
-                            </div>
-                          )}
+                        {/* Defense */}
+                        <div className="flex items-start space-x-2">
+                          <img
+                            src={defenderFighter?.imageUrl || ''}
+                            alt={defenderFighter?.name || 'Defender'}
+                            className="w-6 h-6 object-cover rounded flex-shrink-0 mt-0.5"
+                          />
+                          <div className="flex-1">
+                            <span className="font-medium text-red-300">{round.defender}</span> defends: {round.defenseCommentary}
+                          </div>
+                        </div>
+                        
+                        {/* Damage Summary with Icons */}
+                        <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-700">
+                          <div className="flex items-center space-x-2">
+                            <img
+                              src={attackerFighter?.imageUrl || ''}
+                              alt={attackerFighter?.name || 'Attacker'}
+                              className="w-5 h-5 object-cover rounded"
+                            />
+                            <span className="text-gray-400 text-xs">
+                              {round.attacker} (-{attackerHealthChange})
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-gray-400 text-xs">
+                              {round.defender} (-{defenderHealthChange})
+                            </span>
+                            <img
+                              src={defenderFighter?.imageUrl || ''}
+                              alt={defenderFighter?.name || 'Defender'}
+                              className="w-5 h-5 object-cover rounded"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                })
+              ) : (
+                <div className="text-gray-400 text-sm italic">
+                  No round details available for this battle.
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* Fixed Footer Section - Action Buttons */}
-        <div className="flex-shrink-0 p-6 border-t border-gray-700">
-          <div className="flex flex-row gap-4 justify-center">
+        <div className="flex-shrink-0 p-8 border-t border-gray-700">
+          <div className="flex justify-center space-x-4">
             <button
-              className="px-10 py-4 rounded-lg font-bold text-2xl bg-green-600 hover:bg-green-700 text-white shadow-lg"
-              onClick={onDone}
-              autoFocus
+              onClick={onClose}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
             >
-              Restart
+              Close
             </button>
-            {/* Removed onClose button */}
           </div>
         </div>
       </div>

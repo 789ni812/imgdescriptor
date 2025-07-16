@@ -1,56 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import HealthBar from './HealthBar';
+import React, { useState, useEffect } from 'react';
+import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
+import { BattleRound, BattleViewerMode, RoundStep } from '@/lib/types/battle';
+import WinnerAnimation from './WinnerAnimation';
 import BattleStoryboard from './BattleStoryboard';
 import RoundStartAnimation from './RoundStartAnimation';
-import WinnerAnimation from './WinnerAnimation';
-
-interface Fighter {
-  id: string;
-  name: string;
-  imageUrl: string;
-  stats: {
-    health: number;
-    maxHealth: number;
-    strength: number;
-    luck: number;
-    agility: number;
-    defense: number;
-    age: number;
-    size: 'small' | 'medium' | 'large';
-    build: 'thin' | 'average' | 'muscular' | 'heavy';
-  };
-  visualAnalysis?: unknown;
-  description?: string;
-}
-
-interface Scene {
-  name: string;
-  imageUrl: string;
-  description?: string;
-}
-
-interface BattleRound {
-  round: number;
-  attacker: string;
-  defender: string;
-  attackCommentary: string;
-  defenseCommentary: string;
-  attackerDamage: number;
-  defenderDamage: number;
-  randomEvent: string | null;
-  arenaObjectsUsed: string | null;
-  healthAfter: {
-    attacker: number;
-    defender: number;
-  };
-}
+import HealthBar from './HealthBar';
 
 interface BattleViewerProps {
   fighterA: Fighter;
   fighterB: Fighter;
   scene: Scene;
   battleLog: BattleRound[];
-  mode: 'live' | 'replay';
+  mode: BattleViewerMode;
   onBattleEnd?: (winner: string) => void;
   onClose?: () => void;
 }
@@ -183,14 +144,14 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
     <div className="w-full max-w-3xl mx-auto">
       {winner ? (
         <WinnerAnimation
+          isOpen={true}
+          onClose={onClose || (() => {})}
           winner={winner}
-          onDone={mode === 'replay' ? handleRestart : (() => { if (onBattleEnd && winner) onBattleEnd(winner); })}
-          onClose={onClose}
-          fighterAHealth={health[fighterA.id]}
-          fighterBHealth={health[fighterB.id]}
           fighterA={fighterA}
           fighterB={fighterB}
+          scene={scene}
           battleLog={battleLog}
+          battleSummary={`Battle between ${fighterA.name} and ${fighterB.name} completed.`}
         />
       ) : (
         <>
