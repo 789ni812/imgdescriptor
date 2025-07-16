@@ -23,6 +23,18 @@ describe('FighterImageUpload', () => {
     expect(screen.getByText('Custom Label')).toBeInTheDocument();
   });
 
+  it('hides upload box when isGenerating is true', () => {
+    render(<FighterImageUpload onUploadComplete={mockOnUploadComplete} isGenerating={true} />);
+    expect(screen.queryByText('Upload Image')).not.toBeInTheDocument();
+    expect(screen.getByText('Generating fighter...')).toBeInTheDocument();
+  });
+
+  it('shows generating spinner when isGenerating is true', () => {
+    render(<FighterImageUpload onUploadComplete={mockOnUploadComplete} isGenerating={true} />);
+    expect(screen.getByText('Generating fighter...')).toBeInTheDocument();
+    expect(screen.queryByText('Upload Image')).not.toBeInTheDocument(); // Upload box should be hidden
+  });
+
   it('sends fighter category when uploading fighter image', async () => {
     const mockUploadResponse = { ok: true, json: async () => ({ url: '/vs/fighters/test.jpg' }) };
     const mockAnalysisResponse = { ok: true, json: async () => ({ description: 'A fierce warrior' }) };
@@ -71,6 +83,43 @@ describe('FighterImageUpload', () => {
 
     const formData = (global.fetch as jest.Mock).mock.calls[0][1].body;
     expect(formData.get('category')).toBe('arena');
+  });
+
+  it('shows uploading state when file is being uploaded', async () => {
+    // Mock fetch to return a pending promise
+    (global.fetch as jest.Mock).mockImplementationOnce(() => new Promise(() => {}));
+    
+    render(<FighterImageUpload onUploadComplete={mockOnUploadComplete} />);
+    
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = screen.getByTestId('file-input');
+    fireEvent.change(input, { target: { files: [file] } });
+    
+    // Upload box should be hidden during upload
+    await waitFor(() => {
+      expect(screen.queryByText('Upload Image')).not.toBeInTheDocument();
+      expect(screen.getByText('Uploading image...')).toBeInTheDocument();
+    });
+  });
+
+  it('shows analyzing state when image is being analyzed', async () => {
+    const mockUploadResponse = { ok: true, json: async () => ({ url: '/vs/fighters/test.jpg' }) };
+    // Mock analyze-image to return a pending promise
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce(mockUploadResponse)
+      .mockImplementationOnce(() => new Promise(() => {}));
+    
+    render(<FighterImageUpload onUploadComplete={mockOnUploadComplete} />);
+    
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = screen.getByTestId('file-input');
+    fireEvent.change(input, { target: { files: [file] } });
+    
+    // Wait for upload to complete and analysis to start
+    await waitFor(() => {
+      expect(screen.queryByText('Upload Image')).not.toBeInTheDocument();
+      expect(screen.getByText('Analyzing image...')).toBeInTheDocument();
+    });
   });
 
   it('calls onUploadComplete with correct data for fighter', async () => {

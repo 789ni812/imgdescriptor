@@ -143,6 +143,10 @@ export default function PlayerVsPage() {
 
   const [battleSummary, setBattleSummary] = React.useState<string | null>(null);
 
+  // New: LLM generation state for fighters
+  const [isGeneratingFighterA, setIsGeneratingFighterA] = React.useState(false);
+  const [isGeneratingFighterB, setIsGeneratingFighterB] = React.useState(false);
+
 
   // Helper: get fighterA/fighterB from store
   const fighterA = fighters.fighterA;
@@ -206,95 +210,105 @@ export default function PlayerVsPage() {
 
   // Upload handlers now update Zustand store and replace the correct slot
   const handleFighterAUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
-    const fighterName = extractFighterName(analysis, 'Fighter A');
-    
-    // Prepare arena context if available
-    const arenaContext = scene ? {
-      name: scene.name,
-      description: scene.description || '',
-      environmentalObjects: scene.environmentalObjects || []
-    } : undefined;
-    
-    const genRes = await fetch('/api/fighting-game/generate-fighter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        imageDescription: analysis.description || '',
-        fighterId: 'fighterA',
-        fighterLabel: fighterName,
-        imageUrl: url,
-        arenaContext,
-      }),
-    });
-    if (!genRes.ok) {
-      const errorText = await genRes.text();
-      console.error('Failed to generate fighter:', errorText);
-      // Optionally show a user-friendly error message here
-      return;
-    }
-    const data = await genRes.json();
-    if (data.fighter) {
-      const fighter = { ...data.fighter, imageUrl: url, id: `fighterA-${Date.now()}` };
+    setIsGeneratingFighterA(true);
+    try {
+      const fighterName = extractFighterName(analysis, 'Fighter A');
       
-      // Save fighter metadata JSON
-      const imageFilename = url.split('/').pop();
-      await fetch('/api/save-fighter-metadata', {
+      // Prepare arena context if available
+      const arenaContext = scene ? {
+        name: scene.name,
+        description: scene.description || '',
+        environmentalObjects: scene.environmentalObjects || []
+      } : undefined;
+      
+      const genRes = await fetch('/api/fighting-game/generate-fighter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          image: imageFilename,
-          name: fighter.name,
-          stats: fighter.stats,
+          imageDescription: analysis.description || '',
+          fighterId: 'fighterA',
+          fighterLabel: fighterName,
+          imageUrl: url,
+          arenaContext,
         }),
       });
-      
-      setFighter('fighterA', fighter);
+      if (!genRes.ok) {
+        const errorText = await genRes.text();
+        console.error('Failed to generate fighter:', errorText);
+        // Optionally show a user-friendly error message here
+        return;
+      }
+      const data = await genRes.json();
+      if (data.fighter) {
+        const fighter = { ...data.fighter, imageUrl: url, id: `fighterA-${Date.now()}` };
+        
+        // Save fighter metadata JSON
+        const imageFilename = url.split('/').pop();
+        await fetch('/api/save-fighter-metadata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: imageFilename,
+            name: fighter.name,
+            stats: fighter.stats,
+          }),
+        });
+        
+        setFighter('fighterA', fighter);
+      }
+    } finally {
+      setIsGeneratingFighterA(false);
     }
   };
   const handleFighterBUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
-    const fighterName = extractFighterName(analysis, 'Fighter B');
-    
-    // Prepare arena context if available
-    const arenaContext = scene ? {
-      name: scene.name,
-      description: scene.description || '',
-      environmentalObjects: scene.environmentalObjects || []
-    } : undefined;
-    
-    const genRes = await fetch('/api/fighting-game/generate-fighter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        imageDescription: analysis.description || '',
-        fighterId: 'fighterB',
-        fighterLabel: fighterName,
-        imageUrl: url,
-        arenaContext,
-      }),
-    });
-    if (!genRes.ok) {
-      const errorText = await genRes.text();
-      console.error('Failed to generate fighter:', errorText);
-      // Optionally show a user-friendly error message here
-      return;
-    }
-    const data = await genRes.json();
-    if (data.fighter) {
-      const fighter = { ...data.fighter, imageUrl: url, id: `fighterB-${Date.now()}` };
+    setIsGeneratingFighterB(true);
+    try {
+      const fighterName = extractFighterName(analysis, 'Fighter B');
       
-      // Save fighter metadata JSON
-      const imageFilename = url.split('/').pop();
-      await fetch('/api/save-fighter-metadata', {
+      // Prepare arena context if available
+      const arenaContext = scene ? {
+        name: scene.name,
+        description: scene.description || '',
+        environmentalObjects: scene.environmentalObjects || []
+      } : undefined;
+      
+      const genRes = await fetch('/api/fighting-game/generate-fighter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          image: imageFilename,
-          name: fighter.name,
-          stats: fighter.stats,
+          imageDescription: analysis.description || '',
+          fighterId: 'fighterB',
+          fighterLabel: fighterName,
+          imageUrl: url,
+          arenaContext,
         }),
       });
-      
-      setFighter('fighterB', fighter);
+      if (!genRes.ok) {
+        const errorText = await genRes.text();
+        console.error('Failed to generate fighter:', errorText);
+        // Optionally show a user-friendly error message here
+        return;
+      }
+      const data = await genRes.json();
+      if (data.fighter) {
+        const fighter = { ...data.fighter, imageUrl: url, id: `fighterB-${Date.now()}` };
+        
+        // Save fighter metadata JSON
+        const imageFilename = url.split('/').pop();
+        await fetch('/api/save-fighter-metadata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: imageFilename,
+            name: fighter.name,
+            stats: fighter.stats,
+          }),
+        });
+        
+        setFighter('fighterB', fighter);
+      }
+    } finally {
+      setIsGeneratingFighterB(false);
     }
   };
   const handleArenaUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
@@ -682,7 +696,13 @@ export default function PlayerVsPage() {
                         </button>
                       </div>
                       {fighterASelectMode === 'upload' ? (
-                        <FighterImageUpload onUploadComplete={handleFighterAUpload} label="Upload image for Fighter A" category="fighter" data-testid="fighter-a-upload-component" />
+                        <FighterImageUpload 
+                          onUploadComplete={handleFighterAUpload} 
+                          label="Upload image for Fighter A" 
+                          category="fighter" 
+                          isGenerating={isGeneratingFighterA}
+                          data-testid="fighter-a-upload-component" 
+                        />
                       ) : (
                         <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterA', mapFighterMetadataToFighter(fighter))} data-testid="fighter-a-choose-component" />
                       )}
@@ -718,7 +738,13 @@ export default function PlayerVsPage() {
                         </button>
                       </div>
                       {fighterBSelectMode === 'upload' ? (
-                        <FighterImageUpload onUploadComplete={handleFighterBUpload} label="Upload image for Fighter B" category="fighter" data-testid="fighter-b-upload-component" />
+                        <FighterImageUpload 
+                          onUploadComplete={handleFighterBUpload} 
+                          label="Upload image for Fighter B" 
+                          category="fighter" 
+                          isGenerating={isGeneratingFighterB}
+                          data-testid="fighter-b-upload-component" 
+                        />
                       ) : (
                         <ChooseExistingFighter onSelect={(fighter) => setFighter('fighterB', mapFighterMetadataToFighter(fighter))} data-testid="fighter-b-choose-component" />
                       )}

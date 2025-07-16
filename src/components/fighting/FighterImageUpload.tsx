@@ -7,6 +7,7 @@ interface FighterImageUploadProps {
   disabled?: boolean;
   label?: string;
   category?: string;
+  isGenerating?: boolean; // New prop to track LLM generation state
 }
 
 export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
@@ -14,6 +15,7 @@ export const FighterImageUpload: React.FC<FighterImageUploadProps> = ({
   disabled = false,
   label = 'Upload Image',
   category = 'fighter',
+  isGenerating = false, // Default to false
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -89,24 +91,37 @@ If this filename contains a famous person's name, prioritize identifying them in
     disabled,
   });
 
+  // Check if any processing is happening
+  const isProcessing = uploading || analyzing || isGenerating;
+
   return (
     <div className="space-y-4">
-      <div {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200
-          ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        <input {...getInputProps()} data-testid="file-input" />
-        <p className="text-gray-700 font-medium">{label}</p>
-        <p className="text-gray-500 text-sm">Drag & drop or click to select an image</p>
-        {selectedFile && <p className="text-blue-700 text-xs mt-2">Selected: {selectedFile.name}</p>}
-      </div>
-      {(uploading || analyzing) && (
-        <div className="flex items-center justify-center space-x-2 text-gray-300">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-          <span>{analyzing ? 'Analyzing image...' : 'Uploading image...'}</span>
+      {/* Only show upload box when not processing */}
+      {!isProcessing && (
+        <div {...getRootProps()}
+          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200
+            ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <input {...getInputProps()} data-testid="file-input" />
+          <p className="text-gray-700 font-medium">{label}</p>
+          <p className="text-gray-500 text-sm">Drag & drop or click to select an image</p>
+          {selectedFile && <p className="text-blue-700 text-xs mt-2">Selected: {selectedFile.name}</p>}
         </div>
       )}
+      
+      {/* Show spinner and status for any processing state */}
+      {isProcessing && (
+        <div className="flex items-center justify-center space-x-2 text-gray-300">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+          <span>
+            {isGenerating ? 'Generating fighter...' : 
+             analyzing ? 'Analyzing image...' : 
+             'Uploading image...'}
+          </span>
+        </div>
+      )}
+      
       {error && <p className="text-red-600 text-sm">{error}</p>}
     </div>
   );
