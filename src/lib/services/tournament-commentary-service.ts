@@ -75,10 +75,13 @@ export class TournamentCommentaryService {
   ): Promise<TournamentCommentary> {
     const context = this.buildCommentaryContext(tournament, match, historicalData);
     
+    // Use match arena if available, otherwise fall back to tournament arena or default
+    const arenaName = match.arena?.name || tournament.arenaName || 'Tournament Arena';
+    
     const commentary = await this.generateCommentaryViaAPI(
       'introduction',
       tournament.name,
-      tournament.arenaName || 'Tournament Arena',
+      arenaName,
       match.matchNumber,
       this.getTotalMatches(tournament),
       match.fighterA?.name,
@@ -196,10 +199,13 @@ export class TournamentCommentaryService {
     match: TournamentMatch,
     historicalData: TournamentHistoricalData
   ): Promise<TournamentCommentary> {
+    // Use match arena if available, otherwise fall back to tournament arena or default
+    const arenaName = match.arena?.name || tournament.arenaName || 'Tournament Arena';
+    
     const commentary = await this.generateCommentaryViaAPI(
       'championship',
       tournament.name,
-      tournament.arenaName || 'Tournament Arena',
+      arenaName,
       match.matchNumber,
       this.getTotalMatches(tournament),
       match.fighterA?.name,

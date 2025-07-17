@@ -1097,6 +1097,34 @@ export const generateTournamentCommentary = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+  // Build the user prompt for logging
+  const userPrompt = OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT(
+    commentaryType,
+    tournamentName,
+    arenaName,
+    currentMatch,
+    totalMatches,
+    fighterA,
+    fighterB,
+    winner,
+    tournamentContext
+  );
+
+  // Debug logging
+  console.log('=== TOURNAMENT COMMENTARY DEBUG ===');
+  console.log('Commentary Type:', commentaryType);
+  console.log('Tournament Name:', tournamentName);
+  console.log('Arena Name:', arenaName);
+  console.log('Current Match:', currentMatch, 'of', totalMatches);
+  console.log('Fighter A:', fighterA);
+  console.log('Fighter B:', fighterB);
+  console.log('Winner:', winner);
+  console.log('Tournament Context:', tournamentContext);
+  console.log('System Prompt Length:', OPTIMIZED_TOURNAMENT_COMMENTARY_SYSTEM_PROMPT.length);
+  console.log('User Prompt Length:', userPrompt.length);
+  console.log('User Prompt:', userPrompt);
+  console.log('====================================');
+
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
@@ -1112,17 +1140,7 @@ export const generateTournamentCommentary = async (
           },
           {
             role: 'user',
-            content: OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT(
-              commentaryType,
-              tournamentName,
-              arenaName,
-              currentMatch,
-              totalMatches,
-              fighterA,
-              fighterB,
-              winner,
-              tournamentContext
-            ),
+            content: userPrompt,
           },
         ],
         temperature: 0.7,
@@ -1144,6 +1162,12 @@ export const generateTournamentCommentary = async (
 
     const data = await response.json();
     const commentary = data.choices[0]?.message?.content?.trim();
+    
+    // Debug logging for response
+    console.log('=== TOURNAMENT COMMENTARY RESPONSE ===');
+    console.log('Raw Response:', data);
+    console.log('Generated Commentary:', commentary);
+    console.log('=======================================');
     
     return commentary || `The ${tournamentName} tournament continues with exciting action in the ${arenaName} arena.`;
   } catch (error) {

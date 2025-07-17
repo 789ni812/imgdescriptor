@@ -458,6 +458,13 @@ STYLE GUIDELINES:
 - Use dramatic timing that makes every word count
 - Create catchphrases and memorable lines that could become legendary
 
+FIGHTER AND ARENA INTEGRATION:
+- ALWAYS mention fighter names when provided - make them feel like living legends
+- ALWAYS reference the arena by name - make it feel like a character in the story
+- Connect fighter characteristics to the arena environment
+- Use the arena's atmosphere to enhance the dramatic tension
+- Make the audience feel the weight of the arena's history and significance
+
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
 export const OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT = (
@@ -477,12 +484,12 @@ export const OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT = (
 ) => `Generate ${commentaryType} commentary for the ${tournamentName} tournament.
 
 TOURNAMENT CONTEXT:
-- Arena: ${arenaName}
+- Arena: ${arenaName} (ALWAYS reference this arena by name in your commentary)
 - Current Match: ${currentMatch} of ${totalMatches}
 - Progress: ${Math.round((currentMatch / totalMatches) * 100)}% complete
-${fighterA ? `- Fighter A: ${fighterA}` : ''}
-${fighterB ? `- Fighter B: ${fighterB}` : ''}
-${winner ? `- Winner: ${winner}` : ''}
+${fighterA ? `- Fighter A: ${fighterA} (ALWAYS mention this fighter by name)` : ''}
+${fighterB ? `- Fighter B: ${fighterB} (ALWAYS mention this fighter by name)` : ''}
+${winner ? `- Winner: ${winner} (ALWAYS mention this fighter by name)` : ''}
 ${tournamentContext ? `- Completed: ${tournamentContext.completedMatches} matches` : ''}
 ${tournamentContext?.remainingFighters ? `- Remaining: ${tournamentContext.remainingFighters.join(', ')}` : ''}
 ${tournamentContext?.notableMoments ? `- Highlights: ${tournamentContext.notableMoments.join(', ')}` : ''}
@@ -492,12 +499,19 @@ COMMENTARY REQUIREMENTS:
 - Use language that makes the audience's hearts race
 - Create cinematic imagery that transports the audience
 - Include specific details about the fighters that make them feel legendary
-- Reference the arena as if it's a living, breathing entity
+- Reference the arena as if it's a living, breathing entity with its own personality
 - Build tension and anticipation through dramatic pacing
 - Use powerful, memorable language that could become iconic
 - Make the audience feel like they're witnessing something transcendent
 
-Create ${commentaryType} commentary that transforms this moment into legend.`;
+FIGHTER AND ARENA INTEGRATION REQUIREMENTS:
+- If fighter names are provided, ALWAYS use them in your commentary
+- If arena name is provided, ALWAYS reference it as a character in the story
+- Connect the fighters' presence to the arena's atmosphere
+- Make the arena feel like it's reacting to the fighters' energy
+- Use the arena's name to enhance the dramatic weight of the moment
+
+Create ${commentaryType} commentary that transforms this moment into legend, making the audience feel the raw power of ${fighterA ? fighterA : 'the first fighter'} and ${fighterB ? fighterB : 'the second fighter'} as they prepare to do battle in the legendary ${arenaName}.`;
 
 // ============================================================================
 // 10. ENHANCED ARENA DESCRIPTION
