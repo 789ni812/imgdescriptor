@@ -324,6 +324,7 @@ export default function TournamentPage() {
                   onContinue={handleCommentaryContinue}
                   fighterA={fighterA}
                   fighterB={fighterB}
+                  arenaImageUrl={selectedMatch.arena?.image}
                 />
               )}
               {!showSlideshow && !showCommentary && selectedMatch.battleLog && (

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { generateFighterSlogans } from '@/lib/lmstudio-client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,17 +34,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, return fallback slogans immediately to test the API
-    console.log('Returning fallback slogans');
-    
+    // Generate slogans using LLM
+    console.log('Generating slogans with LLM...');
+    const result = await generateFighterSlogans(
+      fighterName,
+      fighterStats,
+      visualAnalysis,
+      imageDescription
+    );
+
+    if (!result.success) {
+      console.error('Failed to generate slogans:', result.error);
+      // Return fallback slogans if LLM generation fails
+      return NextResponse.json({
+        success: true,
+        slogans: [
+          `The ${fighterName}`,
+          `Ready for battle!`,
+          `Champion material!`
+        ],
+        description: imageDescription || `A formidable fighter ready to prove their worth.`
+      });
+    }
+
+    console.log('Successfully generated slogans:', result.slogans);
     return NextResponse.json({
       success: true,
-      slogans: [
-        `The ${fighterName}`,
-        `Ready for battle!`,
-        `Champion material!`
-      ],
-      description: imageDescription || `A formidable fighter ready to prove their worth.`
+      slogans: result.slogans || [],
+      description: result.description || imageDescription || `A formidable fighter ready to prove their worth.`
     });
 
   } catch (error) {

@@ -12,18 +12,31 @@ interface TournamentCommentaryProps {
   onContinue?: () => void;
   fighterA?: Fighter;
   fighterB?: Fighter;
+  arenaImageUrl?: string; // New prop for arena image
 }
 
 const TournamentCommentary: React.FC<TournamentCommentaryProps> = ({ 
   commentary, 
   onContinue, 
   fighterA, 
-  fighterB 
+  fighterB,
+  arenaImageUrl
 }) => {
   return (
-    <div data-testid="tournament-commentary" className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+    <div data-testid="tournament-commentary" className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 overflow-hidden">
+      {/* Arena Background Image */}
+      {arenaImageUrl && (
+        <Image
+          src={arenaImageUrl}
+          alt="Arena Background"
+          fill
+          className="object-cover w-full h-full absolute inset-0 z-0 pointer-events-none"
+          style={{ opacity: 0.65 }}
+          priority
+        />
+      )}
       {/* Fighter Images Behind Commentary */}
-      <div className="absolute inset-0 flex items-center justify-between px-8 pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-between px-8 pointer-events-none z-10">
         {/* Left Fighter */}
         {fighterA && (
           <div className="relative w-64 h-64 opacity-30">
@@ -39,7 +52,6 @@ const TournamentCommentary: React.FC<TournamentCommentaryProps> = ({
             </div>
           </div>
         )}
-        
         {/* Right Fighter */}
         {fighterB && (
           <div className="relative w-64 h-64 opacity-30">
@@ -56,9 +68,8 @@ const TournamentCommentary: React.FC<TournamentCommentaryProps> = ({
           </div>
         )}
       </div>
-
-      {/* Commentary Box - Overlapping the fighter images */}
-      <div className="relative max-w-2xl w-full mx-4 bg-gray-900 rounded-2xl p-8 border-2 border-yellow-500 shadow-2xl text-center z-10">
+      {/* Commentary Box - Overlapping the fighter images and arena */}
+      <div className="relative z-20 flex flex-col items-center justify-center bg-gray-900/90 border-2 border-yellow-400 rounded-xl px-10 py-8 shadow-2xl max-w-2xl w-full mx-4">
         <h2 className="text-3xl font-bold text-yellow-400 mb-4 drop-shadow-lg">Tournament Commentary</h2>
         <div className="text-lg text-white whitespace-pre-line mb-6 leading-relaxed">{commentary}</div>
         {onContinue && (
