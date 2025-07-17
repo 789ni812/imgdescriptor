@@ -99,13 +99,17 @@ describe('Creature Score Sheet System', () => {
         const stats1 = generateStatsFromScoreSheet(rodentType);
         const stats2 = generateStatsFromScoreSheet(rodentType);
         
-        // Stats should be different (random generation)
-        const stats1Sum = stats1.strength + stats1.agility + stats1.health + stats1.defense + stats1.luck;
-        const stats2Sum = stats2.strength + stats2.agility + stats2.health + stats2.defense + stats2.luck;
+        // Check that at least one stat is different (more reliable than checking sum)
+        const hasDifferentStats = 
+          stats1.strength !== stats2.strength ||
+          stats1.agility !== stats2.agility ||
+          stats1.health !== stats2.health ||
+          stats1.defense !== stats2.defense ||
+          stats1.luck !== stats2.luck;
         
         // Note: This test might occasionally fail due to randomness, but it's very unlikely
-        // that two random generations would produce identical stats
-        expect(stats1Sum).not.toBe(stats2Sum);
+        // that two random generations would produce identical stats across all fields
+        expect(hasDifferentStats).toBe(true);
       }
     });
   });

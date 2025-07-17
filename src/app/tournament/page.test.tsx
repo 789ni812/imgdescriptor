@@ -5,6 +5,11 @@ import TournamentPage from './page';
 import { Tournament, TournamentMatch } from '@/lib/types/tournament';
 import { PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 
+// Mock fetch for API calls
+global.fetch = jest.fn();
+
+// Mock the components
+
 // Mock the components
 jest.mock('@/components/tournament/TournamentCreator', () => ({
   TournamentCreator: ({ onTournamentCreated }: { onTournamentCreated: (tournament: Tournament) => void }) => (
@@ -23,7 +28,7 @@ jest.mock('@/components/tournament/TournamentList', () => ({
 }));
 
 jest.mock('@/components/tournament/TournamentBracket', () => ({
-  TournamentBracket: ({ tournament, onMatchClick }: { tournament: Tournament; onMatchClick?: (match: TournamentMatch) => void }) => (
+  TournamentBracket: ({ onMatchClick }: { tournament: Tournament; onMatchClick?: (match: TournamentMatch) => void }) => (
     <div data-testid="tournament-bracket">
       <button onClick={() => onMatchClick?.(mockCompletedMatch)}>Click Match</button>
     </div>
@@ -136,6 +141,47 @@ describe('TournamentPage', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
+    
+    // Mock API responses
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      if (url.includes('/api/random-arena')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            name: 'Test Arena',
+            description: 'A test arena for battles',
+            imageUrl: '/test-arena.jpg'
+          })
+        });
+      }
+      
+      if (url.includes('/api/fighting-game/generate-fighter-slogans')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            success: true,
+            slogans: ['The Test Fighter', 'Ready for battle!', 'Champion material!'],
+            description: 'A formidable fighter ready to prove their worth.'
+          })
+        });
+      }
+      
+      if (url.includes('/api/fighting-game/generate-tournament-commentary')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            success: true,
+            commentary: 'The crowd is buzzing with excitement as the fighters prepare to enter the arena!'
+          })
+        });
+      }
+      
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found'
+      });
+    });
   });
 
   test('should render tournament list view by default', () => {
@@ -176,8 +222,14 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
     });
     
-    // Click through slideshow to advance
+    // Click through slideshow to advance (first fighter)
     fireEvent.click(screen.getByText('Next Fighter'));
+    
+    // Wait for transition to complete and then click the final button
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
     
     // Should show commentary after slideshow
     await waitFor(() => {
@@ -208,6 +260,10 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
     
     // Advance through commentary
     await waitFor(() => {
@@ -232,6 +288,10 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
     
     await waitFor(() => {
       expect(screen.getByTestId('tournament-commentary')).toBeInTheDocument();
@@ -262,6 +322,10 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
     
     await waitFor(() => {
       expect(screen.getByTestId('tournament-commentary')).toBeInTheDocument();
@@ -292,6 +356,10 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
     
     await waitFor(() => {
       expect(screen.getByTestId('tournament-commentary')).toBeInTheDocument();
@@ -331,6 +399,10 @@ describe('TournamentPage', () => {
 
     // Advance through slideshow
     fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
 
     // Commentary should appear after slideshow
     await waitFor(() => {

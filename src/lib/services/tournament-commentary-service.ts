@@ -6,7 +6,6 @@ import {
   FighterTournamentStats,
   TournamentMoment
 } from '../types/tournament';
-import { generateTournamentCommentary } from '../lmstudio-client';
 import { Fighter } from '../stores/fightingGameStore';
 import { PreGeneratedBattleRound } from '../stores/fightingGameStore';
 
@@ -23,6 +22,50 @@ export class TournamentCommentaryService {
   }
 
   /**
+   * Generate commentary via API
+   */
+  private async generateCommentaryViaAPI(
+    type: string,
+    tournamentName: string,
+    arenaName: string,
+    matchNumber: number,
+    totalMatches: number,
+    fighterAName?: string,
+    fighterBName?: string,
+    winnerName?: string,
+    historicalContext?: {
+      completedMatches: number;
+      remainingFighters: string[];
+      notableMoments: string[];
+    }
+  ): Promise<string> {
+    const response = await fetch('/api/fighting-game/generate-tournament-commentary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        commentaryType: type,
+        tournamentName,
+        arenaName,
+        currentMatch: matchNumber,
+        totalMatches,
+        fighterA: fighterAName,
+        fighterB: fighterBName,
+        winner: winnerName,
+        tournamentContext: historicalContext
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to generate commentary: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.commentary;
+  }
+
+  /**
    * Generate and store commentary for a specific match
    */
   public async generateMatchCommentary(
@@ -32,7 +75,7 @@ export class TournamentCommentaryService {
   ): Promise<TournamentCommentary> {
     const context = this.buildCommentaryContext(tournament, match, historicalData);
     
-    const commentary = await generateTournamentCommentary(
+    const commentary = await this.generateCommentaryViaAPI(
       'introduction',
       tournament.name,
       tournament.arenaName || 'Tournament Arena',
@@ -68,7 +111,7 @@ export class TournamentCommentaryService {
   public async generateTournamentOpening(
     tournament: Tournament
   ): Promise<TournamentCommentary> {
-    const commentary = await generateTournamentCommentary(
+    const commentary = await this.generateCommentaryViaAPI(
       'opening',
       tournament.name,
       tournament.arenaName || 'Tournament Arena',
@@ -111,7 +154,7 @@ export class TournamentCommentaryService {
     toRound: number,
     historicalData: TournamentHistoricalData
   ): Promise<TournamentCommentary> {
-    const commentary = await generateTournamentCommentary(
+    const commentary = await this.generateCommentaryViaAPI(
       'transition',
       tournament.name,
       tournament.arenaName || 'Tournament Arena',
@@ -153,7 +196,7 @@ export class TournamentCommentaryService {
     match: TournamentMatch,
     historicalData: TournamentHistoricalData
   ): Promise<TournamentCommentary> {
-    const commentary = await generateTournamentCommentary(
+    const commentary = await this.generateCommentaryViaAPI(
       'championship',
       tournament.name,
       tournament.arenaName || 'Tournament Arena',
@@ -197,7 +240,7 @@ export class TournamentCommentaryService {
     winner: Fighter,
     historicalData: TournamentHistoricalData
   ): Promise<TournamentCommentary> {
-    const commentary = await generateTournamentCommentary(
+    const commentary = await this.generateCommentaryViaAPI(
       'conclusion',
       tournament.name,
       tournament.arenaName || 'Tournament Arena',

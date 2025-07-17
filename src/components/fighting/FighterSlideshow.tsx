@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { generateFighterSlogans } from '@/lib/lmstudio-client';
 
 interface Fighter {
   id: string;
@@ -67,28 +66,55 @@ export default function FighterSlideshow({
 
       for (const fighter of fighters) {
         try {
-          const result = await generateFighterSlogans(
-            fighter.name,
-            fighter.stats,
-            fighter.visualAnalysis,
-            fighter.description
-          );
+          // Create a fallback description if the fighter doesn't have one
+          const imageDescription = fighter.description || `A formidable ${fighter.stats.size} fighter with ${fighter.stats.strength} strength and ${fighter.stats.agility} agility, ready to prove their worth in battle.`;
 
-          if (result.success && result.slogans && result.description) {
-            slogansMap[fighter.id] = {
-              slogans: result.slogans,
-              description: result.description
-            };
+          console.log('Sending fighter data:', {
+            fighterName: fighter.name,
+            hasStats: !!fighter.stats,
+            hasVisualAnalysis: !!fighter.visualAnalysis,
+            hasDescription: !!fighter.description,
+            originalDescription: fighter.description,
+            imageDescription: imageDescription
+          });
+
+          const response = await fetch('/api/fighting-game/generate-fighter-slogans', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fighterName: fighter.name,
+              fighterStats: fighter.stats,
+              visualAnalysis: fighter.visualAnalysis,
+              imageDescription: imageDescription
+            }),
+          });
+
+          console.log('Response status:', response.status);
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.slogans && result.description) {
+              slogansMap[fighter.id] = {
+                slogans: result.slogans,
+                description: result.description
+              };
+            } else {
+              // Fallback slogans
+              slogansMap[fighter.id] = {
+                slogans: [
+                  `The ${fighter.name}`,
+                  `Ready for battle!`,
+                  `Champion material!`
+                ],
+                description: fighter.description || `A formidable fighter ready to prove their worth.`
+              };
+            }
           } else {
-            // Fallback slogans
-            slogansMap[fighter.id] = {
-              slogans: [
-                `The ${fighter.name}`,
-                `Ready for battle!`,
-                `Champion material!`
-              ],
-              description: fighter.description || `A formidable fighter ready to prove their worth.`
-            };
+            const errorText = await response.text();
+            console.error('API Error response:', errorText);
+            throw new Error(`API Error: ${response.status}`);
           }
         } catch (error) {
           console.error(`Failed to generate slogans for ${fighter.name}:`, error);

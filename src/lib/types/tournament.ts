@@ -1,5 +1,6 @@
 import { Fighter } from '../stores/fightingGameStore';
 import { PreGeneratedBattleRound } from '../stores/fightingGameStore';
+import { ArenaMetadata } from '../utils/arenaUtils';
 
 export interface Tournament {
   id: string;
@@ -38,6 +39,7 @@ export interface TournamentMatch {
   battleSummary?: string;
   notableMoments?: string[];
   crowdReactions?: string[];
+  arena?: ArenaMetadata; // Assigned arena for this match
 }
 
 // New interface for tournament commentary

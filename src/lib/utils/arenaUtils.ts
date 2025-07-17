@@ -53,4 +53,42 @@ export async function getArenasList(arenasDir?: string): Promise<ArenaListResult
       error: 'Failed to read arenas directory'
     };
   }
+}
+
+/**
+ * Get a random arena from the available arenas
+ * Falls back to a default arena if no arenas are available
+ */
+export async function getRandomArena(arenasDir?: string): Promise<ArenaMetadata> {
+  try {
+    const result = await getArenasList(arenasDir);
+    
+    if (result.success && result.arenas.length > 0) {
+      // Select a random arena
+      const randomIndex = Math.floor(Math.random() * result.arenas.length);
+      const selectedArena = result.arenas[randomIndex];
+      
+      // Return the arena with the full image path
+      return {
+        ...selectedArena,
+        image: `/vs/arena/${selectedArena.image}`
+      };
+    }
+  } catch (error) {
+    console.error('Failed to get random arena:', error);
+  }
+  
+  // Fallback to default arena if no arenas are available
+  return {
+    id: 'default-tournament-arena',
+    name: 'Tournament Arena',
+    image: '/vs/arena/battle-arena-1-1752763667035-og3my7.jpg', // Use the first arena as default
+    description: 'A dynamic battleground featuring marble throne, broken column, sand-covered ground. This arena provides strategic opportunities for combatants to use the surroundings to their advantage.',
+    environmentalObjects: [
+      'marble throne',
+      'broken column',
+      'sand-covered ground'
+    ],
+    createdAt: new Date().toISOString()
+  };
 } 

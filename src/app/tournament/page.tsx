@@ -15,6 +15,7 @@ import { PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 import FighterSlideshow from '@/components/fighting/FighterSlideshow';
 import TournamentCommentary from '@/components/tournament/TournamentCommentary';
 import { TournamentCommentaryService } from '@/lib/services/tournament-commentary-service';
+import { ArenaMetadata } from '@/lib/utils/arenaUtils';
 
 type ViewMode = 'list' | 'create' | 'tournament' | 'battle-replay';
 
@@ -29,6 +30,42 @@ const mapPreGeneratedToBattleRound = (log: PreGeneratedBattleRound[]): BattleRou
       defender: 0
     }
   }));
+};
+
+// Helper function to get random arena from API
+const getRandomArenaFromAPI = async (): Promise<ArenaMetadata> => {
+  try {
+    const response = await fetch('/api/random-arena');
+    const data = await response.json();
+    
+    if (data.name && data.description && data.imageUrl) {
+      return {
+        id: `arena-${Date.now()}`,
+        name: data.name,
+        image: data.imageUrl,
+        description: data.description,
+        environmentalObjects: [],
+        createdAt: new Date().toISOString()
+      };
+    } else {
+      throw new Error('Invalid arena data received');
+    }
+  } catch (error) {
+    console.error('Failed to fetch random arena:', error);
+    // Return default arena as fallback
+    return {
+      id: 'default-tournament-arena',
+      name: 'Tournament Arena',
+      image: '/vs/arena/battle-arena-1-1752763667035-og3my7.jpg',
+      description: 'A dynamic battleground featuring marble throne, broken column, sand-covered ground. This arena provides strategic opportunities for combatants to use the surroundings to their advantage.',
+      environmentalObjects: [
+        'marble throne',
+        'broken column',
+        'sand-covered ground'
+      ],
+      createdAt: new Date().toISOString()
+    };
+  }
 };
 
 export default function TournamentPage() {
@@ -84,7 +121,13 @@ export default function TournamentPage() {
   // New handler for tournament match clicks
   const handleMatchClick = async (match: TournamentMatch) => {
     if (match.status === 'completed' && match.battleLog && match.fighterA && match.fighterB && selectedTournament && historicalData) {
-      setSelectedMatch(match);
+      // Assign a random arena if not already assigned
+      if (!match.arena) {
+        const arena = await getRandomArenaFromAPI();
+        match.arena = arena;
+        // Optionally: persist this change to the tournament data source if needed
+      }
+      setSelectedMatch({ ...match });
       setViewMode('battle-replay');
       setShowBattleResults(false);
       setBattleReplayComplete(false);
@@ -272,7 +315,7 @@ export default function TournamentPage() {
                   ]}
                   onComplete={handleSlideshowComplete}
                   tournamentName={selectedTournament.name}
-                  arenaName={'Tournament Arena'}
+                  arenaName={selectedMatch.arena?.name || 'Tournament Arena'}
                 />
               )}
               {showCommentary && (
@@ -330,7 +373,14 @@ export default function TournamentPage() {
                         winLossRecord: fighterB.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
                         createdAt: fighterB.createdAt ?? new Date().toISOString(),
                       }}
-                      scene={{
+                      scene={selectedMatch.arena ? {
+                        id: selectedMatch.arena.id,
+                        name: selectedMatch.arena.name,
+                        imageUrl: selectedMatch.arena.image,
+                        description: selectedMatch.arena.description || '',
+                        environmentalObjects: selectedMatch.arena.environmentalObjects || [],
+                        createdAt: selectedMatch.arena.createdAt || new Date().toISOString(),
+                      } : {
                         id: selectedMatch.id,
                         name: 'Tournament Arena',
                         imageUrl: '',
@@ -369,7 +419,14 @@ export default function TournamentPage() {
                         winLossRecord: fighterB.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
                         createdAt: fighterB.createdAt ?? new Date().toISOString(),
                       }}
-                      scene={{
+                      scene={selectedMatch.arena ? {
+                        id: selectedMatch.arena.id,
+                        name: selectedMatch.arena.name,
+                        imageUrl: selectedMatch.arena.image,
+                        description: selectedMatch.arena.description || '',
+                        environmentalObjects: selectedMatch.arena.environmentalObjects || [],
+                        createdAt: selectedMatch.arena.createdAt || new Date().toISOString(),
+                      } : {
                         id: selectedMatch.id,
                         name: 'Tournament Arena',
                         imageUrl: '',

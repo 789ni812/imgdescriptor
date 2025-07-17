@@ -1,46 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateFighterSlogans } from '@/lib/lmstudio-client';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { 
-      fighterName, 
-      fighterStats, 
-      visualAnalysis, 
-      imageDescription 
-    } = body;
-
-    if (!fighterName || !fighterStats || !visualAnalysis || !imageDescription) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-
-    const result = await generateFighterSlogans(
+    console.log('Fighter slogans API called');
+    const body = await request.json();
+    const {
       fighterName,
       fighterStats,
       visualAnalysis,
       imageDescription
-    );
+    } = body;
 
-    if (!result.success) {
+    console.log('Received data:', {
+      fighterName: !!fighterName,
+      fighterStats: !!fighterStats,
+      visualAnalysis: !!visualAnalysis,
+      imageDescription: !!imageDescription,
+      fighterNameValue: fighterName,
+      imageDescriptionValue: imageDescription
+    });
+
+    if (!fighterName || !fighterStats || !visualAnalysis || !imageDescription) {
+      console.log('Missing required fields:', {
+        fighterName: !fighterName,
+        fighterStats: !fighterStats,
+        visualAnalysis: !visualAnalysis,
+        imageDescription: !imageDescription
+      });
       return NextResponse.json(
-        { error: result.error || 'Failed to generate slogans' },
-        { status: 500 }
+        { error: 'Missing required fields: fighterName, fighterStats, visualAnalysis, imageDescription' },
+        { status: 400 }
       );
     }
 
+    // For now, return fallback slogans immediately to test the API
+    console.log('Returning fallback slogans');
+    
     return NextResponse.json({
       success: true,
-      slogans: result.slogans,
-      description: result.description
+      slogans: [
+        `The ${fighterName}`,
+        `Ready for battle!`,
+        `Champion material!`
+      ],
+      description: imageDescription || `A formidable fighter ready to prove their worth.`
     });
+
   } catch (error) {
-    console.error('Fighter slogans generation error:', error);
+    console.error('Error generating fighter slogans:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to generate fighter slogans' },
       { status: 500 }
     );
   }

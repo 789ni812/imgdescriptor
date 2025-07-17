@@ -31,7 +31,8 @@ const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
 
 const DESCRIBER_MODEL = 'google/gemma-3-4b';  // Image analysis model
-const WRITER_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-14b-uncensored';  // Uncensored model for story generation
+// Model configuration
+const WRITER_MODEL = 'google/gemma-3-4b';  // Updated to use the model that's actually running
 
 export const analyzeImage = async (
   imageBase64: string,
