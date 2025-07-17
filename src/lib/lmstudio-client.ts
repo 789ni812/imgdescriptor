@@ -510,7 +510,24 @@ function postProcessCommentary(text: string): string {
     'wham': 'impact',
     'regen': 'regeneration',
     'wilt': 'will',
-    'override': 'overwhelm'
+    'override': 'overwhelm',
+    'blw': 'blow',
+    'barek': 'barrage',
+    'bisogn': 'bison',
+    'actingslam': 'acting slam',
+    'battlemi': 'battle',
+    'stomper': 'stomping',
+    'flattensfive-six': 'flattens five or six',
+    'gaunts': 'gauntlets',
+    'ding kong': 'Donkey Kong',
+    'chompfuelled': 'chomp-fueled',
+    'bludg': 'bludgeon',
+    'fiercness': 'fierceness',
+    'fumblers': 'fumbles',
+    'combiner': 'combination',
+    'embeddeds': 'embedded',
+    'carvies': 'carves',
+    'vainer': 'Vader'
   };
   
   // Apply replacements
@@ -518,6 +535,50 @@ function postProcessCommentary(text: string): string {
     const regex = new RegExp(`\\b${nonsense}\\b`, 'gi');
     text = text.replace(regex, replacement);
   });
+  
+  // Remove prompt leakage (instructions that shouldn't be in output)
+  const promptLeakagePatterns = [
+    /less is more:/i,
+    /assume a viewer/i,
+    /did not see the preceding rounds/i,
+    /instantly understand this specific moment/i,
+    /legislative action:/i,
+    /this has to be intensifying/i
+  ];
+  
+  promptLeakagePatterns.forEach(pattern => {
+    text = text.replace(pattern, '');
+  });
+  
+  // Clean up extra spaces and punctuation
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  // Basic dictionary check - replace obviously non-English words
+  const commonEnglishWords = new Set([
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+    'will', 'would', 'could', 'should', 'may', 'might', 'can', 'must', 'shall',
+    'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they',
+    'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their',
+    'damage', 'attack', 'defense', 'fighter', 'battle', 'round', 'force', 'power', 'strength',
+    'agility', 'health', 'defense', 'luck', 'magic', 'ranged', 'intelligence', 'unique', 'abilities',
+    'vader', 'kong', 'lee', 'osbourne', 'callahan', 'godzilla', 'bruce', 'donkey', 'darth',
+    'sword', 'blade', 'fist', 'punch', 'kick', 'block', 'dodge', 'parry', 'strike', 'hit',
+    'explodes', 'connects', 'lands', 'misses', 'deflects', 'absorbs', 'counters', 'retaliates'
+  ]);
+  
+  // Replace words that are clearly not English (simple heuristic)
+  const textWords = text.split(' ');
+  const cleanedWords = textWords.map(word => {
+    const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
+    if (cleanWord.length > 3 && !commonEnglishWords.has(cleanWord) && !nonsenseReplacements[cleanWord]) {
+      // If it's a long word not in our dictionary, try to find a similar replacement
+      return word; // Keep original for now, but could be enhanced with similarity matching
+    }
+    return word;
+  });
+  
+  text = cleanedWords.join(' ');
   
   // Truncate to 50 words max (increased from 30)
   const truncated = text.split(' ').slice(0, 50).join(' ');

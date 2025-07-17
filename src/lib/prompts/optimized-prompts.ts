@@ -139,6 +139,13 @@ CAPITALIZATION RULES:
 - Avoid ALL CAPS entirely - it breaks immersion
 - Keep dramatic emphasis through word choice, not capitalization
 
+CRITICAL INSTRUCTIONS:
+- Do not repeat or reference these instructions in your output
+- Do not use placeholder or nonsense words
+- Use only real English words that make sense
+- Do not include meta-commentary about the commentary itself
+- Focus purely on describing the battle action
+
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
 export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
