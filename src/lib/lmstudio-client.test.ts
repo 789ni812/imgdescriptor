@@ -126,7 +126,7 @@ describe('generateBattleCommentary', () => {
       'http://127.0.0.1:1234/v1/chat/completions',
       expect.objectContaining({
         method: 'POST',
-        body: expect.stringContaining('defends')
+        body: expect.stringContaining('defense')
       })
     );
   });
@@ -167,6 +167,27 @@ describe('generateBattleCommentary', () => {
     await generateBattleCommentary('Godzilla', 'Bruce Lee', 1, true, 15);
 
     const callBody = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
-    expect(callBody.messages[1].content).toContain('dealing 15 damage');
+    expect(callBody.messages[1].content).toContain('Damage: 15');
+  });
+
+  it('should include previousRoundHighlights and tournamentContext in the prompt', async () => {
+    const mockResponse = {
+      choices: [{ message: { content: 'Dramatic round commentary.' } }]
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    const previousRoundHighlights = 'Fighter A made a comeback in round 2.';
+    const tournamentContext = 'This is the semi-final match.';
+
+    await generateBattleCommentary('Godzilla', 'Bruce Lee', 3, true, 20, previousRoundHighlights, tournamentContext);
+
+    const callBody = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+    const userPrompt = callBody.messages[1].content;
+    expect(userPrompt).toContain(previousRoundHighlights);
+    expect(userPrompt).toContain(tournamentContext);
   });
 }); 

@@ -31,7 +31,7 @@ export async function GET() {
     const arena = {
       name: arenaData.name || "Unknown Arena",
       description: arenaData.description || "An arena of legend.",
-      imageUrl: `/vs/arena/${arenaData.image || randomFile.replace('.json', '.jpg')}`
+      imageUrl: `/vs/arena/${arenaData.image}`
     };
     
     return NextResponse.json(arena);

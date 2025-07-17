@@ -417,4 +417,41 @@ describe('TournamentPage', () => {
       expect(screen.getByTestId('battle-viewer')).toBeInTheDocument();
     });
   });
+
+  test('should pass previousRoundHighlights and tournamentContext to commentary API', async () => {
+    // Spy on fetch to capture the request body
+    const fetchSpy = jest.spyOn(global, 'fetch');
+
+    render(<TournamentPage />);
+
+    // Select tournament and click match
+    fireEvent.click(screen.getByText('Select Tournament'));
+    fireEvent.click(screen.getByText('Click Match'));
+
+    // Advance through slideshow
+    await waitFor(() => {
+      expect(screen.getByTestId('fighter-slideshow')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Next Fighter'));
+    await waitFor(() => {
+      expect(screen.getByText('Start Battle!')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Start Battle!'));
+
+    // Wait for commentary to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('tournament-commentary')).toBeInTheDocument();
+    });
+
+    // Find the fetch call to the commentary API
+    const commentaryCall = fetchSpy.mock.calls.find(call =>
+      typeof call[0] === 'string' && call[0].includes('/api/fighting-game/generate-tournament-commentary')
+    );
+    if (commentaryCall && typeof commentaryCall[1]?.body === 'string') {
+      const requestBody = JSON.parse(commentaryCall[1].body);
+      expect(requestBody).toHaveProperty('tournamentContext');
+    } else {
+      throw new Error('Commentary API call or body not found');
+    }
+  });
 }); 

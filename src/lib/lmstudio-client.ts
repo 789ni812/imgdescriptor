@@ -399,7 +399,9 @@ export const generateBattleCommentary = async (
   fighterB: string,
   round: number,
   isAttack: boolean,
-  _damage: number // Prefix with underscore to indicate intentionally unused
+  _damage: number, // Prefix with underscore to indicate intentionally unused
+  previousRoundHighlights?: string,
+  tournamentContext?: string
 ): Promise<string> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -422,7 +424,7 @@ export const generateBattleCommentary = async (
           },
           {
             role: 'user',
-            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterA, fighterB, round, isAttack, _damage),
+            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterA, fighterB, round, isAttack, _damage, previousRoundHighlights, tournamentContext),
           },
         ],
         temperature: 0.5, // Reduced for more coherent output
