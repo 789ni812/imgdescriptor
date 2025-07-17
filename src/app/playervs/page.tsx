@@ -37,10 +37,7 @@ function mapPreGeneratedToBattleRound(
       defenderDamage: r.defenderDamage, // Always 0 in current model
       randomEvent: null, // PreGeneratedBattleRound doesn't have this field
       arenaObjectsUsed: null, // PreGeneratedBattleRound doesn't have this field
-      healthAfter: {
-        attacker: 0, // We'll calculate this in the component
-        defender: 0, // We'll calculate this in the component
-      },
+      healthAfter: r.healthAfter || { attacker: 0, defender: 0 }, // Use actual healthAfter from API
     };
   });
 }

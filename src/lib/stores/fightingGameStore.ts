@@ -96,6 +96,10 @@ export interface PreGeneratedBattleRound {
   defenseCommentary: string;
   attackerDamage: number;
   defenderDamage: number;
+  healthAfter?: {
+    attacker: number;
+    defender: number;
+  };
 }
 
 interface FightingGameState {
