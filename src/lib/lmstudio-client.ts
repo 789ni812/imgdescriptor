@@ -395,8 +395,8 @@ interface FighterStats {
 }
 
 export const generateBattleCommentary = async (
-  fighterA: string,
-  fighterB: string,
+  fighterA: string | { name: string; stats?: { strength: number; agility: number; size: string; build: string; uniqueAbilities?: string[] } },
+  fighterB: string | { name: string; stats?: { strength: number; agility: number; size: string; build: string; uniqueAbilities?: string[] } },
   round: number,
   isAttack: boolean,
   _damage: number, // Prefix with underscore to indicate intentionally unused
@@ -406,8 +406,21 @@ export const generateBattleCommentary = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
+  // Extract fighter names and characteristics
+  const fighterAName = typeof fighterA === 'string' ? fighterA : fighterA.name;
+  const fighterBName = typeof fighterB === 'string' ? fighterB : fighterB.name;
+  
+  // Build fighter characteristics for more specific commentary
+  const fighterACharacteristics = typeof fighterA === 'object' && fighterA.stats ? 
+    `${fighterA.stats.size} ${fighterA.stats.build} fighter with ${fighterA.stats.strength} strength, ${fighterA.stats.agility} agility${fighterA.stats.uniqueAbilities?.length ? `, abilities: ${fighterA.stats.uniqueAbilities.join(', ')}` : ''}` : 
+    fighterAName;
+  
+  const fighterBCharacteristics = typeof fighterB === 'object' && fighterB.stats ? 
+    `${fighterB.stats.size} ${fighterB.stats.build} fighter with ${fighterB.stats.strength} strength, ${fighterB.stats.agility} agility${fighterB.stats.uniqueAbilities?.length ? `, abilities: ${fighterB.stats.uniqueAbilities.join(', ')}` : ''}` : 
+    fighterBName;
+
   // Log the commentary request
-  console.log(`[BATTLE COMMENTARY] Generating ${isAttack ? 'attack' : 'defense'} commentary for Round ${round}: ${fighterA} vs ${fighterB}`);
+  console.log(`[BATTLE COMMENTARY] Generating ${isAttack ? 'attack' : 'defense'} commentary for Round ${round}: ${fighterAName} vs ${fighterBName}`);
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -424,11 +437,11 @@ export const generateBattleCommentary = async (
           },
           {
             role: 'user',
-            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterA, fighterB, round, isAttack, _damage, previousRoundHighlights, tournamentContext),
+            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterACharacteristics, fighterBCharacteristics, round, isAttack, _damage, previousRoundHighlights, tournamentContext),
           },
         ],
         temperature: 0.5, // Reduced for more coherent output
-        max_tokens: 80, // Increased for better sentence completion
+        max_tokens: 60, // Reduced for more concise, impactful commentary
         top_p: 0.85,
         frequency_penalty: 0.3,
         presence_penalty: 0.2,
@@ -441,7 +454,7 @@ export const generateBattleCommentary = async (
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`LM Studio battle commentary API response error: ${response.status} ${errorBody}`);
-      const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+      const fallback = generateFallbackCommentary(fighterAName, fighterBName, round, isAttack);
       console.log(`[BATTLE COMMENTARY] Using fallback: "${fallback}"`);
       return fallback;
     }
@@ -450,7 +463,7 @@ export const generateBattleCommentary = async (
     const rawCommentary = data.choices[0]?.message?.content?.trim();
     
     if (!rawCommentary) {
-      const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+      const fallback = generateFallbackCommentary(fighterAName, fighterBName, round, isAttack);
       console.log(`[BATTLE COMMENTARY] No commentary returned, using fallback: "${fallback}"`);
       return fallback;
     }
@@ -464,7 +477,7 @@ export const generateBattleCommentary = async (
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle commentary error:', error);
-    const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+    const fallback = generateFallbackCommentary(fighterAName, fighterBName, round, isAttack);
     console.log(`[BATTLE COMMENTARY] Error occurred, using fallback: "${fallback}"`);
     return fallback;
   }

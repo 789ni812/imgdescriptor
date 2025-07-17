@@ -127,18 +127,29 @@ Ranges: Health ${typeConfig.healthRange[0]}-${typeConfig.healthRange[1]}, Streng
 // Target: Reduce from 100 tokens to 60 tokens, improve success rate from 95% to 98%
 
 export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are a world-class esports commentator narrating a high-stakes fighting game tournament. For each round, provide a vivid, emotionally charged commentary that:
-- References the current round (e.g., "Round 3 begins...")
-- Reacts to the fighters’ current health, any comebacks, or critical moments (e.g., near-KO, critical hit, reversal)
-- Occasionally references previous rounds or the fighters’ journey so far
-- Uses varied, cinematic language and pacing (short sentences for action, longer for suspense)
-- Ends with a suspenseful lead-in to the next round or the final blow
+- References the current round with unique, varied language
+- Describes specific, dynamic actions that differ between attack and defense
+- Integrates damage numbers naturally into the narrative when significant
+- References fighter-specific characteristics, abilities, and fighting styles
+- Avoids repetitive phrases or similar descriptions across rounds
+- Creates progressive tension that builds throughout the battle
+- Uses varied, cinematic language with different pacing for different actions
+
+VOCABULARY DIVERSITY REQUIREMENTS:
+- NEVER repeat the same action verbs in consecutive rounds (e.g., if "explodes" was used, use "bursts", "erupts", "launches", "surges" instead)
+- Vary descriptive adjectives (avoid overusing "brutal", "devastating", "powerful")
+- Use different sentence structures and pacing for each round
+- Each round should feel distinctly different from the previous one
 
 STYLE GUIDELINES:
-- Use dynamic, action-oriented language
-- Describe the impact and effectiveness clearly
-- Include fighter-specific details when relevant
-- Create narrative flow that enhances the moment
+- Attack commentary: Focus on the aggressor's specific technique, power, and impact
+- Defense commentary: Focus on the defender's reaction, counter-move, or evasion
+- Vary sentence structure and vocabulary between rounds
+- Include fighter-specific details (size, build, abilities, fighting style)
+- Weave damage numbers into the narrative when they're significant
+- Create distinct emotional beats for each round
 - Balance action description with tactical insight
+- Keep commentary concise and impactful (avoid rambling)
 
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
@@ -151,11 +162,17 @@ export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
   previousRoundHighlights?: string,
   tournamentContext?: string
 ) => `You are a dramatic esports commentator. For this round, provide a vivid, emotionally charged commentary that:
-- References the current round (e.g., "Round ${round} begins...")
-- Reacts to the fighters’ current health, any comebacks, or critical moments
-- Occasionally references previous rounds or the fighters’ journey so far
-- Uses varied, cinematic language and pacing
-- Ends with a suspenseful lead-in to the next round or the final blow
+- Uses unique language that differs from previous rounds
+- Describes specific actions: ${isAttack ? 'focus on the attacker\'s technique and impact' : 'focus on the defender\'s reaction and counter'}
+- ${damage > 0 ? `Integrates the ${damage} damage dealt naturally into the narrative` : 'Emphasizes the defender\'s successful evasion or block'}
+- References fighter characteristics and fighting styles
+- Creates distinct emotional tension for this round
+- Avoids repetitive phrases or similar descriptions
+
+VOCABULARY DIVERSITY:
+- Use different action verbs than previous rounds
+- Vary descriptive adjectives and sentence structure
+- Make this round feel completely unique from any previous commentary
 
 Input:
 - Fighter A: ${fighterA}
@@ -166,7 +183,7 @@ ${previousRoundHighlights ? `- Previous round highlights: ${previousRoundHighlig
 ${tournamentContext ? `- Tournament context: ${tournamentContext}` : ''}
 
 Output:
-A single paragraph of dramatic, context-aware commentary for this round.`;
+A single, concise paragraph of dynamic, fighter-specific commentary that avoids repetition and creates unique tension for this round.`;
 
 // ============================================================================
 // 4. OPTIMIZED TOURNAMENT OVERVIEW

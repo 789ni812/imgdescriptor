@@ -190,4 +190,74 @@ describe('generateBattleCommentary', () => {
     expect(userPrompt).toContain(previousRoundHighlights);
     expect(userPrompt).toContain(tournamentContext);
   });
+
+  it('should generate commentary with fighter characteristics when fighter objects are provided', async () => {
+    const mockResponse = {
+      choices: [{ message: { content: 'The small thin fighter with 15 strength, 20 agility unleashes a devastating strike!' } }]
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    const fighterA = {
+      name: 'Alien',
+      stats: {
+        strength: 15,
+        agility: 20,
+        size: 'small',
+        build: 'thin',
+        uniqueAbilities: ['acid blood', 'stealth']
+      }
+    };
+
+    const fighterB = {
+      name: 'Predator',
+      stats: {
+        strength: 25,
+        agility: 15,
+        size: 'large',
+        build: 'muscular',
+        uniqueAbilities: ['cloaking', 'plasma cannon']
+      }
+    };
+
+    const result = await generateBattleCommentary(fighterA, fighterB, 1, true, 10);
+
+    expect(result).toContain('small thin fighter');
+    expect(result).toContain('15 strength');
+    expect(result).toContain('20 agility');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:1234/v1/chat/completions',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('small thin fighter with 15 strength, 20 agility, abilities: acid blood, stealth')
+      })
+    );
+  });
+
+  it('should include vocabulary diversity requirements in the prompt', async () => {
+    const mockResponse = {
+      choices: [{ message: { content: 'Dynamic round commentary with varied vocabulary.' } }]
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    await generateBattleCommentary('Godzilla', 'Bruce Lee', 3, true, 20);
+
+    const callBody = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+    const systemPrompt = callBody.messages[0].content;
+    const userPrompt = callBody.messages[1].content;
+    
+    // Check that vocabulary diversity requirements are included
+    expect(systemPrompt).toContain('VOCABULARY DIVERSITY REQUIREMENTS');
+    expect(systemPrompt).toContain('NEVER repeat the same action verbs');
+    expect(systemPrompt).toContain('Vary descriptive adjectives');
+    expect(userPrompt).toContain('VOCABULARY DIVERSITY');
+    expect(userPrompt).toContain('Use different action verbs');
+  });
 }); 
