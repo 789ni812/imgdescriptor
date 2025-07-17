@@ -4,7 +4,7 @@ import { join } from 'path';
 import { Tournament } from '@/lib/types/tournament';
 import { advanceFighterToNextRound, isTournamentComplete, getNextPendingMatch } from '@/lib/utils/tournamentUtils';
 import { resolveBattle } from '@/lib/utils';
-import { generateBattleCommentary } from '@/lib/lmstudio-client';
+import { generateBattleCommentary, generateFighterSlogans } from '@/lib/lmstudio-client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -119,12 +119,101 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Generate fighter slogans for both fighters
+    const fighterSlogans: Record<string, { slogans: string[]; description: string }> = {};
+    
+    try {
+      // Generate slogans for fighter A
+      const fighterASlogans = await generateFighterSlogans(
+        nextMatch.fighterA.name,
+        {
+          strength: nextMatch.fighterA.stats.strength,
+          agility: nextMatch.fighterA.stats.agility,
+          health: nextMatch.fighterA.stats.health,
+          defense: nextMatch.fighterA.stats.defense,
+          intelligence: nextMatch.fighterA.stats.intelligence ?? 0,
+          uniqueAbilities: nextMatch.fighterA.stats.uniqueAbilities ?? []
+        },
+        nextMatch.fighterA.visualAnalysis,
+        nextMatch.fighterA.description || `A formidable ${nextMatch.fighterA.stats.size} fighter with ${nextMatch.fighterA.stats.strength} strength and ${nextMatch.fighterA.stats.agility} agility, ready to prove their worth in battle.`
+      );
+      
+      if (fighterASlogans.success && fighterASlogans.slogans && fighterASlogans.description) {
+        fighterSlogans[nextMatch.fighterA.id] = {
+          slogans: fighterASlogans.slogans,
+          description: fighterASlogans.description
+        };
+                      } else {
+          // Fallback slogans for fighter A
+          fighterSlogans[nextMatch.fighterA.id] = {
+            slogans: [
+              `The ${nextMatch.fighterA.name}`,
+              `Ready for battle!`,
+              `Champion material!`
+            ],
+            description: nextMatch.fighterA.description || `A formidable fighter ready to prove their worth.`
+          };
+        }
+        
+        // Generate slogans for fighter B
+        const fighterBSlogans = await generateFighterSlogans(
+          nextMatch.fighterB.name,
+          {
+            strength: nextMatch.fighterB.stats.strength,
+            agility: nextMatch.fighterB.stats.agility,
+            health: nextMatch.fighterB.stats.health,
+            defense: nextMatch.fighterB.stats.defense,
+            intelligence: nextMatch.fighterB.stats.intelligence ?? 0,
+            uniqueAbilities: nextMatch.fighterB.stats.uniqueAbilities ?? []
+          },
+          nextMatch.fighterB.visualAnalysis,
+          nextMatch.fighterB.description || `A formidable ${nextMatch.fighterB.stats.size} fighter with ${nextMatch.fighterB.stats.strength} strength and ${nextMatch.fighterB.stats.agility} agility, ready to prove their worth in battle.`
+        );
+        
+        if (fighterBSlogans.success && fighterBSlogans.slogans && fighterBSlogans.description) {
+          fighterSlogans[nextMatch.fighterB.id] = {
+            slogans: fighterBSlogans.slogans,
+            description: fighterBSlogans.description
+          };
+        } else {
+          // Fallback slogans for fighter B
+          fighterSlogans[nextMatch.fighterB.id] = {
+            slogans: [
+              `The ${nextMatch.fighterB.name}`,
+              `Ready for battle!`,
+              `Champion material!`
+            ],
+            description: nextMatch.fighterB.description || `A formidable fighter ready to prove their worth.`
+          };
+        }
+    } catch (error) {
+      console.error('Failed to generate fighter slogans:', error);
+      // Fallback slogans for both fighters
+      fighterSlogans[nextMatch.fighterA.id] = {
+        slogans: [
+          `The ${nextMatch.fighterA.name}`,
+          `Ready for battle!`,
+          `Champion material!`
+        ],
+        description: nextMatch.fighterA.description || `A formidable fighter ready to prove their worth.`
+      };
+      fighterSlogans[nextMatch.fighterB.id] = {
+        slogans: [
+          `The ${nextMatch.fighterB.name}`,
+          `Ready for battle!`,
+          `Champion material!`
+        ],
+        description: nextMatch.fighterB.description || `A formidable fighter ready to prove their worth.`
+      };
+    }
+
     // Determine winner
     const winner = resolved.winner === nextMatch.fighterA.name ? nextMatch.fighterA : nextMatch.fighterB;
     
     // Update match
     nextMatch.winner = winner;
     nextMatch.battleLog = battleLog;
+    nextMatch.fighterSlogans = fighterSlogans; // Store the generated slogans
     nextMatch.status = 'completed';
     
     // Save battle log to tournaments folder (same format as playervs)

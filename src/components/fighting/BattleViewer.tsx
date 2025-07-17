@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
-import BattleStoryboard from './BattleStoryboard';
-import RoundStartAnimation from './RoundStartAnimation';
 import HealthBar from './HealthBar';
 import Image from 'next/image';
 
@@ -21,7 +19,6 @@ const ROUND_TRANSITION_PAUSE_MS = 1800;
 const BattleViewer: React.FC<BattleViewerProps> = ({
   fighterA,
   fighterB,
-  scene,
   battleLog,
   onBattleEnd,
   onBattleReplayComplete,

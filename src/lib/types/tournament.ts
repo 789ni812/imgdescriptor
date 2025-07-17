@@ -40,6 +40,8 @@ export interface TournamentMatch {
   notableMoments?: string[];
   crowdReactions?: string[];
   arena?: ArenaMetadata; // Assigned arena for this match
+  // Pre-generated fighter slogans for slideshow
+  fighterSlogans?: Record<string, { slogans: string[]; description: string }>;
 }
 
 // New interface for tournament commentary

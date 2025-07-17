@@ -4479,6 +4479,19 @@ The app now provides a solid foundation for future enhancements:
 - **UI State Management**: Spinner and cancel button disappear immediately upon tournament completion.
 - **Error Handling**: Robust error handling for invalid matches, missing fighters, and API failures.
 
+## Tournament Overview System (2025-01-27)
+- **Completed Tournament Overview**: When a tournament is completed, a "View Tournament Overview" button appears in the completion section.
+- **Fighter Slideshow**: Displays all tournament participants in a cinematic slideshow with:
+  - Full-screen fighter images as backgrounds
+  - Fighter names in bottom-left corner
+  - Large slogans displayed on the right side
+  - Auto-advance every 6 seconds
+  - Manual navigation with Previous/Next buttons
+  - Pause/Resume functionality (Space key or button)
+  - Exit button to return to tournament view
+- **Integration**: Overview is contextually placed in completed tournaments rather than as a separate navigation option.
+- **User Experience**: Provides a celebratory, cinematic experience after tournament completion.
+
 ### Automation Flow
 1. User clicks "Automate Match Execution"
 2. System checks for next pending match
@@ -4523,8 +4536,11 @@ const handleAutomateMatches = async () => {
   - Tournament bracket or list of battles
   - Score chart for all fighters
   - Dropdown/list to select and replay any completed battle
+  - Tournament controls for executing matches
+  - Completed tournament overview with fighter slideshow
 - When a user selects a battle, the app loads the corresponding JSON log from `public/tournaments/` and replays it in the UI.
 - After a replay, the user can select another battle or upload new fighters/arenas.
+- When a tournament is completed, users can view a fighter overview slideshow with images and slogans.
 
 ## Technical Notes
 - All battle logs are stored in a portable, human-readable JSON format for easy sharing and debugging.

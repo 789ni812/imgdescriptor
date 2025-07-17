@@ -17,8 +17,9 @@ import FighterSlideshow from '@/components/fighting/FighterSlideshow';
 import TournamentCommentary from '@/components/tournament/TournamentCommentary';
 import { TournamentCommentaryService } from '@/lib/services/tournament-commentary-service';
 import { ArenaMetadata } from '@/lib/utils/arenaUtils';
+import TournamentOverview from '@/components/tournament/TournamentOverview';
 
-type ViewMode = 'list' | 'create' | 'tournament' | 'battle-replay';
+type ViewMode = 'list' | 'create' | 'tournament' | 'battle-replay' | 'completed-overview';
 
 // Helper function to convert PreGeneratedBattleRound to BattleRound
 const mapPreGeneratedToBattleRound = (log: PreGeneratedBattleRound[]): BattleRound[] => {
@@ -183,6 +184,14 @@ export default function TournamentPage() {
     setViewMode('tournament');
   };
 
+  const handleOverviewComplete = () => {
+    setViewMode('tournament');
+  };
+
+  const handleShowCompletedOverview = () => {
+    setViewMode('completed-overview');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       <div className="container mx-auto px-4 py-8">
@@ -221,18 +230,21 @@ export default function TournamentPage() {
               ➕ Create Tournament
             </Button>
             {selectedTournament && (
-              <Button
-                onClick={() => setViewMode('tournament')}
-                variant={viewMode === 'tournament' ? 'default' : 'secondary'}
-                className={`px-6 py-3 font-semibold transition-all duration-200 ${
-                  viewMode === 'tournament' 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600'
-                }`}
-                data-testid="current-tournament-btn"
-              >
-                ⚔️ Current Tournament
-              </Button>
+              <>
+                <Button
+                  onClick={() => setViewMode('tournament')}
+                  variant={viewMode === 'tournament' ? 'default' : 'secondary'}
+                  className={`px-6 py-3 font-semibold transition-all duration-200 ${
+                    viewMode === 'tournament' 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600'
+                  }`}
+                  data-testid="current-tournament-btn"
+                >
+                  ⚔️ Current Tournament
+                </Button>
+
+              </>
             )}
           </div>
         </div>
@@ -279,6 +291,7 @@ export default function TournamentPage() {
               <TournamentControls
                 tournament={selectedTournament}
                 onTournamentUpdated={handleTournamentUpdated}
+                onShowOverview={handleShowCompletedOverview}
               />
             </div>
 
@@ -289,6 +302,64 @@ export default function TournamentPage() {
                 onMatchClick={handleMatchClick}
               />
             </div>
+          </div>
+        )}
+
+
+
+        {/* Completed Tournament Overview View */}
+        {viewMode === 'completed-overview' && selectedTournament && (
+          <div className="space-y-8" data-testid="completed-tournament-overview-view">
+            {/* Tournament Header */}
+            <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">
+                    🏆 Tournament Champion Overview
+                  </h2>
+                  <p className="text-gray-300 text-lg">
+                    {selectedTournament.name} • Champion: {selectedTournament.winner?.name}
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setViewMode('tournament')} 
+                  variant="secondary" 
+                  className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 px-6 py-3 font-semibold transition-all duration-200"
+                >
+                  ← Back to Tournament
+                </Button>
+              </div>
+            </Card>
+
+            {/* Tournament Overview Component */}
+            {(() => {
+              const mappedFighters = selectedTournament.fighters.map(fighter => ({
+                ...fighter,
+                stats: {
+                  ...fighter.stats,
+                  intelligence: fighter.stats.intelligence ?? 0,
+                  uniqueAbilities: fighter.stats.uniqueAbilities ?? [],
+                },
+                fighterSlogans: undefined // We'll get slogans from completed matches if available
+              }));
+              
+              return (
+                <TournamentOverview
+                  tournamentName={selectedTournament.name}
+                  tournamentDate={selectedTournament.createdAt}
+                  arena={{
+                    id: 'tournament-arena',
+                    name: 'Tournament Arena',
+                    imageUrl: '/vs/arena/battle-arena-1-1752784672383-6dfsjq.jpg',
+                    description: 'A dynamic battleground where warriors compete for glory and honor.',
+                    environmentalObjects: ['marble throne', 'broken column', 'sand-covered ground'],
+                    createdAt: (typeof selectedTournament.createdAt === 'string' ? selectedTournament.createdAt : selectedTournament.createdAt.toISOString())
+                  }}
+                  fighters={mappedFighters}
+                  onComplete={handleOverviewComplete}
+                />
+              );
+            })()}
           </div>
         )}
 
@@ -321,6 +392,7 @@ export default function TournamentPage() {
                   onComplete={handleSlideshowComplete}
                   tournamentName={selectedTournament.name}
                   arenaName={selectedMatch.arena?.name || 'Tournament Arena'}
+                  preGeneratedSlogans={selectedMatch.fighterSlogans}
                 />
               )}
               {showCommentary && (

@@ -10,11 +10,13 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 interface TournamentControlsProps {
   tournament: Tournament;
   onTournamentUpdated: (tournament: Tournament) => void;
+  onShowOverview?: () => void;
 }
 
 export const TournamentControls: React.FC<TournamentControlsProps> = ({
   tournament,
-  onTournamentUpdated
+  onTournamentUpdated,
+  onShowOverview
 }) => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [isAutomating, setIsAutomating] = useState(false);
@@ -267,9 +269,18 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
             <div className="text-xl font-bold text-yellow-400 mb-2 drop-shadow-lg">
               🏆 Tournament Complete! 🏆
             </div>
-            <div className="text-sm text-yellow-300 font-semibold" data-testid="tournament-champion">
+            <div className="text-sm text-yellow-300 font-semibold mb-4" data-testid="tournament-champion">
               🥇 Champion: {tournament.winner?.name}
             </div>
+            {onShowOverview && (
+              <Button
+                onClick={onShowOverview}
+                className="bg-orange-600 hover:bg-orange-700 text-white border-2 border-orange-500 px-6 py-3 font-semibold transition-all duration-200 shadow-lg"
+                data-testid="tournament-overview-btn"
+              >
+                📊 View Tournament Overview
+              </Button>
+            )}
           </div>
         )}
       </div>

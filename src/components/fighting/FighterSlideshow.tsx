@@ -37,6 +37,8 @@ interface FighterSlideshowProps {
   onComplete: () => void;
   tournamentName?: string;
   arenaName?: string;
+  // New prop for pre-generated slogans
+  preGeneratedSlogans?: Record<string, FighterSlogans>;
 }
 
 interface FighterSlogans {
@@ -48,7 +50,8 @@ export default function FighterSlideshow({
   fighters, 
   onComplete, 
   tournamentName = 'Tournament',
-  arenaName = 'Arena'
+  arenaName = 'Arena',
+  preGeneratedSlogans
 }: FighterSlideshowProps) {
   const [currentFighterIndex, setCurrentFighterIndex] = useState(0);
   const [fighterSlogans, setFighterSlogans] = useState<Record<string, FighterSlogans>>({});
@@ -59,8 +62,16 @@ export default function FighterSlideshow({
   const currentFighter = fighters[currentFighterIndex];
   const isLastFighter = currentFighterIndex === fighters.length - 1;
 
-  // Generate slogans for all fighters on mount
+  // Generate slogans for all fighters on mount (only if not pre-generated)
   useEffect(() => {
+    // If pre-generated slogans are provided, use them immediately
+    if (preGeneratedSlogans) {
+      setFighterSlogans(preGeneratedSlogans);
+      setIsGenerating(false);
+      hasGeneratedSlogans.current = true;
+      return;
+    }
+
     // Prevent multiple generations
     if (hasGeneratedSlogans.current) {
       return;
@@ -142,7 +153,7 @@ export default function FighterSlideshow({
     };
 
     generateAllSlogans();
-  }, [fighters]);
+  }, [fighters, preGeneratedSlogans]);
 
   const handleNext = () => {
     if (isLastFighter) {
@@ -165,7 +176,7 @@ export default function FighterSlideshow({
     description: 'Loading fighter details...'
   };
 
-  if (isGenerating) {
+  if (isGenerating && !preGeneratedSlogans) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
         <div className="text-center text-white">
