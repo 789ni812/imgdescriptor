@@ -73,9 +73,10 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
       if (healthPercentage > 50) return 'Barely Standing';
       return 'Battered but Victorious';
     } else {
+      if (finalHealth <= 0) return 'Knocked Out';
       if (healthPercentage > 50) return 'Defeated but Alive';
       if (healthPercentage > 20) return 'Severely Wounded';
-      return 'Knocked Out';
+      return 'Near Death'; // More accurate than "Knocked Out" for very low health
     }
   };
 
