@@ -14,6 +14,7 @@ interface BattleViewerProps {
   battleLog: BattleRound[];
   mode: BattleViewerMode;
   onBattleEnd?: (winner: string) => void;
+  onBattleReplayComplete?: () => void; // New callback for when replay finishes
   onClose?: () => void;
 }
 
@@ -27,6 +28,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   battleLog,
   // mode parameter removed as it's not used
   onBattleEnd,
+  onBattleReplayComplete,
   onClose,
 }) => {
   const [currentRoundIdx, setCurrentRoundIdx] = useState(0);
@@ -58,6 +60,12 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
       // The winner should already be set from the API response
       console.log('BattleViewer: Battle ended, winner should be set by parent');
       if (onBattleEnd && winner) onBattleEnd(winner);
+      
+      // Signal that the battle replay is complete
+      if (onBattleReplayComplete) {
+        console.log('BattleViewer: Signaling battle replay complete');
+        onBattleReplayComplete();
+      }
       return;
     }
     if (!showRoundAnim) {
@@ -84,7 +92,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
         }
       }, ROUND_TRANSITION_PAUSE_MS);
     }
-  }, [currentRoundIdx, showRoundAnim, battleLog, winner, fighterA.name, fighterA.id, fighterB.id, onBattleEnd]);
+  }, [currentRoundIdx, showRoundAnim, battleLog, winner, fighterA.name, fighterA.id, fighterB.id, onBattleEnd, onBattleReplayComplete]);
 
   // Show round animation at the start of each round
   useEffect(() => {
@@ -127,85 +135,70 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {winner ? (
-        <WinnerAnimation
-          isOpen={true}
-          onClose={onClose || (() => {})}
-          winner={winner}
-          fighterA={fighterA}
-          fighterB={fighterB}
-          scene={scene}
-          battleLog={battleLog}
-          battleSummary={`Battle between ${fighterA.name} and ${fighterB.name} completed.`}
-        />
-      ) : (
-        <>
-          <div className={`flex items-center justify-center gap-8 mb-8 transition-opacity duration-300 ${
-            showRoundAnim ? 'opacity-30 battle-info-fade-out' : 'opacity-100 battle-info-fade-in'
-          }`}>
-            {/* Fighter A */}
-            <div className="flex-1 flex flex-col items-center">
-              {fighterA.imageUrl ? (
-                <Image src={fighterA.imageUrl} alt={fighterA.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
-              ) : (
-                <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-red-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
-                  No Image
-                </div>
-              )}
-              <div className="mt-2 text-lg font-bold text-white">{fighterA.name}</div>
-              <HealthBar current={health[fighterA.id] ?? 0} max={fighterA.stats.maxHealth} color="red" />
-              <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
+      <div className={`flex items-center justify-center gap-8 mb-8 transition-opacity duration-300 ${
+        showRoundAnim ? 'opacity-30 battle-info-fade-out' : 'opacity-100 battle-info-fade-in'
+      }`}>
+        {/* Fighter A */}
+        <div className="flex-1 flex flex-col items-center">
+          {fighterA.imageUrl ? (
+            <Image src={fighterA.imageUrl} alt={fighterA.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
+          ) : (
+            <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-red-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
+              No Image
             </div>
-            <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
-            {/* Fighter B */}
-            <div className="flex-1 flex flex-col items-center">
-              {fighterB.imageUrl ? (
-                <Image src={fighterB.imageUrl} alt={fighterB.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
-              ) : (
-                <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-blue-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
-                  No Image
-                </div>
-              )}
-              <div className="mt-2 text-lg font-bold text-white">{fighterB.name}</div>
-              <HealthBar current={health[fighterB.id] ?? 0} max={fighterB.stats.maxHealth} color="blue" />
-              <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
+          )}
+          <div className="mt-2 text-lg font-bold text-white">{fighterA.name}</div>
+          <HealthBar current={health[fighterA.id] ?? 0} max={fighterA.stats.maxHealth} color="red" />
+          <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
+        </div>
+        <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
+        {/* Fighter B */}
+        <div className="flex-1 flex flex-col items-center">
+          {fighterB.imageUrl ? (
+            <Image src={fighterB.imageUrl} alt={fighterB.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
+          ) : (
+            <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-blue-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
+              No Image
             </div>
-          </div>
-          {showRoundAnim && <RoundStartAnimation round={round.round} />}
-          {!showRoundAnim && <BattleStoryboard
-            scene={scene}
-            round={round.round}
-            attacker={{
-              name: attacker.name,
-              imageUrl: attacker.imageUrl,
-              commentary: round.attackCommentary,
-            }}
-            defender={{
-              name: defender.name,
-              imageUrl: defender.imageUrl,
-              commentary: round.defenseCommentary,
-            }}
-            previousRounds={battleLog.slice(0, currentRoundIdx).map(r => {
-              const attackerFighter = r.attacker === fighterA.name ? fighterA : fighterB;
-              const defenderFighter = r.defender === fighterA.name ? fighterA : fighterB;
-              return {
-                round: r.round,
-                attacker: {
-                  name: attackerFighter.name,
-                  imageUrl: attackerFighter.imageUrl,
-                  commentary: r.attackCommentary,
-                },
-                defender: {
-                  name: defenderFighter.name,
-                  imageUrl: defenderFighter.imageUrl,
-                  commentary: r.defenseCommentary,
-                },
-              };
-            })}
-            roundStep={roundStep}
-          />}
-        </>
-      )}
+          )}
+          <div className="mt-2 text-lg font-bold text-white">{fighterB.name}</div>
+          <HealthBar current={health[fighterB.id] ?? 0} max={fighterB.stats.maxHealth} color="blue" />
+          <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
+        </div>
+      </div>
+      {showRoundAnim && <RoundStartAnimation round={round.round} />}
+      {!showRoundAnim && <BattleStoryboard
+        scene={scene}
+        round={round.round}
+        attacker={{
+          name: attacker.name,
+          imageUrl: attacker.imageUrl,
+          commentary: round.attackCommentary,
+        }}
+        defender={{
+          name: defender.name,
+          imageUrl: defender.imageUrl,
+          commentary: round.defenseCommentary,
+        }}
+        previousRounds={battleLog.slice(0, currentRoundIdx).map(r => {
+          const attackerFighter = r.attacker === fighterA.name ? fighterA : fighterB;
+          const defenderFighter = r.defender === fighterA.name ? fighterA : fighterB;
+          return {
+            round: r.round,
+            attacker: {
+              name: attackerFighter.name,
+              imageUrl: attackerFighter.imageUrl,
+              commentary: r.attackCommentary,
+            },
+            defender: {
+              name: defenderFighter.name,
+              imageUrl: defenderFighter.imageUrl,
+              commentary: r.defenseCommentary,
+            },
+          };
+        })}
+        roundStep={roundStep}
+      />}
     </div>
   );
 };

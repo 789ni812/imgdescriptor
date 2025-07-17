@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useFightingGameStore, type PreGeneratedBattleRound, type CombatEvent } from '@/lib/stores/fightingGameStore';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useFightingGameStore, type PreGeneratedBattleRound, type CombatEvent, Fighter, Scene } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
+import { generateBattleSummary } from '@/lib/lmstudio-client';
+import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
+import Image from 'next/image';
 // HealthBar import removed as it's not used in this file
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import ChooseExistingFighter from '@/components/fighting/ChooseExistingFighter';
@@ -12,10 +16,6 @@ import FighterStatDisplay from '@/components/fighting/FighterStatDisplay';
 import BattleViewer from '@/components/fighting/BattleViewer';
 import WinnerAnimation from '@/components/fighting/WinnerAnimation';
 import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
-import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
-import { generateBattleSummary } from '@/lib/lmstudio-client';
-import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
-import Image from 'next/image';
 
 // Type alias to avoid conflicts with other BattleRound interfaces
 type WinnerAnimationBattleRound = BattleRound;
@@ -166,7 +166,8 @@ export default function PlayerVsPage() {
   const [isPreBattleLoading, setIsPreBattleLoading] = React.useState(false);
   const [battleError, setBattleError] = React.useState<string | null>(null);
 
-  const [battleSummary, setBattleSummary] = React.useState<string | null>(null);
+  const [battleReplayComplete, setBattleReplayComplete] = useState(false);
+  const [battleSummary, setBattleSummary] = useState<string | null>(null);
 
   // New: LLM generation state for fighters
   const [isGeneratingFighterA, setIsGeneratingFighterA] = React.useState(false);
@@ -929,6 +930,7 @@ export default function PlayerVsPage() {
             battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog)}
             mode="live"
             onBattleEnd={setWinner}
+            onBattleReplayComplete={() => setBattleReplayComplete(true)}
           />
         )}
 
@@ -947,11 +949,15 @@ export default function PlayerVsPage() {
           />
         )}
 
-        {/* Winner Animation */}
-        {winner && fighterA && fighterB && scene && (
+        {/* Winner Animation - only show after battle replay is complete */}
+        {winner && fighterA && fighterB && scene && battleReplayComplete && (
           <WinnerAnimation 
             isOpen={true}
-            onClose={() => { resetGame(); setGamePhase('setup'); }}
+            onClose={() => { 
+              resetGame(); 
+              setGamePhase('setup'); 
+              setBattleReplayComplete(false);
+            }}
             winner={winner}
             fighterA={fighterA}
             fighterB={fighterB}
