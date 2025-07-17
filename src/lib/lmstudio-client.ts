@@ -1073,6 +1073,17 @@ export const generateFighterSlogans = async (
         }
       }
       
+      // Clean control characters and escape sequences that might break JSON parsing
+      jsonContent = jsonContent
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .replace(/\*/g, '') // Remove asterisks used for emphasis
+        .replace(/_/g, '') // Remove underscores used for emphasis
+        .replace(/\n/g, ' ') // Replace newlines with spaces
+        .replace(/\r/g, '') // Remove carriage returns
+        .replace(/\t/g, ' ') // Replace tabs with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
       const parsed = JSON.parse(jsonContent);
       return {
         success: true,

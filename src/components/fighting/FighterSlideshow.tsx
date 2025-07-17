@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 interface Fighter {
@@ -54,14 +54,21 @@ export default function FighterSlideshow({
   const [fighterSlogans, setFighterSlogans] = useState<Record<string, FighterSlogans>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const hasGeneratedSlogans = useRef(false);
 
   const currentFighter = fighters[currentFighterIndex];
   const isLastFighter = currentFighterIndex === fighters.length - 1;
 
   // Generate slogans for all fighters on mount
   useEffect(() => {
+    // Prevent multiple generations
+    if (hasGeneratedSlogans.current) {
+      return;
+    }
+
     const generateAllSlogans = async () => {
       setIsGenerating(true);
+      hasGeneratedSlogans.current = true;
       const slogansMap: Record<string, FighterSlogans> = {};
 
       for (const fighter of fighters) {
