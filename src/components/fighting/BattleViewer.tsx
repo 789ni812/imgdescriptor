@@ -35,6 +35,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   const [roundStep, setRoundStep] = useState<'attack' | 'defense'>('attack');
   const [showRoundAnim, setShowRoundAnim] = useState(true);
   const [winner, setWinner] = useState<string | null>(null);
+  const [battleReplayComplete, setBattleReplayComplete] = useState(false);
   const [health, setHealth] = useState({
     [fighterA.id]: fighterA.stats.health,
     [fighterB.id]: fighterB.stats.health,
@@ -66,6 +67,9 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
         console.log('BattleViewer: Signaling battle replay complete');
         onBattleReplayComplete();
       }
+      
+      // Mark replay as complete to hide this component
+      setBattleReplayComplete(true);
       return;
     }
     if (!showRoundAnim) {
@@ -118,6 +122,9 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
 
 
   if (!battleLog.length) return <div>No battle log available.</div>;
+
+  // Hide the component when battle replay is complete
+  if (battleReplayComplete) return null;
 
   const round = battleLog[Math.min(currentRoundIdx, battleLog.length - 1)];
   const attacker = fighterA.name === round.attacker ? fighterA : fighterB;
