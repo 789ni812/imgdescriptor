@@ -629,56 +629,50 @@ Create ${commentaryType} commentary that transforms this moment into legend, mak
 // Target: Create more atmospheric and tactical arena descriptions
 // Purpose: Make arenas feel more immersive and strategically important
 
-export const OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT = `You are a fighting game arena designer creating immersive battle environments.
+export const OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT = `You are a fighting game arena designer creating tactical battle environments.
 
 REQUIREMENTS:
-- Generate atmospheric arena descriptions
-- Identify tactical advantages and hazards
-- Create strategic opportunities for combatants
-- Describe environmental interactions
-- Make each arena feel unique and memorable
-- Balance atmosphere with tactical gameplay
+- Generate punchy, combat-focused arena descriptions
+- Keep descriptions under 100 words - be concise and impactful
+- Focus on tactical advantages and combat mechanics
+- Emphasize strategic opportunities for fighters
+- Make each arena feel dangerous and exciting
+- Use action-oriented, fighting game language
 
 DESCRIPTION ELEMENTS:
-- **Atmosphere**: Mood, lighting, weather, ambiance
-- **Tactical Features**: Cover, hazards, advantages, obstacles
-- **Environmental Interactions**: Objects that can be used in combat
-- **Strategic Implications**: How the arena affects fighting styles
-- **Visual Impact**: Memorable visual elements and landmarks
+- **Combat Focus**: How the arena affects fighting styles and tactics
+- **Tactical Features**: Cover, hazards, advantages, obstacles that matter in battle
+- **Environmental Weapons**: Objects that can be used as weapons or tools
+- **Strategic Depth**: How the arena creates different fighting opportunities
+- **Visual Impact**: Memorable visual elements that enhance combat
 
 STYLE GUIDELINES:
-- Use vivid, descriptive language
-- Focus on combat-relevant elements
-- Create strategic depth and complexity
-- Make environments feel alive and dynamic
-- Balance beauty with functionality
-- Include specific tactical opportunities
+- Use punchy, action-oriented language
+- Focus on combat-relevant elements only
+- Create strategic depth and tactical complexity
+- Make environments feel dangerous and exciting
+- Balance atmosphere with gameplay mechanics
+- Include specific combat opportunities
+- Use fighting game terminology
 
 OUTPUT FORMAT:
-Return ONLY a JSON object with these exact keys:
-{
-  "atmosphere": "Atmospheric description of the arena",
-  "tacticalFeatures": ["Feature 1", "Feature 2", "Feature 3"],
-  "environmentalInteractions": ["Interaction 1", "Interaction 2"],
-  "strategicImplications": "How the arena affects combat",
-  "visualHighlights": ["Highlight 1", "Highlight 2"]
-}
+Return ONLY a concise, punchy description (max 100 words) that focuses on combat and tactics. No JSON, no formatting, just the description text.
 
-Return ONLY the JSON object - no formatting, no explanations.`;
+The description should be exciting, tactical, and immediately convey how this arena affects combat.`;
 
 export const OPTIMIZED_ENHANCED_ARENA_USER_PROMPT = (
   arenaName: string,
   imageDescription: string,
   arenaType?: string,
   existingFeatures?: string[]
-) => `Generate enhanced arena description for: ${arenaName}
+) => `Generate a punchy, combat-focused arena description for: ${arenaName}
 
 ARENA CONTEXT:
 - Type: ${arenaType || 'neutral'}
 - Image Description: ${imageDescription}
 - Existing Features: ${existingFeatures?.join(', ') || 'none'}
 
-Create an immersive, tactical arena description that enhances the fighting experience.`;
+Create an exciting, tactical arena description that focuses on combat mechanics and strategic opportunities. Make it punchy and action-oriented - this is a fighting game arena, not a tourist destination.`;
 
 // ============================================================================
 // 11. ENHANCED BATTLE SUMMARY

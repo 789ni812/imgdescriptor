@@ -12,8 +12,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Extract filename from imageUrl
+    const filename = imageUrl.split('/').pop() || '';
+
     // Generate arena name directly from the image description
-    const arenaName = generateArenaNameFromDescription(imageDescription);
+    const arenaName = generateArenaNameFromDescription(imageDescription, filename);
 
     // Generate enhanced arena description
     const enhancedDescription = await generateEnhancedArenaDescription(
@@ -71,7 +74,41 @@ export async function POST(req: NextRequest) {
 }
 
 // Helper function to generate arena name from description
-function generateArenaNameFromDescription(description: string): string {
+function generateArenaNameFromDescription(description: string, filename: string): string {
+  // First, try to extract a meaningful name from the filename
+  const filenameWithoutExt = filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+  const filenameWords = filenameWithoutExt.split(/[-_\s]+/).filter(word => word.length > 2);
+  
+  // Look for meaningful arena-related words in filename
+  const arenaKeywords = ['castle', 'fortress', 'tower', 'cave', 'cavern', 'forest', 'woods', 'jungle', 
+                        'desert', 'sand', 'mountain', 'peak', 'summit', 'water', 'ocean', 'sea', 
+                        'volcano', 'lava', 'fire', 'ice', 'snow', 'frozen', 'city', 'urban', 'street',
+                        'temple', 'shrine', 'sacred', 'dojo', 'training', 'martial', 'arena', 'colosseum',
+                        'stadium', 'goth', 'restaurant', 'tokyo', 'medieval', 'modern', 'ancient', 'ruins'];
+  
+  for (const word of filenameWords) {
+    const lowerWord = word.toLowerCase();
+    if (arenaKeywords.some(keyword => lowerWord.includes(keyword) || keyword.includes(lowerWord))) {
+      // Convert to title case and create a dramatic name
+      const titleCase = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      return `The ${titleCase} Arena`;
+    }
+  }
+  
+  // If filename has multiple words, try to create a name from them
+  if (filenameWords.length >= 2) {
+    const firstWord = filenameWords[0].charAt(0).toUpperCase() + filenameWords[0].slice(1).toLowerCase();
+    const secondWord = filenameWords[1].charAt(0).toUpperCase() + filenameWords[1].slice(1).toLowerCase();
+    return `The ${firstWord} ${secondWord}`;
+  }
+  
+  // If filename has one meaningful word, use it
+  if (filenameWords.length === 1 && filenameWords[0].length > 3) {
+    const titleCase = filenameWords[0].charAt(0).toUpperCase() + filenameWords[0].slice(1).toLowerCase();
+    return `The ${titleCase} Arena`;
+  }
+  
+  // Fallback to description-based naming
   const desc = description.toLowerCase();
   
   // Look for specific arena types and generate dramatic names
