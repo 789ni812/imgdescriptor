@@ -24,7 +24,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   fighterB,
   scene,
   battleLog,
-  mode,
+  // mode parameter removed as it's not used
   onBattleEnd,
   onClose,
 }) => {
@@ -53,14 +53,10 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
     if (winner) return; // Stop all updates if winner is set
     if (!battleLog.length) return;
     if (currentRoundIdx >= battleLog.length) {
-      // Battle is over
-      const last = battleLog[battleLog.length - 1];
-      let win = '';
-      if (last.healthAfter.attacker > 0 && last.healthAfter.defender <= 0) win = last.attacker;
-      else if (last.healthAfter.defender > 0 && last.healthAfter.attacker <= 0) win = last.defender;
-      else win = 'Draw';
-      setWinner(win);
-      if (onBattleEnd) onBattleEnd(win);
+      // Battle is over - let the parent component handle winner determination
+      // The winner should already be set from the API response
+      console.log('BattleViewer: Battle ended, winner should be set by parent');
+      if (onBattleEnd && winner) onBattleEnd(winner);
       return;
     }
     if (!showRoundAnim) {

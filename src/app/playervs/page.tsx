@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
-import HealthBar from '@/components/fighting/HealthBar';
+// HealthBar import removed as it's not used in this file
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import ChooseExistingFighter from '@/components/fighting/ChooseExistingFighter';
 import ChooseExistingArena from '@/components/fighting/ChooseExistingArena';
@@ -387,6 +387,10 @@ export default function PlayerVsPage() {
         
         console.log('handleBeginCombat: Setting preGeneratedBattleLog...');
         setPreGeneratedBattleLog(data.battleLog as PreGeneratedBattleRound[]);
+        console.log('handleBeginCombat: Setting winner from API...');
+        if (data.winner) {
+          setWinner(data.winner);
+        }
         console.log('handleBeginCombat: Setting gamePhase to combat...');
         setGamePhase('combat');
         console.log('handleBeginCombat: Setting fighter health...');
@@ -434,26 +438,40 @@ export default function PlayerVsPage() {
       console.log('Playervs: Battle ended, winner from store:', winner);
       console.log('Playervs: Final health values:', { fighterAHealth, fighterBHealth });
       
-      // Fallback winner determination if store winner is not set correctly
+      // Only use fallback winner determination if no winner was set from API
       if (!winner && fighterA && fighterB) {
-        const finalHealthA = fighterAHealth ?? fighterA.stats.health;
-        const finalHealthB = fighterBHealth ?? fighterB.stats.health;
+        console.log('Playervs: No winner from API, using fallback determination');
         
-        console.log('Playervs: Fallback winner determination:', { finalHealthA, finalHealthB });
+        // Calculate total damage dealt by each fighter from battle log
+        let fighterADamageDealt = 0;
+        let fighterBDamageDealt = 0;
+        
+        preGeneratedBattleLog.forEach(round => {
+          if (round.attacker === fighterA.name) {
+            fighterADamageDealt += round.attackerDamage;
+          } else if (round.attacker === fighterB.name) {
+            fighterBDamageDealt += round.attackerDamage;
+          }
+        });
+        
+        console.log('Playervs: Damage-based fallback winner determination:', { 
+          fighterADamageDealt, 
+          fighterBDamageDealt,
+          fighterAName: fighterA.name,
+          fighterBName: fighterB.name
+        });
         
         let fallbackWinner = null;
-        if (finalHealthA <= 0 && finalHealthB <= 0) {
-          fallbackWinner = 'Draw';
-        } else if (finalHealthA <= 0) {
-          fallbackWinner = fighterB.name;
-        } else if (finalHealthB <= 0) {
+        if (fighterADamageDealt > fighterBDamageDealt) {
           fallbackWinner = fighterA.name;
+        } else if (fighterBDamageDealt > fighterADamageDealt) {
+          fallbackWinner = fighterB.name;
+        } else {
+          fallbackWinner = 'Draw';
         }
         
-        if (fallbackWinner && fallbackWinner !== winner) {
-          console.log('Playervs: Setting fallback winner:', fallbackWinner);
-          setWinner(fallbackWinner);
-        }
+        console.log('Playervs: Setting fallback winner:', fallbackWinner);
+        setWinner(fallbackWinner);
       }
       
       setShowRoundAnim(true);

@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('API: generate-battle about to return response');
-    return NextResponse.json({ success: true, battleLog });
+    return NextResponse.json({ success: true, battleLog, winner: resolved.winner });
   } catch (error) {
     console.error('API: generate-battle error:', error);
     return NextResponse.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });

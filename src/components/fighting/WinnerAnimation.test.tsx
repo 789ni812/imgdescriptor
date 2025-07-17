@@ -701,9 +701,9 @@ describe('WinnerAnimation', () => {
     expect(fighterBCard).toBeInTheDocument();
 
     const koStatusA = within(fighterACard).queryByText('KO!');
-    const koStatusB = within(fighterBCard).queryByText('KO!');
-    const drawStatusA = within(fighterACard).queryByText(/Defeated but Alive/i);
-    const drawStatusB = within(fighterBCard).queryByText(/Defeated but Alive/i);
+    // const koStatusB = within(fighterBCard).queryByText('KO!');
+    // const drawStatusA = within(fighterACard).queryByText(/Defeated but Alive/i);
+    // const drawStatusB = within(fighterBCard).queryByText(/Defeated but Alive/i);
     
     expect(koStatusA).not.toBeInTheDocument();
     // In normal victory, both fighters should have status indicators
