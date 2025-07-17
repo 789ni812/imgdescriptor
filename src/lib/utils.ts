@@ -251,6 +251,18 @@ export function resolveBattle(
     }
   }
 
+  // Calculate total damage dealt by each fighter
+  let aDamageDealt = 0;
+  let bDamageDealt = 0;
+  
+  log.forEach(round => {
+    if (round.attacker === fighterA.name) {
+      aDamageDealt += round.damage;
+    } else {
+      bDamageDealt += round.damage;
+    }
+  });
+
   // Determine winner
   let winner = '';
   if (aHealth <= 0 && bHealth <= 0) {
@@ -260,8 +272,14 @@ export function resolveBattle(
   } else if (bHealth <= 0) {
     winner = fighterA.name;
   } else {
-    // If no knockout, winner is the one with more health
-    winner = aHealth > bHealth ? fighterA.name : fighterB.name;
+    // If no knockout, winner is the one who dealt more damage
+    if (aDamageDealt > bDamageDealt) {
+      winner = fighterA.name;
+    } else if (bDamageDealt > aDamageDealt) {
+      winner = fighterB.name;
+    } else {
+      winner = 'Draw';
+    }
   }
 
   return { winner, rounds: log };

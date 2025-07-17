@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         attackerDamage: round.damage,
         defenderDamage: 0, // Only attacker does damage in this model
         randomEvent: round.randomEvent,
-        arenaObjectsUsed: round.arenaObjectsUsed,
+        arenaObjectsUsed: round.arenaObjectsUsed.length > 0 ? round.arenaObjectsUsed.join(', ') : null,
         healthAfter: round.healthAfter,
       });
     }

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
+import { BattleRound } from '@/lib/types/battle';
 import HealthBar from '@/components/fighting/HealthBar';
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
 import ChooseExistingFighter from '@/components/fighting/ChooseExistingFighter';
@@ -16,37 +17,28 @@ import { generateBattleSummary } from '@/lib/lmstudio-client';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 
 // Type alias to avoid conflicts with other BattleRound interfaces
-type WinnerAnimationBattleRound = PreGeneratedBattleRound;
+type WinnerAnimationBattleRound = BattleRound;
 
 function mapPreGeneratedToBattleRound(
   log: PreGeneratedBattleRound[]
 ): WinnerAnimationBattleRound[] {
-  let healthA = 0;
-  let healthB = 0;
-  
+  // The API returns attackerDamage as damage dealt BY attacker TO defender
+  // and defenderDamage as 0 (since only attacker does damage)
+  // We need to map this correctly for the UI display
   return log.map((r) => {
-    // Calculate health after this round
-    if (r.attacker === 'Fighter A' || r.attacker === 'fighterA') {
-      healthB = Math.max(0, healthB - (r.attackerDamage || 0));
-      healthA = Math.max(0, healthA - (r.defenderDamage || 0));
-    } else {
-      healthA = Math.max(0, healthA - (r.attackerDamage || 0));
-      healthB = Math.max(0, healthB - (r.defenderDamage || 0));
-    }
-    
     return {
       round: r.round,
       attacker: r.attacker,
       defender: r.defender,
       attackCommentary: r.attackCommentary,
       defenseCommentary: r.defenseCommentary,
-      attackerDamage: r.attackerDamage,
-      defenderDamage: r.defenderDamage,
+      attackerDamage: r.attackerDamage, // Damage dealt BY attacker TO defender
+      defenderDamage: r.defenderDamage, // Always 0 in current model
       randomEvent: null, // PreGeneratedBattleRound doesn't have this field
       arenaObjectsUsed: null, // PreGeneratedBattleRound doesn't have this field
       healthAfter: {
-        attacker: healthA,
-        defender: healthB,
+        attacker: 0, // We'll calculate this in the component
+        defender: 0, // We'll calculate this in the component
       },
     };
   });
@@ -564,11 +556,25 @@ export default function PlayerVsPage() {
     async function generateSummaries() {
       if (winner && fighterA && fighterB && scene && preGeneratedBattleLog.length > 0) {
         // Battle Summary
+        // Convert BattleRound[] to the format expected by generateBattleSummary
+        const battleLogForSummary = mapPreGeneratedToBattleRound(preGeneratedBattleLog).map(round => ({
+          attackCommentary: round.attackCommentary,
+          defenseCommentary: round.defenseCommentary,
+          round: round.round,
+          attacker: round.attacker,
+          defender: round.defender,
+          attackerDamage: round.attackerDamage,
+          defenderDamage: round.defenderDamage,
+          randomEvent: round.randomEvent || undefined, // Convert null to undefined
+          arenaObjectsUsed: round.arenaObjectsUsed ? [round.arenaObjectsUsed] : undefined, // Convert string to array
+          healthAfter: round.healthAfter,
+        }));
+        
         const summary = await generateBattleSummary(
           fighterA.name,
           fighterB.name,
           winner,
-          mapPreGeneratedToBattleRound(preGeneratedBattleLog),
+          battleLogForSummary,
           preGeneratedBattleLog.length
         );
         setBattleSummary(summary);

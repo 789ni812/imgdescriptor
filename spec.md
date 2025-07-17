@@ -189,6 +189,55 @@ npx playwright test --grep "visual regression"
 - **Cross-Browser Compatibility**: Tests ensure consistent behavior
 - **Documentation**: Tests serve as living documentation of expected behavior
 
+## Recent Improvements and Issues Addressed (2025-01-27)
+
+### Winner Determination Logic Fix
+**Issue:** Battle winner was determined by remaining health rather than damage dealt, causing incorrect results.
+- **Problem:** Donkey Kong vs Harry Callahan battle showed a draw despite Donkey Kong dealing significantly more damage
+- **Solution:** Updated `resolveBattle` function to calculate total damage dealt by each fighter and determine winner based on damage output
+- **Implementation:** Added damage tracking loop that sums damage dealt by each fighter across all rounds
+- **Result:** Winner is now correctly determined by who dealt more damage, with draws only occurring when damage is exactly equal
+
+### UI Layout Improvements
+**Issue:** Fighter stats display was taking up too much vertical space.
+- **Problem:** 3-column grid with large padding made stats section unnecessarily tall
+- **Solution:** Changed to 4-column grid with reduced padding and smaller text
+- **Implementation:** 
+  - Grid: `grid-cols-3 gap-3` → `grid-cols-4 gap-2`
+  - Padding: `p-3` → `p-2`
+  - Text size: `text-sm` → `text-xs`
+  - Health display: `text-lg` → `text-sm`
+- **Result:** More compact stats display that fits better in the available space
+
+### Commentary Quality Analysis
+**Current State:** Commentary has improved significantly with better narrative flow and reduced nonsense words.
+
+**Positive Aspects:**
+- Dramatic and engaging narrative flow
+- Good use of character names and specific actions
+- Damage amounts mentioned naturally in context
+- No more nonsense words or excessive ALL CAPS
+- Better sentence structure and coherence
+
+**Remaining Issues:**
+1. **Over-filtering:** Some commentary is being filtered out completely (showing just ".")
+2. **Inconsistent tone:** Mix of formal and casual language styles
+3. **Repetitive phrases:** "Callahan relentlessly pressures" appears multiple times
+4. **Case inconsistencies:** Some sentences start with lowercase letters
+5. **Prompt leakage:** Occasional meta-commentary still getting through
+
+**Next Steps for Commentary:**
+- [ ] Reduce over-filtering to preserve more commentary content
+- [ ] Standardize tone to be consistently dramatic/action-oriented
+- [ ] Add variety to avoid repetitive phrases
+- [ ] Ensure consistent sentence case formatting
+- [ ] Further refine prompt leakage patterns
+
+### Technical Debt Items
+- [ ] Fix leaderboard API errors for tournament files with missing metadata
+- [ ] Address linter warnings in WinnerAnimation component
+- [ ] Improve test coverage for new winner determination logic
+
 ## Codebase Review and Quality Assessment (2025-01-27)
 
 ### Overview

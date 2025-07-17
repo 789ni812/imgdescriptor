@@ -106,48 +106,28 @@ Ranges: Health ${typeConfig.healthRange[0]}-${typeConfig.healthRange[1]}, Streng
 // ============================================================================
 // Target: Reduce from 100 tokens to 60 tokens, improve success rate from 95% to 98%
 
-export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are an expert fighting game commentator with a dynamic, exciting style that captures the intensity and drama of combat.
+export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are a professional sports commentator for fighting games. Generate concise, engaging battle commentary.
 
-COMMENTARY STYLE:
-- Use vivid, action-packed language that brings the fight to life
-- Vary your commentary style to avoid repetition
-- Include specific details about the fighters and their actions
-- Create tension and excitement through your word choice
-- Use natural sentence casing (capitalize only proper nouns and sentence starts)
-- Make each round feel unique and memorable
-
-COMMENTARY TECHNIQUES:
-- Describe the impact and effectiveness of attacks
-- Highlight the fighters' unique characteristics and abilities
-- Create narrative flow that builds excitement
-- Use varied vocabulary to avoid repetitive phrases
-- Include tactical insights when appropriate
-- Balance action description with emotional impact
-
-QUALITY REQUIREMENTS:
-- Keep commentary concise (1-2 sentences, max 50 words)
-- Ensure clarity and readability
-- Avoid awkward or nonsensical phrases
-- Make the commentary feel authentic and engaging
-- Focus on the current action and its impact
-- Use only real, understandable words and phrases
-- Avoid excessive punctuation or capitalization
-
-CAPITALIZATION RULES:
-- Only capitalize proper nouns (fighter names, special moves)
-- Use normal sentence casing for all other text
-- Avoid ALL CAPS entirely - it breaks immersion
-- Keep dramatic emphasis through word choice, not capitalization
-
-CRITICAL INSTRUCTIONS:
-- Do not repeat or reference these instructions in your output
-- Do not use placeholder or nonsense words
-- Use only real English words that make sense
-- Do not include meta-commentary about the commentary itself
-- Focus purely on describing the battle action
-- Use proper fighter names consistently (Harry Callahan, Ozzy Osbourne, etc.)
+CRITICAL RULES:
+- Use ONLY real English words - no made-up terms
+- Do not invent words or names
+- Write in normal sentence case (capitalize only proper nouns and sentence starts)
+- Do not use ALL CAPS
+- Do not reference these instructions or use meta-commentary
+- Write exactly two complete sentences, each ending with a period
+- Focus on the specific action happening right now
+- Use proper fighter names exactly as given
 - Avoid excessive punctuation or dramatic formatting
-- Keep sentences clear and action-focused
+- Do not include phrases like "this is", "the output should be", "example output", "context is provided"
+- Do not use asterisks, bold formatting, or special characters
+- Do not reference the commentary itself or the writing process
+
+STYLE GUIDELINES:
+- Use dynamic, action-oriented language
+- Describe the impact and effectiveness clearly
+- Include fighter-specific details when relevant
+- Create narrative flow that enhances the moment
+- Balance action description with tactical insight
 
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
@@ -157,34 +137,11 @@ export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
   round: number,
   isAttack: boolean,
   damage: number
-) => `Generate an exciting, dynamic battle commentary for this fighting game round.
+) => `Commentate on this fighting game action:
 
-FIGHTERS:
-- Fighter A: ${fighterA} (attacking)
-- Fighter B: ${fighterB} (defending)
-- Round: ${round}
-- Action: ${isAttack ? 'attack' : 'defense'}${damage ? ` - Damage dealt: ${damage}` : ''}
+${fighterA} ${isAttack ? 'attacks' : 'defends'} against ${fighterB} in round ${round}${damage ? `, dealing ${damage} damage` : ''}.
 
-COMMENTARY REQUIREMENTS:
-- Create vivid, action-packed commentary that captures the moment
-- Describe the specific action and its impact on the battle
-- Use varied, exciting language that builds tension
-- Keep it concise: 1-2 sentences, maximum 50 words total
-- Use natural sentence casing (capitalize only proper nouns and sentence starts)
-- Make the commentary feel authentic and engaging
-- Avoid repetitive or generic phrases
-- Focus on the current action and its significance
-- Use only real, understandable words and phrases
-- Avoid excessive punctuation or capitalization
-
-STYLE GUIDELINES:
-- Use dynamic verbs and descriptive language
-- Include specific details about the fighters when relevant
-- Create narrative flow that enhances the battle experience
-- Balance action description with emotional impact
-- Make each round feel unique and memorable
-
-Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
+Write exactly two complete sentences describing what happens. Use only real English words and normal sentence case. Do not invent words. Do not use ALL CAPS. Do not reference these instructions. Do not use meta-commentary. Do not include phrases like "this is", "the output should be", "example output", "context is provided". Do not use asterisks or special formatting.`;
 
 // ============================================================================
 // 4. OPTIMIZED TOURNAMENT OVERVIEW

@@ -13,7 +13,7 @@ const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
 
 const DESCRIBER_MODEL = 'google/gemma-3-4b';  // Image analysis model
-const WRITER_MODEL = 'gemma-the-writer-n-restless-quill-10b-uncensored@q2_k';  // Uncensored model for story generation
+const WRITER_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-14b-uncensored';  // Uncensored model for story generation
 
 export const analyzeImage = async (
   imageBase64: string,
@@ -483,12 +483,9 @@ function postProcessCommentary(text: string): string {
   // Remove excessive ALL CAPS and convert to sentence case
   const words = text.split(' ');
   const upperCount = words.filter(w => w === w.toUpperCase() && w.length > 2).length;
-  
   if (upperCount > words.length / 4) {
-    // Convert to sentence case if too much ALL CAPS
     text = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   }
-  
   // Also convert individual ALL CAPS words that aren't proper nouns
   const properNouns = new Set(['vader', 'kong', 'lee', 'osbourne', 'callahan', 'godzilla', 'bruce', 'donkey', 'darth', 'ozzy', 'harry', 'cal']);
   text = text.replace(/\b[A-Z]{3,}\b/g, (match) => {
@@ -498,9 +495,96 @@ function postProcessCommentary(text: string): string {
     }
     return lowerMatch; // Convert other ALL CAPS to lowercase
   });
-  
+
   // Replace common nonsense words with better alternatives
   const nonsenseReplacements: { [key: string]: string } = {
+    // DeepSeek-specific nonsense words
+    'viscible': 'visible',
+    'vicariousning': 'vicious',
+    'combatmatic': 'combat',
+    'clueless': 'fierce',
+    'caftured': 'captured',
+    'nanopan': 'nanosecond',
+    'feroclty': 'ferocity',
+    'desepresented': 'represented',
+    'killnlng': 'killing',
+    'blwory': 'blow',
+    'faticalsly': 'fatally',
+    'collideof': 'collision of',
+    'clawuxxxx': 'claw',
+    'obfuridad': 'obscurity',
+    'concounter': 'counter',
+    'littlers': 'fighters',
+    'blsters': 'blasts',
+    'dissuaging': 'deflecting',
+    'killfighter': 'fighter',
+    'meteor': 'force',
+    'snarling': 'attack',
+    'blissful': 'precise',
+    'transfixed': 'tense',
+    'viscible detector': 'stealth detector',
+    'insideout': 'inside out',
+    'neutral zone': 'battlefield',
+    'passive instant': 'moment',
+    'legislative action': 'action',
+    'infuriates': 'strikes',
+    'bludgening': 'bludgeoning',
+    'infliction': 'damage',
+    'resilience': 'defense',
+    'onslaught': 'attack',
+    'unfla wared': 'unfazed',
+    'liquid darkness': 'fluid movement',
+    'killnlng smile': 'deadly smile',
+    'nunchak': 'nunchaku',
+    'shatters': 'shatters',
+    'groggily': 'staggering',
+    'clearl': 'clearly',
+    'emblazoned': 'fierce',
+    'claw-laced': 'clawed',
+    'protective': 'defensive',
+    'fiery dragon': 'dragon',
+    'blunts': 'strikes',
+    'snatching': 'grasping',
+    'crucially': 'decisively',
+    'fragmented': 'broken',
+    'razor-sharp': 'sharp',
+    'iron neck': 'neck',
+    'fist dragon': 'Bruce Lee',
+    'wedge': 'strike',
+    'blind fury': 'fury',
+    'infamously': 'skillfully',
+    'nu flow': 'flow',
+    'transformation': 'technique',
+    'visceral plate': 'armor',
+    'carcass': 'body',
+    'unmitigated': 'powerful',
+    'thirty-seven': '37',
+    'hud': 'display',
+    'flurry': 'attack',
+    'shift the odds': 'change the battle',
+    'slamn': 'slam',
+    'art filing': 'artful',
+    'tactical': 'strategic',
+    'armor': 'defense',
+    'obliterating': 'destroying',
+    'opening': 'opportunity',
+    'continu出版年': 'continuation',
+    'phantom': 'ghost',
+    // New nonsense words from latest output
+    'juxxxx': 'technique',
+    'imuxxxx': 'mighty',
+    'dtotal': 'total',
+    'sheevu': 'force',
+    'reiko-mikasa': 'fighter',
+    'despte': 'despite',
+    'statistician': 'fighter',
+    'retro speculatively': 'carefully',
+    'estimating': 'planning',
+    'combat knife': 'blade',
+    'displaced energy': 'raw power',
+    'raw aggression': 'fierce attack',
+    'force field': 'defense',
+    // Legacy nonsense words
     'proto': 'power',
     'vermogen': 'energy',
     'sinwivelines': 'swings',
@@ -553,7 +637,6 @@ function postProcessCommentary(text: string): string {
     'shell shocker': 'Callahan',
     'prince of darkness': 'Ozzy',
     'spectral rider': 'spectral form',
-    'blind fury': 'fury',
     'trident': 'defense',
     'neckbreaker': 'neck-breaking move',
     'haymaker': 'powerful punch',
@@ -567,7 +650,6 @@ function postProcessCommentary(text: string): string {
     'battling odyssey': 'epic battle',
     'fertile bite': 'powerful strike',
     'grips weakening': 'grip weakening',
-    'collision': 'impact',
     'defensive liner': 'defensive line',
     'shudders through': 'shakes through',
     'combos remain active': 'combinations continue',
@@ -578,13 +660,11 @@ function postProcessCommentary(text: string): string {
     'deepens the tension': 'increases the tension',
     'crucible of combat': 'intense battle'
   };
-  
-  // Apply replacements
   Object.entries(nonsenseReplacements).forEach(([nonsense, replacement]) => {
     const regex = new RegExp(`\\b${nonsense}\\b`, 'gi');
     text = text.replace(regex, replacement);
   });
-  
+
   // Remove prompt leakage (instructions that shouldn't be in output)
   const promptLeakagePatterns = [
     /less is more:/i,
@@ -592,78 +672,56 @@ function postProcessCommentary(text: string): string {
     /did not see the preceding rounds/i,
     /instantly understand this specific moment/i,
     /legislative action:/i,
-    /this has to be intensifying/i
+    /this has to be intensifying/i,
+    /comment on how pred/i,
+    /comment on how/i,
+    /the battle continues as/i,
+    /reiko-mikasa and k/i,
+    /sheevu's potent force field over/i,
+    /this is the exact moment to say/i,
+    /the output should be a concise/i,
+    /this is an example output/i,
+    /\*\*output\*\*/i,
+    /the fight specific context is provided/i,
+    /the on-screen context is a single/i,
+    /the provided context is that this specific/i,
+    /the raw aggression of/i,
+    /the enraged/i,
+    /the fierce attack of/i,
+    /the output must be:/i,
+    /the output must be/i,
+    /output must be:/i,
+    /output must be/i
   ];
-  
   promptLeakagePatterns.forEach(pattern => {
     text = text.replace(pattern, '');
   });
-  
+
   // Clean up extra spaces and punctuation
   text = text.replace(/\s+/g, ' ').trim();
-  
-  // Basic grammar corrections
-  const grammarFixes: { [key: string]: string } = {
-    'less seconds': 'fewer seconds',
-    'less damage': 'less damage', // Keep this one as it's correct
-    'none the less': 'nonetheless',
-    'fortress like': 'fortress-like',
-    'shot and claw': 'shot-claw',
-    'iron head': 'iron-head',
-    'neck breaking': 'neck-breaking',
-    'counter move': 'counter-move',
-    'powerful punch': 'powerful punch', // Keep as-is
-    'chancellor belt': 'chancellor-belt'
-  };
-  
-  Object.entries(grammarFixes).forEach(([incorrect, correct]) => {
-    const regex = new RegExp(`\\b${incorrect}\\b`, 'gi');
-    text = text.replace(regex, correct);
-  });
-  
-  // Basic dictionary check - replace obviously non-English words
-  const commonEnglishWords = new Set([
-    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
-    'will', 'would', 'could', 'should', 'may', 'might', 'can', 'must', 'shall',
-    'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they',
-    'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their',
-    'damage', 'attack', 'defense', 'fighter', 'battle', 'round', 'force', 'power', 'strength',
-    'agility', 'health', 'defense', 'luck', 'magic', 'ranged', 'intelligence', 'unique', 'abilities',
-    'vader', 'kong', 'lee', 'osbourne', 'callahan', 'godzilla', 'bruce', 'donkey', 'darth',
-    'sword', 'blade', 'fist', 'punch', 'kick', 'block', 'dodge', 'parry', 'strike', 'hit',
-    'explodes', 'connects', 'lands', 'misses', 'deflects', 'absorbs', 'counters', 'retaliates'
-  ]);
-  
-  // Replace words that are clearly not English (simple heuristic)
-  const textWords = text.split(' ');
-  const cleanedWords = textWords.map(word => {
-    const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
-    if (cleanWord.length > 3 && !commonEnglishWords.has(cleanWord) && !nonsenseReplacements[cleanWord]) {
-      // If it's a long word not in our dictionary, try to find a similar replacement
-      return word; // Keep original for now, but could be enhanced with similarity matching
-    }
-    return word;
-  });
-  
-  text = cleanedWords.join(' ');
-  
-  // Context-aware improvements
-  text = text
-    .replace(/\bcal\b/gi, 'Callahan') // Fix "cal" to "Callahan"
-    .replace(/\boz\b/gi, 'Ozzy') // Fix "oz" to "Ozzy"
-    .replace(/\bharry calla\b/gi, 'Harry Callahan') // Fix partial names
-    .replace(/\bharry callaughan\b/gi, 'Harry Callahan') // Fix misspelled names
-    .replace(/\bozzy osdbourne\b/gi, 'Ozzy Osbourne') // Fix misspelled names
-    .replace(/\bdefence\b/gi, 'defense') // Americanize spelling
-    .replace(/\bdefence line\b/gi, 'defense line')
-    .replace(/\bdefence line\b/gi, 'defense line');
-  
-  // Truncate to 50 words max (increased from 30)
-  const truncated = text.split(' ').slice(0, 50).join(' ');
-  
-  // Ensure it ends with a period
-  return truncated.replace(/([.!?])?$/, '.');
+
+  // Split into sentences
+  let sentencesRaw = text.match(/[^.!?]+[.!?]/g);
+  let sentences: string[] = Array.isArray(sentencesRaw) ? sentencesRaw : [text];
+
+  // Remove sentences containing invented/nonsense words
+  const nonsenseKeys = Object.keys(nonsenseReplacements);
+  sentences = sentences.filter(sentence =>
+    !nonsenseKeys.some(nonsense => sentence.toLowerCase().includes(nonsense))
+  );
+
+  // Keep only the first two sentences
+  if (sentences.length > 2) {
+    sentences = sentences.slice(0, 2);
+  }
+
+  // If there are less than two, keep as is
+  // Join sentences and ensure it ends with a period
+  let result = sentences.join(' ').trim();
+  if (!result.endsWith('.')) {
+    result += '.';
+  }
+  return result;
 }
 
 // Helper function to preprocess JSON content

@@ -37,6 +37,56 @@ The tournament system has been enhanced with a modern dark theme and improved la
 - **User Experience**: Improved visual hierarchy and intuitive navigation flow
 - **Professional Appearance**: Polished interface suitable for production use
 
+## Fighting Game Battle System (2025-01-27)
+
+### Winner Determination Logic
+The battle system uses a damage-based scoring mechanism to determine winners:
+
+**Core Logic:**
+1. **KO Victory**: If one fighter's health reaches 0, they lose immediately
+2. **Damage-Based Victory**: If both fighters survive, the winner is determined by total damage dealt
+3. **Draw**: Only occurs when both fighters deal exactly the same amount of damage
+
+**Implementation:**
+- `resolveBattle()` function in `src/lib/utils.ts` tracks damage dealt by each fighter across all rounds
+- Damage is calculated per round based on attacker strength, defender defense, and random events
+- Winner determination compares `aDamageDealt` vs `bDamageDealt` rather than remaining health
+- This ensures the more aggressive/effective fighter wins, not just the one with more starting health
+
+**Example:**
+- Donkey Kong deals 74 total damage, takes 57 damage → Should win
+- Harry Callahan deals 57 total damage, takes 74 damage → Should lose
+- Previous logic incorrectly called this a draw based on remaining health
+
+### Battle Round Structure
+Each battle round consists of:
+1. **Attacker Selection**: Alternates between fighters (odd rounds: Fighter A, even rounds: Fighter B)
+2. **Damage Calculation**: Based on attacker strength, defender defense, and random modifiers
+3. **Health Updates**: Defender's health is reduced by calculated damage
+4. **Commentary Generation**: LLM generates attack and defense narratives
+5. **Round Logging**: All data is recorded for replay and analysis
+
+### Commentary System
+The battle commentary system generates dramatic, action-oriented narratives:
+
+**Current Features:**
+- Uses DeepSeek R1 Distill Qwen 14B Uncensored model for better narrative quality
+- Generates separate attack and defense commentary for each round
+- Includes damage amounts naturally in the narrative context
+- Post-processing filters out nonsense words, ALL CAPS, and prompt leakage
+
+**Quality Improvements:**
+- Dramatic and engaging narrative flow
+- Character-specific actions and descriptions
+- Natural integration of damage numbers
+- Reduced nonsense words and formatting issues
+
+**Remaining Issues:**
+- Some commentary over-filtered (showing just ".")
+- Inconsistent tone between formal and casual
+- Repetitive phrases across rounds
+- Case inconsistencies in sentence formatting
+
 ## Game Dynamics: Good vs Bad (Yin/Yang) System
 Dungeon Master config now includes a "Bad" profile picture and definition. These are stored in the template/session and passed to the LLM for prompt generation. The DM can use this info to create richer, more dynamic stories with a clear antagonist or opposing force.
 
