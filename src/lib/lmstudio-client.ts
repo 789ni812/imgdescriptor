@@ -394,6 +394,59 @@ interface FighterStats {
   uniqueAbilities?: string[];
 }
 
+// Global vocabulary tracker for battle diversity
+const usedVocabulary: Set<string> = new Set();
+
+export function resetVocabularyTracker(): void {
+  usedVocabulary.clear();
+}
+
+export function addUsedVocabulary(words: string[]): void {
+  words.forEach(word => usedVocabulary.add(word.toLowerCase()));
+}
+
+export function getExcludedVocabulary(): string {
+  if (usedVocabulary.size === 0) return '';
+  return `EXCLUDED WORDS (DO NOT USE): ${Array.from(usedVocabulary).join(', ')}`;
+}
+
+function extractActionWords(text: string): string[] {
+  const actionVerbs = [
+    'explodes', 'unleashes', 'erupts', 'smashes', 'rips', 'crushes', 'bashes', 'hammers', 
+    'pummels', 'shreds', 'rends', 'slices', 'blasts', 'pounces', 'lunges', 'sweeps', 
+    'hurls', 'catapults', 'surges', 'lashes', 'strikes', 'slams', 'collides', 'impacts', 
+    'crashes', 'barrages', 'batters', 'pounds', 'ravages', 'devastates', 'demolishes', 
+    'wrecks', 'shatters', 'obliterates', 'launches', 'bursts', 'propels', 'flings',
+    'throws', 'dodges', 'blocks', 'defends', 'counters', 'evades', 'parries'
+  ];
+  
+  const descriptiveAdjectives = [
+    'brutal', 'devastating', 'powerful', 'colossal', 'massive', 'swift', 'nimble',
+    'granite', 'seismic', 'chaotic', 'controlled', 'calculated', 'precise', 'unsettling',
+    'spectral', 'diminutive', 'veteran', 'whirlwind', 'cascade', 'torrent'
+  ];
+  
+  const words = text.toLowerCase().split(/\s+/);
+  const foundWords: string[] = [];
+  
+  words.forEach(word => {
+    const cleanWord = word.replace(/[^a-z]/g, '');
+    if (actionVerbs.includes(cleanWord) || descriptiveAdjectives.includes(cleanWord)) {
+      foundWords.push(cleanWord);
+    }
+  });
+  
+  return foundWords;
+}
+
+function ensureDamageMention(commentary: string, damage: number): string {
+  if (damage > 0 && !new RegExp(`\\b${damage}\\b`).test(commentary)) {
+    // If the damage number is not present, append a phrase
+    return commentary.trim().replace(/([.!?])?$/, ` (This attack deals ${damage} damage!)$1`);
+  }
+  return commentary;
+}
+
 export const generateBattleCommentary = async (
   fighterA: string | { name: string; stats?: { strength: number; agility: number; size: string; build: string; uniqueAbilities?: string[] } },
   fighterB: string | { name: string; stats?: { strength: number; agility: number; size: string; build: string; uniqueAbilities?: string[] } },
@@ -419,8 +472,14 @@ export const generateBattleCommentary = async (
     `${fighterB.stats.size} ${fighterB.stats.build} fighter with ${fighterB.stats.strength} strength, ${fighterB.stats.agility} agility${fighterB.stats.uniqueAbilities?.length ? `, abilities: ${fighterB.stats.uniqueAbilities.join(', ')}` : ''}` : 
     fighterBName;
 
+  // Get excluded vocabulary for this round
+  const excludedVocabulary = getExcludedVocabulary();
+
   // Log the commentary request
   console.log(`[BATTLE COMMENTARY] Generating ${isAttack ? 'attack' : 'defense'} commentary for Round ${round}: ${fighterAName} vs ${fighterBName}`);
+  if (excludedVocabulary) {
+    console.log(`[BATTLE COMMENTARY] Excluding vocabulary: ${excludedVocabulary}`);
+  }
 
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
@@ -437,7 +496,8 @@ export const generateBattleCommentary = async (
           },
           {
             role: 'user',
-            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterACharacteristics, fighterBCharacteristics, round, isAttack, _damage, previousRoundHighlights, tournamentContext),
+            content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterACharacteristics, fighterBCharacteristics, round, isAttack, _damage, previousRoundHighlights, tournamentContext) + 
+              (excludedVocabulary ? `\n\n${excludedVocabulary}` : ''),
           },
         ],
         temperature: 0.5, // Reduced for more coherent output
@@ -470,7 +530,14 @@ export const generateBattleCommentary = async (
 
     console.log(`[BATTLE COMMENTARY] Raw LLM response: "${rawCommentary}"`);
     
-    const processedCommentary = postProcessCommentary(rawCommentary);
+    let processedCommentary = postProcessCommentary(rawCommentary);
+    processedCommentary = ensureDamageMention(processedCommentary, _damage);
+    
+    // Extract and track used vocabulary
+    const usedWords = extractActionWords(processedCommentary);
+    addUsedVocabulary(usedWords);
+    console.log(`[BATTLE COMMENTARY] Tracked vocabulary: ${usedWords.join(', ')}`);
+    
     console.log(`[BATTLE COMMENTARY] Processed commentary: "${processedCommentary}"`);
     
     return processedCommentary;

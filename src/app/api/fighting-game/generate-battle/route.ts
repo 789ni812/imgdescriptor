@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateBattleCommentary, generateEnhancedBattleSummary } from '@/lib/lmstudio-client';
+import { generateBattleCommentary, generateEnhancedBattleSummary, resetVocabularyTracker } from '@/lib/lmstudio-client';
 import { resolveBattle, BattleRoundLog } from '@/lib/utils';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
@@ -7,6 +7,11 @@ import { join } from 'path';
 export async function POST(req: NextRequest) {
   console.log('API: generate-battle called');
   const startTime = Date.now();
+  
+  // Reset vocabulary tracker for new battle
+  resetVocabularyTracker();
+  console.log('API: Vocabulary tracker reset for new battle');
+  
   try {
     const body = await req.json();
     const { fighterA, fighterB, scene, maxRounds } = body;
@@ -111,4 +116,4 @@ export async function POST(req: NextRequest) {
     console.error('API: generate-battle error:', error);
     return NextResponse.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
-} 
+}
