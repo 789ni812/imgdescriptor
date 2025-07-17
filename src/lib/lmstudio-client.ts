@@ -1311,23 +1311,23 @@ export const generateEnhancedArenaDescription = async (
     }
 
     try {
-      // Handle markdown-formatted JSON responses
-      let jsonContent = rawContent;
+      // Handle markdown-formatted responses
+      let content = rawContent;
       if (rawContent.includes('```json')) {
         const jsonMatch = rawContent.match(/```json\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
-          jsonContent = jsonMatch[1].trim();
+          content = jsonMatch[1].trim();
         }
       } else if (rawContent.includes('```')) {
         // Handle generic code blocks
         const codeMatch = rawContent.match(/```\s*([\s\S]*?)\s*```/);
         if (codeMatch) {
-          jsonContent = codeMatch[1].trim();
+          content = codeMatch[1].trim();
         }
       }
       
-      // Clean control characters and escape sequences that might break JSON parsing
-      jsonContent = jsonContent
+      // Clean control characters and escape sequences
+      content = content
         .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
         .replace(/\*/g, '') // Remove asterisks used for emphasis
         .replace(/_/g, '') // Remove underscores used for emphasis
@@ -1337,24 +1337,11 @@ export const generateEnhancedArenaDescription = async (
         .replace(/\s+/g, ' ') // Normalize whitespace
         .trim();
       
-      const parsed = JSON.parse(jsonContent);
-      
-      // Extract the description from the parsed JSON
-      let description = '';
-      if (typeof parsed === 'string') {
-        description = parsed;
-      } else if (parsed && typeof parsed === 'object') {
-        // Try to extract description from various possible fields
-        description = parsed.description || parsed.atmosphere || parsed.summary || 
-                     parsed.content || parsed.text || JSON.stringify(parsed);
-      } else {
-        description = rawContent; // Fallback to raw content
-      }
-      
-      return { success: true, description };
+      // Since we updated the prompt to return plain text, just return the cleaned content
+      return { success: true, description: content };
     } catch (parseError) {
-      console.error('Failed to parse enhanced arena JSON:', parseError);
-      console.error('Raw content that failed to parse:', rawContent);
+      console.error('Failed to process enhanced arena description:', parseError);
+      console.error('Raw content that failed to process:', rawContent);
       
       // Fallback: return the raw content as description
       return { success: true, description: rawContent };

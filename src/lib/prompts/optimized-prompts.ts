@@ -633,7 +633,7 @@ export const OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT = `You are a fighting game a
 
 REQUIREMENTS:
 - Generate punchy, combat-focused arena descriptions
-- Keep descriptions under 100 words - be concise and impactful
+- Keep descriptions under 60 words - be extremely concise and impactful
 - Focus on tactical advantages and combat mechanics
 - Emphasize strategic opportunities for fighters
 - Make each arena feel dangerous and exciting
@@ -654,11 +654,12 @@ STYLE GUIDELINES:
 - Balance atmosphere with gameplay mechanics
 - Include specific combat opportunities
 - Use fighting game terminology
+- BE BRIEF - every word must count
 
 OUTPUT FORMAT:
-Return ONLY a concise, punchy description (max 100 words) that focuses on combat and tactics. No JSON, no formatting, just the description text.
+Return ONLY a concise, punchy description (max 60 words) that focuses on combat and tactics. No JSON, no formatting, just the description text.
 
-The description should be exciting, tactical, and immediately convey how this arena affects combat.`;
+The description should be exciting, tactical, and immediately convey how this arena affects combat. Keep it short and impactful.`;
 
 export const OPTIMIZED_ENHANCED_ARENA_USER_PROMPT = (
   arenaName: string,
