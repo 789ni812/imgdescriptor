@@ -91,7 +91,8 @@ describe('/api/fighting-game/generate-fighter', () => {
 
     expect(generateFighterStats).toHaveBeenCalledWith(
       'a muscular martial artist in a fighting stance',
-      'Bruce Lee'
+      'Bruce Lee',
+      undefined
     );
   });
 
@@ -213,7 +214,8 @@ describe('/api/fighting-game/generate-fighter', () => {
     // Should convert object description to string for LLM
     expect(generateFighterStats).toHaveBeenCalledWith(
       'a forest clearing acorn leaf squirrel peaceful rustling in the bushes',
-      'Squirrel'
+      'Squirrel',
+      undefined
     );
   });
 

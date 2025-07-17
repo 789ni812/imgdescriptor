@@ -44,7 +44,40 @@ function mapPreGeneratedToBattleRound(
   });
 }
 
-function mapFighterMetadataToFighter(meta: any): Fighter {
+interface FighterMetadata {
+  id: string;
+  name: string;
+  image?: string;
+  description?: string;
+  stats: {
+    health: number;
+    maxHealth?: number;
+    strength: number;
+    luck: number;
+    agility: number;
+    defense: number;
+    age?: number;
+    size: 'small' | 'medium' | 'large';
+    build: 'thin' | 'average' | 'muscular' | 'heavy';
+    magic?: number;
+    ranged?: number;
+    intelligence?: number;
+    uniqueAbilities?: string[];
+  };
+  visualAnalysis?: {
+    age: string;
+    size: string;
+    build: string;
+    appearance: string[];
+    weapons: string[];
+    armor: string[];
+  };
+  combatHistory?: Array<unknown>;
+  winLossRecord?: { wins: number; losses: number; draws: number };
+  createdAt?: string;
+}
+
+function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
   // Ensure we have a valid image filename
   const imageFilename = meta.image && meta.image.trim() !== '' ? meta.image : null;
   
@@ -55,12 +88,12 @@ function mapFighterMetadataToFighter(meta: any): Fighter {
     description: meta.description || '',
     stats: {
       health: meta.stats.health,
-      maxHealth: meta.stats.maxHealth,
+      maxHealth: meta.stats.maxHealth || meta.stats.health,
       strength: meta.stats.strength,
       luck: meta.stats.luck,
       agility: meta.stats.agility,
       defense: meta.stats.defense,
-      age: meta.stats.age,
+      age: meta.stats.age || 25,
       size: meta.stats.size,
       build: meta.stats.build,
       magic: meta.stats.magic,

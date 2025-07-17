@@ -706,7 +706,7 @@ function postProcessCommentary(text: string): string {
   text = text.replace(/\s+/g, ' ').trim();
 
   // Split into sentences
-  let sentencesRaw = text.match(/[^.!?]+[.!?]/g);
+  const sentencesRaw = text.match(/[^.!?]+[.!?]/g);
   let sentences: string[] = Array.isArray(sentencesRaw) ? sentencesRaw : [text];
 
   // Remove sentences containing invented/nonsense words (less aggressive)
@@ -1036,12 +1036,12 @@ export const generateFighterDescription = async (
     // Determine fighter status
     const isVeteran = totalFights >= 10;
     const isRookie = totalFights <= 2;
-    const isHotStreak = fighter.winLossRecord && fighter.winLossRecord.wins >= 3 && 
-      (fighter.winLossRecord.wins / Math.max(totalFights, 1)) > 0.7;
-    const isSlumping = fighter.winLossRecord && fighter.winLossRecord.losses >= 3 && 
-      (fighter.winLossRecord.losses / Math.max(totalFights, 1)) > 0.7;
-    const hasStreak = fighter.winLossRecord && 
-      (fighter.winLossRecord.wins >= 3 || fighter.winLossRecord.losses >= 3);
+    // const isHotStreak = fighter.winLossRecord && fighter.winLossRecord.wins >= 3 && 
+    //   (fighter.winLossRecord.wins / Math.max(totalFights, 1)) > 0.7;
+    // const isSlumping = fighter.winLossRecord && fighter.winLossRecord.losses >= 3 && 
+    //   (fighter.winLossRecord.losses / Math.max(totalFights, 1)) > 0.7;
+    // const hasStreak = fighter.winLossRecord && 
+    //   (fighter.winLossRecord.wins >= 3 || fighter.winLossRecord.losses >= 3);
     
     const status = isVeteran ? 'Veteran' : isRookie ? 'Rookie' : 'Experienced';
 

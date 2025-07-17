@@ -95,11 +95,9 @@ describe('FighterImageUpload', () => {
     const input = screen.getByTestId('file-input');
     fireEvent.change(input, { target: { files: [file] } });
     
-    // Upload box should be hidden during upload
-    await waitFor(() => {
-      expect(screen.queryByText('Upload Image')).not.toBeInTheDocument();
-      expect(screen.getByText('Uploading image...')).toBeInTheDocument();
-    });
+    // Wait for uploading state
+    expect(await screen.findByText('Uploading image...')).toBeInTheDocument();
+    expect(screen.queryByText('Upload Image')).not.toBeInTheDocument();
   });
 
   it('shows analyzing state when image is being analyzed', async () => {
