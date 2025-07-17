@@ -12,22 +12,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate arena name from the image description
-    const arenaNameResponse = await fetch('/api/analyze-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image: '', // We don't need the image again, just use the description
-        prompt: `Based on this description: "${imageDescription}", generate a dramatic and memorable name for this arena. The name should be epic and fitting for a legendary battleground. Return only the name, nothing else.`
-      }),
-    });
-
-    if (!arenaNameResponse.ok) {
-      throw new Error('Failed to generate arena name');
-    }
-
-    const arenaNameData = await arenaNameResponse.json();
-    const arenaName = arenaNameData.description || 'Mysterious Arena';
+    // Generate arena name directly from the image description
+    const arenaName = generateArenaNameFromDescription(imageDescription);
 
     // Generate enhanced arena description
     const enhancedDescription = await generateEnhancedArenaDescription(
@@ -55,7 +41,8 @@ export async function POST(req: NextRequest) {
     };
 
     // Save arena metadata
-    const saveResponse = await fetch('/api/save-arena-metadata', {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const saveResponse = await fetch(`${baseUrl}/api/save-arena-metadata`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -81,6 +68,66 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to generate arena name from description
+function generateArenaNameFromDescription(description: string): string {
+  const desc = description.toLowerCase();
+  
+  // Look for specific arena types and generate dramatic names
+  if (desc.includes('castle') || desc.includes('fortress') || desc.includes('tower')) {
+    return 'The Iron Citadel';
+  }
+  if (desc.includes('cave') || desc.includes('cavern') || desc.includes('underground')) {
+    return 'The Shadow Depths';
+  }
+  if (desc.includes('forest') || desc.includes('woods') || desc.includes('jungle')) {
+    return 'The Verdant Battlefield';
+  }
+  if (desc.includes('desert') || desc.includes('sand') || desc.includes('dunes')) {
+    return 'The Scorched Wasteland';
+  }
+  if (desc.includes('mountain') || desc.includes('peak') || desc.includes('summit')) {
+    return 'The Thunder Peak';
+  }
+  if (desc.includes('water') || desc.includes('ocean') || desc.includes('sea')) {
+    return 'The Abyssal Arena';
+  }
+  if (desc.includes('volcano') || desc.includes('lava') || desc.includes('fire')) {
+    return 'The Infernal Forge';
+  }
+  if (desc.includes('ice') || desc.includes('snow') || desc.includes('frozen')) {
+    return 'The Frozen Heart';
+  }
+  if (desc.includes('city') || desc.includes('urban') || desc.includes('street')) {
+    return 'The Concrete Colosseum';
+  }
+  if (desc.includes('temple') || desc.includes('shrine') || desc.includes('sacred')) {
+    return 'The Hallowed Grounds';
+  }
+  if (desc.includes('candles') || desc.includes('mystical') || desc.includes('ritual')) {
+    return 'The Candlelit Sanctum';
+  }
+  if (desc.includes('dojo') || desc.includes('training') || desc.includes('martial')) {
+    return 'The Warrior\'s Crucible';
+  }
+  if (desc.includes('arena') || desc.includes('colosseum') || desc.includes('stadium')) {
+    return 'The Grand Arena';
+  }
+  
+  // Default dramatic names based on general characteristics
+  if (desc.includes('dark') || desc.includes('shadow') || desc.includes('night')) {
+    return 'The Shadow Realm';
+  }
+  if (desc.includes('ancient') || desc.includes('old') || desc.includes('ruins')) {
+    return 'The Ancient Battleground';
+  }
+  if (desc.includes('mysterious') || desc.includes('strange') || desc.includes('unknown')) {
+    return 'The Mysterious Arena';
+  }
+  
+  // Fallback to a dramatic generic name
+  return 'The Arena of Legends';
 }
 
 // Helper function to extract environmental objects from description
