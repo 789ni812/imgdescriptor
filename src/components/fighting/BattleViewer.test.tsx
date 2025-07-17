@@ -27,6 +27,18 @@ const mockFighterA = {
   id: 'fighter-a',
   name: 'Godzilla',
   imageUrl: '/test-godzilla.jpg',
+  description: 'King of the Monsters',
+  visualAnalysis: {
+    age: '65',
+    size: 'large',
+    build: 'heavy',
+    appearance: [],
+    weapons: [],
+    armor: []
+  },
+  combatHistory: [],
+  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+  createdAt: new Date().toISOString(),
   stats: {
     health: 800,
     maxHealth: 800,
@@ -37,14 +49,25 @@ const mockFighterA = {
     age: 65,
     size: 'large' as const,
     build: 'heavy' as const,
-  },
-  description: 'King of the Monsters',
+  }
 };
 
 const mockFighterB = {
   id: 'fighter-b',
   name: 'Bruce Lee',
   imageUrl: '/test-bruce.jpg',
+  description: 'Martial Arts Legend',
+  visualAnalysis: {
+    age: '32',
+    size: 'medium',
+    build: 'muscular',
+    appearance: [],
+    weapons: [],
+    armor: []
+  },
+  combatHistory: [],
+  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+  createdAt: new Date().toISOString(),
   stats: {
     health: 120,
     maxHealth: 120,
@@ -55,14 +78,16 @@ const mockFighterB = {
     age: 32,
     size: 'medium' as const,
     build: 'muscular' as const,
-  },
-  description: 'Martial Arts Legend',
+  }
 };
 
 const mockScene = {
+  id: 'test-arena',
   name: 'Arena',
   imageUrl: '/test-arena.jpg',
   description: 'A battle arena',
+  environmentalObjects: [],
+  createdAt: new Date().toISOString()
 };
 
 const mockBattleLog = [
@@ -104,30 +129,22 @@ describe('BattleViewer', () => {
         fighterB={mockFighterB}
         scene={mockScene}
         battleLog={mockBattleLog}
-        mode="live"
       />
     );
 
     // Check that fighter information is initially visible
-    expect(screen.getByText('Godzilla')).toBeInTheDocument();
-    expect(screen.getByText('Bruce Lee')).toBeInTheDocument();
-    expect(screen.getByText('vs')).toBeInTheDocument();
+    expect(screen.getAllByText('Godzilla')).toHaveLength(2); // One in main display, one in commentary
+    expect(screen.getAllByText('Bruce Lee')).toHaveLength(2); // One in main display, one in commentary
+    expect(screen.getByText('VS')).toBeInTheDocument();
 
-    // Check that round animation is shown initially
-    expect(screen.getByTestId('round-start-animation')).toBeInTheDocument();
-    expect(screen.getByText('Round 1')).toBeInTheDocument();
-
-    // Check that fighter information has fade-out class when round animation is shown
-    const fighterInfoContainer = screen.getByText('Godzilla').closest('.flex.items-center.justify-center');
+    // Check that fighter information has fade-out class initially (during round animation)
+    const fighterInfoContainer = screen.getAllByText('Godzilla')[0].closest('.bg-gray-800\\/90');
     expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
 
     // Wait for round animation to complete
     await waitFor(() => {
-      expect(screen.queryByTestId('round-start-animation')).not.toBeInTheDocument();
+      expect(fighterInfoContainer).toHaveClass('battle-info-fade-in');
     }, { timeout: 2000 });
-
-    // Check that fighter information has fade-in class when round animation is hidden
-    expect(fighterInfoContainer).toHaveClass('battle-info-fade-in');
   });
 
   it('applies fade transitions smoothly between round animations', async () => {
@@ -137,30 +154,23 @@ describe('BattleViewer', () => {
         fighterB={mockFighterB}
         scene={mockScene}
         battleLog={mockBattleLog}
-        mode="live"
       />
     );
 
-    const fighterInfoContainer = screen.getByText('Godzilla').closest('.flex.items-center.justify-center');
+    const fighterInfoContainer = screen.getAllByText('Godzilla')[0].closest('.bg-gray-800\\/90');
 
     // Initially should have fade-out class
     expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
 
     // Wait for first round animation to complete
     await waitFor(() => {
-      expect(screen.queryByTestId('round-start-animation')).not.toBeInTheDocument();
+      expect(fighterInfoContainer).toHaveClass('battle-info-fade-in');
     }, { timeout: 2000 });
-
-    // Should now have fade-in class
-    expect(fighterInfoContainer).toHaveClass('battle-info-fade-in');
 
     // Wait for next round animation to start
     await waitFor(() => {
-      expect(screen.getByTestId('round-start-animation')).toBeInTheDocument();
+      expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
     }, { timeout: 3000 });
-
-    // Should have fade-out class again
-    expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
   });
 
   it('maintains fade effect in replay mode', () => {
@@ -170,11 +180,10 @@ describe('BattleViewer', () => {
         fighterB={mockFighterB}
         scene={mockScene}
         battleLog={mockBattleLog}
-        mode="replay"
       />
     );
 
-    const fighterInfoContainer = screen.getByText('Godzilla').closest('.flex.items-center.justify-center');
+    const fighterInfoContainer = screen.getAllByText('Godzilla')[0].closest('.bg-gray-800\\/90');
     expect(fighterInfoContainer).toHaveClass('battle-info-fade-out');
   });
 
@@ -191,6 +200,18 @@ describe('BattleViewer', () => {
         id: 'fighter-1',
         name: 'Fighter 1',
         imageUrl: '/fighter1.jpg',
+        description: 'A powerful fighter',
+        visualAnalysis: {
+          age: '25',
+          size: 'medium',
+          build: 'muscular',
+          appearance: [],
+          weapons: [],
+          armor: []
+        },
+        combatHistory: [],
+        winLossRecord: { wins: 0, losses: 0, draws: 0 },
+        createdAt: new Date().toISOString(),
         stats: {
           health: 100,
           maxHealth: 100,
@@ -207,6 +228,18 @@ describe('BattleViewer', () => {
         id: 'fighter-2',
         name: 'Fighter 2',
         imageUrl: '/fighter2.jpg',
+        description: 'A skilled fighter',
+        visualAnalysis: {
+          age: '28',
+          size: 'medium',
+          build: 'average',
+          appearance: [],
+          weapons: [],
+          armor: []
+        },
+        combatHistory: [],
+        winLossRecord: { wins: 0, losses: 0, draws: 0 },
+        createdAt: new Date().toISOString(),
         stats: {
           health: 100,
           maxHealth: 100,
@@ -220,9 +253,12 @@ describe('BattleViewer', () => {
         }
       };
       const mockScene = {
+        id: 'test-arena',
         name: 'Test Arena',
         imageUrl: '/arena.jpg',
-        description: 'A mystical arena with ancient runes.'
+        description: 'A mystical arena with ancient runes.',
+        environmentalObjects: [],
+        createdAt: new Date().toISOString()
       };
       const mockBattleLog = [
         {
@@ -247,19 +283,15 @@ describe('BattleViewer', () => {
           fighterB={mockFighterB}
           scene={mockScene}
           battleLog={mockBattleLog}
-          mode="replay"
         />
       );
       // Advance timers to skip round animation
       await act(async () => {
         jest.runAllTimers();
       });
-      // Check that arena description has proper contrast styling
-      const arenaDescription = await screen.findByText(
-        (content, element) =>
-          element?.textContent === 'A mystical arena with ancient runes.'
-      );
-      expect(arenaDescription).toHaveClass('text-gray-200', 'italic');
+      // Check that battle commentary has proper contrast styling
+      const attackCommentary = screen.getByText('Fighter 1 launches a powerful punch!');
+      expect(attackCommentary).toHaveClass('text-white', 'font-semibold');
     });
 
     it('should render health values with high contrast', () => {
@@ -267,6 +299,18 @@ describe('BattleViewer', () => {
         id: 'fighter-1',
         name: 'Fighter 1',
         imageUrl: '/fighter1.jpg',
+        description: 'A powerful fighter',
+        visualAnalysis: {
+          age: '25',
+          size: 'medium',
+          build: 'muscular',
+          appearance: [],
+          weapons: [],
+          armor: []
+        },
+        combatHistory: [],
+        winLossRecord: { wins: 0, losses: 0, draws: 0 },
+        createdAt: new Date().toISOString(),
         stats: {
           health: 100,
           maxHealth: 100,
@@ -284,6 +328,18 @@ describe('BattleViewer', () => {
         id: 'fighter-2',
         name: 'Fighter 2',
         imageUrl: '/fighter2.jpg',
+        description: 'A skilled fighter',
+        visualAnalysis: {
+          age: '28',
+          size: 'medium',
+          build: 'average',
+          appearance: [],
+          weapons: [],
+          armor: []
+        },
+        combatHistory: [],
+        winLossRecord: { wins: 0, losses: 0, draws: 0 },
+        createdAt: new Date().toISOString(),
         stats: {
           health: 100,
           maxHealth: 100,
@@ -298,8 +354,12 @@ describe('BattleViewer', () => {
       };
 
       const mockScene = {
+        id: 'test-arena',
         name: 'Test Arena',
-        imageUrl: '/arena.jpg'
+        imageUrl: '/arena.jpg',
+        description: 'A test arena',
+        environmentalObjects: [],
+        createdAt: new Date().toISOString()
       };
 
       const mockBattleLog = [
@@ -326,7 +386,6 @@ describe('BattleViewer', () => {
           fighterB={mockFighterB}
           scene={mockScene}
           battleLog={mockBattleLog}
-          mode="replay"
         />
       );
 

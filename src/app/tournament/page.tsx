@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Tournament, TournamentMatch, TournamentHistoricalData } from '@/lib/types/tournament';
 import { TournamentCreator } from '@/components/tournament/TournamentCreator';
 import { TournamentList } from '@/components/tournament/TournamentList';
@@ -176,6 +177,10 @@ export default function TournamentPage() {
   const handleCloseBattleResults = () => {
     setShowBattleResults(false);
     setBattleReplayComplete(false);
+    setShowSlideshow(false);
+    setShowCommentary(false);
+    // Reset the view mode to tournament to go back to the tournament view
+    setViewMode('tournament');
   };
 
   return (
@@ -336,18 +341,46 @@ export default function TournamentPage() {
                     </Button>
                   </div>
 
-                  {/* Tournament Context */}
+                  {/* Tournament Context - 50/50 split */}
                   <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-6 mb-6">
-                    <div className="text-center">
-                      <h2 className="text-2xl font-bold text-white mb-2">
-                        🏆 {selectedTournament.name}
-                      </h2>
-                      <p className="text-gray-300 text-lg mb-2">
-                        Round {selectedMatch.round} • Match {selectedMatch.matchNumber}
-                      </p>
-                      <p className="text-gray-400">
-                        {fighterA.name} vs {fighterB.name}
-                      </p>
+                    <div className="flex flex-row gap-6">
+                      {/* Tournament Info - Left half */}
+                      <div className="w-1/2">
+                        <div className="text-left">
+                          <h2 className="text-2xl font-bold text-white mb-2">
+                            🏆 {selectedTournament.name}
+                          </h2>
+                          <p className="text-gray-300 text-lg mb-2">
+                            Round {selectedMatch.round} • Match {selectedMatch.matchNumber}
+                          </p>
+                          <p className="text-gray-400">
+                            {fighterA.name} vs {fighterB.name}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Arena Description - Right half */}
+                      <div className="w-1/2">
+                        <div className="text-left">
+                          <h3 className="text-lg font-bold text-white mb-2">
+                            {selectedMatch.arena?.name || 'Tournament Arena'}
+                          </h3>
+                          {selectedMatch.arena?.image && (
+                            <div className="mb-2">
+                              <Image 
+                                src={selectedMatch.arena.image} 
+                                alt={selectedMatch.arena.name} 
+                                width={80} 
+                                height={60} 
+                                className="object-cover rounded shadow max-h-15" 
+                              />
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-300">
+                            {selectedMatch.arena?.description || 'A neutral arena for tournament battles'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </Card>
                   

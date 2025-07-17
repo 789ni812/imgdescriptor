@@ -136,71 +136,134 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   });
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className={`flex items-center justify-center gap-8 mb-8 transition-opacity duration-300 ${
-        showRoundAnim ? 'opacity-30 battle-info-fade-out' : 'opacity-100 battle-info-fade-in'
-      }`}>
-        {/* Fighter A */}
-        <div className="flex-1 flex flex-col items-center">
-          {fighterA.imageUrl ? (
-            <Image src={fighterA.imageUrl} alt={fighterA.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
-          ) : (
-            <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-red-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
-              No Image
+    <div className="w-full max-w-7xl mx-auto space-y-6">
+      {/* Arena Description Panel - Wider than other panels */}
+      <div className="w-full flex justify-center">
+        <div className={`w-full lg:w-[70%] bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-6 transition-opacity duration-300 mb-2 mx-auto ${
+          showRoundAnim ? 'opacity-30 battle-info-fade-out' : 'opacity-100 battle-info-fade-in'
+        }`}>
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">⚔️ Battle Arena</h2>
+          <div className="flex items-center justify-center gap-8">
+            {/* Fighter A */}
+            <div className="flex-1 flex flex-col items-center max-w-xs">
+              {fighterA.imageUrl ? (
+                <Image src={fighterA.imageUrl} alt={fighterA.name} width={120} height={120} className="w-30 h-30 object-cover rounded-full border-4 border-red-700 shadow-lg" />
+              ) : (
+                <div className="w-30 h-30 bg-gray-300 rounded-full border-4 border-red-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
+                  No Image
+                </div>
+              )}
+              <div className="mt-4 text-xl font-bold text-white text-center">{fighterA.name}</div>
+              <HealthBar current={health[fighterA.id] ?? 0} max={fighterA.stats.maxHealth} color="red" />
+              <div className="text-sm mt-2 text-green-400 font-bold">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
             </div>
-          )}
-          <div className="mt-2 text-lg font-bold text-white">{fighterA.name}</div>
-          <HealthBar current={health[fighterA.id] ?? 0} max={fighterA.stats.maxHealth} color="red" />
-          <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterA.id]} / {fighterA.stats.maxHealth}</div>
-        </div>
-        <div className="text-3xl font-extrabold text-yellow-400 mx-6">vs</div>
-        {/* Fighter B */}
-        <div className="flex-1 flex flex-col items-center">
-          {fighterB.imageUrl ? (
-            <Image src={fighterB.imageUrl} alt={fighterB.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
-          ) : (
-            <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-blue-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
-              No Image
+            {/* VS */}
+            <div className="text-4xl font-extrabold text-yellow-400 mx-8">VS</div>
+            {/* Fighter B */}
+            <div className="flex-1 flex flex-col items-center max-w-xs">
+              {fighterB.imageUrl ? (
+                <Image src={fighterB.imageUrl} alt={fighterB.name} width={120} height={120} className="w-30 h-30 object-cover rounded-full border-4 border-blue-700 shadow-lg" />
+              ) : (
+                <div className="w-30 h-30 bg-gray-300 rounded-full border-4 border-blue-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
+                  No Image
+                </div>
+              )}
+              <div className="mt-4 text-xl font-bold text-white text-center">{fighterB.name}</div>
+              <HealthBar current={health[fighterB.id] ?? 0} max={fighterB.stats.maxHealth} color="blue" />
+              <div className="text-sm mt-2 text-green-400 font-bold">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
             </div>
-          )}
-          <div className="mt-2 text-lg font-bold text-white">{fighterB.name}</div>
-          <HealthBar current={health[fighterB.id] ?? 0} max={fighterB.stats.maxHealth} color="blue" />
-          <div className="text-xs mt-1 text-green-400 font-bold">Health: {health[fighterB.id]} / {fighterB.stats.maxHealth}</div>
+          </div>
         </div>
       </div>
-      {showRoundAnim && <RoundStartAnimation round={round.round} />}
-      {!showRoundAnim && <BattleStoryboard
-        scene={scene}
-        round={round.round}
-        attacker={{
-          name: attacker.name,
-          imageUrl: attacker.imageUrl,
-          commentary: round.attackCommentary,
-        }}
-        defender={{
-          name: defender.name,
-          imageUrl: defender.imageUrl,
-          commentary: round.defenseCommentary,
-        }}
-        previousRounds={battleLog.slice(0, currentRoundIdx).map(r => {
-          const attackerFighter = r.attacker === fighterA.name ? fighterA : fighterB;
-          const defenderFighter = r.defender === fighterA.name ? fighterA : fighterB;
-          return {
-            round: r.round,
-            attacker: {
-              name: attackerFighter.name,
-              imageUrl: attackerFighter.imageUrl,
-              commentary: r.attackCommentary,
-            },
-            defender: {
-              name: defenderFighter.name,
-              imageUrl: defenderFighter.imageUrl,
-              commentary: r.defenseCommentary,
-            },
-          };
-        })}
-        roundStep={roundStep}
-      />}
+
+      {/* Current Fighter Commentary - Side by Side, max-w-3xl centered */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-3xl">
+          <h3 className="text-xl font-bold text-white mb-4">🎯 Current Action</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Attacker Panel */}
+            <div className={`bg-gray-900 border border-gray-600 rounded-xl p-6 flex flex-col items-center justify-start text-white transform -skew-x-3 overflow-y-auto overflow-x-hidden transition-opacity duration-500 shadow-md min-h-64 ${roundStep === 'defense' ? 'opacity-40' : 'opacity-100'}`} data-testid="attacker-box">
+              <div className="transform skew-x-3 w-full">
+                {attacker.imageUrl ? (
+                  <Image src={attacker.imageUrl} alt={attacker.name} width={80} height={80} className="w-20 h-20 object-cover rounded-full mx-auto mb-4 border-2 border-blue-500" />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-gray-300 text-xs text-center border-2 border-blue-500">
+                    No Image
+                  </div>
+                )}
+                <div className="font-bold text-lg mb-4 text-blue-400 text-center">{attacker.name}</div>
+                {roundStep === 'attack' && (
+                  <div className="text-sm text-center break-words w-full text-white font-semibold flex-1 overflow-y-auto overflow-x-hidden leading-relaxed whitespace-pre-line" style={{ wordBreak: 'break-word' }}>
+                    {round.attackCommentary}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Defender Panel */}
+            <div className={`bg-gray-900 border border-gray-600 rounded-xl p-6 flex flex-col items-center justify-start text-white transform skew-x-3 overflow-y-auto overflow-x-hidden transition-opacity duration-500 shadow-md min-h-64 ${roundStep === 'attack' ? 'opacity-40' : 'opacity-100'}`} data-testid="defender-box">
+              <div className="transform -skew-x-3 w-full">
+                {defender.imageUrl ? (
+                  <Image src={defender.imageUrl} alt={defender.name} width={80} height={80} className="w-20 h-20 object-cover rounded-full mx-auto mb-4 border-2 border-red-500" />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-gray-300 text-xs text-center border-2 border-red-500">
+                    No Image
+                  </div>
+                )}
+                <div className="font-bold text-lg mb-4 text-red-400 text-center">{defender.name}</div>
+                {roundStep === 'defense' && (
+                  <div className="text-sm text-center break-words w-full text-white font-semibold flex-1 overflow-y-auto overflow-x-hidden leading-relaxed whitespace-pre-line" style={{ wordBreak: 'break-word' }}>
+                    {round.defenseCommentary}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Battle History - Full Width, max-w-4xl centered */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-4xl">
+          <h3 className="text-xl font-bold text-white mb-4">📜 Battle History</h3>
+          <div className="bg-gray-900 border border-gray-600 rounded-xl p-6 flex flex-col overflow-y-auto text-white min-h-[300px] max-h-96 shadow-md">
+            {battleLog.slice(0, currentRoundIdx).map((r) => {
+              const attackerFighter = r.attacker === fighterA.name ? fighterA : fighterB;
+              const defenderFighter = r.defender === fighterA.name ? fighterA : fighterB;
+              return (
+                <div key={r.round} className="mb-6 p-4 bg-gray-800 rounded-lg border-l-4 border-yellow-500">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-yellow-400 font-bold text-sm">Round {r.round}</span>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Attacker commentary */}
+                    <div className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Image src={attackerFighter.imageUrl} alt={attackerFighter.name} width={32} height={32} className="w-8 h-8 object-cover rounded-full border border-gray-400" />
+                        <span className="font-bold text-blue-400">{attackerFighter.name}</span>
+                      </div>
+                      <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-line">{r.attackCommentary}</p>
+                    </div>
+                    {/* Defender commentary */}
+                    <div className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Image src={defenderFighter.imageUrl} alt={defenderFighter.name} width={32} height={32} className="w-8 h-8 object-cover rounded-full border border-gray-400" />
+                        <span className="font-bold text-red-400">{defenderFighter.name}</span>
+                      </div>
+                      <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-line">{r.defenseCommentary}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {battleLog.slice(0, currentRoundIdx).length === 0 && (
+              <div className="text-center text-gray-400 py-8">
+                <p>Battle history will appear here as the fight progresses...</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
