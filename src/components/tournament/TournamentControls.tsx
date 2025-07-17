@@ -136,6 +136,7 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
 
   const nextMatch = getNextMatch();
   const isCompleted = tournament.status === 'completed';
+  const isSetup = tournament.status === 'setup';
   const totalMatches = tournament.brackets?.reduce((sum, bracket) => sum + bracket.matches.length, 0) || 0;
   const completedMatches = tournament.brackets?.reduce((sum, bracket) => 
     sum + bracket.matches.filter(match => match.status === 'completed').length, 0
@@ -281,6 +282,24 @@ export const TournamentControls: React.FC<TournamentControlsProps> = ({
                 📊 View Tournament Overview
               </Button>
             )}
+          </div>
+        )}
+
+        {isSetup && onShowOverview && (
+          <div className="p-6 bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-2 border-blue-500 rounded-2xl text-center shadow-xl" data-testid="tournament-setup-overview">
+            <div className="text-xl font-bold text-blue-400 mb-2 drop-shadow-lg">
+              🎯 Tournament Ready! 🎯
+            </div>
+            <div className="text-sm text-blue-300 font-semibold mb-4">
+              {tournament.fighters.length} fighters ready to battle
+            </div>
+            <Button
+              onClick={onShowOverview}
+              className="bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-500 px-6 py-3 font-semibold transition-all duration-200 shadow-lg"
+              data-testid="tournament-setup-overview-btn"
+            >
+              📊 Preview Tournament Overview
+            </Button>
           </div>
         )}
       </div>
