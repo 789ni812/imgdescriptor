@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
+import { readFile, readdir } from 'fs/promises';
 import { join } from 'path';
 import { Tournament, CreateTournamentRequest, TournamentResponse } from '@/lib/types/tournament';
 import { generateTournamentName, generateBracket, calculateTotalRounds } from '@/lib/utils/tournamentUtils';
 import { Fighter } from '@/lib/stores/fightingGameStore';
+
+// Helper function to get random arena
+const getRandomArena = async () => {
+  try {
+    const arenasDir = join(process.cwd(), 'public', 'imgRepository', 'arenas');
+    const files = await readdir(arenasDir);
+    const arenaFiles = files.filter((file: string) => file.endsWith('.json'));
+    
+    if (arenaFiles.length === 0) {
+      return {
+        name: 'Tournament Arena',
+        description: 'A neutral arena for tournament battles'
+      };
+    }
+    
+    const randomFile = arenaFiles[Math.floor(Math.random() * arenaFiles.length)];
+    const arenaPath = join(arenasDir, randomFile);
+    const arenaContent = await readFile(arenaPath, 'utf-8');
+    const arenaData = JSON.parse(arenaContent);
+    
+    return {
+      name: arenaData.name || 'Tournament Arena',
+      description: arenaData.description || 'A neutral arena for tournament battles'
+    };
+  } catch (error) {
+    console.error('Failed to load random arena:', error);
+    return {
+      name: 'Tournament Arena',
+      description: 'A neutral arena for tournament battles'
+    };
+  }
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,6 +106,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // Get a random arena for the tournament
+    const arena = await getRandomArena();
+
     // Generate tournament
     const tournamentId = `tournament-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const totalRounds = calculateTotalRounds(fighters.length);
@@ -87,7 +122,9 @@ export async function POST(req: NextRequest) {
       fighters,
       brackets,
       currentRound: 1,
-      totalRounds
+      totalRounds,
+      arenaName: arena.name,
+      arenaDescription: arena.description
     };
 
     // Save tournament to file

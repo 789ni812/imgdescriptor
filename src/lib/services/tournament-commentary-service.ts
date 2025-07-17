@@ -126,7 +126,7 @@ export class TournamentCommentaryService {
   ): Promise<TournamentCommentary> {
     const context = this.buildCommentaryContext(tournament, match, historicalData);
     
-    // Use match arena if available, otherwise fall back to tournament arena or default
+    // Use match arena if available, otherwise use tournament arena, then fall back to default
     const arenaName = match.arena?.name || tournament.arenaName || 'Tournament Arena';
     
     // Build fighter stats for commentary
@@ -254,7 +254,7 @@ export class TournamentCommentaryService {
     match: TournamentMatch,
     historicalData: TournamentHistoricalData
   ): Promise<TournamentCommentary> {
-    // Use match arena if available, otherwise fall back to tournament arena or default
+    // Use match arena if available, otherwise use tournament arena, then fall back to default
     const arenaName = match.arena?.name || tournament.arenaName || 'Tournament Arena';
     
     const commentary = await this.generateCommentaryViaAPI(
