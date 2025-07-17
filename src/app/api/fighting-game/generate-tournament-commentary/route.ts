@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       fighterA, 
       fighterB, 
       winner, 
-      tournamentContext 
+      tournamentContext,
+      fighterStats
     } = body;
 
     if (!commentaryType || !tournamentName || !arenaName || currentMatch === undefined || totalMatches === undefined) {
@@ -32,7 +33,8 @@ export async function POST(req: NextRequest) {
       fighterA,
       fighterB,
       winner,
-      tournamentContext
+      tournamentContext,
+      fighterStats
     );
 
     return NextResponse.json({

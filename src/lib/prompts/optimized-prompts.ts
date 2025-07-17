@@ -512,6 +512,56 @@ export const OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT = (
     completedMatches: number;
     remainingFighters: string[];
     notableMoments: string[];
+  },
+  fighterStats?: {
+    fighterA?: {
+      name: string;
+      stats: {
+        strength: number;
+        agility: number;
+        health: number;
+        defense: number;
+        intelligence: number;
+        uniqueAbilities: string[];
+      };
+      tournamentRecord?: {
+        matchesPlayed: number;
+        wins: number;
+        losses: number;
+        totalDamageDealt: number;
+        totalDamageTaken: number;
+        averageDamagePerRound: number;
+        quickestVictory?: number;
+        longestBattle?: number;
+        mostDamagingAttack?: number;
+        fightingStyle: string;
+        tournamentJourney: string;
+      };
+    };
+    fighterB?: {
+      name: string;
+      stats: {
+        strength: number;
+        agility: number;
+        health: number;
+        defense: number;
+        intelligence: number;
+        uniqueAbilities: string[];
+      };
+      tournamentRecord?: {
+        matchesPlayed: number;
+        wins: number;
+        losses: number;
+        totalDamageDealt: number;
+        totalDamageTaken: number;
+        averageDamagePerRound: number;
+        quickestVictory?: number;
+        longestBattle?: number;
+        mostDamagingAttack?: number;
+        fightingStyle: string;
+        tournamentJourney: string;
+      };
+    };
   }
 ) => `Generate ${commentaryType} commentary for the ${tournamentName} tournament.
 
@@ -525,6 +575,30 @@ ${winner ? `- Winner: ${winner} (ALWAYS mention this fighter by name)` : ''}
 ${tournamentContext ? `- Completed: ${tournamentContext.completedMatches} matches` : ''}
 ${tournamentContext?.remainingFighters ? `- Remaining: ${tournamentContext.remainingFighters.join(', ')}` : ''}
 ${tournamentContext?.notableMoments ? `- Highlights: ${tournamentContext.notableMoments.join(', ')}` : ''}
+
+${fighterStats?.fighterA ? `
+FIGHTER A DETAILS - ${fighterStats.fighterA.name}:
+- Stats: STR ${fighterStats.fighterA.stats.strength}, AGI ${fighterStats.fighterA.stats.agility}, HP ${fighterStats.fighterA.stats.health}, DEF ${fighterStats.fighterA.stats.defense}, INT ${fighterStats.fighterA.stats.intelligence}
+- Abilities: ${fighterStats.fighterA.stats.uniqueAbilities.join(', ')}
+${fighterStats.fighterA.tournamentRecord ? `
+- Tournament Record: ${fighterStats.fighterA.tournamentRecord.wins}W-${fighterStats.fighterA.tournamentRecord.losses}L (${fighterStats.fighterA.tournamentRecord.matchesPlayed} matches)
+- Damage Dealt: ${fighterStats.fighterA.tournamentRecord.totalDamageDealt} total, ${fighterStats.fighterA.tournamentRecord.averageDamagePerRound} avg/round
+- Fighting Style: ${fighterStats.fighterA.tournamentRecord.fightingStyle}
+- Tournament Journey: ${fighterStats.fighterA.tournamentRecord.tournamentJourney}
+${fighterStats.fighterA.tournamentRecord.quickestVictory ? `- Quickest Victory: ${fighterStats.fighterA.tournamentRecord.quickestVictory} rounds` : ''}
+${fighterStats.fighterA.tournamentRecord.mostDamagingAttack ? `- Most Damaging Attack: ${fighterStats.fighterA.tournamentRecord.mostDamagingAttack} damage` : ''}` : ''}` : ''}
+
+${fighterStats?.fighterB ? `
+FIGHTER B DETAILS - ${fighterStats.fighterB.name}:
+- Stats: STR ${fighterStats.fighterB.stats.strength}, AGI ${fighterStats.fighterB.stats.agility}, HP ${fighterStats.fighterB.stats.health}, DEF ${fighterStats.fighterB.stats.defense}, INT ${fighterStats.fighterB.stats.intelligence}
+- Abilities: ${fighterStats.fighterB.stats.uniqueAbilities.join(', ')}
+${fighterStats.fighterB.tournamentRecord ? `
+- Tournament Record: ${fighterStats.fighterB.tournamentRecord.wins}W-${fighterStats.fighterB.tournamentRecord.losses}L (${fighterStats.fighterB.tournamentRecord.matchesPlayed} matches)
+- Damage Dealt: ${fighterStats.fighterB.tournamentRecord.totalDamageDealt} total, ${fighterStats.fighterB.tournamentRecord.averageDamagePerRound} avg/round
+- Fighting Style: ${fighterStats.fighterB.tournamentRecord.fightingStyle}
+- Tournament Journey: ${fighterStats.fighterB.tournamentRecord.tournamentJourney}
+${fighterStats.fighterB.tournamentRecord.quickestVictory ? `- Quickest Victory: ${fighterStats.fighterB.tournamentRecord.quickestVictory} rounds` : ''}
+${fighterStats.fighterB.tournamentRecord.mostDamagingAttack ? `- Most Damaging Attack: ${fighterStats.fighterB.tournamentRecord.mostDamagingAttack} damage` : ''}` : ''}` : ''}
 
 COMMENTARY REQUIREMENTS:
 - Make this feel like the most important moment in fighting history
@@ -542,6 +616,16 @@ FIGHTER AND ARENA INTEGRATION REQUIREMENTS:
 - Connect the fighters' presence to the arena's atmosphere
 - Make the arena feel like it's reacting to the fighters' energy
 - Use the arena's name to enhance the dramatic weight of the moment
+
+FIGHTER STATS AND HISTORY INTEGRATION:
+- ALWAYS reference fighter stats as divine attributes or legendary powers
+- ALWAYS mention unique abilities as supernatural techniques
+- ALWAYS reference tournament records to build narrative tension
+- ALWAYS use fighting styles to create personality and contrast
+- ALWAYS reference tournament journey to show character development
+- ALWAYS use damage statistics to emphasize power and impact
+- ALWAYS reference previous victories/defeats to build stakes
+- ALWAYS use quickest victories and most damaging attacks as legendary feats
 
 Create ${commentaryType} commentary that transforms this moment into legend, making the audience feel the raw power of ${fighterA ? fighterA : 'the first fighter'} and ${fighterB ? fighterB : 'the second fighter'} as they prepare to do battle in the legendary ${arenaName}.`;
 

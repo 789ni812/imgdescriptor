@@ -1108,6 +1108,56 @@ export const generateTournamentCommentary = async (
     completedMatches: number;
     remainingFighters: string[];
     notableMoments: string[];
+  },
+  fighterStats?: {
+    fighterA?: {
+      name: string;
+      stats: {
+        strength: number;
+        agility: number;
+        health: number;
+        defense: number;
+        intelligence: number;
+        uniqueAbilities: string[];
+      };
+      tournamentRecord?: {
+        matchesPlayed: number;
+        wins: number;
+        losses: number;
+        totalDamageDealt: number;
+        totalDamageTaken: number;
+        averageDamagePerRound: number;
+        quickestVictory?: number;
+        longestBattle?: number;
+        mostDamagingAttack?: number;
+        fightingStyle: string;
+        tournamentJourney: string;
+      };
+    };
+    fighterB?: {
+      name: string;
+      stats: {
+        strength: number;
+        agility: number;
+        health: number;
+        defense: number;
+        intelligence: number;
+        uniqueAbilities: string[];
+      };
+      tournamentRecord?: {
+        matchesPlayed: number;
+        wins: number;
+        losses: number;
+        totalDamageDealt: number;
+        totalDamageTaken: number;
+        averageDamagePerRound: number;
+        quickestVictory?: number;
+        longestBattle?: number;
+        mostDamagingAttack?: number;
+        fightingStyle: string;
+        tournamentJourney: string;
+      };
+    };
   }
 ): Promise<string> => {
   const controller = new AbortController();
@@ -1123,7 +1173,8 @@ export const generateTournamentCommentary = async (
     fighterA,
     fighterB,
     winner,
-    tournamentContext
+    tournamentContext,
+    fighterStats
   );
 
   // Debug logging

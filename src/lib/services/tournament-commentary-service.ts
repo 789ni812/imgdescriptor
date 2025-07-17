@@ -37,6 +37,56 @@ export class TournamentCommentaryService {
       completedMatches: number;
       remainingFighters: string[];
       notableMoments: string[];
+    },
+    fighterStats?: {
+      fighterA?: {
+        name: string;
+        stats: {
+          strength: number;
+          agility: number;
+          health: number;
+          defense: number;
+          intelligence: number;
+          uniqueAbilities: string[];
+        };
+        tournamentRecord?: {
+          matchesPlayed: number;
+          wins: number;
+          losses: number;
+          totalDamageDealt: number;
+          totalDamageTaken: number;
+          averageDamagePerRound: number;
+          quickestVictory?: number;
+          longestBattle?: number;
+          mostDamagingAttack?: number;
+          fightingStyle: string;
+          tournamentJourney: string;
+        };
+      };
+      fighterB?: {
+        name: string;
+        stats: {
+          strength: number;
+          agility: number;
+          health: number;
+          defense: number;
+          intelligence: number;
+          uniqueAbilities: string[];
+        };
+        tournamentRecord?: {
+          matchesPlayed: number;
+          wins: number;
+          losses: number;
+          totalDamageDealt: number;
+          totalDamageTaken: number;
+          averageDamagePerRound: number;
+          quickestVictory?: number;
+          longestBattle?: number;
+          mostDamagingAttack?: number;
+          fightingStyle: string;
+          tournamentJourney: string;
+        };
+      };
     }
   ): Promise<string> {
     const response = await fetch('/api/fighting-game/generate-tournament-commentary', {
@@ -53,7 +103,8 @@ export class TournamentCommentaryService {
         fighterA: fighterAName,
         fighterB: fighterBName,
         winner: winnerName,
-        tournamentContext: historicalContext
+        tournamentContext: historicalContext,
+        fighterStats
       }),
     });
 
@@ -78,6 +129,9 @@ export class TournamentCommentaryService {
     // Use match arena if available, otherwise fall back to tournament arena or default
     const arenaName = match.arena?.name || tournament.arenaName || 'Tournament Arena';
     
+    // Build fighter stats for commentary
+    const fighterStats = this.buildFighterStatsForCommentary(match, historicalData);
+    
     const commentary = await this.generateCommentaryViaAPI(
       'introduction',
       tournament.name,
@@ -91,7 +145,8 @@ export class TournamentCommentaryService {
         completedMatches: historicalData.completedMatches,
         remainingFighters: this.getRemainingFighters(tournament, historicalData),
         notableMoments: historicalData.notableMoments.map(m => m.description)
-      }
+      },
+      fighterStats
     );
 
     const tournamentCommentary: TournamentCommentary = {
@@ -513,5 +568,124 @@ export class TournamentCommentaryService {
     } else {
       return `Eliminated in round ${round} after ${stats.matchesPlayed} matches`;
     }
+  }
+
+  /**
+   * Build fighter stats for commentary generation
+   */
+  private buildFighterStatsForCommentary(
+    match: TournamentMatch,
+    historicalData: TournamentHistoricalData
+  ) {
+    const fighterStats: {
+      fighterA?: {
+        name: string;
+        stats: {
+          strength: number;
+          agility: number;
+          health: number;
+          defense: number;
+          intelligence: number;
+          uniqueAbilities: string[];
+        };
+        tournamentRecord?: {
+          matchesPlayed: number;
+          wins: number;
+          losses: number;
+          totalDamageDealt: number;
+          totalDamageTaken: number;
+          averageDamagePerRound: number;
+          quickestVictory?: number;
+          longestBattle?: number;
+          mostDamagingAttack?: number;
+          fightingStyle: string;
+          tournamentJourney: string;
+        };
+      };
+      fighterB?: {
+        name: string;
+        stats: {
+          strength: number;
+          agility: number;
+          health: number;
+          defense: number;
+          intelligence: number;
+          uniqueAbilities: string[];
+        };
+        tournamentRecord?: {
+          matchesPlayed: number;
+          wins: number;
+          losses: number;
+          totalDamageDealt: number;
+          totalDamageTaken: number;
+          averageDamagePerRound: number;
+          quickestVictory?: number;
+          longestBattle?: number;
+          mostDamagingAttack?: number;
+          fightingStyle: string;
+          tournamentJourney: string;
+        };
+      };
+    } = {};
+
+    // Build fighter A stats
+    if (match.fighterA) {
+      const fighterAStats = historicalData.fighterStats.find(s => s.fighterId === match.fighterA!.id);
+      fighterStats.fighterA = {
+        name: match.fighterA.name,
+        stats: {
+          strength: match.fighterA.stats.strength,
+          agility: match.fighterA.stats.agility,
+          health: match.fighterA.stats.health,
+          defense: match.fighterA.stats.defense,
+          intelligence: match.fighterA.stats.intelligence || 0,
+          uniqueAbilities: match.fighterA.stats.uniqueAbilities || []
+        },
+        tournamentRecord: fighterAStats ? {
+          matchesPlayed: fighterAStats.matchesPlayed,
+          wins: fighterAStats.wins,
+          losses: fighterAStats.losses,
+          totalDamageDealt: fighterAStats.totalDamageDealt,
+          totalDamageTaken: fighterAStats.totalDamageTaken,
+          averageDamagePerRound: fighterAStats.averageDamagePerRound,
+          quickestVictory: fighterAStats.quickestVictory,
+          longestBattle: fighterAStats.longestBattle,
+          mostDamagingAttack: fighterAStats.mostDamagingAttack,
+          fightingStyle: fighterAStats.fightingStyle,
+          tournamentJourney: fighterAStats.tournamentJourney
+        } : undefined
+      };
+    }
+
+    // Build fighter B stats
+    if (match.fighterB) {
+      const fighterBStats = historicalData.fighterStats.find(s => s.fighterId === match.fighterB!.id);
+      fighterStats.fighterB = {
+        name: match.fighterB.name,
+        stats: {
+          strength: match.fighterB.stats.strength,
+          agility: match.fighterB.stats.agility,
+          health: match.fighterB.stats.health,
+          defense: match.fighterB.stats.defense,
+          intelligence: match.fighterB.stats.intelligence || 0,
+          uniqueAbilities: match.fighterB.stats.uniqueAbilities || []
+        },
+        tournamentRecord: fighterBStats ? {
+          matchesPlayed: fighterBStats.matchesPlayed,
+          wins: fighterBStats.wins,
+          losses: fighterBStats.losses,
+          totalDamageDealt: fighterBStats.totalDamageDealt,
+          totalDamageTaken: fighterBStats.totalDamageTaken,
+          averageDamagePerRound: fighterBStats.averageDamagePerRound,
+          quickestVictory: fighterBStats.quickestVictory,
+          longestBattle: fighterBStats.longestBattle,
+          mostDamagingAttack: fighterBStats.mostDamagingAttack,
+          fightingStyle: fighterBStats.fightingStyle,
+          tournamentJourney: fighterBStats.tournamentJourney
+        } : undefined
+      };
+    }
+
+    return fighterStats;
   }
 } 
