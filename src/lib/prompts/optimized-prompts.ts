@@ -145,6 +145,9 @@ CRITICAL INSTRUCTIONS:
 - Use only real English words that make sense
 - Do not include meta-commentary about the commentary itself
 - Focus purely on describing the battle action
+- Use proper fighter names consistently (Harry Callahan, Ozzy Osbourne, etc.)
+- Avoid excessive punctuation or dramatic formatting
+- Keep sentences clear and action-focused
 
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 

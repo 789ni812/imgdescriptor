@@ -484,10 +484,20 @@ function postProcessCommentary(text: string): string {
   const words = text.split(' ');
   const upperCount = words.filter(w => w === w.toUpperCase() && w.length > 2).length;
   
-  if (upperCount > words.length / 3) {
+  if (upperCount > words.length / 4) {
     // Convert to sentence case if too much ALL CAPS
     text = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   }
+  
+  // Also convert individual ALL CAPS words that aren't proper nouns
+  const properNouns = new Set(['vader', 'kong', 'lee', 'osbourne', 'callahan', 'godzilla', 'bruce', 'donkey', 'darth', 'ozzy', 'harry', 'cal']);
+  text = text.replace(/\b[A-Z]{3,}\b/g, (match) => {
+    const lowerMatch = match.toLowerCase();
+    if (properNouns.has(lowerMatch)) {
+      return match; // Keep proper nouns as-is
+    }
+    return lowerMatch; // Convert other ALL CAPS to lowercase
+  });
   
   // Replace common nonsense words with better alternatives
   const nonsenseReplacements: { [key: string]: string } = {
@@ -527,7 +537,46 @@ function postProcessCommentary(text: string): string {
     'combiner': 'combination',
     'embeddeds': 'embedded',
     'carvies': 'carves',
-    'vainer': 'Vader'
+    'vainer': 'Vader',
+    'bludgering': 'bludgeoning',
+    'betweenstory': 'defense',
+    'gehoats': 'goes through',
+    'fergoscreen': 'furious',
+    'whails': 'whirls',
+    'callaughan': 'Callahan',
+    'osdbourne': 'Osbourne',
+    'matters': 'Osbourne',
+    'chime': 'strike',
+    'fla owing': 'flowing',
+    'less seconds': 'fewer seconds',
+    'def measures': 'defense',
+    'shell shocker': 'Callahan',
+    'prince of darkness': 'Ozzy',
+    'spectral rider': 'spectral form',
+    'blind fury': 'fury',
+    'trident': 'defense',
+    'neckbreaker': 'neck-breaking move',
+    'haymaker': 'powerful punch',
+    'contra butterfly': 'counter move',
+    'shotclaw': 'shot and claw',
+    'ironhead': 'iron head',
+    'fortress like': 'fortress-like',
+    'shot chancellor belt': 'chancellor belt strike',
+    'none the less': 'nonetheless',
+    'narrow escape': 'close call',
+    'battling odyssey': 'epic battle',
+    'fertile bite': 'powerful strike',
+    'grips weakening': 'grip weakening',
+    'collision': 'impact',
+    'defensive liner': 'defensive line',
+    'shudders through': 'shakes through',
+    'combos remain active': 'combinations continue',
+    'battered his neck': 'damaged his neck',
+    'brutal reset': 'brutal counter',
+    'forces of deflection': 'defensive forces',
+    'rebounding ferocity': 'bouncing back',
+    'deepens the tension': 'increases the tension',
+    'crucible of combat': 'intense battle'
   };
   
   // Apply replacements
@@ -552,6 +601,25 @@ function postProcessCommentary(text: string): string {
   
   // Clean up extra spaces and punctuation
   text = text.replace(/\s+/g, ' ').trim();
+  
+  // Basic grammar corrections
+  const grammarFixes: { [key: string]: string } = {
+    'less seconds': 'fewer seconds',
+    'less damage': 'less damage', // Keep this one as it's correct
+    'none the less': 'nonetheless',
+    'fortress like': 'fortress-like',
+    'shot and claw': 'shot-claw',
+    'iron head': 'iron-head',
+    'neck breaking': 'neck-breaking',
+    'counter move': 'counter-move',
+    'powerful punch': 'powerful punch', // Keep as-is
+    'chancellor belt': 'chancellor-belt'
+  };
+  
+  Object.entries(grammarFixes).forEach(([incorrect, correct]) => {
+    const regex = new RegExp(`\\b${incorrect}\\b`, 'gi');
+    text = text.replace(regex, correct);
+  });
   
   // Basic dictionary check - replace obviously non-English words
   const commonEnglishWords = new Set([
@@ -579,6 +647,17 @@ function postProcessCommentary(text: string): string {
   });
   
   text = cleanedWords.join(' ');
+  
+  // Context-aware improvements
+  text = text
+    .replace(/\bcal\b/gi, 'Callahan') // Fix "cal" to "Callahan"
+    .replace(/\boz\b/gi, 'Ozzy') // Fix "oz" to "Ozzy"
+    .replace(/\bharry calla\b/gi, 'Harry Callahan') // Fix partial names
+    .replace(/\bharry callaughan\b/gi, 'Harry Callahan') // Fix misspelled names
+    .replace(/\bozzy osdbourne\b/gi, 'Ozzy Osbourne') // Fix misspelled names
+    .replace(/\bdefence\b/gi, 'defense') // Americanize spelling
+    .replace(/\bdefence line\b/gi, 'defense line')
+    .replace(/\bdefence line\b/gi, 'defense line');
   
   // Truncate to 50 words max (increased from 30)
   const truncated = text.split(' ').slice(0, 50).join(' ');
