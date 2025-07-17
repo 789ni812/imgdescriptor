@@ -60,6 +60,7 @@ interface BattleReplay {
   }>;
   winner: string;
   date: string;
+  battleSummary?: string;
 }
 
 export async function GET() {
@@ -128,6 +129,7 @@ export async function GET() {
             battleLog: battleData.battleLog,
             winner: metadata.winner,
             date: metadata.timestamp,
+            battleSummary: metadata.battleSummary || '',
           };
           
           battleReplays.push(battleReplay);

@@ -299,6 +299,258 @@ JSON FORMAT:
 }`;
 
 // ============================================================================
+// 8. OPTIMIZED FIGHTER SLOGAN GENERATION
+// ============================================================================
+// Target: Generate catchy slogans and descriptions for fighter slideshow
+// Purpose: Create engaging pre-battle introductions
+
+export const OPTIMIZED_FIGHTER_SLOGAN_SYSTEM_PROMPT = `You are a fighting game announcer creating epic fighter introductions.
+
+REQUIREMENTS:
+- Generate 2-3 catchy slogans (max 60 characters each)
+- Create 1 compelling description (max 120 characters)
+- Reference fighter's appearance, abilities, and fighting style
+- Use action-packed, exciting language
+- Make each fighter feel legendary and unique
+- Include references to their unique abilities when relevant
+
+STYLE GUIDELINES:
+- Use dramatic, sports commentator language
+- Include references to their visual characteristics
+- Mention their combat specialties or unique abilities
+- Create anticipation and excitement
+- Use varied vocabulary to avoid repetition
+- Make slogans memorable and punchy
+
+OUTPUT FORMAT:
+Return ONLY a JSON object with these exact keys:
+{
+  "slogans": ["Slogan 1", "Slogan 2", "Slogan 3"],
+  "description": "Compelling fighter description"
+}
+
+Return ONLY the JSON object - no formatting, no explanations.`;
+
+export const OPTIMIZED_FIGHTER_SLOGAN_USER_PROMPT = (
+  fighterName: string,
+  fighterStats: {
+    strength: number;
+    agility: number;
+    health: number;
+    defense: number;
+    intelligence: number;
+    uniqueAbilities: string[];
+  },
+  visualAnalysis: {
+    age: string;
+    size: string;
+    build: string;
+    appearance: string[];
+    weapons: string[];
+    armor: string[];
+  },
+  imageDescription: string
+) => `Generate epic fighter introduction for: ${fighterName}
+
+FIGHTER DETAILS:
+- Stats: STR ${fighterStats.strength}, AGI ${fighterStats.agility}, HP ${fighterStats.health}, DEF ${fighterStats.defense}, INT ${fighterStats.intelligence}
+- Abilities: ${fighterStats.uniqueAbilities.join(', ')}
+- Appearance: ${visualAnalysis.age} ${visualAnalysis.size} ${visualAnalysis.build} fighter
+- Equipment: ${visualAnalysis.weapons.join(', ') || 'unarmed'} ${visualAnalysis.armor.length > 0 ? `with ${visualAnalysis.armor.join(', ')}` : ''}
+- Visual: ${imageDescription}
+
+Create 2-3 catchy slogans and 1 compelling description that captures this fighter's essence.`;
+
+// ============================================================================
+// 9. ENHANCED TOURNAMENT COMMENTARY
+// ============================================================================
+// Target: Create engaging tournament narrative from start to finish
+// Purpose: Provide context and excitement throughout the tournament
+
+export const OPTIMIZED_TOURNAMENT_COMMENTARY_SYSTEM_PROMPT = `You are a legendary sports commentator narrating an epic fighting tournament.
+
+COMMENTARY STYLES:
+- **Tournament Opening**: Set the stage and build anticipation
+- **Match Introductions**: Introduce fighters with dramatic flair
+- **Battle Transitions**: Smooth transitions between matches
+- **Tournament Progress**: Update on overall tournament status
+- **Championship Build**: Build excitement for final matches
+- **Tournament Conclusion**: Epic wrap-up of the entire event
+
+REQUIREMENTS:
+- Use dynamic, exciting sports commentary language
+- Create narrative flow that builds excitement
+- Reference tournament context and fighter backgrounds
+- Include arena atmosphere and tactical implications
+- Make each moment feel important and consequential
+- Vary commentary style based on tournament phase
+
+STYLE GUIDELINES:
+- Use action-packed, descriptive language
+- Create tension and anticipation
+- Include specific details about fighters and arenas
+- Balance information with entertainment
+- Make the tournament feel like a major sporting event
+- Use varied vocabulary and avoid repetition
+
+Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
+
+export const OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT = (
+  commentaryType: 'opening' | 'introduction' | 'transition' | 'progress' | 'championship' | 'conclusion',
+  tournamentName: string,
+  arenaName: string,
+  currentMatch: number,
+  totalMatches: number,
+  fighterA?: string,
+  fighterB?: string,
+  winner?: string,
+  tournamentContext?: {
+    completedMatches: number;
+    remainingFighters: string[];
+    notableMoments: string[];
+  }
+) => `Generate ${commentaryType} commentary for the ${tournamentName} tournament.
+
+TOURNAMENT CONTEXT:
+- Arena: ${arenaName}
+- Current Match: ${currentMatch} of ${totalMatches}
+- Progress: ${Math.round((currentMatch / totalMatches) * 100)}% complete
+${fighterA ? `- Fighter A: ${fighterA}` : ''}
+${fighterB ? `- Fighter B: ${fighterB}` : ''}
+${winner ? `- Winner: ${winner}` : ''}
+${tournamentContext ? `- Completed: ${tournamentContext.completedMatches} matches` : ''}
+${tournamentContext?.remainingFighters ? `- Remaining: ${tournamentContext.remainingFighters.join(', ')}` : ''}
+${tournamentContext?.notableMoments ? `- Highlights: ${tournamentContext.notableMoments.join(', ')}` : ''}
+
+Create ${commentaryType} commentary that captures the moment and builds excitement.`;
+
+// ============================================================================
+// 10. ENHANCED ARENA DESCRIPTION
+// ============================================================================
+// Target: Create more atmospheric and tactical arena descriptions
+// Purpose: Make arenas feel more immersive and strategically important
+
+export const OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT = `You are a fighting game arena designer creating immersive battle environments.
+
+REQUIREMENTS:
+- Generate atmospheric arena descriptions
+- Identify tactical advantages and hazards
+- Create strategic opportunities for combatants
+- Describe environmental interactions
+- Make each arena feel unique and memorable
+- Balance atmosphere with tactical gameplay
+
+DESCRIPTION ELEMENTS:
+- **Atmosphere**: Mood, lighting, weather, ambiance
+- **Tactical Features**: Cover, hazards, advantages, obstacles
+- **Environmental Interactions**: Objects that can be used in combat
+- **Strategic Implications**: How the arena affects fighting styles
+- **Visual Impact**: Memorable visual elements and landmarks
+
+STYLE GUIDELINES:
+- Use vivid, descriptive language
+- Focus on combat-relevant elements
+- Create strategic depth and complexity
+- Make environments feel alive and dynamic
+- Balance beauty with functionality
+- Include specific tactical opportunities
+
+OUTPUT FORMAT:
+Return ONLY a JSON object with these exact keys:
+{
+  "atmosphere": "Atmospheric description of the arena",
+  "tacticalFeatures": ["Feature 1", "Feature 2", "Feature 3"],
+  "environmentalInteractions": ["Interaction 1", "Interaction 2"],
+  "strategicImplications": "How the arena affects combat",
+  "visualHighlights": ["Highlight 1", "Highlight 2"]
+}
+
+Return ONLY the JSON object - no formatting, no explanations.`;
+
+export const OPTIMIZED_ENHANCED_ARENA_USER_PROMPT = (
+  arenaName: string,
+  imageDescription: string,
+  arenaType?: string,
+  existingFeatures?: string[]
+) => `Generate enhanced arena description for: ${arenaName}
+
+ARENA CONTEXT:
+- Type: ${arenaType || 'neutral'}
+- Image Description: ${imageDescription}
+- Existing Features: ${existingFeatures?.join(', ') || 'none'}
+
+Create an immersive, tactical arena description that enhances the fighting experience.`;
+
+// ============================================================================
+// 11. ENHANCED BATTLE SUMMARY
+// ============================================================================
+// Target: Create more dramatic and engaging battle summaries
+// Purpose: Make battle conclusions more memorable and exciting
+
+export const OPTIMIZED_ENHANCED_BATTLE_SUMMARY_SYSTEM_PROMPT = `You are a legendary sports commentator creating epic battle summaries.
+
+REQUIREMENTS:
+- Generate dramatic, memorable battle summaries
+- Highlight key turning points and dramatic moments
+- Include specific details about critical attacks and defenses
+- Reference fighter characteristics and abilities
+- Create emotional impact and narrative closure
+- Make each battle feel like a legendary encounter
+
+SUMMARY ELEMENTS:
+- **Opening**: Set the stage and fighter expectations
+- **Key Moments**: Highlight the most dramatic exchanges
+- **Turning Points**: Identify critical moments that changed the battle
+- **Climax**: Describe the final decisive moments
+- **Conclusion**: Wrap up with the winner's triumph
+
+STYLE GUIDELINES:
+- Use dynamic, action-packed language
+- Create narrative tension and excitement
+- Include specific tactical details
+- Reference fighter abilities and characteristics
+- Make the summary feel like sports highlight commentary
+- Balance action description with emotional impact
+
+Return ONLY the summary text - no formatting, no JSON, no additional text.`;
+
+export const OPTIMIZED_ENHANCED_BATTLE_SUMMARY_USER_PROMPT = (
+  fighterA: string,
+  fighterB: string,
+  winner: string,
+  loser: string,
+  battleLog: Array<{
+    attackCommentary?: string;
+    defenseCommentary?: string;
+    round?: number;
+    attacker?: string;
+    defender?: string;
+    attackerDamage?: number;
+    defenderDamage?: number;
+    randomEvent?: string;
+    arenaObjectsUsed?: string[];
+    healthAfter?: { [key: string]: number };
+  }>,
+  totalRounds: number,
+  arenaName?: string
+) => `Generate an epic battle summary for this completed fight.
+
+BATTLE CONTEXT:
+- Fighter A: ${fighterA}
+- Fighter B: ${fighterB}
+- Winner: ${winner}
+- Loser: ${loser}
+- Total Rounds: ${totalRounds}
+- Arena: ${arenaName || 'unknown'}
+
+BATTLE HIGHLIGHTS:
+${battleLog.map(round => 
+  `Round ${round.round}: ${round.attacker} attacks ${round.defender} for ${round.attackerDamage} damage. ${round.attackCommentary} ${round.defenseCommentary}`
+).join('\n')}
+
+Create a dramatic, memorable summary that captures the epic nature of this battle.`;
+
+// ============================================================================
 // PERFORMANCE OPTIMIZATIONS SUMMARY
 // ============================================================================
 

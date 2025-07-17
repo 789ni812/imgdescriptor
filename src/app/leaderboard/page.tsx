@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Card } from '@/components/ui/card';
+import Image from 'next/image';
 import Leaderboard from '@/components/fighting/Leaderboard';
 import BattleViewer from '@/components/fighting/BattleViewer';
-import Image from 'next/image';
+import WinnerAnimation from '@/components/fighting/WinnerAnimation';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 interface BattleReplay {
   id: string;
@@ -65,16 +66,21 @@ interface BattleReplay {
   }>;
   winner: string;
   date: string;
+  battleSummary?: string;
 }
 
 type ViewMode = 'leaderboard' | 'battle-replay';
 
 export default function LeaderboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('leaderboard');
-  const [selectedBattle, setSelectedBattle] = useState<BattleReplay | null>(null);
   const [availableBattles, setAvailableBattles] = useState<BattleReplay[]>([]);
+  const [selectedBattle, setSelectedBattle] = useState<BattleReplay | null>(null);
   const [isLoadingBattles, setIsLoadingBattles] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // New state for battle results modal
+  const [showBattleResults, setShowBattleResults] = useState(false);
+  const [battleReplayComplete, setBattleReplayComplete] = useState(false);
 
   const loadBattleReplays = async () => {
     setIsLoadingBattles(true);
@@ -99,11 +105,26 @@ export default function LeaderboardPage() {
   const handleBattleSelect = (battle: BattleReplay) => {
     setSelectedBattle(battle);
     setViewMode('battle-replay');
+    setShowBattleResults(false);
+    setBattleReplayComplete(false);
   };
 
   const handleBackToLeaderboard = () => {
     setSelectedBattle(null);
     setViewMode('leaderboard');
+    setShowBattleResults(false);
+    setBattleReplayComplete(false);
+  };
+
+  const handleBattleReplayComplete = () => {
+    console.log('Leaderboard: Battle replay completed, showing results modal');
+    setBattleReplayComplete(true);
+    setShowBattleResults(true);
+  };
+
+  const handleCloseBattleResults = () => {
+    setShowBattleResults(false);
+    setBattleReplayComplete(false);
   };
 
   return (
@@ -158,48 +179,97 @@ export default function LeaderboardPage() {
                 </Button>
               </div>
               
-              <BattleViewer
-                fighterA={{
-                  ...selectedBattle.fighterA,
-                  description: '',
-                  visualAnalysis: {
-                    age: 'unknown',
-                    size: 'medium',
-                    build: 'average',
-                    appearance: [],
-                    weapons: [],
-                    armor: []
-                  },
-                  combatHistory: [],
-                  winLossRecord: { wins: 0, losses: 0, draws: 0 },
-                  createdAt: new Date().toISOString()
-                }}
-                fighterB={{
-                  ...selectedBattle.fighterB,
-                  description: '',
-                  visualAnalysis: {
-                    age: 'unknown',
-                    size: 'medium',
-                    build: 'average',
-                    appearance: [],
-                    weapons: [],
-                    armor: []
-                  },
-                  combatHistory: [],
-                  winLossRecord: { wins: 0, losses: 0, draws: 0 },
-                  createdAt: new Date().toISOString()
-                }}
-                scene={{
-                  ...selectedBattle.scene,
-                  id: selectedBattle.id,
-                  description: selectedBattle.scene.description || '',
-                  environmentalObjects: [],
-                  createdAt: new Date().toISOString()
-                }}
-                battleLog={selectedBattle.battleLog}
-                mode="replay"
-                onClose={handleBackToLeaderboard}
-              />
+              {!battleReplayComplete && (
+                <BattleViewer
+                  fighterA={{
+                    ...selectedBattle.fighterA,
+                    description: '',
+                    visualAnalysis: {
+                      age: 'unknown',
+                      size: 'medium',
+                      build: 'average',
+                      appearance: [],
+                      weapons: [],
+                      armor: []
+                    },
+                    combatHistory: [],
+                    winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                    createdAt: new Date().toISOString()
+                  }}
+                  fighterB={{
+                    ...selectedBattle.fighterB,
+                    description: '',
+                    visualAnalysis: {
+                      age: 'unknown',
+                      size: 'medium',
+                      build: 'average',
+                      appearance: [],
+                      weapons: [],
+                      armor: []
+                    },
+                    combatHistory: [],
+                    winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                    createdAt: new Date().toISOString()
+                  }}
+                  scene={{
+                    ...selectedBattle.scene,
+                    id: selectedBattle.id,
+                    description: selectedBattle.scene.description || '',
+                    environmentalObjects: [],
+                    createdAt: new Date().toISOString()
+                  }}
+                  battleLog={selectedBattle.battleLog}
+                  onBattleReplayComplete={handleBattleReplayComplete}
+                />
+              )}
+
+              {/* Battle Results Modal */}
+              {showBattleResults && selectedBattle && (
+                <WinnerAnimation
+                  isOpen={showBattleResults}
+                  onClose={handleCloseBattleResults}
+                  winner={selectedBattle.winner}
+                  fighterA={{
+                    ...selectedBattle.fighterA,
+                    description: '',
+                    visualAnalysis: {
+                      age: 'unknown',
+                      size: 'medium',
+                      build: 'average',
+                      appearance: [],
+                      weapons: [],
+                      armor: []
+                    },
+                    combatHistory: [],
+                    winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                    createdAt: new Date().toISOString()
+                  }}
+                  fighterB={{
+                    ...selectedBattle.fighterB,
+                    description: '',
+                    visualAnalysis: {
+                      age: 'unknown',
+                      size: 'medium',
+                      build: 'average',
+                      appearance: [],
+                      weapons: [],
+                      armor: []
+                    },
+                    combatHistory: [],
+                    winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                    createdAt: new Date().toISOString()
+                  }}
+                  scene={{
+                    ...selectedBattle.scene,
+                    id: selectedBattle.id,
+                    description: selectedBattle.scene.description || '',
+                    environmentalObjects: [],
+                    createdAt: new Date().toISOString()
+                  }}
+                  battleLog={selectedBattle.battleLog}
+                  battleSummary={selectedBattle.battleSummary || ''}
+                />
+              )}
             </div>
           ) : (
             <Card className="p-8" data-testid="battle-replays-list">

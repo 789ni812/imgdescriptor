@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
-import { BattleRound, BattleViewerMode } from '@/lib/types/battle';
-import WinnerAnimation from './WinnerAnimation';
+import { BattleRound } from '@/lib/types/battle';
 import BattleStoryboard from './BattleStoryboard';
 import RoundStartAnimation from './RoundStartAnimation';
 import HealthBar from './HealthBar';
@@ -12,10 +11,8 @@ interface BattleViewerProps {
   fighterB: Fighter;
   scene: Scene;
   battleLog: BattleRound[];
-  mode: BattleViewerMode;
   onBattleEnd?: (winner: string) => void;
   onBattleReplayComplete?: () => void; // New callback for when replay finishes
-  onClose?: () => void;
 }
 
 const BATTLE_ATTACK_DEFENSE_STEP_MS = 1200;
@@ -26,10 +23,8 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
   fighterB,
   scene,
   battleLog,
-  // mode parameter removed as it's not used
   onBattleEnd,
   onBattleReplayComplete,
-  onClose,
 }) => {
   const [currentRoundIdx, setCurrentRoundIdx] = useState(0);
   const [roundStep, setRoundStep] = useState<'attack' | 'defense'>('attack');

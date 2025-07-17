@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { useFightingGameStore, type PreGeneratedBattleRound, type CombatEvent, Fighter, Scene } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
-import { generateBattleSummary } from '@/lib/lmstudio-client';
+import { generateEnhancedBattleSummary } from '@/lib/lmstudio-client';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
 import Image from 'next/image';
 // HealthBar import removed as it's not used in this file
@@ -625,12 +624,14 @@ export default function PlayerVsPage() {
           healthAfter: round.healthAfter,
         }));
         
-        const summary = await generateBattleSummary(
+        const summary = await generateEnhancedBattleSummary(
           fighterA.name,
           fighterB.name,
           winner,
+          winner === fighterA.name ? fighterB.name : fighterA.name,
           battleLogForSummary,
-          preGeneratedBattleLog.length
+          preGeneratedBattleLog.length,
+          scene?.name
         );
         setBattleSummary(summary);
       } else {
@@ -928,7 +929,6 @@ export default function PlayerVsPage() {
             fighterB={fighterB}
             scene={scene}
             battleLog={mapPreGeneratedToBattleRound(preGeneratedBattleLog)}
-            mode="live"
             onBattleEnd={setWinner}
             onBattleReplayComplete={() => setBattleReplayComplete(true)}
           />

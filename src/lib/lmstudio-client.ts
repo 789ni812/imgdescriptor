@@ -7,7 +7,25 @@ import {
 } from './constants';
 import type { GameTemplate } from '@/lib/types/template';
 import { jsonrepair } from 'jsonrepair';
-import { OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT, OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT, OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT, OPTIMIZED_TOURNAMENT_OVERVIEW_SYSTEM_PROMPT, OPTIMIZED_TOURNAMENT_OVERVIEW_USER_PROMPT, OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT, OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT, OPTIMIZED_FIGHTER_DESCRIPTION_SYSTEM_PROMPT, OPTIMIZED_FIGHTER_DESCRIPTION_USER_PROMPT } from './prompts/optimized-prompts';
+import { 
+  OPTIMIZED_FIGHTER_GENERATION_SYSTEM_PROMPT, 
+  OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT, 
+  OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT, 
+  OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT, 
+  OPTIMIZED_TOURNAMENT_OVERVIEW_SYSTEM_PROMPT, 
+  OPTIMIZED_TOURNAMENT_OVERVIEW_USER_PROMPT, 
+   
+  OPTIMIZED_FIGHTER_DESCRIPTION_SYSTEM_PROMPT, 
+  OPTIMIZED_FIGHTER_DESCRIPTION_USER_PROMPT,
+  OPTIMIZED_FIGHTER_SLOGAN_SYSTEM_PROMPT,
+  OPTIMIZED_FIGHTER_SLOGAN_USER_PROMPT,
+  OPTIMIZED_TOURNAMENT_COMMENTARY_SYSTEM_PROMPT,
+  OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT,
+  OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT,
+  OPTIMIZED_ENHANCED_ARENA_USER_PROMPT,
+  OPTIMIZED_ENHANCED_BATTLE_SUMMARY_SYSTEM_PROMPT,
+  OPTIMIZED_ENHANCED_BATTLE_SUMMARY_USER_PROMPT,
+} from './prompts/optimized-prompts';
 
 const ANALYSIS_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 const STORY_TIMEOUT_MS = 10 * 60 * 1000;    // 10 minutes
@@ -888,13 +906,248 @@ export const generateTournamentOverview = async (
 };
 
 // ============================================================================
-// NEW: Battle Summary Generation
+// NEW: Fighter Slogan Generation
 // ============================================================================
 
-export const generateBattleSummary = async (
+export const generateFighterSlogans = async (
+  fighterName: string,
+  fighterStats: {
+    strength: number;
+    agility: number;
+    health: number;
+    defense: number;
+    intelligence: number;
+    uniqueAbilities: string[];
+  },
+  visualAnalysis: {
+    age: string;
+    size: string;
+    build: string;
+    appearance: string[];
+    weapons: string[];
+    armor: string[];
+  },
+  imageDescription: string
+): Promise<{ success: boolean; slogans?: string[]; description?: string; error?: string }> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: OPTIMIZED_FIGHTER_SLOGAN_SYSTEM_PROMPT,
+          },
+          {
+            role: 'user',
+            content: OPTIMIZED_FIGHTER_SLOGAN_USER_PROMPT(fighterName, fighterStats, visualAnalysis, imageDescription),
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 200,
+        top_p: 0.85,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio fighter slogans API response error: ${response.status} ${errorBody}`);
+      return { success: false, error: `API Error: ${response.status} - ${errorBody}` };
+    }
+
+    const data = await response.json();
+    const rawContent = data.choices[0]?.message?.content?.trim();
+    
+    if (!rawContent) {
+      return { success: false, error: 'The model did not return fighter slogans.' };
+    }
+
+    try {
+      const parsed = JSON.parse(rawContent);
+      return {
+        success: true,
+        slogans: parsed.slogans || [],
+        description: parsed.description || '',
+      };
+    } catch (parseError) {
+      console.error('Failed to parse fighter slogans JSON:', parseError);
+      return { success: false, error: 'Invalid JSON response from model.' };
+    }
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio fighter slogans error:', error);
+    return { success: false, error: 'Failed to generate fighter slogans.' };
+  }
+};
+
+// ============================================================================
+// NEW: Enhanced Tournament Commentary
+// ============================================================================
+
+export const generateTournamentCommentary = async (
+  commentaryType: 'opening' | 'introduction' | 'transition' | 'progress' | 'championship' | 'conclusion',
+  tournamentName: string,
+  arenaName: string,
+  currentMatch: number,
+  totalMatches: number,
+  fighterA?: string,
+  fighterB?: string,
+  winner?: string,
+  tournamentContext?: {
+    completedMatches: number;
+    remainingFighters: string[];
+    notableMoments: string[];
+  }
+): Promise<string> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: WRITER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: OPTIMIZED_TOURNAMENT_COMMENTARY_SYSTEM_PROMPT,
+          },
+          {
+            role: 'user',
+            content: OPTIMIZED_TOURNAMENT_COMMENTARY_USER_PROMPT(
+              commentaryType,
+              tournamentName,
+              arenaName,
+              currentMatch,
+              totalMatches,
+              fighterA,
+              fighterB,
+              winner,
+              tournamentContext
+            ),
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 150,
+        top_p: 0.85,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio tournament commentary API response error: ${response.status} ${errorBody}`);
+      return `The ${tournamentName} tournament continues with exciting action in the ${arenaName} arena.`;
+    }
+
+    const data = await response.json();
+    const commentary = data.choices[0]?.message?.content?.trim();
+    
+    return commentary || `The ${tournamentName} tournament continues with exciting action in the ${arenaName} arena.`;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio tournament commentary error:', error);
+    return `The ${tournamentName} tournament continues with exciting action in the ${arenaName} arena.`;
+  }
+};
+
+// ============================================================================
+// NEW: Enhanced Arena Description
+// ============================================================================
+
+export const generateEnhancedArenaDescription = async (
+  arenaName: string,
+  imageDescription: string,
+  arenaType?: string,
+  existingFeatures?: string[]
+): Promise<{ success: boolean; description?: Record<string, unknown>; error?: string }> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: DESCRIBER_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: OPTIMIZED_ENHANCED_ARENA_SYSTEM_PROMPT,
+          },
+          {
+            role: 'user',
+            content: OPTIMIZED_ENHANCED_ARENA_USER_PROMPT(arenaName, imageDescription, arenaType, existingFeatures),
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 400,
+        top_p: 0.85,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`LM Studio enhanced arena API response error: ${response.status} ${errorBody}`);
+      return { success: false, error: `API Error: ${response.status} - ${errorBody}` };
+    }
+
+    const data = await response.json();
+    const rawContent = data.choices[0]?.message?.content?.trim();
+    
+    if (!rawContent) {
+      return { success: false, error: 'The model did not return arena description.' };
+    }
+
+    try {
+      const parsed = JSON.parse(rawContent);
+      return { success: true, description: parsed };
+    } catch (parseError) {
+      console.error('Failed to parse enhanced arena JSON:', parseError);
+      return { success: false, error: 'Invalid JSON response from model.' };
+    }
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error('LM Studio enhanced arena error:', error);
+    return { success: false, error: 'Failed to generate enhanced arena description.' };
+  }
+};
+
+// ============================================================================
+// ENHANCED: Battle Summary Generation (Updated)
+// ============================================================================
+
+export const generateEnhancedBattleSummary = async (
   fighterA: string,
   fighterB: string,
   winner: string,
+  loser: string,
   battleLog: Array<{
     attackCommentary?: string;
     defenseCommentary?: string;
@@ -907,24 +1160,16 @@ export const generateBattleSummary = async (
     arenaObjectsUsed?: string[];
     healthAfter?: { [key: string]: number };
   }>,
-  totalRounds: number
+  totalRounds: number,
+  arenaName?: string
 ): Promise<string> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  // Log the battle summary request
-  console.log(`[BATTLE SUMMARY] Generating summary for ${fighterA} vs ${fighterB}, winner: ${winner}, ${totalRounds} rounds`);
+  // Log the enhanced battle summary request
+  console.log(`[ENHANCED BATTLE SUMMARY] Generating summary for ${fighterA} vs ${fighterB}, winner: ${winner}, ${totalRounds} rounds`);
 
   try {
-    // Extract key battle highlights
-    const keyEvents = battleLog
-      .filter(round => round.attackCommentary || round.defenseCommentary)
-      .slice(-3) // Last 3 rounds for context
-      .map(round => `${round.attackCommentary} ${round.defenseCommentary}`)
-      .join(' ');
-
-    console.log(`[BATTLE SUMMARY] Key events for context: "${keyEvents}"`);
-
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -935,15 +1180,23 @@ export const generateBattleSummary = async (
         messages: [
           {
             role: 'system',
-            content: OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT,
+            content: OPTIMIZED_ENHANCED_BATTLE_SUMMARY_SYSTEM_PROMPT,
           },
           {
             role: 'user',
-            content: OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT(fighterA, fighterB, winner, keyEvents, totalRounds),
+            content: OPTIMIZED_ENHANCED_BATTLE_SUMMARY_USER_PROMPT(
+              fighterA,
+              fighterB,
+              winner,
+              loser,
+              battleLog,
+              totalRounds,
+              arenaName
+            ),
           },
         ],
-        temperature: 0.5, // Reduced for more coherent output
-        max_tokens: 150, // Increased for better summary completion
+        temperature: 0.6,
+        max_tokens: 200,
         top_p: 0.85,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,
@@ -955,9 +1208,9 @@ export const generateBattleSummary = async (
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error(`LM Studio battle summary API response error: ${response.status} ${errorBody}`);
-      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
-      console.log(`[BATTLE SUMMARY] Using fallback: "${fallback}"`);
+      console.error(`LM Studio enhanced battle summary API response error: ${response.status} ${errorBody}`);
+      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle in the ${arenaName || 'arena'}, with ${winner} emerging victorious over ${loser}.`;
+      console.log(`[ENHANCED BATTLE SUMMARY] Using fallback: "${fallback}"`);
       return fallback;
     }
 
@@ -965,22 +1218,21 @@ export const generateBattleSummary = async (
     const rawSummary = data.choices[0]?.message?.content?.trim();
     
     if (!rawSummary) {
-      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
-      console.log(`[BATTLE SUMMARY] No summary returned, using fallback: "${fallback}"`);
+      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle in the ${arenaName || 'arena'}, with ${winner} emerging victorious over ${loser}.`;
+      console.log(`[ENHANCED BATTLE SUMMARY] No summary returned, using fallback: "${fallback}"`);
       return fallback;
     }
 
-    console.log(`[BATTLE SUMMARY] Raw LLM response: "${rawSummary}"`);
-    
+    console.log(`[ENHANCED BATTLE SUMMARY] Generated: "${rawSummary}"`);
     return rawSummary;
   } catch (error) {
     clearTimeout(timeoutId);
-    console.error('LM Studio battle summary error:', error);
-    const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
-    console.log(`[BATTLE SUMMARY] Error occurred, using fallback: "${fallback}"`);
+    console.error('LM Studio enhanced battle summary error:', error);
+    const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle in the ${arenaName || 'arena'}, with ${winner} emerging victorious over ${loser}.`;
+    console.log(`[ENHANCED BATTLE SUMMARY] Error, using fallback: "${fallback}"`);
     return fallback;
   }
-}; 
+};
 
 // ============================================================================
 // ENHANCED FIGHTER DESCRIPTION GENERATION

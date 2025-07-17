@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateBattleCommentary } from '@/lib/lmstudio-client';
+import { generateBattleCommentary, generateEnhancedBattleSummary } from '@/lib/lmstudio-client';
 import { resolveBattle, BattleRoundLog } from '@/lib/utils';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
@@ -28,11 +28,26 @@ export async function POST(req: NextRequest) {
         defenseCommentary,
         attackerDamage: round.damage,
         defenderDamage: 0, // Only attacker does damage in this model
-        randomEvent: round.randomEvent,
-        arenaObjectsUsed: round.arenaObjectsUsed.length > 0 ? round.arenaObjectsUsed.join(', ') : null,
+        randomEvent: round.randomEvent || undefined,
+        arenaObjectsUsed: round.arenaObjectsUsed.length > 0 ? round.arenaObjectsUsed : undefined,
         healthAfter: round.healthAfter,
       });
     }
+
+    // Determine winner and loser
+    const winner = resolved.winner === fighterA.name ? fighterA : fighterB;
+    const loser = resolved.winner === fighterA.name ? fighterB : fighterA;
+    
+    // Generate enhanced battle summary
+    const battleSummary = await generateEnhancedBattleSummary(
+      fighterA.name,
+      fighterB.name,
+      winner.name,
+      loser.name,
+      battleLog,
+      resolved.rounds.length,
+      scene?.name
+    );
 
     // Create tournament data for saving
     const tournamentData = {
@@ -57,7 +72,8 @@ export async function POST(req: NextRequest) {
         },
         winner: resolved.winner,
         totalRounds: battleLog.length,
-        maxRounds
+        maxRounds,
+        battleSummary
       },
       battleLog
     };
