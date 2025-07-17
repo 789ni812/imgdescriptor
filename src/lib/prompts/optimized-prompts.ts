@@ -372,6 +372,22 @@ STYLE GUIDELINES:
 - Create slogans that could echo through the ages
 - Reference mythology, nature, and cosmic forces for epic comparisons
 
+AVOID DULL LANGUAGE:
+- NO generic phrases like "ready for battle", "champion material", "formidable fighter"
+- NO boring descriptions like "prove their worth" or "ready to fight"
+- NO repetitive action words - use varied, powerful vocabulary
+- NO clichéd sports commentary - this is legendary warrior introduction
+- NO bland statistical references - transform stats into divine attributes
+- NO safe, predictable language - be bold, dramatic, and unforgettable
+
+FIGHTER INTEGRATION REQUIREMENTS:
+- ALWAYS reference the fighter's name as if it's a legendary title
+- ALWAYS mention their unique abilities as supernatural powers
+- ALWAYS describe their appearance as divine characteristics
+- ALWAYS connect their stats to legendary attributes
+- ALWAYS create a sense of awe and intimidation
+- ALWAYS make the audience feel the fighter's presence
+
 OUTPUT FORMAT:
 Return ONLY a JSON object with these exact keys:
 {
@@ -417,6 +433,22 @@ SLOGAN REQUIREMENTS:
 - Make the audience feel the fighter's raw, primal power
 - Create a description that immortalizes them in legend
 - Use imagery that makes them feel larger than life
+
+AVOID DULL LANGUAGE:
+- NO generic phrases like "ready for battle", "champion material", "formidable fighter"
+- NO boring descriptions like "prove their worth" or "ready to fight"
+- NO repetitive action words - use varied, powerful vocabulary
+- NO clichéd sports commentary - this is legendary warrior introduction
+- NO bland statistical references - transform stats into divine attributes
+- NO safe, predictable language - be bold, dramatic, and unforgettable
+
+FIGHTER INTEGRATION REQUIREMENTS:
+- ALWAYS reference the fighter's name as if it's a legendary title
+- ALWAYS mention their unique abilities as supernatural powers
+- ALWAYS describe their appearance as divine characteristics
+- ALWAYS connect their stats to legendary attributes
+- ALWAYS create a sense of awe and intimidation
+- ALWAYS make the audience feel the fighter's presence
 
 Create 2-3 electrifying slogans and 1 compelling description that transforms this fighter into a living myth.`;
 

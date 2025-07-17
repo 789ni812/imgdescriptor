@@ -1058,7 +1058,22 @@ export const generateFighterSlogans = async (
     }
 
     try {
-      const parsed = JSON.parse(rawContent);
+      // Handle markdown-formatted JSON responses
+      let jsonContent = rawContent;
+      if (rawContent.includes('```json')) {
+        const jsonMatch = rawContent.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          jsonContent = jsonMatch[1].trim();
+        }
+      } else if (rawContent.includes('```')) {
+        // Handle generic code blocks
+        const codeMatch = rawContent.match(/```\s*([\s\S]*?)\s*```/);
+        if (codeMatch) {
+          jsonContent = codeMatch[1].trim();
+        }
+      }
+      
+      const parsed = JSON.parse(jsonContent);
       return {
         success: true,
         slogans: parsed.slogans || [],
@@ -1066,6 +1081,7 @@ export const generateFighterSlogans = async (
       };
     } catch (parseError) {
       console.error('Failed to parse fighter slogans JSON:', parseError);
+      console.error('Raw content that failed to parse:', rawContent);
       return { success: false, error: 'Invalid JSON response from model.' };
     }
   } catch (error) {
