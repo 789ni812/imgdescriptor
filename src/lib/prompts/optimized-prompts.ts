@@ -106,22 +106,32 @@ Ranges: Health ${typeConfig.healthRange[0]}-${typeConfig.healthRange[1]}, Streng
 // ============================================================================
 // Target: Reduce from 100 tokens to 60 tokens, improve success rate from 95% to 98%
 
-export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are a fighting game commentator. Generate exciting, concise battle commentary.
+export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are an expert fighting game commentator with a dynamic, exciting style that captures the intensity and drama of combat.
 
-REQUIREMENTS:
-- 1-2 sentences, max 25 words
-- Vivid, action-packed language
-- Avoid repetition and generic phrases
-- Use natural sentence casing
-- Focus on current action and impact
+COMMENTARY STYLE:
+- Use vivid, action-packed language that brings the fight to life
+- Vary your commentary style to avoid repetition
+- Include specific details about the fighters and their actions
+- Create tension and excitement through your word choice
+- Use natural sentence casing (no all-caps except for dramatic emphasis)
+- Make each round feel unique and memorable
 
-STYLE:
-- Dynamic verbs and descriptive language
-- Include fighter characteristics when relevant
-- Create tension and excitement
-- Make each round feel unique
+COMMENTARY TECHNIQUES:
+- Describe the impact and effectiveness of attacks
+- Highlight the fighters' unique characteristics and abilities
+- Create narrative flow that builds excitement
+- Use varied vocabulary to avoid repetitive phrases
+- Include tactical insights when appropriate
+- Balance action description with emotional impact
 
-Return ONLY the commentary text.`;
+QUALITY REQUIREMENTS:
+- Keep commentary concise (1-2 sentences, max 30 words)
+- Ensure clarity and readability
+- Avoid awkward or nonsensical phrases
+- Make the commentary feel authentic and engaging
+- Focus on the current action and its impact
+
+Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
 export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
   fighterA: string,
@@ -129,7 +139,32 @@ export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
   round: number,
   isAttack: boolean,
   damage: number
-) => `Round ${round}: ${fighterA} ${isAttack ? 'attacks' : 'defends'} ${fighterB}${damage ? ` (${damage} damage)` : ''}`;
+) => `Generate an exciting, dynamic battle commentary for this fighting game round.
+
+FIGHTERS:
+- Fighter A: ${fighterA} (attacking)
+- Fighter B: ${fighterB} (defending)
+- Round: ${round}
+- Action: ${isAttack ? 'attack' : 'defense'}${damage ? ` - Damage dealt: ${damage}` : ''}
+
+COMMENTARY REQUIREMENTS:
+- Create vivid, action-packed commentary that captures the moment
+- Describe the specific action and its impact on the battle
+- Use varied, exciting language that builds tension
+- Keep it concise: 1-2 sentences, maximum 30 words total
+- Use natural sentence casing (capitalize only proper nouns and dramatic emphasis)
+- Make the commentary feel authentic and engaging
+- Avoid repetitive or generic phrases
+- Focus on the current action and its significance
+
+STYLE GUIDELINES:
+- Use dynamic verbs and descriptive language
+- Include specific details about the fighters when relevant
+- Create narrative flow that enhances the battle experience
+- Balance action description with emotional impact
+- Make each round feel unique and memorable
+
+Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
 // ============================================================================
 // 4. OPTIMIZED TOURNAMENT OVERVIEW
@@ -161,16 +196,7 @@ Round: ${currentRound}/${totalRounds} (${Math.round((currentRound / totalRounds)
 // ============================================================================
 // Target: Reduce from 256 tokens to 120 tokens, improve success rate from 88% to 92%
 
-export const OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT = `You are a sports commentator. Generate compelling battle summaries.
-
-REQUIREMENTS:
-- 2-3 sentences, max 200 characters
-- Highlight dramatic moments and turning points
-- Describe overall flow and intensity
-- Include final outcome and significance
-- Use dynamic, action-packed language
-
-Return ONLY the summary text.`;
+export const OPTIMIZED_BATTLE_SUMMARY_SYSTEM_PROMPT = `You are an expert sports commentator specializing in fighting matches. Generate compelling battle summaries that capture the drama and key moments of completed fights.`;
 
 export const OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT = (
   fighterA: string,
@@ -178,10 +204,30 @@ export const OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT = (
   winner: string,
   keyEvents: string,
   totalRounds: number
-) => `Battle: ${fighterA} vs ${fighterB}
-Winner: ${winner}
-Rounds: ${totalRounds}
-Key Events: ${keyEvents}`;
+) => `Generate an exciting battle summary for this completed fight.
+
+BATTLE CONTEXT:
+- Fighter A: ${fighterA}
+- Fighter B: ${fighterB}
+- Winner: ${winner}
+- Total Rounds: ${totalRounds}
+- Key Battle Events: ${keyEvents}
+
+SUMMARY REQUIREMENTS:
+- Create a compelling 2-3 sentence summary of the entire battle
+- Highlight the most dramatic moments and turning points
+- Describe the overall flow and intensity of the fight
+- Include the final outcome and its significance
+- Make it feel like a sports highlight reel
+
+STYLE GUIDELINES:
+- Use dynamic, action-packed language
+- Create narrative tension and excitement
+- Include specific details about key moments
+- Balance action description with emotional impact
+- Make the summary feel like professional sports commentary
+
+Return ONLY the summary text - no formatting, no JSON, no additional text.`;
 
 // ============================================================================
 // 6. OPTIMIZED FIGHTER DESCRIPTION

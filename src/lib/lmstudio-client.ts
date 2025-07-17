@@ -385,6 +385,9 @@ export const generateBattleCommentary = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
+  // Log the commentary request
+  console.log(`[BATTLE COMMENTARY] Generating ${isAttack ? 'attack' : 'defense'} commentary for Round ${round}: ${fighterA} vs ${fighterB}`);
+
   try {
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
@@ -417,21 +420,32 @@ export const generateBattleCommentary = async (
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`LM Studio battle commentary API response error: ${response.status} ${errorBody}`);
-      return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+      const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+      console.log(`[BATTLE COMMENTARY] Using fallback: "${fallback}"`);
+      return fallback;
     }
 
     const data = await response.json();
-    const commentary = data.choices[0]?.message?.content?.trim();
+    const rawCommentary = data.choices[0]?.message?.content?.trim();
     
-    if (!commentary) {
-      return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+    if (!rawCommentary) {
+      const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+      console.log(`[BATTLE COMMENTARY] No commentary returned, using fallback: "${fallback}"`);
+      return fallback;
     }
 
-    return postProcessCommentary(commentary);
+    console.log(`[BATTLE COMMENTARY] Raw LLM response: "${rawCommentary}"`);
+    
+    const processedCommentary = postProcessCommentary(rawCommentary);
+    console.log(`[BATTLE COMMENTARY] Processed commentary: "${processedCommentary}"`);
+    
+    return processedCommentary;
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle commentary error:', error);
-    return generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+    const fallback = generateFallbackCommentary(fighterA, fighterB, round, isAttack);
+    console.log(`[BATTLE COMMENTARY] Error occurred, using fallback: "${fallback}"`);
+    return fallback;
   }
 };
 
@@ -653,6 +667,9 @@ export const generateBattleSummary = async (
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+  // Log the battle summary request
+  console.log(`[BATTLE SUMMARY] Generating summary for ${fighterA} vs ${fighterB}, winner: ${winner}, ${totalRounds} rounds`);
+
   try {
     // Extract key battle highlights
     const keyEvents = battleLog
@@ -660,6 +677,8 @@ export const generateBattleSummary = async (
       .slice(-3) // Last 3 rounds for context
       .map(round => `${round.attackCommentary} ${round.defenseCommentary}`)
       .join(' ');
+
+    console.log(`[BATTLE SUMMARY] Key events for context: "${keyEvents}"`);
 
     const response = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
       method: 'POST',
@@ -692,17 +711,29 @@ export const generateBattleSummary = async (
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`LM Studio battle summary API response error: ${response.status} ${errorBody}`);
-      return `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+      console.log(`[BATTLE SUMMARY] Using fallback: "${fallback}"`);
+      return fallback;
     }
 
     const data = await response.json();
-    const summary = data.choices[0]?.message?.content?.trim();
+    const rawSummary = data.choices[0]?.message?.content?.trim();
     
-    return summary || `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+    if (!rawSummary) {
+      const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+      console.log(`[BATTLE SUMMARY] No summary returned, using fallback: "${fallback}"`);
+      return fallback;
+    }
+
+    console.log(`[BATTLE SUMMARY] Raw LLM response: "${rawSummary}"`);
+    
+    return rawSummary;
   } catch (error) {
     clearTimeout(timeoutId);
     console.error('LM Studio battle summary error:', error);
-    return `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+    const fallback = `${fighterA} and ${fighterB} engaged in an epic ${totalRounds}-round battle, with ${winner} emerging victorious.`;
+    console.log(`[BATTLE SUMMARY] Error occurred, using fallback: "${fallback}"`);
+    return fallback;
   }
 }; 
 

@@ -1849,47 +1849,97 @@ This approach ensures demo consistency and makes it easy to update or swap demo 
 ## Fighting Game Implementation Todo List
 
 ### Phase 1: Foundation Setup
-- [ ] **1.1: Create Fighting Game Route**
-  - [ ] Write failing test for `/playervs` route accessibility
-  - [ ] Create `src/app/playervs/page.tsx` with basic layout
-  - [ ] Add route to navigation and test accessibility
-  - [ ] **Commit:** `feat(routes): add playervs fighting game route`
+- [x] **1.1: Create Fighting Game Route**
+  - [x] Write failing test for `/playervs` route accessibility
+  - [x] Create `src/app/playervs/page.tsx` with basic layout
+  - [x] Add route to navigation and test accessibility
+  - [x] **Commit:** `feat(routes): add playervs fighting game route`
 
-- [ ] **1.2: Fighting Game Store**
-  - [ ] Write failing test for fighting game state management
-  - [ ] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
-  - [ ] Implement basic state: gamePhase, fighters, scene, combatLog
-  - [ ] Add store tests and verify state management
-  - [ ] **Commit:** `feat(store): implement fighting game state management`
+- [x] **1.2: Fighting Game Store**
+  - [x] Write failing test for fighting game state management
+  - [x] Create `src/lib/stores/fightingGameStore.ts` with Zustand store
+  - [x] Implement basic state: gamePhase, fighters, scene, combatLog
+  - [x] Add store tests and verify state management
+  - [x] **Commit:** `feat(store): implement fighting game state management`
 
-- [ ] **1.3: Fighter Types and Interfaces**
-  - [ ] Write failing test for Fighter interface validation
-  - [ ] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
-  - [ ] Implement fighter validation functions
-  - [ ] Add comprehensive type tests
-  - [ ] **Commit:** `feat(types): add fighter character types and validation`
+- [x] **1.3: Fighter Types and Interfaces**
+  - [x] Write failing test for Fighter interface validation
+  - [x] Create `src/lib/types/fighter.ts` with Fighter and FighterStats interfaces
+  - [x] Implement fighter validation functions
+  - [x] Add comprehensive type tests
+  - [x] **Commit:** `feat(types): add fighter character types and validation`
 
 ### Phase 2: Fighter Creation System
-- [ ] **2.1: Fighter Image Upload Component**
-  - [ ] Write failing test for fighter image upload functionality
-  - [ ] Create `src/components/fighting/FighterUpload.tsx` component
-  - [ ] Reuse existing image upload logic for fighter images
-  - [ ] Add fighter-specific image validation and preview
-  - [ ] **Commit:** `feat(components): add fighter image upload component`
+- [x] **2.1: Fighter Image Upload Component**
+  - [x] Write failing test for fighter image upload functionality
+  - [x] Create `src/components/fighting/FighterUpload.tsx` component
+  - [x] Reuse existing image upload logic for fighter images
+  - [x] Add fighter-specific image validation and preview
+  - [x] **Commit:** `feat(components): add fighter image upload component`
 
-- [ ] **2.2: Fighter Stat Generation API**
-  - [ ] Write failing test for fighter stat generation
-  - [ ] Create `src/app/api/fighting-game/generate-stats/route.ts`
-  - [ ] Implement AI-based stat generation from fighter descriptions
-  - [ ] Add stat validation and balancing logic
-  - [ ] **Commit:** `feat(api): implement AI fighter stat generation`
+- [x] **2.2: Fighter Stat Generation API**
+  - [x] Write failing test for fighter stat generation
+  - [x] Create `src/app/api/fighting-game/generate-stats/route.ts`
+  - [x] Implement AI-based stat generation from fighter descriptions
+  - [x] Add stat validation and balancing logic
+  - [x] **Commit:** `feat(api): implement AI fighter stat generation`
 
-- [ ] **2.3: Fighter Description Generation**
-  - [ ] Write failing test for fighter description generation
-  - [ ] Extend image analysis to generate fighter-specific descriptions
-  - [ ] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
-  - [ ] Add fighter name generation based on image analysis
-  - [ ] **Commit:** `feat(analysis): add fighter description and name generation`
+- [x] **2.3: Fighter Description Generation**
+  - [x] Write failing test for fighter description generation
+  - [x] Extend image analysis to generate fighter-specific descriptions
+  - [x] Create `src/lib/prompts/fighterPrompts.ts` for fighter analysis
+  - [x] Add fighter name generation based on image analysis
+  - [x] **Commit:** `feat(analysis): add fighter description and name generation`
+
+### Phase 2.5: LLM Prompt Review & Optimization (NEW TASK)
+- [ ] **2.5.1: Battle Commentary Prompt Review**
+  - [x] Restore backup commentary prompts for better narrative flow
+  - [ ] Test commentary quality with new prompts
+  - [ ] Analyze console logs for commentary coherence
+  - [ ] Adjust prompts based on test results
+  - [ ] **Commit:** `fix(prompts): restore improved battle commentary prompts`
+
+- [ ] **2.5.2: Fighter Generation Prompt Review**
+  - [ ] Compare current vs backup fighter generation prompts
+  - [ ] Test fighter stat generation quality and consistency
+  - [ ] Review fighter balancing prompt effectiveness
+  - [ ] Optimize prompts for better fighter variety and balance
+  - [ ] **Commit:** `fix(prompts): optimize fighter generation prompts`
+
+- [ ] **2.5.3: Battle Summary Prompt Review**
+  - [x] Restore backup battle summary prompts
+  - [ ] Test summary generation quality and coherence
+  - [ ] Review summary length and detail level
+  - [ ] Optimize for better battle narrative flow
+  - [ ] **Commit:** `fix(prompts): optimize battle summary prompts`
+
+- [ ] **2.5.4: Tournament Overview Prompt Review**
+  - [ ] Compare current vs backup tournament overview prompts
+  - [ ] Test overview generation for different tournament stages
+  - [ ] Review prompt effectiveness for tournament atmosphere
+  - [ ] Optimize for better tournament narrative
+  - [ ] **Commit:** `fix(prompts): optimize tournament overview prompts`
+
+- [ ] **2.5.5: Fighter Description Prompt Review**
+  - [ ] Compare current vs backup fighter description prompts
+  - [ ] Test description generation for different fighter types
+  - [ ] Review prompt effectiveness for character personality
+  - [ ] Optimize for better fighter characterization
+  - [ ] **Commit:** `fix(prompts): optimize fighter description prompts`
+
+- [ ] **2.5.6: Image Analysis Prompt Review**
+  - [ ] Compare current vs backup image analysis prompts
+  - [ ] Test analysis quality for different image types
+  - [ ] Review prompt effectiveness for combat-relevant details
+  - [ ] Optimize for better fighter and arena analysis
+  - [ ] **Commit:** `fix(prompts): optimize image analysis prompts`
+
+- [ ] **2.5.7: Prompt Performance Testing**
+  - [ ] Create comprehensive test suite for all prompts
+  - [ ] Measure response times and success rates
+  - [ ] Test prompt robustness with edge cases
+  - [ ] Document prompt performance metrics
+  - [ ] **Commit:** `test(prompts): add comprehensive prompt performance testing`
 
 ### Phase 3: Combat System Foundation
 - [ ] **3.1: Combat Dice Utilities**
