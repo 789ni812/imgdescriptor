@@ -314,79 +314,124 @@ export default function PlayerVsPage() {
   type LLMObject = string | { name?: string; type?: string };
 
   const handleArenaUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
-    // Generate arena name and description
-    const arenaName = extractArenaName(analysis, 'Arena');
-    
     // Extract description from analysis
-    let description = '';
+    let imageDescription = '';
     if (analysis && typeof analysis.description === 'string') {
-      description = analysis.description;
-    } else if (analysis && typeof analysis.description === 'object' && analysis.description !== null && 'description' in analysis.description && typeof (analysis.description as Record<string, unknown>).description === 'string') {
-      description = (analysis.description as Record<string, unknown>).description as string;
+      imageDescription = analysis.description;
+    } else if (analysis && analysis.description && typeof analysis.description === 'object' && analysis.description !== null && 'description' in analysis.description && typeof (analysis.description as Record<string, unknown>).description === 'string') {
+      imageDescription = (analysis.description as Record<string, unknown>).description as string;
     }
     
-    // Extract environmental objects from analysis
-    const environmentalObjects: string[] = [];
-    if (analysis && analysis.description) {
-      const desc = analysis.description as Record<string, unknown>;
-      
-      // Extract objects from various possible fields
-      if (Array.isArray(desc.objects)) {
-        environmentalObjects.push(...desc.objects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
-      }
-      if (Array.isArray(desc.environmentalObjects)) {
-        environmentalObjects.push(...desc.environmentalObjects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
-      }
-      if (Array.isArray(desc.features)) {
-        environmentalObjects.push(...desc.features.map((feature: LLMObject) => typeof feature === 'string' ? feature : feature.name || feature.type || 'feature'));
-      }
-      
-      // Extract from description text if no structured objects found
-      if (environmentalObjects.length === 0 && typeof description === 'string') {
-        const descText = description.toLowerCase();
-        const commonObjects = [
-          'castle', 'bridge', 'tower', 'wall', 'gate', 'stairs', 'floor', 'ceiling',
-          'table', 'chair', 'desk', 'shelf', 'window', 'door', 'light', 'lamp',
-          'tree', 'rock', 'boulder', 'water', 'river', 'lake', 'mountain', 'cave',
-          'building', 'skyscraper', 'street', 'road', 'car', 'vehicle', 'machine',
-          'computer', 'screen', 'console', 'equipment', 'tool', 'weapon', 'shield'
-        ];
-        
-        commonObjects.forEach(obj => {
-          if (descText.includes(obj)) {
-            environmentalObjects.push(obj);
-          }
-        });
-      }
+    // If no description found, create a fallback
+    if (!imageDescription || imageDescription.trim() === '') {
+      imageDescription = 'A mysterious and dynamic battleground with various environmental elements that provide strategic opportunities for combatants.';
     }
-    
-    // Create a more detailed description if none exists
-    if (!description || description.trim() === '') {
-      description = `A dynamic battleground featuring ${environmentalObjects.length > 0 ? environmentalObjects.slice(0, 3).join(', ') : 'various environmental elements'}. This arena provides strategic opportunities for combatants to use the surroundings to their advantage.`;
-    }
-    
-    // Save arena metadata JSON
-    const imageFilename = url.split('/').pop();
-    await fetch('/api/save-arena-metadata', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image: imageFilename,
-        name: arenaName,
-        description,
-        environmentalObjects,
-      }),
-    });
 
-    // Set the scene with enhanced data
-    setScene(mapArenaMetadataToScene({
-      id: imageFilename?.replace(/\.jpg$|\.png$|\.jpeg$/i, '') || `arena-${Date.now()}`,
-      name: arenaName,
-      image: imageFilename || '',
-      description: description,
-      environmentalObjects,
-      createdAt: new Date().toISOString(),
-    }));
+    // Generate arena ID from the image URL
+    const imageFilename = url.split('/').pop();
+    const arenaId = imageFilename?.replace(/\.(jpg|jpeg|png|gif)$/i, '') || `arena-${Date.now()}`;
+
+    try {
+      // Use the new arena generation API to create proper arena metadata
+      const arenaResponse = await fetch('/api/fighting-game/generate-arena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageDescription,
+          arenaId,
+          imageUrl: url,
+        }),
+      });
+
+      if (!arenaResponse.ok) {
+        throw new Error('Failed to generate arena metadata');
+      }
+
+      const arenaData = await arenaResponse.json();
+      
+      if (!arenaData.success || !arenaData.arena) {
+        throw new Error('Invalid arena generation response');
+      }
+
+      const arenaMetadata = arenaData.arena;
+
+      // Set the scene with the generated arena data
+      setScene(mapArenaMetadataToScene({
+        id: arenaMetadata.id,
+        name: arenaMetadata.name,
+        image: arenaMetadata.image,
+        description: arenaMetadata.description,
+        environmentalObjects: arenaMetadata.environmentalObjects,
+        createdAt: arenaMetadata.createdAt,
+      }));
+
+    } catch (error) {
+      console.error('Failed to generate arena metadata:', error);
+      
+      // Fallback to basic arena creation if generation fails
+      const arenaName = extractArenaName(analysis, 'Arena');
+      
+      // Extract environmental objects from analysis as fallback
+      const environmentalObjects: string[] = [];
+      if (analysis && analysis.description) {
+        const desc = analysis.description as Record<string, unknown>;
+        
+        // Extract objects from various possible fields
+        if (Array.isArray(desc.objects)) {
+          environmentalObjects.push(...desc.objects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
+        }
+        if (Array.isArray(desc.environmentalObjects)) {
+          environmentalObjects.push(...desc.environmentalObjects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
+        }
+        if (Array.isArray(desc.features)) {
+          environmentalObjects.push(...desc.features.map((feature: LLMObject) => typeof feature === 'string' ? feature : feature.name || feature.type || 'feature'));
+        }
+        
+        // Extract from description text if no structured objects found
+        if (environmentalObjects.length === 0 && typeof imageDescription === 'string') {
+          const descText = imageDescription.toLowerCase();
+          const commonObjects = [
+            'castle', 'bridge', 'tower', 'wall', 'gate', 'stairs', 'floor', 'ceiling',
+            'table', 'chair', 'desk', 'shelf', 'window', 'door', 'light', 'lamp',
+            'tree', 'rock', 'boulder', 'water', 'river', 'lake', 'mountain', 'cave',
+            'building', 'skyscraper', 'street', 'road', 'car', 'vehicle', 'machine',
+            'computer', 'screen', 'console', 'equipment', 'tool', 'weapon', 'shield'
+          ];
+          
+          commonObjects.forEach(obj => {
+            if (descText.includes(obj)) {
+              environmentalObjects.push(obj);
+            }
+          });
+        }
+      }
+      
+      // Create a more detailed description if none exists
+      const description = `A dynamic battleground featuring ${environmentalObjects.length > 0 ? environmentalObjects.slice(0, 3).join(', ') : 'various environmental elements'}. This arena provides strategic opportunities for combatants to use the surroundings to their advantage.`;
+      
+      // Save arena metadata JSON as fallback
+      const imageFilename = url.split('/').pop();
+      await fetch('/api/save-arena-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: imageFilename,
+          name: arenaName,
+          description,
+          environmentalObjects,
+        }),
+      });
+
+      // Set the scene with fallback data
+      setScene(mapArenaMetadataToScene({
+        id: arenaId,
+        name: arenaName,
+        image: imageFilename || '',
+        description: description,
+        environmentalObjects,
+        createdAt: new Date().toISOString(),
+      }));
+    }
   };
 
   // New: Start fight with pre-generated battle log
