@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       id: arenaId,
       name: arenaName,
       image: imageUrl.split('/').pop() || `${arenaId}.jpg`,
-      description: enhancedDescription.description,
+      description: enhancedDescription.description || `A dynamic battleground featuring ${environmentalObjects.slice(0, 3).join(', ')}. This arena provides strategic opportunities for combatants to use the surroundings to their advantage.`,
       environmentalObjects,
       createdAt: new Date().toISOString(),
     };

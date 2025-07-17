@@ -1264,7 +1264,7 @@ export const generateEnhancedArenaDescription = async (
   imageDescription: string,
   arenaType?: string,
   existingFeatures?: string[]
-): Promise<{ success: boolean; description?: Record<string, unknown>; error?: string }> => {
+): Promise<{ success: boolean; description?: string; error?: string }> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -1311,11 +1311,53 @@ export const generateEnhancedArenaDescription = async (
     }
 
     try {
-      const parsed = JSON.parse(rawContent);
-      return { success: true, description: parsed };
+      // Handle markdown-formatted JSON responses
+      let jsonContent = rawContent;
+      if (rawContent.includes('```json')) {
+        const jsonMatch = rawContent.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          jsonContent = jsonMatch[1].trim();
+        }
+      } else if (rawContent.includes('```')) {
+        // Handle generic code blocks
+        const codeMatch = rawContent.match(/```\s*([\s\S]*?)\s*```/);
+        if (codeMatch) {
+          jsonContent = codeMatch[1].trim();
+        }
+      }
+      
+      // Clean control characters and escape sequences that might break JSON parsing
+      jsonContent = jsonContent
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .replace(/\*/g, '') // Remove asterisks used for emphasis
+        .replace(/_/g, '') // Remove underscores used for emphasis
+        .replace(/\n/g, ' ') // Replace newlines with spaces
+        .replace(/\r/g, '') // Remove carriage returns
+        .replace(/\t/g, ' ') // Replace tabs with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      const parsed = JSON.parse(jsonContent);
+      
+      // Extract the description from the parsed JSON
+      let description = '';
+      if (typeof parsed === 'string') {
+        description = parsed;
+      } else if (parsed && typeof parsed === 'object') {
+        // Try to extract description from various possible fields
+        description = parsed.description || parsed.atmosphere || parsed.summary || 
+                     parsed.content || parsed.text || JSON.stringify(parsed);
+      } else {
+        description = rawContent; // Fallback to raw content
+      }
+      
+      return { success: true, description };
     } catch (parseError) {
       console.error('Failed to parse enhanced arena JSON:', parseError);
-      return { success: false, error: 'Invalid JSON response from model.' };
+      console.error('Raw content that failed to parse:', rawContent);
+      
+      // Fallback: return the raw content as description
+      return { success: true, description: rawContent };
     }
   } catch (error) {
     clearTimeout(timeoutId);
