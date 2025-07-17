@@ -665,7 +665,7 @@ function postProcessCommentary(text: string): string {
     text = text.replace(regex, replacement);
   });
 
-  // Remove prompt leakage (instructions that shouldn't be in output)
+  // Remove prompt leakage (instructions that shouldn't be in output) - less aggressive
   const promptLeakagePatterns = [
     /less is more:/i,
     /assume a viewer/i,
@@ -693,9 +693,14 @@ function postProcessCommentary(text: string): string {
     /output must be:/i,
     /output must be/i
   ];
+  
+  // Only remove exact matches, not partial matches
   promptLeakagePatterns.forEach(pattern => {
     text = text.replace(pattern, '');
   });
+  
+  // Clean up any double spaces that might result from removals
+  text = text.replace(/\s+/g, ' ').trim();
 
   // Clean up extra spaces and punctuation
   text = text.replace(/\s+/g, ' ').trim();
@@ -704,11 +709,15 @@ function postProcessCommentary(text: string): string {
   let sentencesRaw = text.match(/[^.!?]+[.!?]/g);
   let sentences: string[] = Array.isArray(sentencesRaw) ? sentencesRaw : [text];
 
-  // Remove sentences containing invented/nonsense words
+  // Remove sentences containing invented/nonsense words (less aggressive)
   const nonsenseKeys = Object.keys(nonsenseReplacements);
-  sentences = sentences.filter(sentence =>
-    !nonsenseKeys.some(nonsense => sentence.toLowerCase().includes(nonsense))
-  );
+  sentences = sentences.filter(sentence => {
+    // Only filter out sentences that contain multiple nonsense words
+    const nonsenseCount = nonsenseKeys.filter(nonsense => 
+      sentence.toLowerCase().includes(nonsense)
+    ).length;
+    return nonsenseCount < 2; // Allow sentences with 0-1 nonsense words
+  });
 
   // Keep only the first two sentences
   if (sentences.length > 2) {
@@ -721,6 +730,12 @@ function postProcessCommentary(text: string): string {
   if (!result.endsWith('.')) {
     result += '.';
   }
+  
+  // If result is empty or just punctuation, return a fallback
+  if (!result || result === '.' || result.length < 10) {
+    return 'The battle continues with intense action.';
+  }
+  
   return result;
 }
 

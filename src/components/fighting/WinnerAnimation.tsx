@@ -137,32 +137,32 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                 </div>
               </div>
               
-              {/* Compact Stats Grid - 4 columns for better space utilization */}
-              <div className="grid grid-cols-4 gap-2 text-xs">
+              {/* Ultra-Compact Stats Grid - 6 columns in one row */}
+              <div className="grid grid-cols-6 gap-1 text-xs">
                 {/* Core Combat Stats */}
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Health</div>
-                  <div className="text-white font-bold text-sm">
+                  <div className="text-white font-bold text-xs">
                     {calculateFinalHealth(fighterA)}/{fighterA?.stats?.maxHealth || 0}
                   </div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Strength</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Str</div>
                   <div className="text-white font-bold">{fighterA?.stats?.strength || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Agility</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Agi</div>
                   <div className="text-white font-bold">{fighterA?.stats?.agility || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Defense</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Def</div>
                   <div className="text-white font-bold">{fighterA?.stats?.defense || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Luck</div>
                   <div className="text-white font-bold">{fighterA?.stats?.luck || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Age</div>
                   <div className="text-white font-bold">{fighterA?.stats?.age || 0}</div>
                 </div>
@@ -233,32 +233,32 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                 </div>
               </div>
               
-              {/* Compact Stats Grid - 4 columns for better space utilization */}
-              <div className="grid grid-cols-4 gap-2 text-xs">
+              {/* Ultra-Compact Stats Grid - 6 columns in one row */}
+              <div className="grid grid-cols-6 gap-1 text-xs">
                 {/* Core Combat Stats */}
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Health</div>
-                  <div className="text-white font-bold text-sm">
+                  <div className="text-white font-bold text-xs">
                     {calculateFinalHealth(fighterB)}/{fighterB?.stats?.maxHealth || 0}
                   </div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Strength</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Str</div>
                   <div className="text-white font-bold">{fighterB?.stats?.strength || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Agility</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Agi</div>
                   <div className="text-white font-bold">{fighterB?.stats?.agility || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
-                  <div className="text-gray-400 text-xs font-medium">Defense</div>
+                <div className="bg-gray-700 rounded p-1">
+                  <div className="text-gray-400 text-xs font-medium">Def</div>
                   <div className="text-white font-bold">{fighterB?.stats?.defense || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Luck</div>
                   <div className="text-white font-bold">{fighterB?.stats?.luck || 0}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-2">
+                <div className="bg-gray-700 rounded p-1">
                   <div className="text-gray-400 text-xs font-medium">Age</div>
                   <div className="text-white font-bold">{fighterB?.stats?.age || 0}</div>
                 </div>
