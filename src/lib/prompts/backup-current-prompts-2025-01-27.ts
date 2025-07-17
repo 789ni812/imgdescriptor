@@ -82,9 +82,21 @@ STAT VALIDATION:
 
 Return ONLY a valid JSON object with the exact field names specified above. All numbers must be integers within the provided ranges.`;
 
+interface FighterTypeConfig {
+  name: string;
+  healthRange: [number, number];
+  strengthRange: [number, number];
+  agilityRange: [number, number];
+  defenseRange: [number, number];
+  luckRange: [number, number];
+  magicRange?: [number, number];
+  rangedRange?: [number, number];
+  intelligenceRange?: [number, number];
+}
+
 export const CURRENT_FIGHTER_BALANCING_USER_PROMPT = (
   fighterName: string, 
-  typeConfig: any, 
+  typeConfig: FighterTypeConfig, 
   size: string, 
   build: string
 ) => `Generate balanced stats for a fighting game character.
@@ -269,8 +281,44 @@ QUALITY REQUIREMENTS:
 
 Make each description feel like it belongs in a professional fighting game.`;
 
+interface FighterForDescription {
+  name: string;
+  stats: {
+    health: number;
+    strength: number;
+    agility: number;
+    defense: number;
+    luck: number;
+    magic?: number;
+    ranged?: number;
+    intelligence?: number;
+    uniqueAbilities?: string[];
+    size: string;
+    build: string;
+    age: number;
+  };
+  visualAnalysis?: {
+    age: string;
+    size: string;
+    build: string;
+    appearance: string[];
+    weapons: string[];
+    armor: string[];
+  };
+  combatHistory?: Array<{
+    round: number;
+    attacker: string;
+    defender: string;
+    damage: number;
+    narrative: string;
+    timestamp: string;
+  }>;
+  winLossRecord?: { wins: number; losses: number; draws: number };
+  createdAt?: string;
+}
+
 export const CURRENT_FIGHTER_DESCRIPTION_USER_PROMPT = (
-  fighter: any,
+  fighter: FighterForDescription,
   totalFights: number,
   winRate: number,
   isVeteran: boolean,

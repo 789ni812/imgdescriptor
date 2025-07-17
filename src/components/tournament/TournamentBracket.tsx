@@ -4,6 +4,7 @@ import React from 'react';
 import { Tournament, TournamentMatch } from '@/lib/types/tournament';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 interface TournamentBracketProps {
   tournament: Tournament;
@@ -63,9 +64,11 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
         
         <div className="space-y-3">
           <div className="flex items-center space-x-3 bg-gray-700 rounded-lg p-3">
-            <img
+            <Image
               src={match.fighterA.imageUrl}
               alt={match.fighterA.name}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-lg object-cover border-2 border-gray-600"
             />
             <span className={`text-sm font-semibold ${
@@ -81,9 +84,11 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           </div>
           
           <div className="flex items-center space-x-3 bg-gray-700 rounded-lg p-3">
-            <img
+            <Image
               src={match.fighterB.imageUrl}
               alt={match.fighterB.name}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-lg object-cover border-2 border-gray-600"
             />
             <span className={`text-sm font-semibold ${
@@ -158,9 +163,11 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
         <div className="mt-8 p-6 bg-gradient-to-r from-yellow-600/20 to-yellow-800/20 border-2 border-yellow-500 rounded-2xl text-center shadow-xl">
           <h3 className="text-2xl font-bold text-yellow-400 mb-4 drop-shadow-lg">🏆 Tournament Champion 🏆</h3>
           <div className="flex items-center justify-center space-x-4">
-            <img
+            <Image
               src={tournament.winner.imageUrl}
               alt={tournament.winner.name}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-xl object-cover border-2 border-yellow-500 shadow-lg"
             />
             <span className="text-2xl font-bold text-yellow-400 drop-shadow-lg">

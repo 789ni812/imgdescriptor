@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArenaMetadata } from '@/lib/utils/arenaUtils';
+import Image from 'next/image';
 
 interface ChooseExistingArenaProps {
   onSelect: (arena: ArenaMetadata) => void;
@@ -67,9 +68,11 @@ const ChooseExistingArena: React.FC<ChooseExistingArenaProps> = ({ onSelect }) =
             aria-label={`Select ${arena.name}`}
           >
             <div className="text-center">
-              <img
+              <Image
                 src={`/vs/arena/${arena.image}`}
                 alt={arena.name}
+                width={80}
+                height={80}
                 className="w-20 h-20 mx-auto mb-2 rounded"
               />
               <h3 className="font-semibold text-lg">{arena.name}</h3>

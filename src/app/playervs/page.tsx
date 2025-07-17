@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFightingGameStore, type PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
+import { useFightingGameStore, type PreGeneratedBattleRound, type CombatEvent } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
 // HealthBar import removed as it's not used in this file
 import { FighterImageUpload } from '@/components/fighting/FighterImageUpload';
@@ -15,6 +15,7 @@ import RoundStartAnimation from '@/components/fighting/RoundStartAnimation';
 import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
 import { generateBattleSummary } from '@/lib/lmstudio-client';
 import { ROUND_TRANSITION_PAUSE_MS, BATTLE_ATTACK_DEFENSE_STEP_MS } from '@/lib/constants';
+import Image from 'next/image';
 
 // Type alias to avoid conflicts with other BattleRound interfaces
 type WinnerAnimationBattleRound = BattleRound;
@@ -57,8 +58,8 @@ interface FighterMetadata {
     agility: number;
     defense: number;
     age?: number;
-    size: 'small' | 'medium' | 'large';
-    build: 'thin' | 'average' | 'muscular' | 'heavy';
+    size?: string;
+    build?: string;
     magic?: number;
     ranged?: number;
     intelligence?: number;
@@ -72,7 +73,7 @@ interface FighterMetadata {
     weapons: string[];
     armor: string[];
   };
-  combatHistory?: Array<unknown>;
+  combatHistory?: CombatEvent[];
   winLossRecord?: { wins: number; losses: number; draws: number };
   createdAt?: string;
 }
@@ -80,7 +81,9 @@ interface FighterMetadata {
 function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
   // Ensure we have a valid image filename
   const imageFilename = meta.image && meta.image.trim() !== '' ? meta.image : null;
-  
+  // Map size/build to strict union with fallback
+  const size = (meta.stats.size === 'small' || meta.stats.size === 'medium' || meta.stats.size === 'large') ? meta.stats.size : 'medium';
+  const build = (meta.stats.build === 'thin' || meta.stats.build === 'average' || meta.stats.build === 'muscular' || meta.stats.build === 'heavy') ? meta.stats.build : 'average';
   return {
     id: meta.id,
     name: meta.name,
@@ -94,8 +97,8 @@ function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
       agility: meta.stats.agility,
       defense: meta.stats.defense,
       age: meta.stats.age || 25,
-      size: meta.stats.size,
-      build: meta.stats.build,
+      size,
+      build,
       magic: meta.stats.magic,
       ranged: meta.stats.ranged,
       intelligence: meta.stats.intelligence,
@@ -109,7 +112,7 @@ function mapFighterMetadataToFighter(meta: FighterMetadata): Fighter {
       weapons: [],
       armor: []
     },
-    combatHistory: meta.combatHistory || [],
+    combatHistory: Array.isArray(meta.combatHistory) ? meta.combatHistory as CombatEvent[] : [],
     winLossRecord: meta.winLossRecord || { wins: 0, losses: 0, draws: 0 },
     createdAt: meta.createdAt || new Date().toISOString()
   };
@@ -310,6 +313,9 @@ export default function PlayerVsPage() {
       setIsGeneratingFighterB(false);
     }
   };
+
+  type LLMObject = string | { name?: string; type?: string };
+
   const handleArenaUpload = async ({ url, analysis }: { url: string; analysis: Record<string, unknown> }) => {
     // Generate arena name and description
     const arenaName = extractArenaName(analysis, 'Arena');
@@ -329,13 +335,13 @@ export default function PlayerVsPage() {
       
       // Extract objects from various possible fields
       if (Array.isArray(desc.objects)) {
-        environmentalObjects.push(...desc.objects.map((obj: any) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
+        environmentalObjects.push(...desc.objects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
       }
       if (Array.isArray(desc.environmentalObjects)) {
-        environmentalObjects.push(...desc.environmentalObjects.map((obj: any) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
+        environmentalObjects.push(...desc.environmentalObjects.map((obj: LLMObject) => typeof obj === 'string' ? obj : obj.name || obj.type || 'object'));
       }
       if (Array.isArray(desc.features)) {
-        environmentalObjects.push(...desc.features.map((feature: any) => typeof feature === 'string' ? feature : feature.name || feature.type || 'feature'));
+        environmentalObjects.push(...desc.features.map((feature: LLMObject) => typeof feature === 'string' ? feature : feature.name || feature.type || 'feature'));
       }
       
       // Extract from description text if no structured objects found
@@ -684,7 +690,7 @@ export default function PlayerVsPage() {
                   )}
                   {!scene.description && (
                     <div className="text-base text-gray-200 mb-2 text-center max-w-xs">
-                      A legendary battleground where warriors test their might. This arena's unique environment provides strategic opportunities for combat.
+                      A legendary battleground where warriors test their might. This arena&apos;s unique environment provides strategic opportunities for combat.
                     </div>
                   )}
                   {scene.environmentalObjects && scene.environmentalObjects.length > 0 && (
@@ -873,15 +879,33 @@ export default function PlayerVsPage() {
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
               <div className="flex flex-col items-center">
-                <img src={fighterA.imageUrl} alt={fighterA.name} className="w-40 h-40 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
+                <Image 
+                  src={fighterA.imageUrl} 
+                  alt={fighterA.name} 
+                  width={160}
+                  height={160}
+                  className="w-40 h-40 object-cover rounded-lg border-4 border-red-700 shadow-lg" 
+                />
                 <h3 className="mt-2 text-lg font-bold">{fighterA.name}</h3>
               </div>
               <div className="flex flex-col items-center">
-                <img src={typeof scene?.imageUrl === 'string' ? scene.imageUrl : ''} alt={typeof scene?.name === 'string' ? scene.name : ''} className="w-64 h-40 object-cover rounded-lg border-4 border-yellow-700 shadow-lg" />
+                <Image 
+                  src={typeof scene?.imageUrl === 'string' ? scene.imageUrl : ''} 
+                  alt={typeof scene?.name === 'string' ? scene.name : ''} 
+                  width={256}
+                  height={160}
+                  className="w-64 h-40 object-cover rounded-lg border-4 border-yellow-700 shadow-lg" 
+                />
                 <h3 className="mt-2 text-lg font-bold">{typeof scene?.name === 'string' ? scene.name : ''}</h3>
               </div>
               <div className="flex flex-col items-center">
-                <img src={fighterB.imageUrl} alt={fighterB.name} className="w-40 h-40 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
+                <Image 
+                  src={fighterB.imageUrl} 
+                  alt={fighterB.name} 
+                  width={160}
+                  height={160}
+                  className="w-40 h-40 object-cover rounded-lg border-4 border-blue-700 shadow-lg" 
+                />
                 <h3 className="mt-2 text-lg font-bold">{fighterB.name}</h3>
               </div>
             </div>

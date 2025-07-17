@@ -7,6 +7,7 @@ import '@testing-library/jest-dom';
 // No longer importing from undici here 
 
 jest.mock('react-markdown');
+jest.mock('next/image', () => require('./__mocks__/next-image.js'));
 
 import { TextEncoder, TextDecoder } from 'util';
 

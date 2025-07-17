@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import Image from 'next/image';
 
 interface TournamentCreatorProps {
   onTournamentCreated: (tournament: Tournament) => void;
@@ -161,9 +162,11 @@ export const TournamentCreator: React.FC<TournamentCreatorProps> = ({ onTourname
                   className="w-4 h-4"
                   data-testid={`fighter-checkbox-${fighter.id}`}
                 />
-                <img
+                <Image
                   src={fighter.imageUrl}
                   alt={fighter.name}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-lg object-cover border-2 border-gray-600"
                   data-testid={`fighter-image-${fighter.id}`}
                 />

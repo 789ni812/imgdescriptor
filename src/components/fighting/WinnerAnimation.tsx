@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Fighter, Scene } from '@/lib/stores/fightingGameStore';
 import { BattleRound } from '@/lib/types/battle';
 import TruncatedDescription from '../ui/TruncatedDescription';
+import Image from 'next/image';
 
 interface WinnerAnimationProps {
   isOpen: boolean;
@@ -78,7 +79,14 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
     }
   };
 
-  const showKO = winner !== 'Draw' && winner !== null;
+  // Check if any fighter reached 0 health (actual KO)
+  const hasKO = battleLog.some(round => {
+    const attackerHealth = round.healthAfter?.attacker || 0;
+    const defenderHealth = round.healthAfter?.defender || 0;
+    return attackerHealth <= 0 || defenderHealth <= 0;
+  });
+
+  const showKO = hasKO && winner !== 'Draw' && winner !== null;
 
   if (!isOpen) return null;
 
@@ -112,9 +120,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
             }`}>
               <div className="flex items-center mb-4">
                 <div className="relative">
-                  <img
+                  <Image
                     src={fighterA?.imageUrl || ''}
                     alt={fighterA?.name || 'Fighter A'}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 object-cover rounded-xl mr-4 border-2 border-gray-600"
                   />
                   {winner === fighterA?.name && (
@@ -208,9 +218,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
             }`}>
               <div className="flex items-center mb-4">
                 <div className="relative">
-                  <img
+                  <Image
                     src={fighterB?.imageUrl || ''}
                     alt={fighterB?.name || 'Fighter B'}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 object-cover rounded-xl mr-4 border-2 border-gray-600"
                   />
                   {winner === fighterB?.name && (
@@ -309,9 +321,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
               {/* Arena Image */}
               <div className="flex-shrink-0">
                 {scene?.imageUrl ? (
-                  <img
+                  <Image
                     src={scene.imageUrl}
                     alt={scene?.name || 'Arena'}
+                    width={128}
+                    height={96}
                     className="w-32 h-24 object-cover rounded-lg border-2 border-gray-600 shadow-md"
                   />
                 ) : (
@@ -401,9 +415,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                       <div className="text-sm text-gray-300 space-y-3">
                         {/* Attack */}
                         <div className="flex items-start space-x-3 bg-gray-800 rounded-lg p-3">
-                          <img
+                          <Image
                             src={attackerFighter?.imageUrl || ''}
                             alt={attackerFighter?.name || 'Attacker'}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-cover rounded-lg flex-shrink-0 border border-gray-600"
                           />
                           <div className="flex-1">
@@ -415,9 +431,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                         
                         {/* Defense */}
                         <div className="flex items-start space-x-3 bg-gray-800 rounded-lg p-3">
-                          <img
+                          <Image
                             src={defenderFighter?.imageUrl || ''}
                             alt={defenderFighter?.name || 'Defender'}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-cover rounded-lg flex-shrink-0 border border-gray-600"
                           />
                           <div className="flex-1">
@@ -432,9 +450,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                           <div className="text-center text-xs text-gray-400 mb-3 font-medium">DAMAGE TAKEN</div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              <img
+                              <Image
                                 src={attackerFighter?.imageUrl || ''}
                                 alt={attackerFighter?.name || 'Attacker'}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 object-cover rounded-lg border-2 border-gray-500"
                               />
                               <div className="text-center">
@@ -448,9 +468,11 @@ const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
                                 <div className="text-white font-bold">{round.defender}</div>
                                 <div className="text-red-400 font-bold text-lg">-{defenderHealthChange}</div>
                               </div>
-                              <img
+                              <Image
                                 src={defenderFighter?.imageUrl || ''}
                                 alt={defenderFighter?.name || 'Defender'}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 object-cover rounded-lg border-2 border-gray-500"
                               />
                             </div>

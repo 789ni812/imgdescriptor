@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface FighterPanel {
   name: string;
@@ -63,7 +64,7 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
         <div className="row-start-1 row-end-2 col-span-2 bg-gray-900 border border-gray-600 rounded-md p-6 flex flex-col items-center justify-center text-white min-h-[120px] shadow-md">
           <div className="font-bold text-lg mb-2 text-white">{scene.name}</div>
           {scene.imageUrl ? (
-            <img className="object-cover rounded shadow max-h-28 mb-2" src={scene.imageUrl} alt={scene.name} />
+            <Image className="object-cover rounded shadow max-h-28 mb-2" src={scene.imageUrl} alt={scene.name} width={112} height={112} />
           ) : (
             <div className="w-32 h-28 bg-gray-700 rounded shadow mb-2 flex items-center justify-center text-gray-300 text-xs text-center">
               No Scene Image
@@ -79,7 +80,7 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
         {/* Middle Panels */}
         <div className={`row-start-2 row-end-3 col-start-1 col-end-2 bg-gray-900 border border-gray-600 rounded-md p-6 flex flex-col items-center justify-start text-white min-h-[100px] transform -skew-x-3 overflow-auto transition-opacity duration-500 shadow-md ${roundStep === 'defense' ? 'opacity-40' : 'opacity-100'}`} data-testid="attacker-box">
           {attacker.imageUrl ? (
-            <img src={attacker.imageUrl} alt={attacker.name} className="w-16 h-16 object-cover rounded mb-1" />
+            <Image src={attacker.imageUrl} alt={attacker.name} width={64} height={64} className="w-16 h-16 object-cover rounded mb-1" />
           ) : (
             <div className="w-16 h-16 bg-gray-700 rounded mb-1 flex items-center justify-center text-gray-300 text-xs text-center">
               No Image
@@ -90,7 +91,7 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
         </div>
         <div className={`row-start-2 row-end-3 col-start-2 col-end-3 bg-gray-900 border border-gray-600 rounded-md p-6 flex flex-col items-center justify-start text-white min-h-[100px] transform skew-x-3 overflow-auto transition-opacity duration-500 shadow-md ${roundStep === 'attack' ? 'opacity-40' : 'opacity-100'}`} data-testid="defender-box">
           {defender.imageUrl ? (
-            <img src={defender.imageUrl} alt={defender.name} className="w-16 h-16 object-cover rounded mb-1" />
+            <Image src={defender.imageUrl} alt={defender.name} width={64} height={64} className="w-16 h-16 object-cover rounded mb-1" />
           ) : (
             <div className="w-16 h-16 bg-gray-700 rounded mb-1 flex items-center justify-center text-gray-300 text-xs text-center">
               No Image
@@ -104,11 +105,11 @@ export const BattleStoryboard: React.FC<BattleStoryboardProps> = ({
           {previousRounds.map((r) => (
             <div key={r.round} className="flex items-center gap-3 mb-2">
               {/* Attacker avatar and commentary */}
-              <img src={r.attacker.imageUrl} alt={r.attacker.name} className="w-6 h-6 object-cover rounded-full border border-gray-400" />
+              <Image src={r.attacker.imageUrl} alt={r.attacker.name} width={24} height={24} className="w-6 h-6 object-cover rounded-full border border-gray-400" />
               <span className="font-bold text-xs mr-1 text-blue-400">{r.attacker.name}:</span>
               <span className="text-xs text-gray-200">{r.attacker.commentary}</span>
               {/* Defender avatar and commentary */}
-              <img src={r.defender.imageUrl} alt={r.defender.name} className="w-6 h-6 object-cover rounded-full border border-gray-400 ml-4" />
+              <Image src={r.defender.imageUrl} alt={r.defender.name} width={24} height={24} className="w-6 h-6 object-cover rounded-full border border-gray-400 ml-4" />
               <span className="font-bold text-xs mr-1 text-red-400">{r.defender.name}:</span>
               <span className="text-xs text-gray-200">{r.defender.commentary}</span>
             </div>

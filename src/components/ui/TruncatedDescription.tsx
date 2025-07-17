@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createTruncatedDescription } from '@/lib/utils/descriptionFormatter';
 
 interface TruncatedDescriptionProps {
-  description: Record<string, unknown>;
+  description: string | Record<string, unknown>;
   maxLength?: number;
   className?: string;
   showTooltip?: boolean;

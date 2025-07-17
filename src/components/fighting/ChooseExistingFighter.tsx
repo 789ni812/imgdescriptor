@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FighterMetadata } from '@/lib/utils/fighterUtils';
+import Image from 'next/image';
 
 interface ChooseExistingFighterProps {
   onSelect: (fighter: FighterMetadata) => void;
@@ -72,9 +73,11 @@ const ChooseExistingFighter: React.FC<ChooseExistingFighterProps> = ({ onSelect 
           >
             <div className="text-center">
               {fighter.image ? (
-                <img 
+                <Image 
                   src={`/vs/fighters/${fighter.image}`}
                   alt={fighter.name}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 mx-auto mb-2 rounded object-cover border-2 border-gray-200"
                 />
               ) : (

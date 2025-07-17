@@ -8,40 +8,50 @@ export interface FormattedDescription {
   isTruncated: boolean;
 }
 
+interface ImageDescription {
+  setting?: string;
+  objects?: string[];
+  characters?: string[];
+  mood?: string;
+  hooks?: string[];
+  [key: string]: unknown;
+}
+
 /**
  * Formats an image description object into a readable string
  */
-export function formatImageDescription(description: any): string {
+export function formatImageDescription(description: string | ImageDescription | unknown): string {
   if (typeof description === 'string') {
     return description;
   }
   
   if (typeof description === 'object' && description !== null) {
+    const desc = description as ImageDescription;
     const parts: string[] = [];
     
     // Add setting if available
-    if (description.setting) {
-      parts.push(description.setting);
+    if (desc.setting) {
+      parts.push(desc.setting);
     }
     
     // Add objects if available
-    if (Array.isArray(description.objects) && description.objects.length > 0) {
-      parts.push(description.objects.join(', '));
+    if (Array.isArray(desc.objects) && desc.objects.length > 0) {
+      parts.push(desc.objects.join(', '));
     }
     
     // Add characters if available
-    if (Array.isArray(description.characters) && description.characters.length > 0) {
-      parts.push(description.characters.join(', '));
+    if (Array.isArray(desc.characters) && desc.characters.length > 0) {
+      parts.push(desc.characters.join(', '));
     }
     
     // Add mood if available
-    if (description.mood) {
-      parts.push(description.mood);
+    if (desc.mood) {
+      parts.push(desc.mood);
     }
     
     // Add hooks if available
-    if (Array.isArray(description.hooks) && description.hooks.length > 0) {
-      parts.push(description.hooks.join('. '));
+    if (Array.isArray(desc.hooks) && desc.hooks.length > 0) {
+      parts.push(desc.hooks.join('. '));
     }
     
     return parts.join('. ');
@@ -54,7 +64,7 @@ export function formatImageDescription(description: any): string {
  * Creates a truncated version of a description with hover functionality
  */
 export function createTruncatedDescription(
-  description: any, 
+  description: string | ImageDescription | unknown, 
   maxLength: number = 150
 ): FormattedDescription {
   const fullText = formatImageDescription(description);
@@ -96,7 +106,7 @@ export function createTruncatedDescription(
 /**
  * Extracts the main character/fighter name from the description
  */
-export function extractFighterName(description: any): string {
+export function extractFighterName(description: string | ImageDescription | unknown): string {
   if (typeof description === 'string') {
     // Look for patterns like "character name - description" or "name, description"
     const nameMatch = description.match(/^([^-,\n]+?)(?:\s*[-,\n]|$)/);
@@ -107,9 +117,10 @@ export function extractFighterName(description: any): string {
   }
   
   if (typeof description === 'object' && description !== null) {
+    const desc = description as ImageDescription;
     // Try to get name from characters array
-    if (Array.isArray(description.characters) && description.characters.length > 0) {
-      const firstCharacter = description.characters[0];
+    if (Array.isArray(desc.characters) && desc.characters.length > 0) {
+      const firstCharacter = desc.characters[0];
       // Extract name before any dash or comma
       const nameMatch = firstCharacter.match(/^([^-,\n]+?)(?:\s*[-,\n]|$)/);
       if (nameMatch) {
@@ -119,8 +130,8 @@ export function extractFighterName(description: any): string {
     }
     
     // Fallback to first part of setting
-    if (description.setting) {
-      const words = description.setting.split(' ');
+    if (desc.setting) {
+      const words = desc.setting.split(' ');
       return words.slice(0, 2).join(' '); // First 2 words
     }
   }

@@ -46,10 +46,18 @@ JSON FORMAT:
   "uniqueAbilities": ["Heavy Strike", "Ground Slam"]
 }`;
 
+interface ArenaContext {
+  name: string;
+  type?: string;
+  description?: string;
+  environmentalObjects?: string[];
+  advantages?: string[];
+}
+
 export const OPTIMIZED_FIGHTER_GENERATION_USER_PROMPT = (
   fighterLabel: string, 
   imageDescription: string,
-  arenaContext?: any
+  arenaContext?: ArenaContext
 ) => {
   let prompt = `Generate stats for: ${fighterLabel}\nDescription: ${imageDescription}`;
   
@@ -92,9 +100,21 @@ JSON FORMAT:
   "build": "muscular"
 }`;
 
+interface FighterTypeConfig {
+  name: string;
+  healthRange: [number, number];
+  strengthRange: [number, number];
+  agilityRange: [number, number];
+  defenseRange: [number, number];
+  luckRange: [number, number];
+  magicRange?: [number, number];
+  rangedRange?: [number, number];
+  intelligenceRange?: [number, number];
+}
+
 export const OPTIMIZED_FIGHTER_BALANCING_USER_PROMPT = (
   fighterName: string,
-  typeConfig: any,
+  typeConfig: FighterTypeConfig,
   size: string,
   build: string
 ) => `Balance: ${fighterName} (${typeConfig.name})
@@ -223,8 +243,19 @@ REQUIREMENTS:
 
 Return ONLY the description text.`;
 
+interface FighterForDescription {
+  name: string;
+  stats: {
+    strength: number;
+    agility: number;
+    health: number;
+    uniqueAbilities?: string[];
+  };
+  winLossRecord?: { wins: number; losses: number; draws: number };
+}
+
 export const OPTIMIZED_FIGHTER_DESCRIPTION_USER_PROMPT = (
-  fighter: any,
+  fighter: FighterForDescription,
   totalFights: number,
   winRate: number,
   status: string

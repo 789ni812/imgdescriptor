@@ -127,6 +127,38 @@ describe('WinnerAnimation', () => {
   });
 
   it('shows KO when a fighter is defeated', () => {
+    const koBattleLog = [
+      {
+        round: 1,
+        attacker: 'Godzilla',
+        defender: 'Bruce Lee',
+        attackCommentary: 'Godzilla unleashes a devastating atomic breath!',
+        defenseCommentary: 'Bruce Lee tries to dodge but fails!',
+        attackerDamage: 0,
+        defenderDamage: 120, // Bruce Lee takes full damage
+        randomEvent: null,
+        arenaObjectsUsed: null,
+        healthAfter: { attacker: 800, defender: 0 }, // Bruce Lee KO'd
+      },
+    ];
+
+    render(
+      <WinnerAnimation
+        winner="Godzilla"
+        onClose={mockOnDone}
+        fighterA={mockFighterA}
+        fighterB={mockFighterB}
+        battleLog={koBattleLog}
+        isOpen={true}
+        scene={mockScene}
+        battleSummary={mockSummary}
+      />
+    );
+
+    expect(screen.getByText(/KO/i, { exact: false })).toBeInTheDocument();
+  });
+
+  it('does not show KO when no fighter reaches 0 health', () => {
     render(
       <WinnerAnimation
         winner="Godzilla"
@@ -140,7 +172,7 @@ describe('WinnerAnimation', () => {
       />
     );
 
-    expect(screen.getByText(/KO/i, { exact: false })).toBeInTheDocument();
+    expect(screen.queryByText(/KO/i, { exact: false })).not.toBeInTheDocument();
   });
 
   it('displays fighter stats for both fighters', () => {

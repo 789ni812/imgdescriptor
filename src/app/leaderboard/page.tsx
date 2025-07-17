@@ -7,6 +7,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import Leaderboard from '@/components/fighting/Leaderboard';
 import BattleViewer from '@/components/fighting/BattleViewer';
+import Image from 'next/image';
 
 interface BattleReplay {
   id: string;
@@ -158,9 +159,43 @@ export default function LeaderboardPage() {
               </div>
               
               <BattleViewer
-                fighterA={selectedBattle.fighterA}
-                fighterB={selectedBattle.fighterB}
-                scene={selectedBattle.scene}
+                fighterA={{
+                  ...selectedBattle.fighterA,
+                  description: '',
+                  visualAnalysis: {
+                    age: 'unknown',
+                    size: 'medium',
+                    build: 'average',
+                    appearance: [],
+                    weapons: [],
+                    armor: []
+                  },
+                  combatHistory: [],
+                  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                  createdAt: new Date().toISOString()
+                }}
+                fighterB={{
+                  ...selectedBattle.fighterB,
+                  description: '',
+                  visualAnalysis: {
+                    age: 'unknown',
+                    size: 'medium',
+                    build: 'average',
+                    appearance: [],
+                    weapons: [],
+                    armor: []
+                  },
+                  combatHistory: [],
+                  winLossRecord: { wins: 0, losses: 0, draws: 0 },
+                  createdAt: new Date().toISOString()
+                }}
+                scene={{
+                  ...selectedBattle.scene,
+                  id: selectedBattle.id,
+                  description: selectedBattle.scene.description || '',
+                  environmentalObjects: [],
+                  createdAt: new Date().toISOString()
+                }}
                 battleLog={selectedBattle.battleLog}
                 mode="replay"
                 onClose={handleBackToLeaderboard}
@@ -200,9 +235,11 @@ export default function LeaderboardPage() {
                     >
                       <div className="flex items-center justify-center space-x-4 mb-4">
                         {battle.fighterA.imageUrl ? (
-                          <img
+                          <Image
                             src={battle.fighterA.imageUrl}
                             alt={battle.fighterA.name}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (
@@ -212,9 +249,11 @@ export default function LeaderboardPage() {
                         )}
                         <span className="text-lg font-bold text-gray-600">VS</span>
                         {battle.fighterB.imageUrl ? (
-                          <img
+                          <Image
                             src={battle.fighterB.imageUrl}
                             alt={battle.fighterB.name}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (

@@ -5,6 +5,7 @@ import WinnerAnimation from './WinnerAnimation';
 import BattleStoryboard from './BattleStoryboard';
 import RoundStartAnimation from './RoundStartAnimation';
 import HealthBar from './HealthBar';
+import Image from 'next/image';
 
 interface BattleViewerProps {
   fighterA: Fighter;
@@ -145,7 +146,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
             {/* Fighter A */}
             <div className="flex-1 flex flex-col items-center">
               {fighterA.imageUrl ? (
-                <img src={fighterA.imageUrl} alt={fighterA.name} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
+                <Image src={fighterA.imageUrl} alt={fighterA.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-red-700 shadow-lg" />
               ) : (
                 <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-red-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
                   No Image
@@ -159,7 +160,7 @@ const BattleViewer: React.FC<BattleViewerProps> = ({
             {/* Fighter B */}
             <div className="flex-1 flex flex-col items-center">
               {fighterB.imageUrl ? (
-                <img src={fighterB.imageUrl} alt={fighterB.name} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
+                <Image src={fighterB.imageUrl} alt={fighterB.name} width={96} height={96} className="w-24 h-24 object-cover rounded-lg border-4 border-blue-700 shadow-lg" />
               ) : (
                 <div className="w-24 h-24 bg-gray-300 rounded-lg border-4 border-blue-700 shadow-lg flex items-center justify-center text-gray-600 text-xs text-center">
                   No Image

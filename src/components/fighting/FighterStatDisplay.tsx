@@ -1,5 +1,6 @@
 import React from 'react';
 import TruncatedDescription from '@/components/ui/TruncatedDescription';
+import Image from 'next/image';
 
 interface FighterStats {
   health: number;
@@ -186,9 +187,11 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
   const renderFighterInfo = () => (
     <div className="flex items-center mb-4">
       {fighter.imageUrl ? (
-        <img
+        <Image
           src={fighter.imageUrl}
           alt={fighter.name}
+          width={64}
+          height={64}
           className="w-16 h-16 object-cover rounded-lg mr-3"
         />
       ) : (
@@ -198,20 +201,26 @@ const FighterStatDisplay: React.FC<FighterStatDisplayProps> = ({
       )}
       <div className="flex-1">
         <h3 className="text-xl font-bold text-white">{fighter.name}</h3>
-        {fighter.description && (
-          <div className="text-sm text-gray-300 mt-1">
-            <TruncatedDescription 
-              description={fighter.description} 
-              maxLength={120}
-              className="leading-relaxed"
-              showTooltip={true}
-            />
-          </div>
-        )}
+        <div className="text-sm text-gray-300 mt-1">
+          <TruncatedDescription
+            description={fighter.description ?? ''}
+            maxLength={120}
+            className="leading-relaxed"
+            showTooltip={true}
+          />
+        </div>
         <div className="text-xs text-gray-400 mt-1">
           {fighter.stats.size} • {fighter.stats.build} • Age: {fighter.stats.age}
         </div>
       </div>
+      {onRemove && (
+        <button
+          className="ml-4 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold"
+          onClick={onRemove}
+        >
+          Remove
+        </button>
+      )}
     </div>
   );
 
