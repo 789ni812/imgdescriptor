@@ -31,7 +31,7 @@ const TournamentCommentary: React.FC<TournamentCommentaryProps> = ({
           alt="Arena Background"
           fill
           className="object-cover w-full h-full absolute inset-0 z-0 pointer-events-none"
-          style={{ opacity: 0.65 }}
+          style={{ opacity: 0.20 }}
           priority
         />
       )}
