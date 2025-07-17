@@ -406,8 +406,8 @@ export const generateBattleCommentary = async (
             content: OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT(fighterA, fighterB, round, isAttack, _damage),
           },
         ],
-        temperature: 0.7,
-        max_tokens: 60, // Reduced from 100
+        temperature: 0.5, // Reduced for more coherent output
+        max_tokens: 80, // Increased for better sentence completion
         top_p: 0.85,
         frequency_penalty: 0.3,
         presence_penalty: 0.2,
@@ -480,16 +480,48 @@ function generateFallbackCommentary(
 }
 
 function postProcessCommentary(text: string): string {
-  // Remove all-caps unless it's a proper noun or acronym (simple heuristic)
-  // Convert to sentence case if mostly uppercase
+  // Remove excessive ALL CAPS and convert to sentence case
   const words = text.split(' ');
   const upperCount = words.filter(w => w === w.toUpperCase() && w.length > 2).length;
-  if (upperCount > words.length / 2) {
-    // Convert to sentence case
+  
+  if (upperCount > words.length / 3) {
+    // Convert to sentence case if too much ALL CAPS
     text = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   }
-  // Truncate to 30 words max
-  const truncated = text.split(' ').slice(0, 30).join(' ');
+  
+  // Replace common nonsense words with better alternatives
+  const nonsenseReplacements: { [key: string]: string } = {
+    'proto': 'power',
+    'vermogen': 'energy',
+    'sinwivelines': 'swings',
+    'bloretical': 'theoretical',
+    'rasengan': 'energy',
+    'shuhkis': 'techniques',
+    'apartheoid': 'apartheid',
+    'soggiores': 'suffers',
+    'galaftre': 'agility',
+    'inf': 'infinite',
+    'initium': 'beginning',
+    'anings': 'Bruce Lee\'s',
+    'de': 'the',
+    'publishing': 'pulsing',
+    'blor': 'blood',
+    'thetical': 'theoretical',
+    'wham': 'impact',
+    'regen': 'regeneration',
+    'wilt': 'will',
+    'override': 'overwhelm'
+  };
+  
+  // Apply replacements
+  Object.entries(nonsenseReplacements).forEach(([nonsense, replacement]) => {
+    const regex = new RegExp(`\\b${nonsense}\\b`, 'gi');
+    text = text.replace(regex, replacement);
+  });
+  
+  // Truncate to 50 words max (increased from 30)
+  const truncated = text.split(' ').slice(0, 50).join(' ');
+  
   // Ensure it ends with a period
   return truncated.replace(/([.!?])?$/, '.');
 }
@@ -697,8 +729,8 @@ export const generateBattleSummary = async (
             content: OPTIMIZED_BATTLE_SUMMARY_USER_PROMPT(fighterA, fighterB, winner, keyEvents, totalRounds),
           },
         ],
-        temperature: 0.7,
-        max_tokens: 120, // Reduced from 256
+        temperature: 0.5, // Reduced for more coherent output
+        max_tokens: 150, // Increased for better summary completion
         top_p: 0.85,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,

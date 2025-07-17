@@ -113,7 +113,7 @@ COMMENTARY STYLE:
 - Vary your commentary style to avoid repetition
 - Include specific details about the fighters and their actions
 - Create tension and excitement through your word choice
-- Use natural sentence casing (no all-caps except for dramatic emphasis)
+- Use natural sentence casing (capitalize only proper nouns and sentence starts)
 - Make each round feel unique and memorable
 
 COMMENTARY TECHNIQUES:
@@ -125,11 +125,19 @@ COMMENTARY TECHNIQUES:
 - Balance action description with emotional impact
 
 QUALITY REQUIREMENTS:
-- Keep commentary concise (1-2 sentences, max 30 words)
+- Keep commentary concise (1-2 sentences, max 50 words)
 - Ensure clarity and readability
 - Avoid awkward or nonsensical phrases
 - Make the commentary feel authentic and engaging
 - Focus on the current action and its impact
+- Use only real, understandable words and phrases
+- Avoid excessive punctuation or capitalization
+
+CAPITALIZATION RULES:
+- Only capitalize proper nouns (fighter names, special moves)
+- Use normal sentence casing for all other text
+- Avoid ALL CAPS entirely - it breaks immersion
+- Keep dramatic emphasis through word choice, not capitalization
 
 Return ONLY the commentary text - no formatting, no JSON, no additional text.`;
 
@@ -151,11 +159,13 @@ COMMENTARY REQUIREMENTS:
 - Create vivid, action-packed commentary that captures the moment
 - Describe the specific action and its impact on the battle
 - Use varied, exciting language that builds tension
-- Keep it concise: 1-2 sentences, maximum 30 words total
-- Use natural sentence casing (capitalize only proper nouns and dramatic emphasis)
+- Keep it concise: 1-2 sentences, maximum 50 words total
+- Use natural sentence casing (capitalize only proper nouns and sentence starts)
 - Make the commentary feel authentic and engaging
 - Avoid repetitive or generic phrases
 - Focus on the current action and its significance
+- Use only real, understandable words and phrases
+- Avoid excessive punctuation or capitalization
 
 STYLE GUIDELINES:
 - Use dynamic verbs and descriptive language
