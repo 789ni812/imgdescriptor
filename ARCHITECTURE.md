@@ -2813,3 +2813,380 @@ const warehouseArena: ArenaAnalysis = {
 ## Future Directions & Use Cases
 
 [2025-01-27] **Implementation Ready:** The Arena Environmental Effects & Battle Replay system is designed to create more immersive and strategic battles by incorporating arena surroundings into combat mechanics. This system will provide rich, contextual battle experiences with environmental storytelling and enhanced replay functionality.
+
+# Fighting Game Architecture: Rich Interconnected Narrative System
+
+## Overview
+
+This document outlines the architecture for a rich, interconnected narrative system where fighters, arenas, and tournaments create a living, evolving world with persistent history and dynamic interactions.
+
+## Core Principles
+
+1. **Persistent Fighter History**: Every fighter maintains a complete record of battles, tournaments, slogans, and achievements
+2. **Dynamic Arena Interactions**: Arenas provide tactical elements that fighters can use during battles
+3. **Evolving Tournament Narratives**: Tournament commentary references fighter history and creates ongoing storylines
+4. **Interconnected Prompts**: All AI-generated content references and builds upon previous events
+
+## Data Architecture
+
+### Fighter History System
+
+```typescript
+interface FighterHistory {
+  // Core fighter data
+  fighterId: string;
+  name: string;
+  createdAt: Date;
+  
+  // Battle statistics
+  totalBattles: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winRate: number;
+  
+  // Tournament performance
+  tournamentsEntered: number;
+  tournamentsWon: number;
+  bestTournamentPlacement: number;
+  totalTournamentMatches: number;
+  
+  // Combat statistics
+  totalDamageDealt: number;
+  totalDamageTaken: number;
+  averageDamagePerRound: number;
+  quickestVictory: number; // rounds
+  longestBattle: number; // rounds
+  mostDamagingAttack: number;
+  
+  // Narrative elements
+  slogans: FighterSlogan[];
+  catchphrases: string[];
+  memorableQuotes: string[];
+  fightingStyle: string;
+  styleEvolution: StyleEvolution[];
+  
+  // Battle history
+  battleHistory: BattleRecord[];
+  tournamentHistory: TournamentRecord[];
+  
+  // Relationships and rivalries
+  rivals: string[]; // fighter IDs
+  allies: string[]; // fighter IDs
+  crowdReactions: CrowdReaction[];
+}
+
+interface FighterSlogan {
+  id: string;
+  slogan: string;
+  context: 'battle' | 'tournament' | 'slideshow' | 'victory' | 'defeat';
+  battleId?: string;
+  tournamentId?: string;
+  createdAt: Date;
+  popularity: number; // crowd reaction score
+}
+
+interface BattleRecord {
+  battleId: string;
+  opponent: string;
+  result: 'win' | 'loss' | 'draw';
+  rounds: number;
+  damageDealt: number;
+  damageTaken: number;
+  arena: string;
+  date: Date;
+  notableMoments: string[];
+  slogansUsed: string[];
+  crowdReactions: string[];
+}
+
+interface TournamentRecord {
+  tournamentId: string;
+  tournamentName: string;
+  placement: number;
+  totalParticipants: number;
+  matchesPlayed: number;
+  matchesWon: number;
+  date: Date;
+  arena: string;
+  memorableMoments: string[];
+  slogansCreated: string[];
+}
+```
+
+### Arena Interaction System
+
+```typescript
+interface ArenaData {
+  id: string;
+  name: string;
+  description: string;
+  type: 'indoor' | 'outdoor' | 'urban' | 'natural' | 'fantasy';
+  
+  // Tactical elements
+  interactiveObjects: ArenaObject[];
+  hazards: ArenaHazard[];
+  advantages: ArenaAdvantage[];
+  coverPoints: CoverPoint[];
+  
+  // Environmental conditions
+  lighting: 'bright' | 'dim' | 'dark' | 'variable';
+  weather: 'clear' | 'rain' | 'fog' | 'storm';
+  terrain: 'flat' | 'uneven' | 'slippery' | 'rough';
+  
+  // Battle modifiers
+  damageMultipliers: Record<string, number>;
+  movementModifiers: Record<string, number>;
+  specialEvents: ArenaEvent[];
+}
+
+interface ArenaObject {
+  id: string;
+  name: string;
+  type: 'weapon' | 'cover' | 'hazard' | 'advantage';
+  description: string;
+  damagePotential: number;
+  defensiveValue: number;
+  usageLimit: number;
+  respawnTime?: number; // seconds
+  interactionType: 'throw' | 'hide' | 'climb' | 'break' | 'use';
+}
+
+interface ArenaHazard {
+  id: string;
+  name: string;
+  description: string;
+  damage: number;
+  triggerCondition: string;
+  frequency: 'rare' | 'occasional' | 'frequent';
+  affectedFighters: 'both' | 'random' | 'attacker' | 'defender';
+}
+```
+
+### Tournament Narrative System
+
+```typescript
+interface TournamentNarrative {
+  tournamentId: string;
+  name: string;
+  
+  // Historical context
+  previousTournaments: TournamentReference[];
+  returningFighters: FighterReference[];
+  newFighters: FighterReference[];
+  rivalries: Rivalry[];
+  
+  // Storylines
+  storylines: TournamentStoryline[];
+  predictions: Prediction[];
+  upsets: Upset[];
+  dominantPerformances: DominantPerformance[];
+  
+  // Commentary context
+  commentaryHistory: CommentaryEntry[];
+  memorableQuotes: string[];
+  crowdFavorites: string[];
+  underdogs: string[];
+  
+  // Arena integration
+  arenaHistory: ArenaBattleRecord[];
+  environmentalEvents: ArenaEvent[];
+}
+
+interface TournamentStoryline {
+  id: string;
+  type: 'rivalry' | 'redemption' | 'underdog' | 'dominance' | 'upset';
+  fighters: string[];
+  description: string;
+  stakes: string;
+  resolution?: string;
+  impact: 'low' | 'medium' | 'high' | 'legendary';
+}
+```
+
+## Prompt Architecture
+
+### Enhanced Fighter Generation Prompts
+
+```typescript
+interface FighterGenerationContext {
+  // Historical data
+  previousBattles: BattleRecord[];
+  tournamentHistory: TournamentRecord[];
+  memorableSlogans: string[];
+  fightingStyle: string;
+  
+  // Arena context
+  arenaType: string;
+  arenaObjects: string[];
+  tacticalAdvantages: string[];
+  
+  // Narrative elements
+  rivalries: string[];
+  achievements: string[];
+  crowdReactions: string[];
+}
+
+const ENHANCED_FIGHTER_GENERATION_PROMPT = `
+You are generating a fighter with rich history and personality.
+
+FIGHTER HISTORY:
+- Previous battles: ${fighterHistory.previousBattles}
+- Tournament record: ${fighterHistory.tournamentHistory}
+- Memorable slogans: ${fighterHistory.memorableSlogans}
+- Fighting style evolution: ${fighterHistory.styleEvolution}
+
+ARENA CONTEXT:
+- Arena type: ${arenaContext.type}
+- Available objects: ${arenaContext.objects}
+- Tactical advantages: ${arenaContext.advantages}
+
+NARRATIVE ELEMENTS:
+- Rivalries: ${fighterHistory.rivalries}
+- Achievements: ${fighterHistory.achievements}
+- Crowd reactions: ${fighterHistory.crowdReactions}
+
+Generate stats and abilities that reflect this fighter's journey and current arena context.
+`;
+```
+
+### Enhanced Arena Description Prompts
+
+```typescript
+const ENHANCED_ARENA_DESCRIPTION_PROMPT = `
+You are describing a battle arena with rich tactical possibilities.
+
+ARENA TYPE: ${arenaType}
+PREVIOUS BATTLES: ${previousBattles}
+ENVIRONMENTAL FEATURES: ${environmentalFeatures}
+
+TACTICAL REQUIREMENTS:
+- Identify objects fighters can use as weapons or cover
+- Describe hazards that can affect combat
+- List tactical advantages for different fighting styles
+- Explain how the environment influences battle strategy
+
+INTERACTION POSSIBILITIES:
+- Objects that can be thrown, broken, or used as cover
+- Environmental hazards that can damage fighters
+- Tactical positions that provide advantages
+- Dynamic elements that can change during battle
+
+Generate a description that makes this arena feel alive and strategically important.
+`;
+```
+
+### Enhanced Tournament Commentary Prompts
+
+```typescript
+const ENHANCED_TOURNAMENT_COMMENTARY_PROMPT = `
+You are providing tournament commentary with rich historical context.
+
+FIGHTER A HISTORY:
+- Battle record: ${fighterA.battleHistory}
+- Tournament performance: ${fighterA.tournamentHistory}
+- Memorable slogans: ${fighterA.memorableSlogans}
+- Fighting style: ${fighterA.fightingStyle}
+- Rivalries: ${fighterA.rivalries}
+
+FIGHTER B HISTORY:
+- Battle record: ${fighterB.battleHistory}
+- Tournament performance: ${fighterB.tournamentHistory}
+- Memorable slogans: ${fighterB.memorableSlogans}
+- Fighting style: ${fighterB.fightingStyle}
+- Rivalries: ${fighterB.rivalries}
+
+TOURNAMENT CONTEXT:
+- Previous encounters: ${previousEncounters}
+- Tournament storylines: ${storylines}
+- Arena history: ${arenaHistory}
+- Crowd expectations: ${crowdExpectations}
+
+ARENA CONTEXT:
+- Available objects: ${arenaObjects}
+- Environmental conditions: ${environmentalConditions}
+- Tactical possibilities: ${tacticalPossibilities}
+
+Generate commentary that weaves together fighter history, tournament narrative, and arena context.
+`;
+```
+
+### Enhanced Fighter Slideshow Prompts
+
+```typescript
+const ENHANCED_FIGHTER_SLIDESHOW_PROMPT = `
+You are introducing a fighter with their complete history and personality.
+
+FIGHTER DETAILS:
+- Name: ${fighter.name}
+- Stats: ${fighter.stats}
+- Abilities: ${fighter.uniqueAbilities}
+
+FIGHTER HISTORY:
+- Battle record: ${fighter.battleHistory}
+- Tournament achievements: ${fighter.tournamentHistory}
+- Memorable slogans: ${fighter.memorableSlogans}
+- Fighting style evolution: ${fighter.styleEvolution}
+- Crowd reactions: ${fighter.crowdReactions}
+
+CURRENT CONTEXT:
+- Arena: ${arena.name}
+- Tournament: ${tournament.name}
+- Opponent: ${opponent?.name}
+- Stakes: ${stakes}
+
+SLIDESHOW REQUIREMENTS:
+- Reference fighter's own slogans and catchphrases
+- Include battle statistics and achievements
+- Mention tournament history and placements
+- Create anticipation for the upcoming battle
+- Make the fighter feel legendary and unique
+
+Generate slogans and description that celebrate this fighter's journey and build excitement.
+`;
+```
+
+## Implementation Strategy
+
+### Phase 1: Data Structure Foundation
+1. Extend fighter data model with history tracking
+2. Create arena interaction system
+3. Implement tournament narrative tracking
+4. Add persistent storage for all historical data
+
+### Phase 2: Enhanced Prompt Integration
+1. Update fighter generation to include historical context
+2. Enhance arena descriptions with tactical elements
+3. Improve tournament commentary with fighter history
+4. Upgrade fighter slideshow with personal achievements
+
+### Phase 3: Dynamic Battle Integration
+1. Implement arena object interactions during battles
+2. Add environmental hazards and advantages
+3. Create dynamic commentary that references history
+4. Generate post-battle slogans and memorable moments
+
+### Phase 4: Narrative Evolution
+1. Track fighter style evolution over time
+2. Create ongoing storylines and rivalries
+3. Implement crowd reaction system
+4. Generate tournament predictions and upsets
+
+## Benefits
+
+1. **Immersive Experience**: Every battle feels connected to a larger story
+2. **Dynamic Content**: AI-generated content becomes more relevant and engaging
+3. **Replayability**: Each tournament creates unique narratives
+4. **Character Development**: Fighters evolve and grow over time
+5. **Strategic Depth**: Arena interactions add tactical complexity
+6. **Emotional Investment**: Players become attached to fighter journeys
+
+## Technical Considerations
+
+1. **Data Persistence**: All historical data must be stored and retrieved efficiently
+2. **Performance**: Rich context shouldn't slow down battle generation
+3. **Consistency**: AI-generated content must maintain narrative coherence
+4. **Scalability**: System should handle growing fighter and tournament databases
+5. **Fallbacks**: Graceful degradation when historical data is unavailable
+
+This architecture creates a living, breathing fighting game world where every battle contributes to an ongoing narrative, making each tournament feel like a chapter in an epic story.

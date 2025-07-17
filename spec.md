@@ -198,6 +198,121 @@ npx playwright test --grep "visual regression"
 - **Implementation:** Added damage tracking loop that sums damage dealt by each fighter across all rounds
 - **Result:** Winner is now correctly determined by who dealt more damage, with draws only occurring when damage is exactly equal
 
+---
+
+# Tournament Commentary & Battle Replay Enhancement (2025-01-17)
+
+## Overview
+Enhance the tournament system with:
+1. **Tournament Commentary**: Add dramatic commentary for tournament matches using the enhanced commentary API
+2. **Fighter Slideshows**: Display fighter slogans and descriptions before battles
+3. **Battle Replay Integration**: Allow clicking on completed tournament matches to view battle replays
+
+## Phase 1: Tournament Commentary Integration
+
+### 1.1: Tournament Match Commentary API
+- [ ] Write failing test for tournament match commentary generation
+- [ ] Create API endpoint `/api/tournaments/generate-match-commentary` that uses the enhanced commentary system
+- [ ] Generate dramatic commentary for each tournament match including:
+  - Pre-match hype and fighter introductions
+  - Round-by-round commentary during battle execution
+  - Post-match analysis and winner celebration
+- [ ] **Commit:** `feat(api): add tournament match commentary generation`
+
+### 1.2: Tournament Commentary Display
+- [ ] Write failing test for tournament commentary display component
+- [ ] Create `TournamentCommentary` component to display match commentary
+- [ ] Integrate commentary display in tournament bracket view
+- [ ] Show commentary for completed matches with dramatic styling
+- [ ] **Commit:** `feat(ui): add tournament commentary display component`
+
+### 1.3: Pre-Match Fighter Slideshows
+- [ ] Write failing test for fighter slideshow in tournaments
+- [ ] Integrate `FighterSlideshow` component into tournament match execution
+- [ ] Generate fighter slogans and descriptions for tournament participants
+- [ ] Display slideshow before each tournament match begins
+- [ ] **Commit:** `feat(ui): integrate fighter slideshows in tournament matches`
+
+## Phase 2: Battle Replay Integration
+
+### 2.1: Tournament Match Click Handler
+- [ ] Write failing test for tournament match click functionality
+- [ ] Implement `handleMatchClick` in tournament page for completed matches
+- [ ] Add state management for battle replay view in tournament page
+- [ ] Navigate to battle replay view when completed match is clicked
+- [ ] **Commit:** `feat(tournament): add click handler for completed matches`
+
+### 2.2: Tournament Battle Replay View
+- [ ] Write failing test for tournament battle replay display
+- [ ] Create tournament-specific battle replay view component
+- [ ] Display tournament match data in battle replay format
+- [ ] Show tournament context (round, match number, tournament name)
+- [ ] **Commit:** `feat(ui): add tournament battle replay view`
+
+### 2.3: Battle Replay Navigation
+- [ ] Write failing test for battle replay navigation in tournaments
+- [ ] Add navigation controls to return to tournament bracket
+- [ ] Implement "Back to Tournament" functionality
+- [ ] Ensure proper state management between views
+- [ ] **Commit:** `feat(ui): add navigation for tournament battle replays`
+
+## Phase 3: Enhanced Tournament Experience
+
+### 3.1: Tournament Arena Descriptions
+- [ ] Write failing test for tournament arena description display
+- [ ] Generate enhanced arena descriptions for tournament venues
+- [ ] Display arena descriptions in tournament bracket and replays
+- [ ] Integrate arena descriptions with match commentary
+- [ ] **Commit:** `feat(ui): add enhanced arena descriptions to tournaments`
+
+### 3.2: Tournament Battle Summary
+- [ ] Write failing test for tournament battle summary generation
+- [ ] Generate dramatic battle summaries for tournament matches
+- [ ] Display battle summaries in tournament bracket and replays
+- [ ] Include tournament context in battle summaries
+- [ ] **Commit:** `feat(api): add tournament battle summary generation`
+
+### 3.3: Tournament Results Modal
+- [ ] Write failing test for tournament results modal
+- [ ] Create tournament-specific results modal component
+- [ ] Display tournament match results with commentary and summary
+- [ ] Show tournament progression and next match information
+- [ ] **Commit:** `feat(ui): add tournament results modal`
+
+## Implementation Requirements
+
+### API Endpoints
+- `/api/tournaments/generate-match-commentary` - Generate commentary for tournament matches
+- `/api/tournaments/generate-battle-summary` - Generate battle summaries for tournament matches
+- Enhanced existing tournament execution to include commentary and slideshows
+
+### Components
+- `TournamentCommentary` - Display tournament match commentary
+- `TournamentBattleReplay` - Tournament-specific battle replay view
+- `TournamentResultsModal` - Tournament match results display
+- Enhanced `TournamentBracket` with click handlers
+- Enhanced `TournamentPage` with battle replay state management
+
+### Data Flow
+1. Tournament match execution generates commentary and battle data
+2. Completed matches become clickable in tournament bracket
+3. Clicking completed match opens battle replay view
+4. Battle replay shows tournament context and commentary
+5. Results modal displays tournament-specific information
+
+### User Experience
+- Seamless navigation between tournament bracket and battle replays
+- Dramatic commentary enhances tournament atmosphere
+- Fighter slideshows build anticipation before matches
+- Clear tournament context in all battle replay views
+- Easy return to tournament bracket from any replay
+
+## Testing Strategy
+- Unit tests for all new components and API endpoints
+- Integration tests for tournament commentary generation
+- E2E tests for tournament battle replay workflow
+- Visual regression tests for tournament UI enhancements
+
 ### UI Layout Improvements
 **Issue:** Fighter stats display was taking up too much vertical space.
 - **Problem:** 3-column grid with large padding made stats section unnecessarily tall
@@ -7414,3 +7529,327 @@ The tournament system has been enhanced with a modern dark theme and improved la
 - **Cross-Browser Compatibility**: Tests run on Chromium, Firefox, and WebKit
 - **Responsive Testing**: Automated testing across different screen sizes
 - **Accessibility**: Improved contrast ratios and keyboard navigation
+
+---
+
+# Rich Interconnected Narrative System Implementation Plan
+
+## Overview
+
+This plan implements a comprehensive narrative system where fighters, arenas, and tournaments create a living, evolving world with persistent history and dynamic interactions. Every battle contributes to ongoing storylines, making each tournament feel like a chapter in an epic story.
+
+## Project Phases
+
+### Phase 1: Data Structure Foundation (Week 1)
+
+#### 1.1 Extend Fighter Data Model
+- [ ] **Write failing Jest test for enhanced fighter history tracking**
+- [ ] Create `FighterHistory` interface with battle records, tournament history, and slogans
+- [ ] Extend `Fighter` interface to include history and narrative elements
+- [ ] Add `FighterSlogan`, `BattleRecord`, and `TournamentRecord` interfaces
+- [ ] Implement fighter history persistence in the store
+- [ ] **Run tests and verify fighter history tracking works**
+- [ ] **Refactor and commit changes**
+
+#### 1.2 Create Arena Interaction System
+- [ ] **Write failing Jest test for arena tactical elements**
+- [ ] Create `ArenaData` interface with interactive objects and hazards
+- [ ] Add `ArenaObject`, `ArenaHazard`, and `ArenaAdvantage` interfaces
+- [ ] Implement arena object interaction logic
+- [ ] Create arena environmental condition system
+- [ ] **Run tests and verify arena interactions work**
+- [ ] **Refactor and commit changes**
+
+#### 1.3 Implement Tournament Narrative Tracking
+- [ ] **Write failing Jest test for tournament storylines**
+- [ ] Create `TournamentNarrative` interface with storylines and predictions
+- [ ] Add `TournamentStoryline`, `Rivalry`, and `Prediction` interfaces
+- [ ] Extend tournament data model to include narrative elements
+- [ ] Implement storyline generation and tracking
+- [ ] **Run tests and verify tournament narratives work**
+- [ ] **Refactor and commit changes**
+
+#### 1.4 Add Persistent Storage
+- [ ] **Write failing Jest test for historical data persistence**
+- [ ] Create fighter history storage service
+- [ ] Implement tournament narrative persistence
+- [ ] Add arena interaction history tracking
+- [ ] Create data migration system for existing fighters
+- [ ] **Run tests and verify data persistence works**
+- [ ] **Refactor and commit changes**
+
+### Phase 2: Enhanced Prompt Integration (Week 2)
+
+#### 2.1 Update Fighter Generation with Historical Context
+- [ ] **Write failing Jest test for enhanced fighter generation prompts**
+- [ ] Create `FighterGenerationContext` interface
+- [ ] Update fighter generation prompts to include battle history
+- [ ] Add tournament performance context to fighter stats
+- [ ] Implement fighting style evolution based on history
+- [ ] **Run tests and verify enhanced fighter generation works**
+- [ ] **Refactor and commit changes**
+
+#### 2.2 Enhance Arena Descriptions with Tactical Elements
+- [ ] **Write failing Jest test for tactical arena descriptions**
+- [ ] Update arena description prompts to include interactive objects
+- [ ] Add environmental hazard and advantage identification
+- [ ] Implement arena-specific battle modifiers
+- [ ] **Run tests and verify tactical arena descriptions work**
+- [ ] **Refactor and commit changes**
+
+#### 2.3 Improve Tournament Commentary with Fighter History
+- [ ] **Write failing Jest test for historical tournament commentary**
+- [ ] Update tournament commentary prompts to reference fighter history
+- [ ] Add previous battle and tournament performance context
+- [ ] Implement rivalry and storyline references
+- [ ] Create memorable quote integration
+- [ ] **Run tests and verify historical commentary works**
+- [ ] **Refactor and commit changes**
+
+#### 2.4 Upgrade Fighter Slideshow with Personal Achievements
+- [ ] **Write failing Jest test for personalized fighter slideshows**
+- [ ] Update fighter slideshow prompts to include battle statistics
+- [ ] Add tournament achievement references
+- [ ] Implement personal slogan and catchphrase integration
+- [ ] Create fighting style evolution display
+- [ ] **Run tests and verify personalized slideshows work**
+- [ ] **Refactor and commit changes**
+
+### Phase 3: Dynamic Battle Integration (Week 3)
+
+#### 3.1 Implement Arena Object Interactions During Battles
+- [ ] **Write failing Jest test for arena object interactions**
+- [ ] Create arena object interaction system during battles
+- [ ] Add object usage logic (throw, hide, climb, break, use)
+- [ ] Implement object damage and defensive effects
+- [ ] Create object respawn and usage limit system
+- [ ] **Run tests and verify arena interactions work**
+- [ ] **Refactor and commit changes**
+
+#### 3.2 Add Environmental Hazards and Advantages
+- [ ] **Write failing Jest test for environmental hazards**
+- [ ] Implement environmental hazard system during battles
+- [ ] Add hazard trigger conditions and frequency
+- [ ] Create hazard damage and effect system
+- [ ] Implement tactical advantage positioning
+- [ ] **Run tests and verify environmental hazards work**
+- [ ] **Refactor and commit changes**
+
+#### 3.3 Create Dynamic Commentary Referencing History
+- [ ] **Write failing Jest test for historical battle commentary**
+- [ ] Update battle commentary to reference fighter history
+- [ ] Add previous encounter and rivalry mentions
+- [ ] Implement arena-specific commentary elements
+- [ ] Create memorable moment generation
+- [ ] **Run tests and verify historical commentary works**
+- [ ] **Refactor and commit changes**
+
+#### 3.4 Generate Post-Battle Slogans and Memorable Moments
+- [ ] **Write failing Jest test for post-battle content generation**
+- [ ] Create post-battle slogan generation system
+- [ ] Implement memorable moment identification
+- [ ] Add crowd reaction tracking
+- [ ] Create battle summary with historical context
+- [ ] **Run tests and verify post-battle content works**
+- [ ] **Refactor and commit changes**
+
+### Phase 4: Narrative Evolution (Week 4)
+
+#### 4.1 Track Fighter Style Evolution Over Time
+- [ ] **Write failing Jest test for fighter style evolution**
+- [ ] Implement fighting style analysis based on battle patterns
+- [ ] Create style evolution tracking system
+- [ ] Add adaptive stat adjustments based on performance
+- [ ] Implement learning and improvement mechanics
+- [ ] **Run tests and verify style evolution works**
+- [ ] **Refactor and commit changes**
+
+#### 4.2 Create Ongoing Storylines and Rivalries
+- [ ] **Write failing Jest test for storyline generation**
+- [ ] Implement automatic rivalry detection and creation
+- [ ] Create storyline generation based on battle outcomes
+- [ ] Add redemption and underdog storylines
+- [ ] Implement storyline resolution tracking
+- [ ] **Run tests and verify storylines work**
+- [ ] **Refactor and commit changes**
+
+#### 4.3 Implement Crowd Reaction System
+- [ ] **Write failing Jest test for crowd reactions**
+- [ ] Create crowd reaction generation system
+- [ ] Add crowd favorite tracking
+- [ ] Implement underdog and upset detection
+- [ ] Create crowd reaction influence on commentary
+- [ ] **Run tests and verify crowd reactions work**
+- [ ] **Refactor and commit changes**
+
+#### 4.4 Generate Tournament Predictions and Upsets
+- [ ] **Write failing Jest test for tournament predictions**
+- [ ] Implement tournament prediction generation
+- [ ] Add upset detection and tracking
+- [ ] Create dominant performance identification
+- [ ] Implement prediction accuracy tracking
+- [ ] **Run tests and verify predictions work**
+- [ ] **Refactor and commit changes**
+
+## Detailed Todo List
+
+### Week 1: Data Structure Foundation
+
+#### Day 1-2: Fighter History System
+- [ ] **Write failing Jest test for FighterHistory interface**
+- [ ] Create `src/lib/types/fighter-history.ts` with all fighter history interfaces
+- [ ] Extend `src/lib/stores/fightingGameStore.ts` to include fighter history
+- [ ] Add fighter history persistence methods
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(fighter): implement fighter history tracking system`**
+
+#### Day 3-4: Arena Interaction System
+- [ ] **Write failing Jest test for ArenaData interface**
+- [ ] Create `src/lib/types/arena-interaction.ts` with arena interaction interfaces
+- [ ] Extend arena data model to include tactical elements
+- [ ] Implement arena object interaction logic
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(arena): implement tactical arena interaction system`**
+
+#### Day 5-7: Tournament Narrative System
+- [ ] **Write failing Jest test for TournamentNarrative interface**
+- [ ] Create `src/lib/types/tournament-narrative.ts` with narrative interfaces
+- [ ] Extend tournament data model to include storylines
+- [ ] Implement storyline generation and tracking
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(tournament): implement narrative tracking system`**
+
+### Week 2: Enhanced Prompt Integration
+
+#### Day 8-9: Enhanced Fighter Generation
+- [ ] **Write failing Jest test for enhanced fighter generation prompts**
+- [ ] Update `src/lib/prompts/optimized-prompts.ts` with historical context prompts
+- [ ] Modify `src/lib/lmstudio-client.ts` to include fighter history in generation
+- [ ] Implement fighting style evolution logic
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(fighter): enhance generation with historical context`**
+
+#### Day 10-11: Enhanced Arena Descriptions
+- [ ] **Write failing Jest test for tactical arena descriptions**
+- [ ] Update arena description prompts to include interactive elements
+- [ ] Add environmental hazard and advantage identification
+- [ ] Implement arena-specific battle modifiers
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(arena): enhance descriptions with tactical elements`**
+
+#### Day 12-14: Enhanced Tournament Commentary
+- [ ] **Write failing Jest test for historical tournament commentary**
+- [ ] Update tournament commentary prompts to reference fighter history
+- [ ] Add rivalry and storyline integration
+- [ ] Implement memorable quote system
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(tournament): enhance commentary with fighter history`**
+
+### Week 3: Dynamic Battle Integration
+
+#### Day 15-16: Arena Object Interactions
+- [ ] **Write failing Jest test for arena object interactions during battles**
+- [ ] Create `src/lib/services/arena-interaction-service.ts`
+- [ ] Implement object usage logic in battle system
+- [ ] Add object damage and defensive effects
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(battle): implement arena object interactions`**
+
+#### Day 17-18: Environmental Hazards
+- [ ] **Write failing Jest test for environmental hazards during battles**
+- [ ] Implement environmental hazard system
+- [ ] Add hazard trigger conditions and effects
+- [ ] Create tactical advantage positioning
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(battle): implement environmental hazards`**
+
+#### Day 19-21: Dynamic Battle Commentary
+- [ ] **Write failing Jest test for historical battle commentary**
+- [ ] Update battle commentary to reference fighter history
+- [ ] Add arena-specific commentary elements
+- [ ] Implement memorable moment generation
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(battle): enhance commentary with historical context`**
+
+### Week 4: Narrative Evolution
+
+#### Day 22-23: Fighter Style Evolution
+- [ ] **Write failing Jest test for fighter style evolution tracking**
+- [ ] Create `src/lib/services/fighter-evolution-service.ts`
+- [ ] Implement fighting style analysis based on battle patterns
+- [ ] Add adaptive stat adjustments
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(fighter): implement style evolution system`**
+
+#### Day 24-25: Storylines and Rivalries
+- [ ] **Write failing Jest test for storyline generation**
+- [ ] Create `src/lib/services/storyline-service.ts`
+- [ ] Implement automatic rivalry detection
+- [ ] Add storyline generation and resolution
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(tournament): implement storyline generation`**
+
+#### Day 26-28: Crowd Reactions and Predictions
+- [ ] **Write failing Jest test for crowd reaction system**
+- [ ] Create `src/lib/services/crowd-reaction-service.ts`
+- [ ] Implement crowd reaction generation
+- [ ] Add tournament prediction system
+- [ ] **Run test and verify it passes**
+- [ ] **Refactor and commit: `feat(tournament): implement crowd reactions and predictions`**
+
+## Success Criteria
+
+### Phase 1 Success Criteria
+- [ ] All fighter history data is properly stored and retrieved
+- [ ] Arena tactical elements are identified and described
+- [ ] Tournament narratives are generated and tracked
+- [ ] Historical data persists across sessions
+
+### Phase 2 Success Criteria
+- [ ] Fighter generation includes historical context
+- [ ] Arena descriptions include tactical elements
+- [ ] Tournament commentary references fighter history
+- [ ] Fighter slideshows include personal achievements
+
+### Phase 3 Success Criteria
+- [ ] Arena objects can be used during battles
+- [ ] Environmental hazards affect battle outcomes
+- [ ] Battle commentary references fighter history
+- [ ] Post-battle content is generated with context
+
+### Phase 4 Success Criteria
+- [ ] Fighter styles evolve based on performance
+- [ ] Storylines and rivalries are automatically generated
+- [ ] Crowd reactions influence commentary
+- [ ] Tournament predictions are generated and tracked
+
+## Testing Strategy
+
+### Unit Tests
+- Each new interface and service will have comprehensive unit tests
+- Mock data will be used to test historical context integration
+- Edge cases will be covered (no history, empty data, etc.)
+
+### Integration Tests
+- End-to-end testing of fighter history tracking
+- Arena interaction testing during battles
+- Tournament narrative flow testing
+
+### Performance Tests
+- Ensure rich context doesn't slow down battle generation
+- Test data persistence performance with large datasets
+- Verify memory usage with extensive fighter history
+
+## Risk Mitigation
+
+### Technical Risks
+- **Performance Impact**: Monitor battle generation times and optimize prompts
+- **Data Consistency**: Implement validation and error handling for historical data
+- **Memory Usage**: Implement data cleanup and archiving for old records
+
+### User Experience Risks
+- **Information Overload**: Design UI to present rich context gradually
+- **Narrative Coherence**: Implement consistency checks for AI-generated content
+- **Fallback Handling**: Ensure graceful degradation when historical data is unavailable
+
+This implementation plan creates a comprehensive narrative system that transforms the fighting game into a living, breathing world with rich history and dynamic interactions.

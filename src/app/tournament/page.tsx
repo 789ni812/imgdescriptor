@@ -1,28 +1,74 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Tournament } from '@/lib/types/tournament';
+import React, { useState, useEffect } from 'react';
+import { Tournament, TournamentMatch, TournamentHistoricalData } from '@/lib/types/tournament';
 import { TournamentCreator } from '@/components/tournament/TournamentCreator';
 import { TournamentList } from '@/components/tournament/TournamentList';
 import { TournamentBracket } from '@/components/tournament/TournamentBracket';
 import { TournamentControls } from '@/components/tournament/TournamentControls';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
+import BattleViewer from '@/components/fighting/BattleViewer';
+import WinnerAnimation from '@/components/fighting/WinnerAnimation';
+import { BattleRound } from '@/lib/types/battle';
+import { PreGeneratedBattleRound } from '@/lib/stores/fightingGameStore';
+import FighterSlideshow from '@/components/fighting/FighterSlideshow';
+import TournamentCommentary from '@/components/tournament/TournamentCommentary';
+import { TournamentCommentaryService } from '@/lib/services/tournament-commentary-service';
 
-type ViewMode = 'list' | 'create' | 'tournament';
+type ViewMode = 'list' | 'create' | 'tournament' | 'battle-replay';
+
+// Helper function to convert PreGeneratedBattleRound to BattleRound
+const mapPreGeneratedToBattleRound = (log: PreGeneratedBattleRound[]): BattleRound[] => {
+  return log.map(round => ({
+    ...round,
+    randomEvent: null, // PreGeneratedBattleRound doesn't have this field
+    arenaObjectsUsed: null, // PreGeneratedBattleRound doesn't have this field
+    healthAfter: round.healthAfter || {
+      attacker: 0,
+      defender: 0
+    }
+  }));
+};
 
 export default function TournamentPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<TournamentMatch | null>(null);
+  
+  // Battle replay state
+  const [showBattleResults, setShowBattleResults] = useState(false);
+  const [battleReplayComplete, setBattleReplayComplete] = useState(false);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+  const [showCommentary, setShowCommentary] = useState(false);
+  const [tournamentCommentary, setTournamentCommentary] = useState<string>('');
+  const [historicalData, setHistoricalData] = useState<TournamentHistoricalData | null>(null);
+
+  // Initialize commentary service
+  const commentaryService = TournamentCommentaryService.getInstance();
+
+  // Initialize historical data when tournament is selected
+  useEffect(() => {
+    if (selectedTournament && !historicalData) {
+      const initialHistoricalData = commentaryService.initializeHistoricalData(selectedTournament);
+      setHistoricalData(initialHistoricalData);
+    }
+  }, [selectedTournament, historicalData, commentaryService]);
 
   const handleTournamentCreated = (tournament: Tournament) => {
     setSelectedTournament(tournament);
     setViewMode('tournament');
+    // Initialize historical data for new tournament
+    const initialHistoricalData = commentaryService.initializeHistoricalData(tournament);
+    setHistoricalData(initialHistoricalData);
   };
 
   const handleTournamentSelect = (tournament: Tournament) => {
     setSelectedTournament(tournament);
     setViewMode('tournament');
+    // Initialize historical data for selected tournament
+    const initialHistoricalData = commentaryService.initializeHistoricalData(tournament);
+    setHistoricalData(initialHistoricalData);
   };
 
   const handleTournamentUpdated = (tournament: Tournament) => {
@@ -31,7 +77,62 @@ export default function TournamentPage() {
 
   const handleBackToList = () => {
     setSelectedTournament(null);
+    setHistoricalData(null);
     setViewMode('list');
+  };
+
+  // New handler for tournament match clicks
+  const handleMatchClick = async (match: TournamentMatch) => {
+    if (match.status === 'completed' && match.battleLog && match.fighterA && match.fighterB && selectedTournament && historicalData) {
+      setSelectedMatch(match);
+      setViewMode('battle-replay');
+      setShowBattleResults(false);
+      setBattleReplayComplete(false);
+      setShowSlideshow(true);
+      setShowCommentary(false);
+
+      // Pre-generate commentary with historical context
+      try {
+        const commentary = await commentaryService.generateMatchCommentary(
+          selectedTournament,
+          match,
+          historicalData
+        );
+        setTournamentCommentary(commentary.commentary);
+      } catch (error) {
+        console.error('Failed to generate commentary:', error);
+        setTournamentCommentary('The crowd is buzzing with excitement as the fighters prepare to enter the arena!');
+      }
+    }
+  };
+
+  // Handler after slideshow completes
+  const handleSlideshowComplete = () => {
+    setShowSlideshow(false);
+    setShowCommentary(true);
+  };
+
+  // Handler after commentary is done
+  const handleCommentaryContinue = () => {
+    setShowCommentary(false);
+  };
+
+  const handleBackToTournament = () => {
+    setSelectedMatch(null);
+    setViewMode('tournament');
+    setShowBattleResults(false);
+    setBattleReplayComplete(false);
+  };
+
+  const handleBattleReplayComplete = () => {
+    console.log('Tournament: Battle replay completed, showing results modal');
+    setBattleReplayComplete(true);
+    setShowBattleResults(true);
+  };
+
+  const handleCloseBattleResults = () => {
+    setShowBattleResults(false);
+    setBattleReplayComplete(false);
   };
 
   return (
@@ -135,10 +236,156 @@ export default function TournamentPage() {
 
             {/* Tournament Bracket */}
             <div data-testid="tournament-bracket">
-              <TournamentBracket tournament={selectedTournament} />
+              <TournamentBracket 
+                tournament={selectedTournament} 
+                onMatchClick={handleMatchClick}
+              />
             </div>
           </div>
         )}
+
+        {/* Battle Replay View */}
+        {viewMode === 'battle-replay' && selectedMatch && selectedTournament && (() => {
+          const { fighterA, fighterB } = selectedMatch;
+          if (!fighterA || !fighterB) return null;
+          return (
+            <div className="space-y-6" data-testid="tournament-battle-replay-view">
+              {showSlideshow && (
+                <FighterSlideshow
+                  fighters={[
+                    {
+                      ...fighterA,
+                      stats: {
+                        ...fighterA.stats,
+                        intelligence: fighterA.stats.intelligence ?? 0,
+                        uniqueAbilities: fighterA.stats.uniqueAbilities ?? [],
+                      },
+                    },
+                    {
+                      ...fighterB,
+                      stats: {
+                        ...fighterB.stats,
+                        intelligence: fighterB.stats.intelligence ?? 0,
+                        uniqueAbilities: fighterB.stats.uniqueAbilities ?? [],
+                      },
+                    },
+                  ]}
+                  onComplete={handleSlideshowComplete}
+                  tournamentName={selectedTournament.name}
+                  arenaName={'Tournament Arena'}
+                />
+              )}
+              {showCommentary && (
+                <TournamentCommentary
+                  commentary={tournamentCommentary}
+                  onContinue={handleCommentaryContinue}
+                  fighterA={fighterA}
+                  fighterB={fighterB}
+                />
+              )}
+              {!showSlideshow && !showCommentary && selectedMatch.battleLog && (
+                <div data-testid="tournament-battle-viewer-container">
+                  {/* Battle Viewer Header */}
+                  <div className="mb-4">
+                    <Button onClick={handleBackToTournament} variant="secondary" data-testid="back-to-tournament-btn">
+                      ← Back to Tournament
+                    </Button>
+                  </div>
+
+                  {/* Tournament Context */}
+                  <Card className="bg-gray-800/90 border-2 border-gray-700 shadow-xl rounded-2xl p-6 mb-6">
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        🏆 {selectedTournament.name}
+                      </h2>
+                      <p className="text-gray-300 text-lg mb-2">
+                        Round {selectedMatch.round} • Match {selectedMatch.matchNumber}
+                      </p>
+                      <p className="text-gray-400">
+                        {fighterA.name} vs {fighterB.name}
+                      </p>
+                    </div>
+                  </Card>
+                  
+                  {/* Battle Viewer */}
+                  {!battleReplayComplete && (
+                    <BattleViewer
+                      fighterA={{
+                        ...fighterA,
+                        description: fighterA.description ?? '',
+                        visualAnalysis: fighterA.visualAnalysis ?? {
+                          age: 'unknown', size: 'medium', build: 'average', appearance: [], weapons: [], armor: []
+                        },
+                        combatHistory: fighterA.combatHistory ?? [],
+                        winLossRecord: fighterA.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
+                        createdAt: fighterA.createdAt ?? new Date().toISOString(),
+                      }}
+                      fighterB={{
+                        ...fighterB,
+                        description: fighterB.description ?? '',
+                        visualAnalysis: fighterB.visualAnalysis ?? {
+                          age: 'unknown', size: 'medium', build: 'average', appearance: [], weapons: [], armor: []
+                        },
+                        combatHistory: fighterB.combatHistory ?? [],
+                        winLossRecord: fighterB.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
+                        createdAt: fighterB.createdAt ?? new Date().toISOString(),
+                      }}
+                      scene={{
+                        id: selectedMatch.id,
+                        name: 'Tournament Arena',
+                        imageUrl: '',
+                        description: 'A neutral arena for tournament battles',
+                        environmentalObjects: [],
+                        createdAt: new Date().toISOString()
+                      }}
+                      battleLog={mapPreGeneratedToBattleRound(selectedMatch.battleLog)}
+                      onBattleReplayComplete={handleBattleReplayComplete}
+                    />
+                  )}
+
+                  {/* Battle Results Modal */}
+                  {showBattleResults && selectedMatch.winner && (
+                    <WinnerAnimation
+                      isOpen={showBattleResults}
+                      onClose={handleCloseBattleResults}
+                      winner={selectedMatch.winner.name}
+                      fighterA={{
+                        ...fighterA,
+                        description: fighterA.description ?? '',
+                        visualAnalysis: fighterA.visualAnalysis ?? {
+                          age: 'unknown', size: 'medium', build: 'average', appearance: [], weapons: [], armor: []
+                        },
+                        combatHistory: fighterA.combatHistory ?? [],
+                        winLossRecord: fighterA.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
+                        createdAt: fighterA.createdAt ?? new Date().toISOString(),
+                      }}
+                      fighterB={{
+                        ...fighterB,
+                        description: fighterB.description ?? '',
+                        visualAnalysis: fighterB.visualAnalysis ?? {
+                          age: 'unknown', size: 'medium', build: 'average', appearance: [], weapons: [], armor: []
+                        },
+                        combatHistory: fighterB.combatHistory ?? [],
+                        winLossRecord: fighterB.winLossRecord ?? { wins: 0, losses: 0, draws: 0 },
+                        createdAt: fighterB.createdAt ?? new Date().toISOString(),
+                      }}
+                      scene={{
+                        id: selectedMatch.id,
+                        name: 'Tournament Arena',
+                        imageUrl: '',
+                        description: 'A neutral arena for tournament battles',
+                        environmentalObjects: [],
+                        createdAt: new Date().toISOString()
+                      }}
+                      battleLog={mapPreGeneratedToBattleRound(selectedMatch.battleLog)}
+                      battleSummary={`Tournament Match: ${fighterA.name} vs ${fighterB.name} - Winner: ${selectedMatch.winner.name}`}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

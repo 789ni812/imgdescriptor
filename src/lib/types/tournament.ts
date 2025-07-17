@@ -11,6 +11,11 @@ export interface Tournament {
   currentRound: number;
   winner?: Fighter;
   totalRounds: number;
+  // New fields for enhanced tournament experience
+  commentary?: TournamentCommentary[];
+  historicalData?: TournamentHistoricalData;
+  arenaName?: string;
+  arenaDescription?: string;
 }
 
 export interface TournamentBracket {
@@ -27,6 +32,86 @@ export interface TournamentMatch {
   status: 'pending' | 'in_progress' | 'completed';
   round: number;
   matchNumber: number;
+  // New fields for enhanced match experience
+  preMatchCommentary?: string;
+  postMatchCommentary?: string;
+  battleSummary?: string;
+  notableMoments?: string[];
+  crowdReactions?: string[];
+}
+
+// New interface for tournament commentary
+export interface TournamentCommentary {
+  id: string;
+  type: 'opening' | 'introduction' | 'transition' | 'progress' | 'championship' | 'conclusion';
+  matchId?: string;
+  round: number;
+  matchNumber?: number;
+  commentary: string;
+  generatedAt: Date;
+  context: {
+    completedMatches: number;
+    remainingFighters: string[];
+    notableMoments: string[];
+    tournamentProgress: number;
+    currentStakes: string;
+  };
+}
+
+// New interface for tournament historical data
+export interface TournamentHistoricalData {
+  tournamentId: string;
+  startDate: Date;
+  endDate?: Date;
+  totalMatches: number;
+  completedMatches: number;
+  fighterStats: FighterTournamentStats[];
+  notableMoments: TournamentMoment[];
+  crowdFavorites: string[];
+  upsets: string[];
+  dominantPerformances: string[];
+  tournamentHighlights: string[];
+  arenaEvents: ArenaEvent[];
+}
+
+export interface FighterTournamentStats {
+  fighterId: string;
+  fighterName: string;
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  totalDamageDealt: number;
+  totalDamageTaken: number;
+  averageDamagePerRound: number;
+  quickestVictory?: number; // rounds
+  longestBattle?: number; // rounds
+  mostDamagingAttack?: number;
+  crowdReactions: string[];
+  memorableQuotes: string[];
+  fightingStyle: string;
+  tournamentJourney: string;
+  eliminated?: boolean; // Add missing property
+}
+
+export interface TournamentMoment {
+  id: string;
+  type: 'upset' | 'dominance' | 'drama' | 'skill' | 'crowd' | 'arena';
+  description: string;
+  matchId?: string;
+  round: number;
+  fighters: string[];
+  impact: 'low' | 'medium' | 'high' | 'legendary';
+  timestamp: Date;
+}
+
+export interface ArenaEvent {
+  id: string;
+  type: 'hazard' | 'advantage' | 'spectacle' | 'interference';
+  description: string;
+  matchId?: string;
+  round: number;
+  impact: string;
+  timestamp: Date;
 }
 
 export interface TournamentProgress {

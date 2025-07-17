@@ -16,6 +16,12 @@ interface Fighter {
     defense: number;
     intelligence: number;
     uniqueAbilities: string[];
+    luck: number;
+    age: number; // Changed from string to number
+    size: string;
+    maxHealth?: number;
+    magic?: number;
+    ranged?: number;
   };
   visualAnalysis: {
     age: string;
@@ -139,19 +145,19 @@ export default function FighterSlideshow({
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black flex items-center justify-center z-50">
+    <div data-testid="fighter-slideshow" className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black flex items-center justify-center z-50">
       <div className={`max-w-4xl w-full mx-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-        {/* Tournament Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+        {/* Tournament Header - Smaller and at top */}
+        <div className="text-center mb-4">
+          <h1 className="text-lg md:text-xl font-semibold text-gray-300 mb-1">
             {tournamentName}
           </h1>
-          <p className="text-xl text-gray-300">Arena: {arenaName}</p>
-          <div className="flex justify-center items-center mt-4 space-x-2">
+          <p className="text-sm text-gray-400">Arena: {arenaName}</p>
+          <div className="flex justify-center items-center mt-2 space-x-2">
             {fighters.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
                   index === currentFighterIndex ? 'bg-yellow-400' : 'bg-gray-600'
                 }`}
               />
@@ -175,8 +181,8 @@ export default function FighterSlideshow({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               </div>
               
-              {/* Fighter Stats */}
-              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+              {/* Comprehensive Fighter Stats Grid */}
+              <div className="mt-4 grid grid-cols-4 gap-2 text-sm">
                 <div className="bg-gray-800 rounded p-2 text-center">
                   <div className="text-yellow-400 font-bold">STR</div>
                   <div className="text-white">{currentFighter.stats.strength}</div>
@@ -193,17 +199,33 @@ export default function FighterSlideshow({
                   <div className="text-yellow-400 font-bold">DEF</div>
                   <div className="text-white">{currentFighter.stats.defense}</div>
                 </div>
+                <div className="bg-gray-800 rounded p-2 text-center">
+                  <div className="text-yellow-400 font-bold">LUCK</div>
+                  <div className="text-white">{currentFighter.stats.luck}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2 text-center">
+                  <div className="text-yellow-400 font-bold">INT</div>
+                  <div className="text-white">{currentFighter.stats.intelligence}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2 text-center">
+                  <div className="text-yellow-400 font-bold">AGE</div>
+                  <div className="text-white">{currentFighter.stats.age}</div>
+                </div>
+                <div className="bg-gray-800 rounded p-2 text-center">
+                  <div className="text-yellow-400 font-bold">SIZE</div>
+                  <div className="text-white capitalize">{currentFighter.stats.size}</div>
+                </div>
               </div>
             </div>
 
             {/* Fighter Info */}
             <div className="space-y-6">
-              {/* Fighter Name */}
+              {/* Fighter Name - Much Larger */}
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                <h2 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
                   {currentFighter.name}
                 </h2>
-                <div className="h-1 w-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded"></div>
+                <div className="h-2 w-32 bg-gradient-to-r from-yellow-400 to-orange-500 rounded"></div>
               </div>
 
               {/* Slogans */}
@@ -253,13 +275,11 @@ export default function FighterSlideshow({
           >
             Skip Intro
           </button>
-          
           <div className="text-center text-white">
             <p className="text-lg">
               Fighter {currentFighterIndex + 1} of {fighters.length}
             </p>
           </div>
-
           <button
             onClick={handleNext}
             className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black rounded-lg font-bold transition-all duration-200 transform hover:scale-105"
