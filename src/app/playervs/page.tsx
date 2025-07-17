@@ -402,7 +402,7 @@ export default function PlayerVsPage() {
       
       console.log('handleBeginCombat: Making API call...');
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for complex battle generation
       
       try {
         const res = await fetch('/api/fighting-game/generate-battle', {

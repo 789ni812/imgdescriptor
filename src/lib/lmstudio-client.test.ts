@@ -261,3 +261,132 @@ describe('generateBattleCommentary', () => {
     expect(userPrompt).toContain('Use different action verbs');
   });
 }); 
+
+describe('generateBattleCommentary - Quality Assessment', () => {
+  it('should generate diverse commentary across multiple rounds', async () => {
+    const fighterA = {
+      name: "Godzilla",
+      stats: {
+        strength: 180,
+        agility: 40,
+        size: "large" as const,
+        build: "muscular" as const,
+        uniqueAbilities: ["Atomic Breath", "Tail Whip", "Ground Slam"]
+      }
+    };
+    
+    const fighterB = {
+      name: "Bruce Lee",
+      stats: {
+        strength: 80,
+        agility: 95,
+        size: "medium" as const,
+        build: "thin" as const,
+        uniqueAbilities: ["Lightning Fists", "Dragon Kick", "Flow State"]
+      }
+    };
+
+    console.log('\n=== COMMENTARY QUALITY TEST ===');
+    console.log('Testing: Godzilla vs Bruce Lee\n');
+
+    const commentaries: string[] = [];
+    
+    // Generate 5 rounds of commentary
+    for (let round = 1; round <= 5; round++) {
+      console.log(`--- ROUND ${round} ---`);
+      
+      // Attack commentary
+      const attackCommentary = await generateBattleCommentary(
+        fighterA, 
+        fighterB, 
+        round, 
+        true, 
+        25,
+        round > 1 ? `Previous round was intense` : undefined,
+        "Championship Tournament Finals"
+      );
+      commentaries.push(attackCommentary);
+      console.log(`Attack: ${attackCommentary}`);
+      
+      // Defense commentary
+      const defenseCommentary = await generateBattleCommentary(
+        fighterA, 
+        fighterB, 
+        round, 
+        false, 
+        0,
+        round > 1 ? `Previous round was intense` : undefined,
+        "Championship Tournament Finals"
+      );
+      commentaries.push(defenseCommentary);
+      console.log(`Defense: ${defenseCommentary}\n`);
+    }
+
+    // Analyze commentary quality
+    console.log('=== QUALITY ANALYSIS ===');
+    
+    // Check for vocabulary diversity
+    const actionVerbs = commentaries.map(c => {
+      const words = c.toLowerCase().split(' ');
+      return words.find(w => ['strikes', 'launches', 'unleashes', 'delivers', 'attacks', 'dodges', 'blocks', 'defends', 'counters', 'erupts', 'surges', 'bursts', 'explodes'].includes(w));
+    }).filter(Boolean);
+    
+    const uniqueVerbs = new Set(actionVerbs);
+    console.log(`Unique action verbs used: ${uniqueVerbs.size}/${actionVerbs.length}`);
+    console.log(`Verbs: ${Array.from(uniqueVerbs).join(', ')}`);
+    
+    // Check for fighter-specific references
+    const godzillaRefs = commentaries.filter(c => c.toLowerCase().includes('godzilla')).length;
+    const bruceRefs = commentaries.filter(c => c.toLowerCase().includes('bruce') || c.toLowerCase().includes('lee')).length;
+    console.log(`Godzilla references: ${godzillaRefs}`);
+    console.log(`Bruce Lee references: ${bruceRefs}`);
+    
+    // Check for ability references
+    const abilityRefs = commentaries.filter(c => 
+      c.toLowerCase().includes('atomic') || 
+      c.toLowerCase().includes('breath') || 
+      c.toLowerCase().includes('lightning') || 
+      c.toLowerCase().includes('dragon') ||
+      c.toLowerCase().includes('kick') ||
+      c.toLowerCase().includes('fists')
+    ).length;
+    console.log(`Ability references: ${abilityRefs}`);
+    
+    // Check for size/build references
+    const sizeRefs = commentaries.filter(c => 
+      c.toLowerCase().includes('large') || 
+      c.toLowerCase().includes('small') || 
+      c.toLowerCase().includes('muscular') || 
+      c.toLowerCase().includes('thin') ||
+      c.toLowerCase().includes('heavy') ||
+      c.toLowerCase().includes('nimble')
+    ).length;
+    console.log(`Size/build references: ${sizeRefs}`);
+    
+    // Check for damage integration
+    const damageRefs = commentaries.filter(c => 
+      /\d+.*damage|damage.*\d+|\d+.*point|\d+.*strike/.test(c.toLowerCase())
+    ).length;
+    console.log(`Damage integration references: ${damageRefs}`);
+    
+    // Check for repetition
+    const repeatedPhrases = commentaries.filter((c, i) => 
+      commentaries.slice(0, i).some(prev => 
+        prev.toLowerCase().includes(c.toLowerCase().split(' ').slice(0, 3).join(' '))
+      )
+    ).length;
+    console.log(`Repeated phrases: ${repeatedPhrases}`);
+    
+    // Assertions for quality
+    expect(commentaries.length).toBe(10); // 5 rounds × 2 commentaries each
+    expect(uniqueVerbs.size).toBeGreaterThan(5); // Should have good verb diversity
+    expect(godzillaRefs + bruceRefs).toBeGreaterThan(5); // Should reference fighters
+    expect(abilityRefs).toBeGreaterThan(2); // Should reference abilities
+    expect(sizeRefs).toBeGreaterThan(3); // Should reference size/build characteristics
+    expect(damageRefs).toBeGreaterThan(2); // Should integrate damage naturally
+    expect(repeatedPhrases).toBeLessThan(3); // Should avoid repetition
+    expect(commentaries.every(c => c.length > 20)).toBe(true); // Should have substantial commentary
+    
+    console.log('\n=== TEST COMPLETE ===\n');
+  }, 60000); // 60 second timeout for multiple API calls
+}); 

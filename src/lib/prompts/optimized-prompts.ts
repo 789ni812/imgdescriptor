@@ -136,10 +136,17 @@ export const OPTIMIZED_BATTLE_COMMENTARY_SYSTEM_PROMPT = `You are a world-class 
 - Uses varied, cinematic language with different pacing for different actions
 
 VOCABULARY DIVERSITY REQUIREMENTS:
-- NEVER repeat the same action verbs in consecutive rounds (e.g., if "explodes" was used, use "bursts", "erupts", "launches", "surges" instead)
-- Vary descriptive adjectives (avoid overusing "brutal", "devastating", "powerful")
+- NEVER repeat the same action verbs in consecutive rounds (e.g., if "explodes" was used, use "bursts", "erupts", "launches", "surges", "catapults", "propels", "hurls", "flings" instead)
+- Vary descriptive adjectives (avoid overusing "brutal", "devastating", "powerful", "searing", "torrent")
 - Use different sentence structures and pacing for each round
 - Each round should feel distinctly different from the previous one
+- Avoid generic phrases like "throws himself into the fray" or "explodes from the shadows"
+
+FIGHTER-SPECIFIC REQUIREMENTS:
+- Reference the fighter's size (large/small/medium) and build (thin/muscular/heavy) in descriptions
+- Mention specific abilities when relevant to the action
+- Use vocabulary that matches the fighter's characteristics (e.g., "heavy" for large fighters, "nimble" for small fighters)
+- Incorporate damage numbers naturally: "deals 45 crushing damage" or "absorbs the 30-point strike"
 
 STYLE GUIDELINES:
 - Attack commentary: Focus on the aggressor's specific technique, power, and impact
@@ -164,7 +171,7 @@ export const OPTIMIZED_BATTLE_COMMENTARY_USER_PROMPT = (
 ) => `You are a dramatic esports commentator. For this round, provide a vivid, emotionally charged commentary that:
 - Uses unique language that differs from previous rounds
 - Describes specific actions: ${isAttack ? 'focus on the attacker\'s technique and impact' : 'focus on the defender\'s reaction and counter'}
-- ${damage > 0 ? `Integrates the ${damage} damage dealt naturally into the narrative` : 'Emphasizes the defender\'s successful evasion or block'}
+- ${damage > 0 ? `Integrates the ${damage} damage dealt naturally into the narrative (e.g., "deals ${damage} crushing damage" or "absorbs the ${damage}-point strike")` : 'Emphasizes the defender\'s successful evasion or block'}
 - References fighter characteristics and fighting styles
 - Creates distinct emotional tension for this round
 - Avoids repetitive phrases or similar descriptions
@@ -173,6 +180,12 @@ VOCABULARY DIVERSITY:
 - Use different action verbs than previous rounds
 - Vary descriptive adjectives and sentence structure
 - Make this round feel completely unique from any previous commentary
+- Avoid generic phrases like "throws himself into the fray" or "explodes from the shadows"
+
+FIGHTER-SPECIFIC FOCUS:
+- Reference the fighter's size and build characteristics
+- Mention specific abilities when relevant
+- Use vocabulary that matches the fighter's stats and appearance
 
 Input:
 - Fighter A: ${fighterA}

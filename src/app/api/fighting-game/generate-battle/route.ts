@@ -6,21 +6,22 @@ import { join } from 'path';
 
 export async function POST(req: NextRequest) {
   console.log('API: generate-battle called');
+  const startTime = Date.now();
   try {
     const body = await req.json();
     const { fighterA, fighterB, scene, maxRounds } = body;
 
     // Use the new stat-based battle logic
     const resolved = resolveBattle(fighterA, fighterB, scene, maxRounds);
-    const battleLog = [];
-    for (const round of resolved.rounds as BattleRoundLog[]) {
-      // Generate LLM commentary for attack and defense
-      // Use attacker/defender names and actual damage
+    
+    // Generate all commentary in parallel for better performance
+    const commentaryPromises = resolved.rounds.map(async (round: BattleRoundLog) => {
       const [attackCommentary, defenseCommentary] = await Promise.all([
         generateBattleCommentary(round.attacker, round.defender, round.round, true, round.damage),
         generateBattleCommentary(round.attacker, round.defender, round.round, false, 0)
       ]);
-      battleLog.push({
+      
+      return {
         round: round.round,
         attacker: round.attacker,
         defender: round.defender,
@@ -31,8 +32,12 @@ export async function POST(req: NextRequest) {
         randomEvent: round.randomEvent || undefined,
         arenaObjectsUsed: round.arenaObjectsUsed.length > 0 ? round.arenaObjectsUsed : undefined,
         healthAfter: round.healthAfter,
-      });
-    }
+      };
+    });
+    
+    console.log(`API: Generating commentary for ${resolved.rounds.length} rounds...`);
+    const battleLog = await Promise.all(commentaryPromises);
+    console.log(`API: Commentary generation completed in ${Date.now() - startTime}ms`);
 
     // Determine winner and loser
     const winner = resolved.winner === fighterA.name ? fighterA : fighterB;
@@ -100,7 +105,7 @@ export async function POST(req: NextRequest) {
       // Don't fail the request if saving fails
     }
 
-    console.log('API: generate-battle about to return response');
+    console.log(`API: generate-battle completed in ${Date.now() - startTime}ms`);
     return NextResponse.json({ success: true, battleLog, winner: resolved.winner });
   } catch (error) {
     console.error('API: generate-battle error:', error);

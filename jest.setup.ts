@@ -4,18 +4,8 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
-// No longer importing from undici here 
+// Mock fetch for tests to avoid undici/TextEncoder issues
+global.fetch = jest.fn();
 
 jest.mock('react-markdown');
-jest.mock('next/image', () => require('./__mocks__/next-image.js'));
-
-import { TextEncoder, TextDecoder } from 'util';
-
-if (typeof global.TextEncoder === 'undefined') {
-  // @ts-ignore
-  global.TextEncoder = TextEncoder;
-}
-if (typeof global.TextDecoder === 'undefined') {
-  // @ts-ignore
-  global.TextDecoder = TextDecoder;
-} 
+jest.mock('next/image', () => require('./__mocks__/next-image.js')); 

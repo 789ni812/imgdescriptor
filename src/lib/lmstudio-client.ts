@@ -441,7 +441,7 @@ export const generateBattleCommentary = async (
           },
         ],
         temperature: 0.5, // Reduced for more coherent output
-        max_tokens: 60, // Reduced for more concise, impactful commentary
+        max_tokens: 80, // Balanced for quality and speed
         top_p: 0.85,
         frequency_penalty: 0.3,
         presence_penalty: 0.2,
