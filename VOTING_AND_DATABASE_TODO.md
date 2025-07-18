@@ -63,27 +63,27 @@
 
 ### Week 2: Voting UI Components
 
-#### Task 2.1: Create voting slideshow component
-- [ ] **Write failing Jest test for voting slideshow** (`src/components/voting/FighterVotingSlideshow.test.tsx`)
+#### Task 2.1: Create voting slideshow component ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting slideshow** (`src/components/voting/FighterVotingSlideshow.test.tsx`)
   - Test component rendering with fighter pairs
   - Test 30-second countdown timer
   - Test voting button functionality
   - Test auto-advance logic
 
-- [ ] **Create voting slideshow component** (`src/components/voting/FighterVotingSlideshow.tsx`)
+- [x] **Create voting slideshow component** (`src/components/voting/FighterVotingSlideshow.tsx`)
   - Reuse existing slideshow infrastructure from `TournamentOverview.tsx`
   - Add voting buttons for each fighter
   - Implement 30-second countdown timer
   - Add auto-advance logic when timer expires
   - Add progress indicator for voting session
 
-- [ ] **Add voting UI styling** (`src/components/voting/FighterVotingSlideshow.tsx`)
+- [x] **Add voting UI styling** (`src/components/voting/FighterVotingSlideshow.tsx`)
   - Style voting buttons with hover effects
   - Add countdown timer visualization
   - Style progress indicator
   - Ensure mobile responsiveness
 
-- [ ] **Run tests and verify** - All voting slideshow tests should pass
+- [x] **Run tests and verify** - All voting slideshow tests should pass ✅
 
 #### Task 2.2: Add voting button to leaderboard
 - [ ] **Write failing Jest test for leaderboard voting** (`src/components/fighting/Leaderboard.test.tsx`)
