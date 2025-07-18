@@ -313,6 +313,44 @@ Enhance the tournament system with:
 - E2E tests for tournament battle replay workflow
 - Visual regression tests for tournament UI enhancements
 
+---
+
+# Tournament Fighter Limit Enhancement (2025-01-27)
+
+## Overview
+The tournament system has been enhanced to support up to 16 fighters per tournament, doubling the previous limit of 8 fighters.
+
+## Technical Implementation
+- **Bracket Generation**: Updated to handle 16 fighters with single-elimination brackets
+- **UI Components**: Enhanced TournamentCreator and TournamentOverview components
+- **Grid Layout**: Improved responsive design for larger fighter grids
+- **Performance**: Optimized for reasonable LLM load (15 matches, ~45 LLM calls)
+
+## Tournament Structure
+- **2-16 fighters**: Flexible selection range
+- **16 fighters**: 15 matches, 4 rounds (perfect power-of-2 bracket)
+- **Non-power-of-2**: Automatic bye handling for 3-15 fighters
+- **Bracket visualization**: Enhanced to show tournament progression clearly
+
+## Benefits
+- **More Epic Battles**: 15 matches vs previous 7 matches
+- **Better Bracket Structure**: Perfect power-of-2 tournaments (2, 4, 8, 16 fighters)
+- **Increased Variety**: Larger roster selection for tournaments
+- **Maintained Performance**: Reasonable LLM load and generation time
+- **Enhanced UI**: Responsive grid layouts and improved user experience
+
+## Performance Considerations
+- **8 fighters**: 7 matches, ~21 LLM calls
+- **16 fighters**: 15 matches, ~45 LLM calls (implemented)
+- **32 fighters**: 31 matches, ~93 LLM calls (possible but heavy)
+- **64 fighters**: 63 matches, ~189 LLM calls (not recommended)
+
+## UI Enhancements
+- **TournamentCreator**: Updated counter and error messages
+- **TournamentOverview**: Enhanced grid layout with 2xl:grid-cols-8
+- **Tournament Structure Guidance**: Added specific guidance for 16-fighter tournaments
+- **Responsive Design**: Better mobile and desktop layout optimization
+
 ### UI Layout Improvements
 **Issue:** Fighter stats display was taking up too much vertical space.
 - **Problem:** 3-column grid with large padding made stats section unnecessarily tall
