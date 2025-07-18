@@ -105,13 +105,13 @@
 
 - [x] **Run tests and verify** - All leaderboard voting tests should pass ✅
 
-#### Task 2.3: Create voting results display
-- [ ] **Write failing Jest test for voting results** (`src/components/voting/VotingResults.test.tsx`)
+#### Task 2.3: Create voting results display ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting results** (`src/components/voting/VotingResults.test.tsx`)
   - Test results display with vote counts
   - Test popular fighters ranking
   - Test visual indicators for top performers
 
-- [ ] **Create voting results component** (`src/components/voting/VotingResults.tsx`)
+- [x] **Create voting results component** (`src/components/voting/VotingResults.tsx`)
   - Display popular fighters with vote counts
   - Add visual indicators for top performers
   - Show voting statistics and trends
@@ -123,7 +123,7 @@
   - Add sorting by popularity option
   - Update fighter profiles with vote counts
 
-- [ ] **Run tests and verify** - All voting results tests should pass
+- [x] **Run tests and verify** - All voting results tests should pass ✅
 
 ### Week 3: Integration and Polish
 

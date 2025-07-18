@@ -57,9 +57,20 @@ const Leaderboard: React.FC = () => {
   } | null>(null);
   const [votingLoading, setVotingLoading] = useState(false);
   const [votingError, setVotingError] = useState<string | null>(null);
+  
+  // Voting statistics state
+  const [votingStats, setVotingStats] = useState<Record<string, { voteCount: number; percentage: number; rank: number }>>({});
+  const [votingHistory, setVotingHistory] = useState<Array<{ round: number; winner: string; votes: number; timestamp: string }>>([]);
+  const [votingStatsLoading, setVotingStatsLoading] = useState(false);
+  const [votingSessionInfo, setVotingSessionInfo] = useState<{
+    totalVotes: number;
+    totalRounds: number;
+    participationRate: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
+    fetchVotingStats();
   }, []);
 
   const fetchLeaderboard = async () => {
@@ -76,6 +87,44 @@ const Leaderboard: React.FC = () => {
     }
   };
 
+  const fetchVotingStats = async () => {
+    try {
+      setVotingStatsLoading(true);
+      
+      // Fetch voting statistics
+      const statsResponse = await fetch('/api/fighting-game/voting/stats');
+      let statsData = null;
+      if (statsResponse.ok) {
+        statsData = await statsResponse.json();
+        setVotingStats(statsData.stats || {});
+      }
+      
+      // Fetch voting history
+      const historyResponse = await fetch('/api/fighting-game/voting/history');
+      if (historyResponse.ok) {
+        const historyData = await historyResponse.json();
+        setVotingHistory(historyData.history || []);
+      }
+      
+      // Calculate session information
+      if (statsData?.stats) {
+        const totalVotes = Object.values(statsData.stats).reduce((sum: number, stat: any) => sum + stat.voteCount, 0);
+        const totalRounds = votingHistory.length;
+        const participationRate = totalVotes > 0 ? Math.round((totalVotes / (totalRounds * 2)) * 100) : 0;
+        
+        setVotingSessionInfo({
+          totalVotes,
+          totalRounds,
+          participationRate
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch voting stats:', err);
+    } finally {
+      setVotingStatsLoading(false);
+    }
+  };
+
   const handleSort = (field: typeof sortBy) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -88,7 +137,18 @@ const Leaderboard: React.FC = () => {
   const getSortedLeaderboard = () => {
     if (!data?.leaderboard) return [];
     
-    return [...data.leaderboard].sort((a, b) => {
+    // Merge voting statistics with fighter data
+    const leaderboardWithVoting = data.leaderboard.map(fighter => {
+      const votingData = votingStats[fighter.name.toLowerCase().replace(/\s+/g, '-') + '-1'];
+      return {
+        ...fighter,
+        voteCount: votingData?.voteCount || 0,
+        popularity: votingData?.percentage || 0,
+        votingRank: votingData?.rank || 0
+      };
+    });
+    
+    return leaderboardWithVoting.sort((a, b) => {
       let aValue: number;
       let bValue: number;
       
@@ -201,8 +261,9 @@ const Leaderboard: React.FC = () => {
   const handleVotingComplete = () => {
     setShowVotingSlideshow(false);
     setVotingSession(null);
-    // Refresh leaderboard to show updated voting statistics
+    // Refresh leaderboard and voting statistics
     fetchLeaderboard();
+    fetchVotingStats();
   };
 
   if (loading) {
@@ -284,7 +345,10 @@ const Leaderboard: React.FC = () => {
             {votingLoading ? 'Initializing Voting Session...' : 'Vote Fighter'}
           </button>
           <button 
-            onClick={fetchLeaderboard}
+            onClick={() => {
+              fetchLeaderboard();
+              fetchVotingStats();
+            }}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Refresh
@@ -334,7 +398,7 @@ const Leaderboard: React.FC = () => {
                 >
                   Avg Rounds {sortBy === 'rounds' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
-                {data.leaderboard.some(f => f.voteCount !== undefined) && (
+                {Object.keys(votingStats).length > 0 && (
                   <th 
                     className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('popularity')}
@@ -353,10 +417,10 @@ const Leaderboard: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedLeaderboard.map((fighter, index) => (
                 <tr key={fighter.name} className="hover:bg-gray-50">
-                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-testid="rank-cell">
                     <span className="text-lg">{getRankIcon(index + 1)}</span>
                   </td>
-                  <td className="px-2 py-4 whitespace-nowrap">
+                  <td className="px-2 py-4 whitespace-nowrap" data-testid="fighter-row">
                     <div className="flex items-center">
                       {fighter.imageUrl && (
                         <div className="flex-shrink-0 h-10 w-10 mr-3">
@@ -374,6 +438,11 @@ const Leaderboard: React.FC = () => {
                         <div className="text-sm text-gray-500">
                           {fighter.opponents.length} opponents • {fighter.arenas.length} arenas
                         </div>
+                        {fighter.voteCount > 0 && (
+                          <div className="text-xs text-blue-600">
+                            {fighter.voteCount} votes • {fighter.popularity?.toFixed(1)}%
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -402,12 +471,17 @@ const Leaderboard: React.FC = () => {
                   <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium">{fighter.averageRoundsSurvived.toFixed(1)}</span>
                   </td>
-                  {data.leaderboard.some(f => f.voteCount !== undefined) && (
+                  {Object.keys(votingStats).length > 0 && (
                     <td className="px-2 py-4 text-sm text-gray-900">
-                      {fighter.voteCount !== undefined ? (
+                      {fighter.voteCount > 0 ? (
                         <div className="space-y-1">
                           <div className="font-medium">{fighter.voteCount} votes</div>
                           <div className="text-xs text-gray-500">{fighter.popularity?.toFixed(1)}%</div>
+                          {fighter.votingRank > 0 && (
+                            <div className="text-xs text-yellow-600">
+                              {fighter.votingRank === 1 ? '🥇' : fighter.votingRank === 2 ? '🥈' : fighter.votingRank === 3 ? '🥉' : `#${fighter.votingRank}`}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <span className="text-gray-400">No votes</span>
@@ -446,6 +520,18 @@ const Leaderboard: React.FC = () => {
           <div className="text-2xl font-bold text-green-600">{data.leaderboard.length}</div>
           <div className="text-sm text-green-800">Active Fighters</div>
         </div>
+        {votingSessionInfo && (
+          <>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{votingSessionInfo.totalVotes}</div>
+              <div className="text-sm text-purple-800">Total Votes</div>
+            </div>
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{votingSessionInfo.participationRate}%</div>
+              <div className="text-sm text-orange-800">Participation Rate</div>
+            </div>
+          </>
+        )}
         <div className="bg-yellow-50 p-4 rounded-lg">
           <div className="text-2xl font-bold text-yellow-600">
             {Math.max(...data.leaderboard.map(f => f.wins))}

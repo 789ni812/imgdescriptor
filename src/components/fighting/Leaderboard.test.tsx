@@ -401,4 +401,241 @@ describe('Leaderboard', () => {
     expect(screen.getByText('Godzilla')).toBeInTheDocument();
     expect(screen.getByText('King Kong')).toBeInTheDocument();
   }, 10000);
+
+  // Voting Integration Tests
+  describe('Voting Integration', () => {
+    const mockVotingStats = {
+      'godzilla-1': { voteCount: 15, percentage: 75.5, rank: 1 },
+      'kingkong-1': { voteCount: 8, percentage: 24.5, rank: 2 },
+      'brucelee-1': { voteCount: 5, percentage: 15.0, rank: 3 }
+    };
+
+    const mockVotingHistory = [
+      { round: 1, winner: 'Godzilla', votes: 8, timestamp: '2025-01-15T10:00:00Z' },
+      { round: 2, winner: 'King Kong', votes: 6, timestamp: '2025-01-15T10:15:00Z' },
+      { round: 3, winner: 'Godzilla', votes: 7, timestamp: '2025-01-15T10:30:00Z' }
+    ];
+
+    beforeEach(() => {
+      // Mock voting API responses
+      (global.fetch as jest.Mock).mockImplementation((url: string) => {
+        if (url.includes('/api/fighting-game/voting/stats')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ stats: mockVotingStats })
+          });
+        }
+        if (url.includes('/api/fighting-game/voting/history')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ history: mockVotingHistory })
+          });
+        }
+        if (url.includes('/api/tournaments/leaderboard')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => mockLeaderboardData
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ fighters: mockLeaderboardData.leaderboard })
+        });
+      });
+    });
+
+    it('should display voting statistics in fighter profiles', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting stats to load
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+        expect(screen.getByText('75.5%')).toBeInTheDocument();
+      });
+
+      // Check for voting rank indicators in popularity column
+      const popularityMedals = screen.getAllByText('🥇');
+      expect(popularityMedals.length).toBeGreaterThan(0);
+      
+      const silverMedals = screen.getAllByText('🥈');
+      expect(silverMedals.length).toBeGreaterThan(0);
+      
+      // Bronze medal might not be present if we have less than 3 fighters
+      const bronzeMedals = screen.queryAllByText('🥉');
+      // Don't require bronze medal to be present
+    });
+
+    it('should add popularity sorting option to leaderboard', async () => {
+      render(<Leaderboard />);
+      
+      // Open sort dropdown
+      const sortButton = screen.getByRole('button', { name: /sort by/i });
+      fireEvent.click(sortButton);
+      
+      // Check for popularity option
+      expect(screen.getByText('Popularity')).toBeInTheDocument();
+    });
+
+    it('should sort fighters by popularity when selected', async () => {
+      render(<Leaderboard />);
+      
+      // Open sort dropdown and select popularity
+      const sortButton = screen.getByRole('button', { name: /sort by/i });
+      fireEvent.click(sortButton);
+      
+      const popularityOption = screen.getByText('Popularity');
+      fireEvent.click(popularityOption);
+      
+      // Check that fighters are sorted by vote count (descending)
+      const fighterRows = screen.getAllByTestId('fighter-row');
+      expect(fighterRows[0]).toHaveTextContent('Godzilla');
+      expect(fighterRows[1]).toHaveTextContent('King Kong');
+      expect(fighterRows[2]).toHaveTextContent('Bruce Lee');
+    });
+
+    it('should show voting history in fighter details modal', async () => {
+      render(<Leaderboard />);
+      
+      // Click on a fighter to open details
+      const fighterRow = screen.getByText('Godzilla').closest('tr');
+      fireEvent.click(fighterRow!);
+      
+      // Wait for modal to appear
+      await waitFor(() => {
+        expect(screen.getByText('Fighter Details')).toBeInTheDocument();
+      });
+      
+      // Check for voting history section
+      expect(screen.getByText('Voting History')).toBeInTheDocument();
+      expect(screen.getByText('Round 1: Godzilla (8 votes)')).toBeInTheDocument();
+      expect(screen.getByText('Round 3: Godzilla (7 votes)')).toBeInTheDocument();
+    });
+
+    it('should display popularity percentage in fighter stats', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting stats to load
+      await waitFor(() => {
+        expect(screen.getByText('Popularity: 75.5%')).toBeInTheDocument();
+        expect(screen.getByText('Popularity: 24.5%')).toBeInTheDocument();
+        expect(screen.getByText('Popularity: 15.0%')).toBeInTheDocument();
+      });
+    });
+
+    it('should show vote count in fighter battle stats', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting stats to load
+      await waitFor(() => {
+        expect(screen.getByText('Votes: 15')).toBeInTheDocument();
+        expect(screen.getByText('Votes: 8')).toBeInTheDocument();
+        expect(screen.getByText('Votes: 5')).toBeInTheDocument();
+      });
+    });
+
+    it('should update fighter ranking based on popularity', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting stats to load
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+      });
+      
+      // Check that popularity affects overall ranking
+      const rankCells = screen.getAllByTestId('rank-cell');
+      expect(rankCells[0]).toHaveTextContent('1');
+      expect(rankCells[1]).toHaveTextContent('2');
+      expect(rankCells[2]).toHaveTextContent('3');
+    });
+
+    it('should show voting trends in fighter analytics', async () => {
+      render(<Leaderboard />);
+      
+      // Click on a fighter to open details
+      const fighterRow = screen.getByText('Godzilla').closest('tr');
+      fireEvent.click(fighterRow!);
+      
+      // Wait for modal to appear
+      await waitFor(() => {
+        expect(screen.getByText('Fighter Details')).toBeInTheDocument();
+      });
+      
+      // Check for voting trends
+      expect(screen.getByText('Voting Trend: Rising')).toBeInTheDocument();
+      expect(screen.getByText('Win Rate: 66.7%')).toBeInTheDocument();
+    });
+
+    it('should handle missing voting data gracefully', async () => {
+      // Mock API to return empty voting stats
+      (global.fetch as jest.Mock).mockImplementation((url: string) => {
+        if (url.includes('/api/fighting-game/voting/stats')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ stats: {} })
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ fighters: mockLeaderboardData.leaderboard })
+        });
+      });
+
+      render(<Leaderboard />);
+      
+      // Should still display fighters without voting data
+      expect(screen.getByText('Godzilla')).toBeInTheDocument();
+      expect(screen.getByText('King Kong')).toBeInTheDocument();
+      expect(screen.getByText('Bruce Lee')).toBeInTheDocument();
+      
+      // Should show no voting data message
+      expect(screen.getByText('No voting data available')).toBeInTheDocument();
+    });
+
+    it('should refresh voting data when refresh button is clicked', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for initial load
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+      });
+      
+      // Click refresh button
+      const refreshButton = screen.getByRole('button', { name: /refresh/i });
+      fireEvent.click(refreshButton);
+      
+      // Should show loading state
+      expect(screen.getByText('Loading voting data...')).toBeInTheDocument();
+      
+      // Should reload voting stats
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+      });
+    });
+
+    it('should display voting session information', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting data to load
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+      });
+      
+      // Check for session information
+      expect(screen.getByText('Last Voting Session:')).toBeInTheDocument();
+      expect(screen.getByText('Total Votes: 28')).toBeInTheDocument();
+      expect(screen.getByText('Rounds: 3')).toBeInTheDocument();
+    });
+
+    it('should show voting participation rate', async () => {
+      render(<Leaderboard />);
+      
+      // Wait for voting data to load
+      await waitFor(() => {
+        expect(screen.getByText('15 votes')).toBeInTheDocument();
+      });
+      
+      // Check for participation rate
+      expect(screen.getByText('Participation Rate: 85%')).toBeInTheDocument();
+    });
+  });
 }); 
