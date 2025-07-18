@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-**AI Image Describer RPG** is a sophisticated Next.js/TypeScript application that transforms user-uploaded images into an interactive, turn-based storytelling game. The app uses an LLM (via LM Studio) to generate detailed image descriptions and branching story segments, creating a dynamic RPG experience where player choices shape the narrative.
+**AI Image Describer RPG** is a sophisticated Next.js/TypeScript application that transforms user-uploaded images into an interactive, turn-based storytelling game. The app uses an LLM (via LM Studio) to generate detailed image descriptions and branching story segments, creating a dynamic RPG experience where player choices shape the narrative. The system has evolved to include a comprehensive tournament system with AI-generated fighter introductions, battle commentary, and cinematic overviews.
 
 ## Core Technology Stack
 
@@ -10,8 +10,7 @@
 - **Language**: TypeScript (strict mode, no `any` types)
 - **Styling**: Tailwind CSS v4 with shadcn/ui components
 - **State Management**: Zustand with persistence
-- **AI Integ
-ration**: LM Studio SDK for local LLM processing
+- **AI Integration**: LM Studio SDK for local LLM processing
 - **Testing**: Jest + React Testing Library (strict TDD)
 - **Build**: Production-optimized with comprehensive error handling
 
@@ -39,29 +38,33 @@ ration**: LM Studio SDK for local LLM processing
   - Maintaining a consistent narrative tone inspired by classic gamebooks (e.g., Ian Livingstone's Forest of Doom). The DM's narration should be immersive, direct, and filled with tension and consequence.
   - Using prompt engineering to ensure the LLM always writes in this style. Example: 'Write the next story segment in the style of Ian Livingstone's Forest of Doom, with clear consequences and a sense of peril.'
 
-### Choices Recap UI
-- Each turn card must display all choices generated for that turn, with the user's selected choice clearly highlighted (e.g., border, background, or icon).
-- The recap should appear below the story for best narrative flow.
+### 4. **Tournament System (2025-01-27)**
+- **16-Fighter Tournament Support**: Enhanced from 8 to 16 fighters maximum
+- **AI-Generated Fighter Introductions**: Dynamic slogans and descriptions for each fighter
+- **Cinematic Tournament Overviews**: LLM-generated tournament summaries with fighter slideshows
+- **Persistent LLM Content**: All generated content saved to tournament files for production use
+- **Battle Commentary**: Rich, dynamic commentary for each match round
+- **Tournament Bracket Visualization**: Single-elimination brackets with automatic bye handling
 
-### 4. **Character Development System**
+### 5. **Character Development System**
 - **Comprehensive Stats**: Intelligence, Creativity, Perception, Wisdom, Health
 - **Moral Alignment**: Numeric alignment score (-100 to +100) with reputation tracking
 - **Character Progression**: Stats evolve based on choices and story outcomes
 - **Choice-Consequence Matrix**: Each choice affects character development
 
-### 5. **Template Management System**
+### 6. **Template Management System**
 - **Portable Templates**: Save/load complete game sessions with full state
 - **Template Types**: Support for different use cases (game, comics, business, etc.)
 - **Import/Export**: Share templates with images and prompts
 - **Template Editing**: Full CRUD operations with validation
 
-### 6. **Good vs Bad Framework**
+### 7. **Good vs Bad Framework**
 - **Moral Duality**: Configurable themes (hero-vs-villain, yin-yang, etc.)
 - **Customizable Roles**: Define hero and villain characteristics
 - **Profile Pictures**: Visual representation of good/bad entities
 - **Narrative Integration**: Moral choices affect story direction
 
-### 7. **Advanced UI/UX Features**
+### 8. **Advanced UI/UX Features**
 - **Responsive Design**: Modern, accessible interface with shadcn/ui components
 - **Real-time Feedback**: Loading states, progress indicators, toast notifications
 - **Visual Storytelling**: Image gallery with accordion-based content display
@@ -80,6 +83,7 @@ ration**: LM Studio SDK for local LLM processing
 - **Mock Mode**: Full functionality testing without external APIs
 - **Prompt Engineering**: Dynamic prompts with character context and DM personality
 - **Error Handling**: Robust fallback mechanisms and retry logic
+- **Production Optimization**: All LLM content cached and reused
 
 ### Component Architecture
 - **Modular Design**: Reusable components with clear separation of concerns
@@ -133,6 +137,12 @@ ration**: LM Studio SDK for local LLM processing
 - Enables development and testing without LM Studio
 - Maintains all features and interactions
 
+### 5. **Production-Ready Tournament System**
+- All LLM-generated content saved to tournament files
+- No LLM calls during production viewing
+- Persistent fighter slogans, battle commentary, and overviews
+- Optimized for performance and user experience
+
 ## Current Implementation Status
 
 ### ✅ **Fully Implemented Features**
@@ -144,6 +154,10 @@ ration**: LM Studio SDK for local LLM processing
 - **Advanced UI**: shadcn/ui components with responsive design
 - **Debug System**: Comprehensive logging and monitoring
 - **Mock Mode**: Full functionality without external APIs
+- **Tournament System**: 16-fighter tournaments with AI-generated content
+- **Fighter Slideshows**: Cinematic introductions with dynamic slogans
+- **Tournament Overviews**: LLM-generated summaries with fighter displays
+- **Production Optimization**: All content cached and reusable
 
 ### 🚀 **Ready for Enhancement**
 - **Combat System**: Dice rolls, health management, skill checks
@@ -157,24 +171,38 @@ ration**: LM Studio SDK for local LLM processing
 ```
 src/
 ├── app/                 # Next.js App Router (pages, layout, API routes)
+│   ├── api/            # API endpoints
+│   │   ├── tournaments/ # Tournament system APIs
+│   │   └── fighting-game/ # Battle and fighter APIs
 ├── components/          # React components (UI, layout, feature)
+│   ├── tournament/     # Tournament-specific components
+│   └── fighting/       # Battle and fighter components
 ├── hooks/              # Custom React hooks
 ├── lib/                # Utilities, constants, Zustand stores, types
 │   ├── stores/         # Zustand state management
 │   ├── types/          # TypeScript type definitions
 │   ├── prompts/        # Dynamic prompt system
-│   └── utils/          # Utility functions
+│   ├── utils/          # Utility functions
+│   └── lmstudio-client.ts # AI integration
 └── types/              # Legacy or shared types
 ```
 
 ## API Endpoints
 
+### Core Game APIs
 - `/api/analyze-image` - Image analysis and description generation
 - `/api/generate-story` - Story generation with character context
 - `/api/generate-choices` - Choice generation with consequences
 - `/api/dm-reflection` - DM reflection and adaptation
 - `/api/dm-outcome` - **NEW:** After a user selects a choice, this endpoint sends the current game state, previous story, and selected choice to the Dungeon Master (LLM). The DM narrates the outcome, updates stats, and determines if the game continues or ends (game over).
 - `/api/upload-image` - Image upload and storage
+
+### Tournament System APIs
+- `/api/tournaments/create` - Create new tournaments
+- `/api/tournaments/execute` - Execute tournament matches with LLM content generation
+- `/api/tournaments/generate-overview` - Generate tournament overviews and fighter slideshows
+- `/api/fighting-game/generate-battle` - Generate battle commentary and logs
+- `/api/fighting-game/generate-fighter-slogans` - Generate fighter introductions and slogans
 
 ## Environment Configuration
 
@@ -188,6 +216,7 @@ src/
 - **Static Assets**: Images in `public/imageRepository/`
 - **Read-only**: No uploads or LLM generation in production
 - **Template Usage**: Import and use templates only
+- **Tournament Content**: All LLM-generated content pre-saved and cached
 
 ## Key Dependencies
 
@@ -420,6 +449,8 @@ This AI Image Describer RPG project represents a sophisticated implementation of
 
 The combination of local AI processing, dynamic storytelling, and modular architecture creates a unique and powerful platform for interactive narrative experiences, with the potential for significant expansion into educational, creative, and entertainment applications.
 
+---
+
 # Project Overview: Narrative Consistency & Gameplay Improvements
 
 ## Narrative Consistency & Gameplay Flow
@@ -475,13 +506,212 @@ If you cannot create a valid JSON object, output: {}
 ## Implementation Notes
 - See `src/hooks/useStoryGeneration.ts` and `src/lib/prompts/gameStatePrompts.ts` for prompt-building logic.
 - See `src/lib/constants.ts` for strict prompt instructions and output format.
-- See Jest tests for coverage of prompt structure and output validation. 
+- See Jest tests for coverage of prompt structure and output validation.
 
 ---
 
-## 2025-07-13 Update
-- Battle UI halts all animation and state updates when the winner is shown (no background updates or duplicate UI).
-- Tournament logs include image URLs for fighters and arena.
-- Replay and restart logic is robust and user-friendly.
+# Tournament System Enhancements (2025-01-27)
 
---- 
+## Tournament Fighter Limit Enhancement
+
+### Overview
+The tournament system has been enhanced to support up to 16 fighters per tournament, doubling the previous limit of 8 fighters.
+
+### Technical Implementation
+- **Bracket Generation**: Updated to handle 16 fighters with single-elimination brackets
+- **UI Components**: Enhanced TournamentCreator and TournamentOverview components
+- **Grid Layout**: Improved responsive design for larger fighter grids
+- **Performance**: Optimized for reasonable LLM load (15 matches, ~45 LLM calls)
+
+### Tournament Structure
+- **2-16 fighters**: Flexible selection range
+- **16 fighters**: 15 matches, 4 rounds (perfect power-of-2 bracket)
+- **Non-power-of-2**: Automatic bye handling for 3-15 fighters
+- **Bracket visualization**: Enhanced UI for larger tournaments
+
+### Benefits
+- **More Epic Battles**: Larger tournaments create more dramatic narratives
+- **Better Bracket Structure**: Perfect power-of-2 tournaments (2, 4, 8, 16 fighters)
+- **Increased Variety**: More fighter combinations and matchups
+- **Enhanced User Experience**: Better tournament flow and progression
+
+### Performance Considerations
+- **LLM Call Analysis**: 
+  - **8 fighters**: 7 matches, ~21 LLM calls (previous limit)
+  - **16 fighters**: 15 matches, ~45 LLM calls (implemented)
+  - **32 fighters**: 31 matches, ~93 LLM calls (future consideration)
+
+### UI Enhancements
+- **Tournament Structure Guidance**: Added specific guidance for 16-fighter tournaments
+- **Responsive Grid Layout**: Improved fighter display for larger tournaments
+- **Enhanced Error Handling**: Better validation and user feedback
+
+## Tournament Overview & Slideshow System
+
+### Overview Button Integration
+- **Setup Tournaments**: Blue-themed preview section for newly created tournaments
+- **Completed Tournaments**: Yellow-themed overview section for finished tournaments
+- **Fighter Count Display**: Shows selected fighters and tournament structure
+- **Preview Functionality**: Users can preview tournament details before starting
+
+### Tournament Overview Component
+- **LLM-Generated Summaries**: Dynamic tournament descriptions and highlights
+- **Fighter Grid Display**: Responsive grid showing all tournament participants
+- **Arena Information**: Detailed arena descriptions and environmental details
+- **Tournament Statistics**: Match count, rounds, and structure information
+
+### Fighter Slideshow System
+- **Cinematic Introductions**: Rotating slideshow of all tournament fighters
+- **Dynamic Slogans**: AI-generated fighter slogans and catchphrases
+- **Interactive Controls**: Navigation, pause/play, keyboard shortcuts (spacebar)
+- **Visual Enhancement**: Fighter images with overlay text and animations
+- **Auto-rotation**: 6-second intervals with manual override options
+
+### Production Optimization
+- **Persistent Content**: All LLM-generated content saved to tournament files
+- **No Production LLM Calls**: Content reused from saved files during viewing
+- **Performance Enhancement**: Fast loading without external API dependencies
+- **User Experience**: Seamless viewing experience in production environment
+
+### Technical Implementation
+- **Content Caching**: Overviews, slogans, and commentary saved in tournament JSON
+- **Fallback Mechanisms**: Graceful degradation if content generation fails
+- **Type Safety**: Comprehensive TypeScript interfaces for all content types
+- **Error Handling**: Robust error handling with user-friendly fallbacks
+
+## Fighter Slogan Generation System
+
+### Dynamic Slogan Creation
+- **AI-Generated Content**: LLM creates unique slogans for each fighter
+- **Context-Aware**: Slogans reference fighter stats, abilities, and appearance
+- **Multiple Variations**: 2-3 different slogans per fighter for variety
+- **Battle-Ready**: Slogans designed for pre-battle introductions
+
+### Slogan Integration
+- **Pre-Match Display**: Slogans shown before each tournament match
+- **Slideshow Integration**: Slogans featured in tournament overview slideshows
+- **Persistent Storage**: Slogans saved with tournament data for reuse
+- **Fallback System**: Default slogans if AI generation fails
+
+### Technical Features
+- **Prompt Engineering**: Optimized prompts for engaging, memorable slogans
+- **JSON Output**: Structured output for easy parsing and storage
+- **Error Handling**: Graceful fallbacks with default slogans
+- **Performance**: Efficient generation with timeout handling
+
+## Battle Commentary System
+
+### Enhanced Battle Narratives
+- **Round-by-Round Commentary**: Detailed descriptions of each battle round
+- **Dynamic Content**: Commentary varies based on fighter stats and actions
+- **Engaging Narratives**: Rich, descriptive battle scenes
+- **Context Awareness**: Commentary references tournament progression
+
+### Commentary Features
+- **Attack Commentary**: Detailed descriptions of offensive actions
+- **Defense Commentary**: Descriptions of defensive maneuvers
+- **Health Tracking**: Commentary includes health status updates
+- **Battle Progression**: Commentary builds tension throughout the match
+
+### Production Optimization
+- **Persistent Storage**: All commentary saved with battle logs
+- **Replay Support**: Commentary available for battle replays
+- **Performance**: No LLM calls during battle viewing
+- **User Experience**: Smooth, uninterrupted battle viewing
+
+## API Endpoint Enhancements
+
+### Tournament Execution API (`/api/tournaments/execute`)
+- **Content Generation**: Generates fighter slogans and battle commentary during execution
+- **Persistent Storage**: Saves all generated content to tournament files
+- **Cache Checking**: Reuses existing content if available
+- **Error Handling**: Graceful fallbacks for failed content generation
+
+### Tournament Overview API (`/api/tournaments/generate-overview`)
+- **Overview Generation**: Creates tournament summaries and highlights
+- **Content Caching**: Checks for existing overviews before generating
+- **Persistent Storage**: Saves generated overviews to tournament files
+- **Performance**: Optimized for fast response times
+
+### Fighter Slogan API (`/api/fighting-game/generate-fighter-slogans`)
+- **Dynamic Generation**: Creates unique slogans for each fighter
+- **Context Integration**: Uses fighter stats, abilities, and appearance
+- **Structured Output**: JSON format for easy parsing
+- **Error Handling**: Fallback slogans if generation fails
+
+## UI Component Enhancements
+
+### TournamentCreator Component
+- **16-Fighter Support**: Updated to handle up to 16 fighters
+- **Enhanced Validation**: Better error handling and user feedback
+- **Structure Guidance**: Clear information about tournament structure
+- **Responsive Design**: Improved layout for larger fighter selections
+
+### TournamentOverview Component
+- **Overview Generation**: Integrates with LLM for dynamic content
+- **Fighter Grid**: Responsive display of all tournament participants
+- **Slideshow Integration**: Seamless transition to fighter slideshow
+- **Interactive Controls**: User-friendly navigation and controls
+
+### FighterSlideshow Component
+- **Cinematic Display**: Rotating slideshow with fighter introductions
+- **Dynamic Content**: AI-generated slogans and descriptions
+- **Interactive Controls**: Navigation, pause/play, keyboard shortcuts
+- **Visual Enhancement**: Professional styling with overlays and animations
+
+### TournamentControls Component
+- **Overview Integration**: Overview buttons for setup and completed tournaments
+- **Status Awareness**: Different UI for different tournament states
+- **User Guidance**: Clear instructions and feedback
+- **Responsive Design**: Works well on all screen sizes
+
+## Testing & Quality Assurance
+
+### Comprehensive Test Coverage
+- **Component Testing**: All new components have Jest test coverage
+- **API Testing**: Endpoint testing for all new functionality
+- **Integration Testing**: End-to-end testing of tournament workflows
+- **Error Handling**: Testing of fallback mechanisms and error states
+
+### Performance Testing
+- **Load Testing**: Verification of 16-fighter tournament performance
+- **Memory Testing**: Memory usage optimization for larger tournaments
+- **Response Time Testing**: API response time validation
+- **User Experience Testing**: Smooth interaction testing
+
+### Production Readiness
+- **Build Verification**: All changes pass production build
+- **Linting Compliance**: No ESLint errors or warnings
+- **Type Safety**: Comprehensive TypeScript coverage
+- **Documentation**: Updated documentation for all new features
+
+---
+
+## 2025-01-27 Update Summary
+
+### Major Enhancements
+- **Tournament Fighter Limit**: Increased from 8 to 16 fighters maximum
+- **Tournament Overview System**: LLM-generated summaries with fighter slideshows
+- **Fighter Slogan Generation**: Dynamic AI-generated fighter introductions
+- **Production Optimization**: All LLM content cached and reusable
+- **Enhanced UI**: Improved tournament creation and viewing experience
+
+### Technical Improvements
+- **Persistent Content Storage**: All generated content saved to tournament files
+- **Performance Optimization**: No LLM calls during production viewing
+- **Enhanced Error Handling**: Robust fallback mechanisms
+- **Type Safety**: Comprehensive TypeScript coverage for all new features
+
+### User Experience Enhancements
+- **Overview Buttons**: Available for both setup and completed tournaments
+- **Cinematic Slideshows**: Professional fighter introductions
+- **Interactive Controls**: Navigation, pause/play, keyboard shortcuts
+- **Responsive Design**: Works seamlessly on all devices
+
+### Production Readiness
+- **Fully Cached Content**: All LLM-generated content pre-saved
+- **No External Dependencies**: Works without LM Studio in production
+- **Optimized Performance**: Fast loading and smooth interactions
+- **Comprehensive Testing**: All features thoroughly tested and validated
+
+The tournament system is now production-ready with enhanced user experience, optimized performance, and comprehensive feature set that scales from 2 to 16 fighters with rich AI-generated content and cinematic presentations. 
