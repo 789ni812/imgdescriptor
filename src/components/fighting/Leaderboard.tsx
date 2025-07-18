@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import FighterVotingSlideshow from '@/components/voting/FighterVotingSlideshow';
+import { FighterVote } from '@/lib/types/voting';
 
 interface FighterStats {
   name: string;
@@ -30,6 +32,8 @@ interface FighterStats {
   arenas: string[];
   lastBattle: string;
   imageUrl?: string;
+  voteCount?: number;
+  popularity?: number;
 }
 
 interface LeaderboardData {
@@ -42,8 +46,17 @@ const Leaderboard: React.FC = () => {
   const [data, setData] = useState<LeaderboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'winRate' | 'wins' | 'damageDealt' | 'damageTaken' | 'rounds'>('winRate');
+  const [sortBy, setSortBy] = useState<'winRate' | 'wins' | 'damageDealt' | 'damageTaken' | 'rounds' | 'popularity'>('winRate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Voting state
+  const [showVotingSlideshow, setShowVotingSlideshow] = useState(false);
+  const [votingSession, setVotingSession] = useState<{
+    sessionId: string;
+    fighters: FighterVote[];
+  } | null>(null);
+  const [votingLoading, setVotingLoading] = useState(false);
+  const [votingError, setVotingError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -100,6 +113,10 @@ const Leaderboard: React.FC = () => {
           aValue = a.averageRoundsSurvived;
           bValue = b.averageRoundsSurvived;
           break;
+        case 'popularity':
+          aValue = a.popularity || 0;
+          bValue = b.popularity || 0;
+          break;
         default:
           aValue = a.winRate;
           bValue = b.winRate;
@@ -125,6 +142,69 @@ const Leaderboard: React.FC = () => {
     });
   };
 
+  const handleStartVoting = async () => {
+    try {
+      setVotingLoading(true);
+      setVotingError(null);
+      
+      const response = await fetch('/api/fighting-game/voting/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fighterCount: 2 })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create voting session');
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setVotingSession({
+          sessionId: result.sessionId,
+          fighters: result.fighters
+        });
+        setShowVotingSlideshow(true);
+      } else {
+        throw new Error(result.error || 'Failed to create voting session');
+      }
+    } catch (err) {
+      setVotingError(err instanceof Error ? err.message : 'Failed to create voting session');
+    } finally {
+      setVotingLoading(false);
+    }
+  };
+
+  const handleVote = async (fighterId: string) => {
+    if (!votingSession) return;
+    
+    try {
+      const response = await fetch('/api/fighting-game/voting/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: votingSession.sessionId,
+          fighterId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit vote');
+      }
+      
+      // Vote submitted successfully
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const handleVotingComplete = () => {
+    setShowVotingSlideshow(false);
+    setVotingSession(null);
+    // Refresh leaderboard to show updated voting statistics
+    fetchLeaderboard();
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -148,11 +228,38 @@ const Leaderboard: React.FC = () => {
     );
   }
 
+  if (votingError) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-4">{votingError}</div>
+        <button 
+          onClick={() => setVotingError(null)}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Back to Leaderboard
+        </button>
+      </div>
+    );
+  }
+
   if (!data?.leaderboard?.length) {
     return (
       <div className="text-center py-8 text-gray-500">
         No battle data available. Start some fights to see the leaderboard!
       </div>
+    );
+  }
+
+  if (showVotingSlideshow && votingSession) {
+    return (
+      <FighterVotingSlideshow
+        sessionId={votingSession.sessionId}
+        fighters={votingSession.fighters}
+        onVote={handleVote}
+        onComplete={handleVotingComplete}
+        roundDuration={30}
+        isActive={true}
+      />
     );
   }
 
@@ -168,12 +275,21 @@ const Leaderboard: React.FC = () => {
             {data.totalBattles} total battles • Last updated: {formatDate(data.lastUpdated)}
           </p>
         </div>
-        <button 
-          onClick={fetchLeaderboard}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Refresh
-        </button>
+        <div className="flex space-x-2">
+          <button 
+            onClick={handleStartVoting}
+            disabled={votingLoading}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {votingLoading ? 'Initializing Voting Session...' : 'Vote Fighter'}
+          </button>
+          <button 
+            onClick={fetchLeaderboard}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Leaderboard Table */}
@@ -218,6 +334,14 @@ const Leaderboard: React.FC = () => {
                 >
                   Avg Rounds {sortBy === 'rounds' && (sortOrder === 'desc' ? '↓' : '↑')}
                 </th>
+                {data.leaderboard.some(f => f.voteCount !== undefined) && (
+                  <th 
+                    className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('popularity')}
+                  >
+                    Popularity {sortBy === 'popularity' && (sortOrder === 'desc' ? '↓' : '↑')}
+                  </th>
+                )}
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stats
                 </th>
@@ -278,6 +402,18 @@ const Leaderboard: React.FC = () => {
                   <td className="px-2 py-4 text-sm text-gray-900">
                     <span className="font-medium">{fighter.averageRoundsSurvived.toFixed(1)}</span>
                   </td>
+                  {data.leaderboard.some(f => f.voteCount !== undefined) && (
+                    <td className="px-2 py-4 text-sm text-gray-900">
+                      {fighter.voteCount !== undefined ? (
+                        <div className="space-y-1">
+                          <div className="font-medium">{fighter.voteCount} votes</div>
+                          <div className="text-xs text-gray-500">{fighter.popularity?.toFixed(1)}%</div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">No votes</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-2 py-4 text-sm text-gray-900">
                     <div className="space-y-1">
                       <div className="flex space-x-2">

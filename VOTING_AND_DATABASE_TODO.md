@@ -85,25 +85,25 @@
 
 - [x] **Run tests and verify** - All voting slideshow tests should pass ✅
 
-#### Task 2.2: Add voting button to leaderboard
-- [ ] **Write failing Jest test for leaderboard voting** (`src/components/fighting/Leaderboard.test.tsx`)
+#### Task 2.2: Add voting button to leaderboard ✅ **COMPLETED**
+- [x] **Write failing Jest test for leaderboard voting** (`src/components/fighting/Leaderboard.test.tsx`)
   - Test "Vote Fighter" button presence
   - Test voting session initialization
   - Test loading states during voting
 
-- [ ] **Modify leaderboard component** (`src/components/fighting/Leaderboard.tsx`)
+- [x] **Modify leaderboard component** (`src/components/fighting/Leaderboard.tsx`)
   - Add "Vote Fighter" button to header section
   - Implement voting session initialization logic
   - Add loading states for voting operations
   - Add error handling for voting failures
 
-- [ ] **Add voting state management** (`src/components/fighting/Leaderboard.tsx`)
+- [x] **Add voting state management** (`src/components/fighting/Leaderboard.tsx`)
   - Add voting session state
   - Add voting results state
   - Add loading and error states
   - Implement voting session cleanup
 
-- [ ] **Run tests and verify** - All leaderboard voting tests should pass
+- [x] **Run tests and verify** - All leaderboard voting tests should pass ✅
 
 #### Task 2.3: Create voting results display
 - [ ] **Write failing Jest test for voting results** (`src/components/voting/VotingResults.test.tsx`)
