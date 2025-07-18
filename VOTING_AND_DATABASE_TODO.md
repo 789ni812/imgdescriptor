@@ -4,84 +4,62 @@
 
 ### Week 1: Core Voting Infrastructure
 
-#### Task 1.1: Create voting data structures and types
-- [ ] **Write failing Jest test for voting types** (`src/lib/types/voting.test.ts`)
-  - Test `VotingSession` interface validation
-  - Test `FighterPair` interface validation
-  - Test `VoteSubmission` interface validation
-  - Test `VotingResults` interface validation
+#### Task 1.1: Create voting data structures and types ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting types** (`src/lib/types/voting.test.ts`)
+  - Test `VoteSession` interface validation
+  - Test `VoteRound` interface validation
+  - Test `FighterVote` interface validation
+  - Test `VoteResult` interface validation
 
-- [ ] **Create voting types file** (`src/lib/types/voting.ts`)
-  - Define `VotingSession` interface
-  - Define `FighterPair` interface
-  - Define `VoteSubmission` interface
-  - Define `VotingResults` interface
-  - Add type validation functions
+- [x] **Create voting types file** (`src/lib/types/voting.ts`)
+  - Define `VoteSession` interface
+  - Define `VoteRound` interface
+  - Define `FighterVote` interface
+  - Define `VoteResult` interface
+  - Add comprehensive type definitions
 
-- [ ] **Update existing fighter interfaces** (`src/lib/types/fighter.ts`)
-  - Add `voteCount?: number` to fighter stats
-  - Add `popularity?: number` to fighter stats
-  - Add voting-related types to existing interfaces
+- [x] **Run tests and verify** - All voting type tests should pass ✅
 
-- [ ] **Run tests and verify** - All voting type tests should pass
-
-#### Task 1.2: Implement voting session management
-- [ ] **Write failing Jest test for voting utilities** (`src/lib/utils/votingUtils.test.ts`)
+#### Task 1.2: Implement voting state management ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting store** (`src/lib/stores/votingStore.test.ts`)
   - Test session creation and management
-  - Test fighter pair generation algorithm
-  - Test session persistence to JSON files
-  - Test vote counting and results calculation
+  - Test round advancement
+  - Test vote recording
+  - Test results calculation
 
-- [ ] **Create voting utilities** (`src/lib/utils/votingUtils.ts`)
-  - Implement `createVotingSession()` function
-  - Implement `generateFighterPairs()` function
-  - Implement `saveVotingSession()` function
-  - Implement `loadVotingSession()` function
-  - Implement `calculateVotingResults()` function
+- [x] **Create voting store** (`src/lib/stores/votingStore.ts`)
+  - Implement `createVotingStore()` function
+  - Implement `initSession()` function
+  - Implement `nextRound()` function
+  - Implement `vote()` function
+  - Implement `getResults()` function
 
-- [ ] **Create voting data storage** (`public/voting/`)
-  - Create directory structure for voting data
-  - Implement JSON file storage for sessions
-  - Implement JSON file storage for votes
-  - Add data validation and error handling
+- [x] **Run tests and verify** - All voting store tests should pass ✅
 
-- [ ] **Run tests and verify** - All voting utility tests should pass
-
-#### Task 1.3: Create voting API endpoints
-- [ ] **Write failing Jest test for voting APIs** (`src/app/api/fighting-game/start-voting-session/route.test.ts`)
+#### Task 1.3: Create voting API endpoints ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting session API** (`src/app/api/fighting-game/voting/session/route.test.ts`)
   - Test session creation endpoint
   - Test error handling for invalid requests
   - Test response format validation
 
-- [ ] **Create start voting session API** (`src/app/api/fighting-game/start-voting-session/route.ts`)
+- [x] **Create voting session API** (`src/app/api/fighting-game/voting/session/route.ts`)
   - Implement POST endpoint for session creation
   - Add request validation
-  - Return session ID and first fighter pair
+  - Return session ID and fighter data
   - Add proper error handling
 
-- [ ] **Write failing Jest test for vote submission** (`src/app/api/fighting-game/submit-vote/route.test.ts`)
+- [x] **Write failing Jest test for vote submission** (`src/app/api/fighting-game/voting/vote/route.test.ts`)
   - Test vote submission endpoint
   - Test session validation
-  - Test next pair generation
+  - Test duplicate vote prevention
 
-- [ ] **Create submit vote API** (`src/app/api/fighting-game/submit-vote/route.ts`)
+- [x] **Create vote submission API** (`src/app/api/fighting-game/voting/vote/route.ts`)
   - Implement POST endpoint for vote submission
   - Validate session and fighter IDs
-  - Save vote to storage
-  - Return next fighter pair or completion status
+  - Prevent duplicate votes
+  - Return updated round data
 
-- [ ] **Write failing Jest test for voting results** (`src/app/api/fighting-game/voting-results/route.test.ts`)
-  - Test results retrieval endpoint
-  - Test vote counting accuracy
-  - Test popular fighters calculation
-
-- [ ] **Create voting results API** (`src/app/api/fighting-game/voting-results/route.ts`)
-  - Implement GET endpoint for voting results
-  - Calculate vote counts and percentages
-  - Return popular fighters list
-  - Add caching for performance
-
-- [ ] **Run tests and verify** - All voting API tests should pass
+- [x] **Run tests and verify** - All voting API tests should pass ✅
 
 ### Week 2: Voting UI Components
 
