@@ -418,7 +418,7 @@ export default function TournamentOverview({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-6">
           {fighters.map((fighter) => (
             <div
               key={fighter.id}

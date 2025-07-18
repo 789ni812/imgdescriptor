@@ -47,9 +47,9 @@ export const TournamentCreator: React.FC<TournamentCreatorProps> = ({ onTourname
       if (prev.includes(fighterId)) {
         return prev.filter(id => id !== fighterId);
       } else {
-        // Limit to 8 fighters
-        if (prev.length >= 8) {
-          setError('Maximum 8 fighters allowed per tournament');
+        // Limit to 16 fighters
+        if (prev.length >= 16) {
+          setError('Maximum 16 fighters allowed per tournament');
           return prev;
         }
         return [...prev, fighterId];
@@ -115,10 +115,10 @@ export const TournamentCreator: React.FC<TournamentCreatorProps> = ({ onTourname
       
       <div className="mb-6" data-testid="fighter-selection">
         <h3 className="text-xl font-bold mb-3 text-white" data-testid="fighter-selection-title">
-          Select Fighters ({selectedFighterIds.length}/8)
+          Select Fighters ({selectedFighterIds.length}/16)
         </h3>
         <p className="text-gray-300 mb-6 leading-relaxed">
-          Choose 2-8 fighters for your tournament. Single elimination bracket will be generated automatically.
+          Choose 2-16 fighters for your tournament. Single elimination bracket will be generated automatically.
         </p>
         
         {/* Tournament size guidance */}
@@ -129,12 +129,14 @@ export const TournamentCreator: React.FC<TournamentCreatorProps> = ({ onTourname
               {selectedFighterIds.length === 2 && "2 fighters = 1 match (Final)"}
               {selectedFighterIds.length === 4 && "4 fighters = 3 matches (2 Semi-Finals + 1 Final)"}
               {selectedFighterIds.length === 8 && "8 fighters = 7 matches (4 Quarter-Finals + 2 Semi-Finals + 1 Final)"}
+              {selectedFighterIds.length === 16 && "16 fighters = 15 matches (8 Round 1 + 4 Quarter-Finals + 2 Semi-Finals + 1 Final)"}
               {selectedFighterIds.length === 3 && "3 fighters = 3 matches (1 Semi-Final + 1 Final + 1 Bye)"}
               {selectedFighterIds.length === 5 && "5 fighters = 7 matches (3 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
               {selectedFighterIds.length === 6 && "6 fighters = 7 matches (3 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
               {selectedFighterIds.length === 7 && "7 fighters = 7 matches (4 Quarter-Finals + 2 Semi-Finals + 1 Final + 1 Bye)"}
+              {selectedFighterIds.length >= 9 && selectedFighterIds.length <= 15 && `${selectedFighterIds.length} fighters = ${selectedFighterIds.length - 1} matches (with byes)`}
             </div>
-            {![2, 4, 8].includes(selectedFighterIds.length) && (
+            {![2, 4, 8, 16].includes(selectedFighterIds.length) && (
               <div className="text-xs text-orange-300 mt-2">
                 ⚠️ Non-power-of-2: Some fighters will get byes (automatic advancement)
               </div>
