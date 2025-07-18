@@ -27,7 +27,57 @@
 - Warnings about invalid JSON files in tests (expected test scenarios)
 
 ### 🎯 Next Development Phase
-With all tests passing, the project is ready to proceed with the **4-week implementation plan** for enhanced narrative systems outlined below.
+With all tests passing, the project is ready to proceed with **Fighter Voting System and Database Migration** features.
+
+### 🚀 Upcoming Major Features (2025-01-27)
+
+#### Phase 1: Fighter Voting System (2-3 weeks)
+**Community-driven fighter popularity voting with slideshow interface**
+
+**Key Features:**
+- **Voting Slideshow**: 30-second voting sessions with fighter pairs
+- **Leaderboard Integration**: "Vote Fighter" button and popularity rankings
+- **Real-time Results**: Live voting statistics and popular fighters display
+- **Mobile Responsive**: Touch-friendly voting interface
+
+**Technical Implementation:**
+- Reuse existing slideshow infrastructure from `TournamentOverview.tsx`
+- JSON file storage for voting data (temporary, will migrate to database)
+- Session-based voting with anonymous voter IDs
+- Comprehensive TDD implementation with Jest tests
+
+#### Phase 2: Database Migration (3-4 weeks)
+**Transition from JSON files to SQLite database using Prisma ORM**
+
+**Key Benefits:**
+- **Performance**: Faster leaderboard generation and complex queries
+- **Scalability**: Better handling of large datasets and voting analytics
+- **Data Integrity**: ACID compliance for tournament and voting data
+- **Relationships**: Proper foreign key relationships between entities
+
+**Technical Implementation:**
+- SQLite database with Prisma ORM
+- Gradual migration with backward compatibility
+- Comprehensive data validation and integrity checks
+- Performance optimization with database indexes
+
+**Migration Strategy:**
+1. **Week 1**: Database setup and schema design
+2. **Week 2**: Data migration from JSON files
+3. **Week 3**: API migration with backward compatibility
+4. **Week 4**: Testing, optimization, and documentation
+
+### 📋 Implementation Plan
+- **Detailed Project Plan**: See `VOTING_AND_DATABASE_PLAN.md`
+- **Comprehensive Todo List**: See `VOTING_AND_DATABASE_TODO.md`
+- **TDD Compliance**: All features will follow strict test-driven development
+- **Documentation**: Complete API and database documentation updates
+
+### 🎯 Success Criteria
+- **Voting System**: Users can vote on fighters with 30-second slideshow
+- **Database Migration**: All existing functionality works with improved performance
+- **Integration**: Voting data stored in database for advanced analytics
+- **Backward Compatibility**: JSON files remain readable during transition
 
 ---
 
