@@ -12,18 +12,29 @@ function createVotingStore() {
     startTime: Date;
     endTime: Date;
   }) {
-    const round: VoteRound = {
-      id: `${id}-round-1`,
-      sessionId: id,
-      roundNumber: 1,
-      status: 'active',
-      startTime,
-      endTime,
-      fighters,
-      votes: [],
-      totalVotes: 0,
-      winner: null
-    };
+    // Create multiple rounds with pairs of fighters
+    const rounds: VoteRound[] = [];
+    const fightersPerRound = 2;
+    
+    for (let i = 0; i < fighters.length; i += fightersPerRound) {
+      const roundFighters = fighters.slice(i, i + fightersPerRound);
+      const roundNumber = Math.floor(i / fightersPerRound) + 1;
+      
+      const round: VoteRound = {
+        id: `${id}-round-${roundNumber}`,
+        sessionId: id,
+        roundNumber,
+        status: i === 0 ? 'active' : 'pending', // Only first round is active
+        startTime,
+        endTime,
+        fighters: roundFighters,
+        votes: [],
+        totalVotes: 0,
+        winner: null
+      };
+      rounds.push(round);
+    }
+    
     session = {
       id,
       title,
@@ -31,7 +42,7 @@ function createVotingStore() {
       status: 'active',
       startTime,
       endTime,
-      rounds: [round],
+      rounds,
       totalVotes: 0,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -39,23 +50,46 @@ function createVotingStore() {
     currentRoundIndex = 0;
   }
 
+  function restoreSession(savedSession: VoteSession) {
+    session = savedSession;
+    // Find the active round index
+    currentRoundIndex = session.rounds.findIndex(round => round.status === 'active');
+    if (currentRoundIndex === -1) {
+      // If no active round found, start with the first round
+      currentRoundIndex = 0;
+    }
+    console.log(`Restored session - active round: ${currentRoundIndex + 1}, fighters:`, session.rounds[currentRoundIndex]?.fighters.map(f => f.fighterId));
+  }
+
   function nextRound() {
-    if (!session) return;
-    const roundNumber = session.rounds.length + 1;
-    const newRound: VoteRound = {
-      id: `${session.id}-round-${roundNumber}`,
-      sessionId: session.id,
-      roundNumber,
-      status: 'active',
-      startTime: session.startTime,
-      endTime: session.endTime,
-      fighters: session.rounds[0].fighters,
-      votes: [],
-      totalVotes: 0,
-      winner: null
-    };
-    session.rounds.push(newRound);
-    currentRoundIndex = session.rounds.length - 1;
+    if (!session) return false;
+    
+    console.log(`Advancing from round ${currentRoundIndex + 1} to ${currentRoundIndex + 2}`);
+    console.log('Current round fighters:', session.rounds[currentRoundIndex]?.fighters.map(f => f.fighterId));
+    
+    // Mark current round as completed
+    if (session.rounds[currentRoundIndex]) {
+      session.rounds[currentRoundIndex].status = 'completed';
+    }
+    
+    // Move to next round
+    currentRoundIndex++;
+    
+    // Check if there are more rounds
+    if (currentRoundIndex < session.rounds.length) {
+      session.rounds[currentRoundIndex].status = 'active';
+      console.log('New round fighters:', session.rounds[currentRoundIndex].fighters.map(f => f.fighterId));
+      return true; // Successfully advanced
+    } else {
+      // All rounds completed
+      session.status = 'completed';
+      return false; // No more rounds
+    }
+  }
+
+  function hasNextRound() {
+    if (!session) return false;
+    return currentRoundIndex + 1 < session.rounds.length;
   }
 
   function vote(fighterId: string, voterId: string, ipAddress: string) {
@@ -114,7 +148,9 @@ function createVotingStore() {
 
   return {
     initSession,
+    restoreSession,
     nextRound,
+    hasNextRound,
     vote,
     getSession,
     getCurrentRound,

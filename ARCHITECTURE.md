@@ -5711,3 +5711,153 @@ Generate slogans and description that celebrate this fighter's journey and build
 5. **Fallbacks**: Graceful degradation when historical data is unavailable
 
 This architecture creates a living, breathing fighting game world where every battle contributes to an ongoing narrative, making each tournament feel like a chapter in an epic story.
+
+## Fighter Voting System (2025-01-27)
+
+### Overview
+The Fighter Voting System provides community-driven popularity voting with automatic data integration for LLM systems. Users vote on fighter pairs in 30-second slideshow sessions, and the voting data is automatically integrated into fighter files for enhanced commentary generation.
+
+### System Architecture
+
+#### Core Components
+1. **Voting Store** (`src/lib/stores/votingStore.ts`)
+   - Session management with multiple rounds
+   - Automatic round advancement
+   - Vote recording and validation
+   - Persistent storage via JSON files
+
+2. **Voting Integration Service** (`src/lib/services/votingIntegrationService.ts`)
+   - Calculates popularity scores and voting trends
+   - Integrates voting data into fighter JSON files
+   - Provides methods for LLM systems to access voting data
+   - Maintains voting history and statistics
+
+3. **API Endpoints**
+   - `POST /api/fighting-game/voting/session` - Create voting sessions
+   - `POST /api/fighting-game/voting/vote` - Record votes with automatic integration
+   - `GET /api/fighting-game/voting/integration` - LLM access to voting data
+   - `GET /api/fighting-game/voting/stats` - Voting statistics
+   - `GET /api/fighting-game/voting/history` - Voting history
+
+#### Data Flow
+```mermaid
+flowchart TD
+    A[User Votes] --> B[Vote API]
+    B --> C[Voting Store]
+    C --> D[Session Complete?]
+    D -->|Yes| E[Integration Service]
+    D -->|No| F[Next Round]
+    E --> G[Update Fighter Files]
+    G --> H[LLM Systems Access]
+    H --> I[Enhanced Commentary]
+```
+
+### Voting Data Structure
+
+#### Enhanced Fighter Data
+```typescript
+interface EnhancedFighterData {
+  id: string;
+  name: string;
+  image: string;
+  stats: FighterStats;
+  matchHistory?: MatchHistory[];
+  votingData?: FighterVotingData; // New field
+}
+
+interface FighterVotingData {
+  totalVotes: number;
+  totalWins: number;
+  totalLosses: number;
+  winRate: number;
+  popularityScore: number; // 0.0 to 1.0
+  votingHistory: VotingHistoryEntry[];
+  recentVotingTrend: 'rising' | 'falling' | 'stable';
+  crowdFavorite: boolean; // popularityScore > 0.7
+}
+```
+
+#### Popularity Score Calculation
+The popularity score uses a weighted formula:
+- **Vote Score (40%)**: Normalized total votes (capped at 100)
+- **Win Rate (30%)**: Success rate in voting rounds
+- **Consistency Bonus (20%)**: Bonus for multiple round participation
+- **Recent Performance (10%)**: Average performance in last 3 rounds
+
+### LLM Integration
+
+#### API Access for LLM Systems
+```typescript
+// Get all fighters with voting data
+const response = await fetch('/api/fighting-game/voting/integration?action=all-fighters');
+const { data: fighters } = await response.json();
+
+// Get specific fighter voting stats
+const response = await fetch('/api/fighting-game/voting/integration?action=fighter-stats&fighterId=fighter-1');
+const { data: votingData } = await response.json();
+
+// Get crowd favorites
+const response = await fetch('/api/fighting-game/voting/integration?action=crowd-favorites');
+const { data: crowdFavorites } = await response.json();
+```
+
+#### Enhanced Commentary Generation
+```typescript
+function generateVotingCommentary(fighter) {
+  const voting = fighter.votingData;
+  if (!voting) return "A mysterious fighter with no voting history";
+  
+  let commentary = "";
+  
+  if (voting.crowdFavorite) {
+    commentary += "The crowd's favorite fighter, ";
+  }
+  
+  if (voting.recentVotingTrend === 'rising') {
+    commentary += "whose popularity is soaring, ";
+  }
+  
+  commentary += `with ${voting.totalVotes} total votes and a ${(voting.winRate * 100).toFixed(0)}% win rate in voting rounds.`;
+  
+  return commentary;
+}
+```
+
+### Technical Implementation
+
+#### Session Management
+- **Multi-round sessions** with automatic advancement
+- **Persistent storage** using JSON files for production deployment
+- **Real-time updates** with automatic data integration
+- **Error handling** with graceful fallbacks
+
+#### Data Integration
+- **Automatic integration** when voting sessions complete
+- **Fighter file updates** with voting data preservation
+- **Backward compatibility** with existing fighter data
+- **Data validation** and integrity checks
+
+#### Performance Considerations
+- **Efficient file I/O** with batched updates
+- **Caching strategies** for frequently accessed data
+- **Memory management** for large voting datasets
+- **Scalable architecture** for growing fighter databases
+
+### Benefits
+
+1. **Community Engagement**: Users actively participate in fighter popularity
+2. **Enhanced Commentary**: LLM systems can reference voting data for richer narratives
+3. **Dynamic Rankings**: Fighter popularity affects tournament seeding and commentary
+4. **Data-Driven Insights**: Voting trends provide insights into community preferences
+5. **Seamless Integration**: Voting data automatically available to all LLM systems
+6. **Production Ready**: JSON-based storage works in both development and production
+
+### Future Enhancements
+
+1. **Real-time Updates**: WebSocket integration for live voting data
+2. **Advanced Analytics**: Machine learning-based popularity predictions
+3. **Cross-Session Analysis**: Long-term voting pattern analysis
+4. **Social Features**: Voting-based matchmaking and rivalries
+5. **Tournament Integration**: Voting data affects tournament brackets and seeding
+
+This voting system creates a dynamic, community-driven aspect to the fighting game while providing rich data for LLM systems to generate more engaging and contextual commentary.

@@ -203,6 +203,18 @@ export async function POST(req: NextRequest) {
     nextMatch.winner = winner;
     nextMatch.status = 'completed';
 
+    // Advance winner to next round
+    tournament.brackets = advanceFighterToNextRound(tournament.brackets, winner, nextMatch);
+
+    // Check if tournament is complete
+    if (isTournamentComplete(tournament)) {
+      tournament.status = 'completed';
+      tournament.winner = winner;
+    } else {
+      tournament.status = 'in_progress';
+      tournament.currentRound = nextMatch.round;
+    }
+
     // Save updated tournament
     await writeFile(tournamentPath, JSON.stringify(tournament, null, 2));
 

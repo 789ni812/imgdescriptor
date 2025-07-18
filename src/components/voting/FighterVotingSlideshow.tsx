@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/Button';
 interface FighterVotingSlideshowProps {
   sessionId: string;
   fighters: FighterVote[];
-  onVote: (fighterId: string) => Promise<void>;
+  onVote: (fighterId: string) => Promise<{ hasMoreRounds: boolean; nextRound?: any; sessionCompleted: boolean }>;
   onComplete: () => void;
   roundDuration?: number; // in seconds, default 30
   isActive?: boolean;
+  currentRound?: number;
+  totalRounds?: number;
 }
 
 export default function FighterVotingSlideshow({
@@ -20,12 +22,15 @@ export default function FighterVotingSlideshow({
   onVote,
   onComplete,
   roundDuration = 30,
-  isActive = true
+  isActive = true,
+  currentRound = 1,
+  totalRounds = 1
 }: FighterVotingSlideshowProps) {
   const [timeRemaining, setTimeRemaining] = useState(roundDuration);
   const [hasVoted, setHasVoted] = useState(false);
   const [isProcessingVote, setIsProcessingVote] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const hasCompleted = useRef(false);
 
@@ -37,7 +42,10 @@ export default function FighterVotingSlideshow({
       setTimeRemaining(prev => {
         if (prev <= 1) {
           hasCompleted.current = true;
-          onComplete();
+          // Use setTimeout to avoid calling onComplete during render
+          setTimeout(() => {
+            onComplete();
+          }, 0);
           return 0;
         }
         return prev - 1;
@@ -53,14 +61,31 @@ export default function FighterVotingSlideshow({
 
   // Handle vote submission
   const handleVote = async (fighterId: string) => {
-    if (hasVoted || isProcessingVote) return;
+    if (hasVoted || isProcessingVote || isAdvancing) return;
 
     setIsProcessingVote(true);
     setError(null);
 
     try {
-      await onVote(fighterId);
+      const result = await onVote(fighterId);
       setHasVoted(true);
+      
+      // If there are more rounds, show a brief success message then advance
+      if (result.hasMoreRounds) {
+        setIsAdvancing(true);
+        setTimeout(() => {
+          // Reset for next round
+          setHasVoted(false);
+          setTimeRemaining(roundDuration);
+          hasCompleted.current = false;
+          setIsAdvancing(false);
+        }, 2000); // Show success for 2 seconds
+      } else if (result.sessionCompleted) {
+        // Session completed, call onComplete after a delay
+        setTimeout(() => {
+          onComplete();
+        }, 2000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Vote failed');
     } finally {
@@ -95,7 +120,7 @@ export default function FighterVotingSlideshow({
         <div className="absolute top-8 left-8 right-8 z-20 flex justify-between items-center">
           <div className="text-white">
             <h1 className="text-2xl font-bold">Vote for Your Favorite Fighter</h1>
-            <p className="text-gray-300">Round 1</p>
+            <p className="text-gray-300">Round {currentRound} of {totalRounds}</p>
           </div>
           
           <div className="text-center">
@@ -126,6 +151,7 @@ export default function FighterVotingSlideshow({
                       src={fighter.imageUrl}
                       alt={fighter.name}
                       fill={true}
+                      sizes="(max-width: 768px) 50vw, 33vw"
                       className="object-cover"
                     />
                   ) : (
@@ -158,9 +184,9 @@ export default function FighterVotingSlideshow({
                 <div className="p-6">
                   <Button
                     onClick={() => handleVote(fighter.fighterId)}
-                    disabled={hasVoted || isProcessingVote}
+                    disabled={hasVoted || isProcessingVote || isAdvancing}
                     className={`w-full py-4 text-xl font-bold transition-all duration-300 ${
-                      hasVoted
+                      hasVoted || isAdvancing
                         ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                         : isProcessingVote
                         ? 'bg-blue-600 text-white animate-pulse'
@@ -186,6 +212,15 @@ export default function FighterVotingSlideshow({
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
             <div className="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg">
               <p className="text-lg font-bold">Error: {error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Advancing to Next Round Display */}
+        {isAdvancing && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
+            <div className="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg">
+              <p className="text-lg font-bold">Advancing to Next Round...</p>
             </div>
           </div>
         )}

@@ -43,18 +43,47 @@ describe('Voting Store', () => {
   });
 
   it('should advance to the next round', () => {
+    // Add more fighters to create multiple rounds
+    const moreFighters = [
+      ...fighters,
+      {
+        fighterId: 'fighter-3',
+        name: 'Bruce Lee',
+        imageUrl: '/fighters/brucelee.jpg',
+        description: 'A martial arts master',
+        stats: { health: 100, strength: 80, agility: 95, defense: 60, luck: 40 }
+      },
+      {
+        fighterId: 'fighter-4',
+        name: 'Chuck Norris',
+        imageUrl: '/fighters/chucknorris.jpg',
+        description: 'A legendary fighter',
+        stats: { health: 120, strength: 90, agility: 85, defense: 70, luck: 35 }
+      }
+    ];
+    
     store.initSession({
       id: 'session-1',
       title: 'Test Vote',
       description: 'Test voting session',
-      fighters,
+      fighters: moreFighters,
       startTime: new Date('2024-01-01T10:00:00Z'),
       endTime: new Date('2024-01-01T10:30:00Z')
     });
-    store.nextRound();
+    
+    // Should have 2 rounds with 4 fighters (2 per round)
     const session = store.getSession();
     expect(session?.rounds.length).toBe(2);
-    expect(session?.rounds[1].roundNumber).toBe(2);
+    
+    // Advance to next round
+    const hasNext = store.hasNextRound();
+    expect(hasNext).toBe(true);
+    
+    const advanced = store.nextRound();
+    expect(advanced).toBe(true);
+    
+    const currentRound = store.getCurrentRound();
+    expect(currentRound?.roundNumber).toBe(2);
   });
 
   it('should record a vote for a fighter', () => {

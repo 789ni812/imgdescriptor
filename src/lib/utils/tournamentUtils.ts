@@ -199,7 +199,9 @@ export function getTournamentProgress(tournament: Tournament) {
  */
 export function getNextPendingMatch(tournament: Tournament): TournamentMatch | undefined {
   for (const bracket of tournament.brackets) {
-    const pendingMatch = bracket.matches.find(match => match.status === 'pending');
+    const pendingMatch = bracket.matches.find(match => 
+      match.status === 'pending' && match.fighterA && match.fighterB
+    );
     if (pendingMatch) return pendingMatch;
   }
   return undefined;

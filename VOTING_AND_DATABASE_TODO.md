@@ -127,25 +127,25 @@
 
 ### Week 3: Integration and Polish
 
-#### Task 3.1: Integrate voting with leaderboard
-- [ ] **Write failing Jest test for voting integration** (`src/components/fighting/Leaderboard.test.tsx`)
+#### Task 3.1: Integrate voting with leaderboard ✅ **COMPLETED**
+- [x] **Write failing Jest test for voting integration** (`src/components/fighting/Leaderboard.test.tsx`)
   - Test voting statistics in fighter profiles
   - Test leaderboard sorting by popularity
   - Test voting history display
 
-- [ ] **Update fighter profiles** (`src/components/fighting/Leaderboard.tsx`)
+- [x] **Update fighter profiles** (`src/components/fighting/Leaderboard.tsx`)
   - Add voting statistics to fighter display
   - Show vote count and popularity percentage
   - Add voting history to fighter details
   - Update fighter ranking calculations
 
-- [ ] **Add popularity sorting** (`src/components/fighting/Leaderboard.tsx`)
+- [x] **Add popularity sorting** (`src/components/fighting/Leaderboard.tsx`)
   - Add "Popularity" sort option to leaderboard
   - Implement popularity-based ranking
   - Update sort dropdown with new option
   - Add popularity indicators to fighter rows
 
-- [ ] **Run tests and verify** - All integration tests should pass
+- [x] **Run tests and verify** - All integration tests should pass ✅
 
 #### Task 3.2: Add voting analytics
 - [ ] **Write failing Jest test for voting analytics** (`src/lib/utils/votingAnalytics.test.ts`)

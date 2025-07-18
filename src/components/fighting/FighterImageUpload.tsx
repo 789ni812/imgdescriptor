@@ -56,13 +56,19 @@ If this filename contains a famous person's name, prioritize identifying them in
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: base64Image, prompt: enhancedPrompt }),
           });
-          if (!res.ok) throw new Error('Analysis failed');
+          
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Analysis failed');
+          }
+          
           const analysis: Record<string, unknown> = await res.json();
           setAnalyzing(false);
           onUploadComplete({ url, analysis, file });
           setSelectedFile(null);
-        } catch {
-          setError('Failed to analyze image.');
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to analyze image.';
+          setError(errorMessage);
           setAnalyzing(false);
         }
       };

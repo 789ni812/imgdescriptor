@@ -29,6 +29,18 @@ export async function POST(request: Request) {
     const analysisResult = await analyzeImage(image, prompt);
 
     if (!analysisResult.success) {
+      // Check if it's a connection error (LM Studio not running)
+      if (analysisResult.error?.includes('ECONNREFUSED') || analysisResult.error?.includes('fetch failed')) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'LM Studio is not running. Please start LM Studio and ensure the local server is running on port 1234.',
+            details: analysisResult.error
+          },
+          { status: 503 } // Service Unavailable
+        );
+      }
+      
       return NextResponse.json(
         { success: false, error: analysisResult.error },
         { status: 500 }

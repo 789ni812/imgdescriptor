@@ -54,6 +54,8 @@ const Leaderboard: React.FC = () => {
   const [votingSession, setVotingSession] = useState<{
     sessionId: string;
     fighters: FighterVote[];
+    currentRound?: number;
+    totalRounds?: number;
   } | null>(null);
   const [votingLoading, setVotingLoading] = useState(false);
   const [votingError, setVotingError] = useState<string | null>(null);
@@ -220,11 +222,16 @@ const Leaderboard: React.FC = () => {
       const result = await response.json();
       
       if (result.success) {
-        setVotingSession({
-          sessionId: result.sessionId,
-          fighters: result.fighters
-        });
-        setShowVotingSlideshow(true);
+        // Add a small delay to ensure the session is fully created
+        setTimeout(() => {
+          setVotingSession({
+            sessionId: result.sessionId,
+            fighters: result.fighters,
+            currentRound: 1,
+            totalRounds: 3 // We'll have 3 rounds with 6 fighters total
+          });
+          setShowVotingSlideshow(true);
+        }, 100);
       } else {
         throw new Error(result.error || 'Failed to create voting session');
       }
@@ -243,17 +250,37 @@ const Leaderboard: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId: votingSession.sessionId,
           fighterId
         })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to submit vote');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to submit vote');
+      }
+      
+      const result = await response.json();
+      
+      // If there are more rounds, update the session with new fighters
+      if (result.hasMoreRounds && result.nextRound) {
+        console.log('Updating session for next round:', {
+          currentRound: result.nextRound.roundNumber,
+          newFighters: result.nextRound.fighters.map((f: any) => ({ fighterId: f.fighterId, name: f.name }))
+        });
+        setVotingSession({
+          sessionId: votingSession.sessionId,
+          fighters: result.nextRound.fighters,
+          currentRound: result.nextRound.roundNumber,
+          totalRounds: result.totalRounds || 3
+        });
       }
       
       // Vote submitted successfully
+      console.log('Vote submitted successfully for fighter:', fighterId);
+      
+      return result;
     } catch (err) {
+      console.error('Vote submission error:', err);
       throw err;
     }
   };
@@ -320,6 +347,8 @@ const Leaderboard: React.FC = () => {
         onComplete={handleVotingComplete}
         roundDuration={30}
         isActive={true}
+        currentRound={votingSession.currentRound || 1}
+        totalRounds={votingSession.totalRounds || 3}
       />
     );
   }
