@@ -218,7 +218,10 @@
 
 ---
 
-## Phase 2: Database Migration
+## Phase 2: Database Migration (Hybrid Approach)
+
+### Overview
+Implement hybrid database approach: SQLite for local development with LM Studio, JSON files for production deployment on Vercel.
 
 ### Week 1: Database Setup and Schema
 
@@ -240,9 +243,10 @@
   - Test client singleton pattern
 
 - [ ] **Configure SQLite database** (`prisma/schema.prisma`)
-  - Set up SQLite as database provider
-  - Configure database URL for development
+  - Set up SQLite as database provider for local development only
+  - Configure database URL for development environment
   - Add environment variable support
+  - Add database to `.gitignore` (local only)
 
 - [ ] **Run tests and verify** - Prisma configuration tests should pass
 
@@ -293,7 +297,7 @@
 
 - [ ] **Run tests and verify** - Database service tests should pass
 
-### Week 2: Data Migration
+### Week 2: Data Migration and Export System
 
 #### Task 2.1: Create migration scripts
 - [ ] **Write failing Jest test for migration** (`scripts/migrate-to-database.test.ts`)
@@ -367,7 +371,27 @@
 
 - [ ] **Run tests and verify** - Repository tests should pass
 
-### Week 3: API Migration
+#### Task 2.4: Create JSON export system
+- [ ] **Write failing Jest test for JSON export** (`scripts/export-to-json.test.ts`)
+  - Test database to JSON export functionality
+  - Test export validation
+  - Test production-ready file generation
+
+- [ ] **Create JSON export script** (`scripts/export-to-json.ts`)
+  - Export database content to JSON files
+  - Generate production-ready static files
+  - Add export validation and error handling
+  - Create export configuration
+
+- [ ] **Add export utilities** (`src/lib/database/export.ts`)
+  - Add fighter data export functions
+  - Add tournament data export functions
+  - Add voting data export functions
+  - Add export validation utilities
+
+- [ ] **Run tests and verify** - Export tests should pass
+
+### Week 3: API Migration and Environment Detection
 
 #### Task 3.1: Update fighter-related APIs
 - [ ] **Write failing Jest test for fighter API migration** (`src/app/api/fighting-game/list-fighters-metadata/route.test.ts`)
@@ -377,19 +401,19 @@
 
 - [ ] **Migrate fighter listing API** (`src/app/api/fighting-game/list-fighters-metadata/route.ts`)
   - Update to use FighterRepository
-  - Maintain backward compatibility
+  - Add environment-based data source selection
   - Add performance optimizations
   - Add error handling
 
 - [ ] **Migrate fighter save API** (`src/app/api/save-fighter-metadata/route.ts`)
   - Update to use FighterRepository
-  - Maintain JSON file backup
+  - Add environment-based data source selection
   - Add database transaction handling
   - Add validation
 
 - [ ] **Update fighter utilities** (`src/lib/utils/fighterUtils.ts`)
   - Update to use database queries
-  - Maintain JSON file fallback
+  - Add environment-based data source selection
   - Add performance optimizations
   - Add error handling
 
@@ -447,7 +471,27 @@
 
 - [ ] **Run tests and verify** - Voting API migration tests should pass
 
-### Week 4: Testing and Optimization
+#### Task 3.4: Create environment detection system
+- [ ] **Write failing Jest test for environment detection** (`src/lib/database/environment.test.ts`)
+  - Test environment-based data source selection
+  - Test fallback mechanisms
+  - Test production mode detection
+
+- [ ] **Create environment detection system** (`src/lib/database/environment.ts`)
+  - Add `NODE_ENV` based data source selection
+  - Implement fallback from database to JSON files
+  - Add production mode detection
+  - Create data source abstraction layer
+
+- [ ] **Add environment utilities** (`src/lib/database/environmentUtils.ts`)
+  - Add environment detection helpers
+  - Add data source selection utilities
+  - Add fallback mechanisms
+  - Add environment validation
+
+- [ ] **Run tests and verify** - Environment detection tests should pass
+
+### Week 4: Testing, Export, and Production Preparation
 
 #### Task 4.1: Comprehensive testing
 - [ ] **Write end-to-end tests** (`e2e/database-migration.spec.ts`)
@@ -474,50 +518,71 @@
   - Test concurrent access
   - Test memory usage
 
-#### Task 4.2: Backward compatibility
-- [ ] **Write compatibility tests** (`src/lib/database/compatibility.test.ts`)
-  - Test JSON file fallback functionality
-  - Test data consistency between formats
-  - Test graceful degradation
-  - Test migration rollback
+#### Task 4.2: Production export system
+- [ ] **Write export tests** (`src/lib/database/export.test.ts`)
+  - Test automated JSON export pipeline
+  - Test production-ready file generation
+  - Test export validation
+  - Test deployment scripts
 
-- [ ] **Implement graceful fallback**
-  - Add JSON file reading as fallback
-  - Implement dual-write capability
-  - Add data consistency checks
-  - Add migration rollback functionality
+- [ ] **Create automated export pipeline**
+  - Create automated JSON export process
+  - Generate production-ready static files
+  - Add export validation and testing
+  - Create deployment scripts
 
-- [ ] **Test data consistency**
-  - Compare JSON file data with database
-  - Validate all relationships
-  - Check for data corruption
-  - Generate consistency report
+- [ ] **Test export functionality**
+  - Test database to JSON export
+  - Validate exported file structure
+  - Test production deployment
+  - Generate export report
 
-- [ ] **Run tests and verify** - Compatibility tests should pass
+- [ ] **Run tests and verify** - Export tests should pass
 
-#### Task 4.3: Documentation and cleanup
+#### Task 4.3: Environment-specific testing
+- [ ] **Write environment tests** (`src/lib/database/environment.test.ts`)
+  - Test local development with database
+  - Test production mode with JSON files
+  - Test fallback mechanisms
+  - Test environment detection
+
+- [ ] **Test local development environment**
+  - Test database functionality in development
+  - Test LM Studio integration
+  - Test content generation workflow
+  - Test real-time updates
+
+- [ ] **Test production environment**
+  - Test JSON file reading in production
+  - Test static content serving
+  - Test read-only functionality
+  - Test deployment validation
+
+- [ ] **Run tests and verify** - Environment tests should pass
+
+#### Task 4.4: Documentation and deployment
 - [ ] **Update API documentation**
   - Update API endpoint documentation
-  - Add database schema documentation
-  - Add migration guide
+  - Add environment-based data source documentation
+  - Add local development guide
+  - Add production deployment guide
+
+- [ ] **Create local development guide** (`docs/local-development.md`)
+  - Add database setup instructions
+  - Add LM Studio integration guide
+  - Add content generation workflow
   - Add troubleshooting guide
 
-- [ ] **Create database maintenance guide** (`docs/database-maintenance.md`)
-  - Add database backup procedures
+- [ ] **Create production deployment guide** (`docs/production-deployment.md`)
+  - Add JSON export process
+  - Add Vercel deployment instructions
+  - Add static file optimization
   - Add performance monitoring
-  - Add troubleshooting guide
-  - Add optimization tips
-
-- [ ] **Remove deprecated code**
-  - Remove JSON file dependencies
-  - Clean up unused utilities
-  - Remove deprecated API endpoints
-  - Update import statements
 
 - [ ] **Update project documentation**
-  - Update `README.md` with database information
-  - Update `ARCHITECTURE.md` with database schema
-  - Update `spec.md` with migration status
+  - Update `README.md` with hybrid approach information
+  - Update `ARCHITECTURE.md` with environment-based architecture
+  - Update `spec.md` with deployment strategy
   - Update development setup instructions
 
 - [ ] **Run all tests and verify** - All tests should pass
@@ -535,20 +600,21 @@
 - [ ] Mobile-responsive design
 - [ ] Performance optimized for 100+ fighters
 
-### Database Migration
-- [ ] All existing functionality works with database
-- [ ] Performance improved for leaderboard queries
-- [ ] Data integrity maintained during migration
-- [ ] Backward compatibility preserved
-- [ ] All tests pass (TDD compliance)
-- [ ] Database queries optimized with indexes
-- [ ] Documentation updated
+### Database Migration (Hybrid Approach)
+- [ ] Local development uses database with LM Studio for content generation
+- [ ] Production deployment uses JSON files for read-only viewing
+- [ ] Automated export system generates production-ready static files
+- [ ] Environment detection automatically switches data sources
+- [ ] All tests pass in both local and production modes
+- [ ] Database queries optimized with indexes for local development
+- [ ] Production deployment has no database dependencies
+- [ ] Documentation updated for both development and deployment workflows
 
 ### Integration
-- [ ] Voting system integrated with database
-- [ ] Real-time voting statistics using database queries
-- [ ] Improved performance for voting results display
-- [ ] Seamless user experience during migration
+- [ ] Voting system works in both local and production environments
+- [ ] Real-time voting statistics in local development
+- [ ] Pre-generated voting results in production
+- [ ] Seamless user experience across environments
 - [ ] All features work together harmoniously
 
 This todo list provides a comprehensive breakdown of all tasks required to implement both features while maintaining code quality and following TDD principles. 

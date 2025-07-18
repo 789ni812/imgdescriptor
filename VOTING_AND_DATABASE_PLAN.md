@@ -152,7 +152,30 @@ Response: VotingSession | null
 ## Phase 2: Database Migration (3-4 weeks)
 
 ### Overview
-Migrate from JSON file storage to SQLite database using Prisma ORM. This will improve query performance, data integrity, and scalability while maintaining backward compatibility.
+Implement a hybrid database approach for local development while maintaining JSON file deployment for production. The database will be used locally with LM Studio for content generation, while production will use pre-generated JSON files for viewing only.
+
+### Architecture Strategy
+
+#### Local Development (Database + LM Studio)
+- **SQLite database** for all fighter, tournament, battle, and voting data
+- **LM Studio integration** for real-time content generation
+- **Full CRUD operations** for creating, updating, and managing content
+- **Voting system** with real-time analytics and session management
+
+#### Production Deployment (JSON Files + Pre-generated Content)
+- **Static JSON files** for all fighter metadata, tournaments, and battles
+- **Pre-generated content** for slideshows, commentary, and voting results
+- **Read-only experience** for users viewing completed content
+- **No database dependencies** for production deployment
+
+#### Data Flow
+```
+Local Development:
+LM Studio → Database → Content Generation → JSON Export
+
+Production Deployment:
+JSON Files → Static Content → User Viewing Experience
+```
 
 ### Technical Architecture
 
@@ -277,22 +300,25 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 - [ ] **Task 1.1: Install and configure Prisma**
   - Install Prisma dependencies: `npm install prisma @prisma/client`
   - Initialize Prisma: `npx prisma init`
-  - Configure SQLite database
+  - Configure SQLite database for local development only
   - Write Prisma configuration tests
+  - Add database to `.gitignore` (local only)
 
 - [ ] **Task 1.2: Design and implement database schema**
   - Create `prisma/schema.prisma` with all models
   - Define relationships and constraints
   - Add database indexes for performance
   - Write schema validation tests
+  - Add environment-based database selection
 
 - [ ] **Task 1.3: Create database service layer**
   - Create `src/lib/database/` directory
   - Implement Prisma client configuration
   - Create database utility functions
   - Write database connection tests
+  - Add environment detection for local vs production
 
-#### Week 2: Data Migration
+#### Week 2: Data Migration and Export System
 - [ ] **Task 2.1: Create migration scripts**
   - Create `scripts/migrate-to-database.ts`
   - Implement JSON file reading logic
@@ -312,72 +338,93 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
   - Implement BattleRepository
   - Write repository tests
 
-#### Week 3: API Migration
+- [ ] **Task 2.4: Create JSON export system**
+  - Create `scripts/export-to-json.ts`
+  - Export database content to JSON files
+  - Generate production-ready static files
+  - Add export validation and testing
+
+#### Week 3: API Migration and Environment Detection
 - [ ] **Task 3.1: Update fighter-related APIs**
   - Migrate `/api/fighting-game/list-fighters-metadata`
   - Migrate `/api/save-fighter-metadata`
   - Update fighter utility functions
-  - Maintain backward compatibility
+  - Add environment-based data source selection
   - Write API migration tests
 
 - [ ] **Task 3.2: Update tournament-related APIs**
   - Migrate `/api/tournaments/leaderboard`
   - Migrate tournament creation and execution
   - Update battle replay functionality
+  - Add environment-based data source selection
   - Write tournament API tests
 
 - [ ] **Task 3.3: Update voting APIs**
   - Migrate voting session management
   - Update vote submission and results
   - Implement voting analytics queries
+  - Add environment-based data source selection
   - Write voting API tests
 
-#### Week 4: Testing and Optimization
+- [ ] **Task 3.4: Create environment detection system**
+  - Add `NODE_ENV` based data source selection
+  - Implement fallback from database to JSON files
+  - Add production mode detection
+  - Create data source abstraction layer
+
+#### Week 4: Testing, Export, and Production Preparation
 - [ ] **Task 4.1: Comprehensive testing**
   - End-to-end testing of all features
   - Performance testing with large datasets
   - Database query optimization
   - Write performance tests
 
-- [ ] **Task 4.2: Backward compatibility**
-  - Ensure JSON files still work during transition
-  - Implement graceful fallback mechanisms
-  - Test data consistency between formats
-  - Write compatibility tests
+- [ ] **Task 4.2: Production export system**
+  - Create automated JSON export pipeline
+  - Generate production-ready static files
+  - Add export validation and testing
+  - Create deployment scripts
 
-- [ ] **Task 4.3: Documentation and cleanup**
+- [ ] **Task 4.3: Environment-specific testing**
+  - Test local development with database
+  - Test production mode with JSON files
+  - Test fallback mechanisms
+  - Write environment-specific tests
+
+- [ ] **Task 4.4: Documentation and deployment**
   - Update API documentation
-  - Create database maintenance guide
-  - Remove deprecated JSON file code
+  - Create local development guide
+  - Create production deployment guide
   - Update project documentation
 
 ### Success Criteria
-- [ ] All existing functionality works with database
-- [ ] Performance improved for leaderboard queries
-- [ ] Data integrity maintained during migration
-- [ ] Backward compatibility preserved
-- [ ] All tests pass (TDD compliance)
-- [ ] Database queries optimized with indexes
-- [ ] Documentation updated
+- [ ] Local development uses database with LM Studio for content generation
+- [ ] Production deployment uses JSON files for read-only viewing
+- [ ] Automated export system generates production-ready static files
+- [ ] Environment detection automatically switches data sources
+- [ ] All tests pass in both local and production modes
+- [ ] Database queries optimized with indexes for local development
+- [ ] Production deployment has no database dependencies
+- [ ] Documentation updated for both development and deployment workflows
 
 ---
 
 ## Integration Points
 
 ### Voting System + Database
-- Voting data stored in database for better analytics
-- Real-time voting statistics using database queries
-- Improved performance for voting results display
+- **Local Development**: Voting data stored in database for real-time analytics
+- **Production**: Pre-generated voting results stored in JSON files
+- **Export Process**: Voting data exported to JSON for production deployment
 
-### Backward Compatibility
-- JSON files remain readable during transition
-- Gradual migration allows for rollback if needed
-- API endpoints maintain same interface
+### Environment-Based Data Sources
+- **Local Development**: Database with LM Studio for content generation
+- **Production**: JSON files for read-only viewing experience
+- **Automatic Detection**: Environment-based data source selection
 
 ### Performance Benefits
-- Faster leaderboard generation with database queries
-- Better scalability for large datasets
-- Improved search and filtering capabilities
+- **Local Development**: Faster content generation and real-time updates
+- **Production**: Optimized static file serving with no database overhead
+- **Scalability**: Database for development complexity, JSON for production simplicity
 
 ## Risk Mitigation
 
@@ -388,21 +435,21 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 ### Database Migration Risks
 - **Data Loss**: Comprehensive backup and validation procedures
-- **Downtime**: Implement gradual migration with dual-write capability
-- **Performance**: Monitor query performance and optimize indexes
+- **Export Failures**: Automated export validation and testing
+- **Environment Conflicts**: Clear separation between local and production data sources
 
 ## Future Enhancements
 
 ### Post-Migration Features
-- **Advanced Analytics**: Complex voting trends and fighter popularity analysis
-- **User Accounts**: Persistent user profiles and voting history
+- **Advanced Analytics**: Complex voting trends and fighter popularity analysis (local development)
+- **Content Management**: Enhanced tools for managing and exporting content
 - **Tournament Seeding**: Use voting results to seed tournament brackets
 - **Social Features**: Share voting results and tournament outcomes
 
 ### Scalability Improvements
-- **Caching Layer**: Redis for frequently accessed data
-- **Read Replicas**: Separate read/write databases for high traffic
-- **Microservices**: Split into separate services for different features
+- **Local Development**: Database optimization for content generation
+- **Production**: Static file optimization and CDN integration
+- **Export Automation**: Streamlined content export for production deployment
 
 ---
 

@@ -47,25 +47,25 @@ With all tests passing, the project is ready to proceed with **Fighter Voting Sy
 - Comprehensive TDD implementation with Jest tests
 
 #### Phase 2: Database Migration (3-4 weeks)
-**Transition from JSON files to SQLite database using Prisma ORM**
+**Hybrid approach: SQLite for local development, JSON files for production deployment**
 
 **Key Benefits:**
-- **Performance**: Faster leaderboard generation and complex queries
-- **Scalability**: Better handling of large datasets and voting analytics
-- **Data Integrity**: ACID compliance for tournament and voting data
-- **Relationships**: Proper foreign key relationships between entities
+- **Local Development**: Database with LM Studio for real-time content generation
+- **Production Deployment**: JSON files for optimized static content serving
+- **Cost Effective**: No database costs in production, only local development
+- **Scalability**: Database complexity for development, JSON simplicity for production
 
 **Technical Implementation:**
-- SQLite database with Prisma ORM
-- Gradual migration with backward compatibility
+- SQLite database with Prisma ORM (local development only)
+- Environment-based data source selection
+- Automated JSON export for production deployment
 - Comprehensive data validation and integrity checks
-- Performance optimization with database indexes
 
 **Migration Strategy:**
-1. **Week 1**: Database setup and schema design
-2. **Week 2**: Data migration from JSON files
-3. **Week 3**: API migration with backward compatibility
-4. **Week 4**: Testing, optimization, and documentation
+1. **Week 1**: Database setup and schema design (local only)
+2. **Week 2**: Data migration and JSON export system
+3. **Week 3**: API migration with environment detection
+4. **Week 4**: Testing, export automation, and production preparation
 
 ### 📋 Implementation Plan
 - **Detailed Project Plan**: See `VOTING_AND_DATABASE_PLAN.md`
@@ -75,9 +75,9 @@ With all tests passing, the project is ready to proceed with **Fighter Voting Sy
 
 ### 🎯 Success Criteria
 - **Voting System**: Users can vote on fighters with 30-second slideshow
-- **Database Migration**: All existing functionality works with improved performance
-- **Integration**: Voting data stored in database for advanced analytics
-- **Backward Compatibility**: JSON files remain readable during transition
+- **Database Migration**: Local development uses database, production uses JSON files
+- **Integration**: Voting data exported to JSON for production deployment
+- **Environment Detection**: Automatic switching between database and JSON files
 
 ---
 
