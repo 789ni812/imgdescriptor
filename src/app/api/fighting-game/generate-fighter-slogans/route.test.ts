@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import { POST } from './route';
 
 // Mock the lmstudio-client module
@@ -11,6 +10,26 @@ import { generateFighterSlogans } from '@/lib/lmstudio-client';
 
 // Type assertion for the mocked function
 const mockedGenerateFighterSlogans = generateFighterSlogans as jest.MockedFunction<typeof generateFighterSlogans>;
+
+// Mock NextRequest and NextResponse
+const mockRequest = (body: any) => ({
+  json: jest.fn().mockResolvedValue(body)
+});
+
+const mockResponse = {
+  status: jest.fn().mockReturnThis(),
+  json: jest.fn().mockReturnThis()
+};
+
+// Mock NextResponse
+jest.mock('next/server', () => ({
+  NextResponse: {
+    json: jest.fn().mockImplementation((data, options) => ({
+      status: options?.status || 200,
+      json: jest.fn().mockResolvedValue(data)
+    }))
+  }
+}));
 
 describe('/api/fighting-game/generate-fighter-slogans', () => {
   beforeEach(() => {
@@ -48,12 +67,8 @@ describe('/api/fighting-game/generate-fighter-slogans', () => {
       imageDescription: 'A mighty warrior in battle armor'
     };
 
-    const request = new NextRequest('http://localhost:3000/api/fighting-game/generate-fighter-slogans', {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    });
-
-    const response = await POST(request);
+    const request = mockRequest(requestBody);
+    const response = await POST(request as any);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -95,12 +110,8 @@ describe('/api/fighting-game/generate-fighter-slogans', () => {
       imageDescription: 'A mighty warrior in battle armor'
     };
 
-    const request = new NextRequest('http://localhost:3000/api/fighting-game/generate-fighter-slogans', {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    });
-
-    const response = await POST(request);
+    const request = mockRequest(requestBody);
+    const response = await POST(request as any);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -119,12 +130,8 @@ describe('/api/fighting-game/generate-fighter-slogans', () => {
       // Missing fighterStats, visualAnalysis, imageDescription
     };
 
-    const request = new NextRequest('http://localhost:3000/api/fighting-game/generate-fighter-slogans', {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    });
-
-    const response = await POST(request);
+    const request = mockRequest(requestBody);
+    const response = await POST(request as any);
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -147,12 +154,8 @@ describe('/api/fighting-game/generate-fighter-slogans', () => {
       imageDescription: 'A mighty warrior in battle armor'
     };
 
-    const request = new NextRequest('http://localhost:3000/api/fighting-game/generate-fighter-slogans', {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    });
-
-    const response = await POST(request);
+    const request = mockRequest(requestBody);
+    const response = await POST(request as any);
     const data = await response.json();
 
     expect(response.status).toBe(400);
